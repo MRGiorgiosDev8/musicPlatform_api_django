@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}MovieFinderApp{% endblock %}</title>
+    <title>{% block title %}#####{% endblock %}</title>
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -18,7 +18,7 @@
             aria-label="Social media navigation">
             <div class="container">
                 <a class="d-flex logo-font align-items-center navbar-brand">
-                    <img src="{% static 'images/logocinema1.png' %}" alt="Logo">
+                    <img src="{% static 'images/' %}" alt="Logo">
                     <span class="logo-text">####</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -34,22 +34,21 @@
         {% endblock %}
     </main>
 
-    <footer class="custom-footer  text-center py-2 py-sm-0">
-        <nav class="nav justify-content-center mt-1" aria-label="Social media navigation">
-            <a class="nav-link px-2  p-1" href="https://github.com/MRGiorgiosDev8" target="_blank" title="GitHub"
-                aria-label="GitHub">
-                <i class="fab fa-github github-icon"></i>
-            </a>
-            <a class="nav-link px-2  p-1" href="https://t.me/mrgiorgio8" target="_blank" title="Telegram"
-                aria-label="Telegram">
-                <i class="fab fa-telegram telegram-icon"></i>
-            </a>
-            <a class="nav-link px-2 p-1" href="mailto:gerorge.oblivantsev8@gmail.com" target="_blank" title="Gmail"
-                aria-label="Gmail">
-                <i class="fas fa-envelope gmail-icon"></i>
-            </a>
-        </nav>
-        <p class="m-0 ms-2 mb-1">#####</p>
+    <footer class="footer-nav bg-light text-center text-lg-start py-2 mt-auto">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="brand-span text-muted">####</span>
+            <nav class="link-footer nav">
+                <a class="nav-link" href="https://github.com/MRGiorgiosDev8" target="_blank" title="GitHub">
+                    <i class="fab fa-github github-icon"></i>
+                </a>
+                <a class="nav-link" href="https://t.me/mrgiorgio8" target="_blank" title="Telegram">
+                    <i class="fab fa-telegram telegram-icon"></i>
+                </a>
+                <a class="nav-link" href="mailto:gerorge.oblivantsev8@gmail.com" target="_blank" title="Gmail">
+                    <i class="fas fa-envelope gmail-icon"></i>
+                </a>
+            </nav>
+        </div>
     </footer>
 
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
