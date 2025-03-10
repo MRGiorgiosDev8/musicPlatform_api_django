@@ -1,0 +1,31 @@
+.custom-navbar {
+    background-color: #000000;
+    padding-top: 0.1vh;
+}
+
+.footer-nav {
+    background-color: #000000;
+}
+
+.logo-font {
+    margin-left: -4.8vh;
+}
+
+.logo-text {
+    color: #d22d2d;
+    /* -webkit-text-stroke: 0.1px white; */
+    font-size: 1.4em;
+    margin-top: 2.1vh;
+}
+
+.brand-span {
+    color: white;
+    opacity: 0.83;
+    font-size: 1.1em;
+}
+
+.logo-font img {
+    width: 70px;
+    height: 70px;
+    margin-right: 0.4vh;
+}
