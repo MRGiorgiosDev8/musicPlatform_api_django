@@ -34,11 +34,11 @@
 
 .nav-link {
     font-size: 1.3em;
-    color: #e83232;
+    color: #e13737ec;
     transition: ease-in-out 0.4s all;
 }
 
 .nav-link:hover {
-    color: #ff3636;
+    color: #f43232;
     scale: 1.2;
 }
