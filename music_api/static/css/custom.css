@@ -1,6 +1,7 @@
 .custom-navbar {
     background-color: #000000;
     padding-top: 0.1vh;
+    padding-bottom: 0.3vh;
 }
 
 .footer-nav {
@@ -12,10 +13,10 @@
 }
 
 .logo-text {
-    color: #d22d2d;
-    /* -webkit-text-stroke: 0.1px white; */
+    color: #e83232;
+    -webkit-text-stroke: 0.1px whitesmoke;
     font-size: 1.4em;
-    margin-top: 2.1vh;
+    margin-top: 1vh;
 }
 
 .brand-span {
@@ -25,7 +26,19 @@
 }
 
 .logo-font img {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
+    filter: brightness(1.1);
     margin-right: 0.4vh;
+}
+
+.nav-link {
+    font-size: 1.3em;
+    color: #e83232;
+    transition: ease-in-out 0.4s all;
+}
+
+.nav-link:hover {
+    color: #ff3636;
+    scale: 1.2;
 }
