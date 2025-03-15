@@ -13,7 +13,7 @@
 }
 
 .logo-text {
-    color: #e83232;
+    color: #dc3030;
     -webkit-text-stroke: 0.1px whitesmoke;
     font-size: 1.4em;
     margin-top: 1vh;
@@ -28,7 +28,7 @@
 .logo-font img {
     width: 60px;
     height: 60px;
-    filter: brightness(1.1);
+    filter: brightness(1.04);
     margin-right: 0.4vh;
 }
 
@@ -39,6 +39,6 @@
 }
 
 .nav-link:hover {
-    color: #f43232;
+    color: #ff3737;
     scale: 1.2;
 }
