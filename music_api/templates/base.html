@@ -14,8 +14,7 @@
 
 <body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top"
-            aria-label="Social media navigation">
+        <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top">
             <div class="container">
                 <a class="d-flex logo-font align-items-center navbar-brand">
                     <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo">
@@ -28,9 +27,9 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <form class="d-flex ms-auto" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-danger" type="submit">Search</button>
+                    <form class="d-flex ms-auto form-search" role="search">
+                        <input class="form-control me-2 input-search" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn custom-button" type="submit">Search</button>
                     </form>
                 </div>
             </div>

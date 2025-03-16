@@ -42,3 +42,29 @@
     color: #ff3737;
     scale: 1.2;
 }
+
+.custom-button {
+    color: #ff3737;
+    padding: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border: 1px solid #ff3737;
+}
+
+.custom-button:hover {
+    background-color: #ff3737;
+    color: white;
+}
+
+.input-search {
+    padding: 3px;
+}
+
+.input-search:focus {
+    border-color: #ff3737; 
+    box-shadow: 0 0 5px #ff3737; 
+}
+
+.form-search {
+    margin-top: 1vh;
+}
