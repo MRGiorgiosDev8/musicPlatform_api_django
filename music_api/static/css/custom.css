@@ -44,15 +44,15 @@
 }
 
 .custom-button {
-    color: #ff3737;
+    color: #dc3030;
     padding: 3px;
     padding-left: 8px;
     padding-right: 8px;
-    border: 1px solid #ff3737;
+    border: 1px solid #dc3030
 }
 
 .custom-button:hover {
-    background-color: #ff3737;
+    background-color: #dc3030;
     color: white;
 }
 
@@ -61,8 +61,8 @@
 }
 
 .input-search:focus {
-    border-color: #ff3737; 
-    box-shadow: 0 0 5px #ff3737; 
+    border-color: #dc3030; 
+    box-shadow: 0 0 5px #dc3030; 
 }
 
 .form-search {
