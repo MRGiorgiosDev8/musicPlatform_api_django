@@ -14,7 +14,7 @@
 
 .logo-text {
     color: #dc3030;
-    -webkit-text-stroke: 0.1px whitesmoke;
+    /* -webkit-text-stroke: 0.1px whitesmoke; */
     font-size: 1.4em;
     margin-top: 1vh;
 }
@@ -28,7 +28,7 @@
 .logo-font img {
     width: 60px;
     height: 60px;
-    filter: brightness(1.04);
+    filter: brightness(0.93);
     margin-right: 0.4vh;
 }
 
@@ -40,20 +40,21 @@
 
 .nav-link:hover {
     color: #ff3737;
-    scale: 1.2;
+    scale: 1.3;
 }
 
 .custom-button {
-    color: #dc3030;
+    color: rgba(245, 245, 245, 0.906);
     padding: 3px;
     padding-left: 8px;
     padding-right: 8px;
-    border: 1px solid #dc3030
+    border: 1px solid #dc3030;
 }
 
 .custom-button:hover {
+    color: rgba(245, 245, 245, 0.906);
+    border-color: #dc3030;
     background-color: #dc3030;
-    color: white;
 }
 
 .input-search {
@@ -61,8 +62,8 @@
 }
 
 .input-search:focus {
-    border-color: #dc3030; 
-    box-shadow: 0 0 5px #dc3030; 
+    border-color: #d52e2e; 
+    box-shadow: 0 0 5px #ee3333; 
 }
 
 .form-search {
