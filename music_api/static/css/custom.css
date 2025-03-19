@@ -14,7 +14,7 @@
 
 .logo-text {
     color: #dc3030;
-    /* -webkit-text-stroke: 0.1px whitesmoke; */
+    -webkit-text-stroke: 0.1px whitesmoke;
     font-size: 1.4em;
     margin-top: 1vh;
 }
@@ -22,12 +22,12 @@
 .brand-span {
     color: white;
     opacity: 0.83;
-    font-size: 1.1em;
+    font-size: 1em;
 }
 
 .logo-font img {
-    width: 60px;
-    height: 60px;
+    width: 66px;
+    height: 66px;
     filter: brightness(0.93);
     margin-right: 0.4vh;
 }
