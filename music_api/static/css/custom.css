@@ -13,16 +13,21 @@
 }
 
 .logo-text {
-    color: #dc3030;
+    color: #dc3030e6;
     -webkit-text-stroke: 0.1px whitesmoke;
     font-size: 1.4em;
     margin-top: 1vh;
+    font-family: "Archivo Black", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: 1px;
 }
 
 .brand-span {
     color: white;
     opacity: 0.83;
     font-size: 1em;
+    letter-spacing: 1px;
 }
 
 .logo-font img {
@@ -55,6 +60,7 @@
     color: rgba(245, 245, 245, 0.906);
     border-color: #dc3030;
     background-color: #dc3030;
+    text-shadow: 1px 1px 2px rgb(98, 98, 98), 0 0 1em rgb(255, 255, 255);
 }
 
 .input-search {
@@ -62,8 +68,8 @@
 }
 
 .input-search:focus {
-    border-color: #d52e2e; 
-    box-shadow: 0 0 5px #ee3333; 
+    border-color: #d52e2e;
+    box-shadow: 0 0 5px #ee3333;
 }
 
 .form-search {

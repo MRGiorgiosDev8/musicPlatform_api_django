@@ -6,9 +6,12 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}RubySound.fm{% endblock %}</title>
+    <title>{% block title %}RubySound.fm ♬{% endblock %}</title>
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -45,7 +48,7 @@
     <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="brand-span">
-                <span style="color: #dc3030;" class="copyright">&copy;</span>RubySound.fm
+                <span style="color: #dc3030;" class="copyright">&copy;</span> RubySound.fm <span style="color: #dc3030;">♬</span>
             </span>
             <nav class="link-footer nav">
                 <a class="nav-link" href="https://github.com/MRGiorgiosDev8" target="_blank" title="GitHub">
