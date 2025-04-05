@@ -38,6 +38,6 @@ class TrackSearchAPIView(APIView):
 
         except requests.exceptions.RequestException as e:
             return Response(
-                {"error": "Failed to fetch data from Last.fm"},
+                {"error": "Не удалось получить данные с Last.fm"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )

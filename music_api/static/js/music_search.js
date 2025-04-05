@@ -37,6 +37,14 @@ const setupMusicSearch = () => {
         loadingElement.style.display = 'block';
         resultsContainer.appendChild(loadingElement);
 
+        const cachedResults = localStorage.getItem(`music_search_${query}`);
+        if (cachedResults) {
+            const data = JSON.parse(cachedResults);
+            displayResults(data);
+            loadingElement.style.display = 'none';
+            return;
+        }
+
         try {
             const response = await fetch(`/music_api/search/?q=${encodeURIComponent(query)}`);
 
@@ -45,27 +53,9 @@ const setupMusicSearch = () => {
             }
 
             const data = await response.json();
+            localStorage.setItem(`music_search_${query}`, JSON.stringify(data));
 
-            if (data.length > 0) {
-                let html = data.map(track => `
-                    <div class="track-item">
-                        <h5 class="track-title">${escapeHtml(track.name)}</h5>
-                        <p class="track-artist">Исполнитель: ${escapeHtml(track.artist)}</p>
-                        <p class="track-listeners">Слушателей: ${track.listeners}</p>
-                        <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-external-link-alt"></i> Подробнее
-                        </a>
-                    </div>
-                `).join('');
-
-                resultsContainer.innerHTML = html;
-            } else {
-                resultsContainer.innerHTML = `
-                    <div class="alert alert-dark">
-                        <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(query)}" ничего не найдено
-                    </div>
-                `;
-            }
+            displayResults(data);
         } catch (error) {
             console.error('Ошибка поиска:', error);
             resultsContainer.innerHTML = `
@@ -77,6 +67,29 @@ const setupMusicSearch = () => {
             loadingElement.style.display = 'none';
         }
     });
+
+    const displayResults = (data) => {
+        if (data.length > 0) {
+            let html = data.map(track => `
+                <div class="track-item">
+                    <h5 class="track-title">${escapeHtml(track.name)}</h5>
+                    <p class="track-artist">Исполнитель: ${escapeHtml(track.artist)}</p>
+                    <p class="track-listeners">Слушателей: ${track.listeners}</p>
+                    <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Подробнее</span>
+                    </a>
+                </div>
+            `).join('');
+
+            resultsContainer.innerHTML = html;
+        } else {
+            resultsContainer.innerHTML = `
+                <div class="alert alert-dark">
+                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(query)}" ничего не найдено
+                </div>
+            `;
+        }
+    };
 };
 
 document.addEventListener('DOMContentLoaded', setupMusicSearch);
