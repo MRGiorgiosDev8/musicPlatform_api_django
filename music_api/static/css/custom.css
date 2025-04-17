@@ -122,3 +122,7 @@
     padding: 20px;
     font-size: 1.1rem;
 }
+
+.track-item .track-listeners {
+    color: rgb(215, 215, 215);
+}
