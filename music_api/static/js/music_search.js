@@ -70,6 +70,13 @@ const setupMusicSearch = () => {
 
     const displayResults = (data) => {
         if (data.length > 0) {
+            
+            const resultsHeader = document.createElement('h2');
+            resultsHeader.textContent = 'Results';
+            
+            resultsContainer.innerHTML = '';
+            resultsContainer.appendChild(resultsHeader);
+
             let html = data.map(track => `
                 <div class="track-item">
                     <h5 class="track-title">${escapeHtml(track.name)}</h5>
@@ -81,15 +88,19 @@ const setupMusicSearch = () => {
                 </div>
             `).join('');
 
-            resultsContainer.innerHTML = html;
+            resultsContainer.insertAdjacentHTML('beforeend', html);
+            
         } else {
-            resultsContainer.innerHTML = `
+            resultsContainer.innerHTML += `
                 <div class="alert alert-dark">
-                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(query)}" ничего не найдено
+                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(searchInput.value.trim())}" ничего не найдено
                 </div>
             `;
-        }
-    };
+            
+           const noResult = '<h2>Results</h2>';
+           resultsContainer.insertAdjacentHTML('afterbegin', noResult);
+       }
+   };
 };
 
 document.addEventListener('DOMContentLoaded', setupMusicSearch);

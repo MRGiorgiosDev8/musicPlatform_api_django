@@ -11,7 +11,9 @@
     border-radius: 20px;
 }
 
-.custom-navbar, .footer-nav, .track-item {
+.custom-navbar,
+.footer-nav,
+.track-item {
     border: 11px solid rgb(229, 229, 229);
     box-shadow: 0px 0px 11px rgb(104, 104, 104);
 }
@@ -73,6 +75,8 @@
 
 .input-search {
     padding: 3px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 400;
 }
 
 .input-search:focus {
@@ -83,6 +87,47 @@
 .form-search {
     margin-top: 1vh;
 }
+
+.form-control::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .form-control::-moz-search-cancel-button {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .form-control::-ms-clear {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
+  }
+
+  h2 {
+    text-align: center;
+    color: rgb(36, 36, 36);
+    margin-top: 3vh;
+    margin-bottom: 3vh;
+    font-family: "Play", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 3em;
+    border-bottom: 2.1px solid #ff4137;
+    border-radius: 2.6px;
+  }
 
 /* Стили для поиска музыки */
 .search-container {
