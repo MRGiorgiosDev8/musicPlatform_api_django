@@ -23,7 +23,7 @@ const setupMusicSearch = () => {
 
     const loadingElement = document.createElement('div');
     loadingElement.className = 'search-loading';
-    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Поиск музыки...';
+    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Search for music...';
     loadingElement.style.display = 'none';
     resultsContainer.appendChild(loadingElement);
 
@@ -60,7 +60,7 @@ const setupMusicSearch = () => {
             console.error('Ошибка поиска:', error);
             resultsContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> Ошибка при поиске музыки
+                    <i class="fas fa-exclamation-triangle"></i> Error when searching for music
                 </div>
             `;
         } finally {
