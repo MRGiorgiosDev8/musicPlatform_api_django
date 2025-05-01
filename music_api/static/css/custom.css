@@ -1,7 +1,7 @@
-body {
-    border-left: 20px solid rgba(0, 0, 0, 0.926);
-    border-right: 20px solid rgba(0, 0, 0, 0.926);
-    border-radius: 30%;
+main {
+    border-left: 11px solid rgba(0, 0, 0, 0.926);
+    border-right: 11px solid rgba(0, 0, 0, 0.926);
+    border-radius: 11%;
     box-shadow: 0px 0px 11px rgb(104, 104, 104);
 }
 
@@ -47,8 +47,8 @@ body {
 }
 
 .logo-font img {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     filter: brightness(0.93);
     margin-right: 0.4vh;
 }
