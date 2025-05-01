@@ -12,6 +12,7 @@ main {
     border-right: 11px solid rgba(0, 0, 0, 0.926);
     border-radius: 11%;
     box-shadow: 0px 0px 40px rgb(104, 104, 104);
+    zoom: 0.96;
 }
 
 .custom-navbar {
