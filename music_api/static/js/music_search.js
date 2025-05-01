@@ -79,6 +79,7 @@ const setupMusicSearch = () => {
 
             let html = data.map(track => `
                 <div class="track-item">
+                    <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
                     <h5 class="track-title">${escapeHtml(track.name)}</h5>
                     <p class="track-artist">Исполнитель: ${escapeHtml(track.artist)}</p>
                     <p class="track-listeners">Слушателей: ${track.listeners}</p>
