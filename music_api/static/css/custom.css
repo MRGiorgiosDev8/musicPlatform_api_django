@@ -1,3 +1,10 @@
+body {
+    border-left: 20px solid rgba(0, 0, 0, 0.926);
+    border-right: 20px solid rgba(0, 0, 0, 0.926);
+    border-radius: 30%;
+    box-shadow: 0px 0px 11px rgb(104, 104, 104);
+}
+
 .custom-navbar {
     background-color: #000000;
     padding-top: 0.1vh;
