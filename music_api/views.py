@@ -33,7 +33,7 @@ class TrackSearchAPIView(APIView):
                     'artist': track['artist'],
                     'listeners': track['listeners'],
                     'url': track['url'],
-                    'image_url': cover_url or '',
+                    'image_url': cover_url or '/static/images/default.svg',
                     'mbid': track.get('mbid', '')
                 }
                 enriched_tracks.append(enriched_track)
@@ -82,5 +82,6 @@ class TrackSearchAPIView(APIView):
                 return data['data'][0]['album']['cover_xl'] or \
                     data['data'][0]['album']['cover_big'] or \
                     data['data'][0]['album']['cover_medium']
+            return None
         except:
             return None
