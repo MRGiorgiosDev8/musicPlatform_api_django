@@ -116,7 +116,7 @@
 
   h2 {
     text-align: center;
-    color: rgb(36, 36, 36);
+    color: #bf413b;
     margin-top: 3vh;
     margin-bottom: 3vh;
     font-family: "Play", sans-serif;
@@ -125,11 +125,11 @@
     font-weight: bold;
     font-size: 3em;
     border-radius: 20px;
-    background-color: whitesmoke;
+    background-color: rgba(0, 0, 0, 0.932);
     border-left: 2.1px solid #ff4137;
     border-right: 2.1px solid #ff4137;
-    border-top: 0.7px solid black;
-    border-bottom: 0.7px solid black;
+    border-top: 8px solid whitesmoke;
+    border-bottom: 8px solid white;
     box-shadow: 0px 0px 3px rgb(104, 104, 104);
     padding: 7px;
   }
