@@ -1,3 +1,12 @@
+body {
+    background-image: url('../images/backgroundai.png');
+    background-size: auto;
+    /* background-size: cover; */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
 main {
     border-left: 11px solid rgba(0, 0, 0, 0.926);
     border-right: 11px solid rgba(0, 0, 0, 0.926);
@@ -47,8 +56,8 @@ main {
 }
 
 .logo-font img {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     filter: brightness(0.93);
     margin-right: 0.4vh;
 }
