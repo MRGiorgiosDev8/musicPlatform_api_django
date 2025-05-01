@@ -146,9 +146,13 @@ main {
     border-left: 2.1px solid rgba(255, 65, 55, 0.75);
     border-right: 2.1px solid rgba(255, 65, 55, 0.75);
     border-top: 8px solid whitesmoke;
-    border-bottom: 8px solid white;
+    border-bottom: 8px solid whitesmoke;
     box-shadow: 0px 0px 3px rgb(104, 104, 104);
-    padding: 7px;
+    padding: 4px;
+  }
+
+  h2, .track-item {
+    box-shadow: 0px 0px 11px rgb(18, 18, 18);
   }
 
 /* Стили для поиска музыки */
@@ -173,7 +177,7 @@ main {
 .track-item:hover {
     background-color: #141414;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 11px rgb(104, 104, 104);
 }
 
 .track-title {

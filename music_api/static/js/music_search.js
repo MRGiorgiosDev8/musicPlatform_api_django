@@ -23,7 +23,7 @@ const setupMusicSearch = () => {
 
     const loadingElement = document.createElement('div');
     loadingElement.className = 'search-loading';
-    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Search for music...';
+    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin "></i> Search for music...';
     loadingElement.style.display = 'none';
     resultsContainer.appendChild(loadingElement);
 
