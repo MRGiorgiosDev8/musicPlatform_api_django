@@ -81,7 +81,7 @@ const setupMusicSearch = () => {
                 <div class="track-item">
                     <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
                     <h5 class="track-title">${escapeHtml(track.name)}</h5>
-                    <p class="track-artist"><span style="color: whitesmoke; border-bottom: 0.4px solidrgba(184, 60, 53, 0.69); border-radius: 3px; box-shadow: inset 0 -3px 3px rgba(255, 0, 0, 0.69); padding-bottom: 4px;">Исполнитель: ${escapeHtml(track.artist)}</p></span>
+                    <p class="track-artist"><span style="color: whitesmoke; border-bottom: 0.4px solidrgba(184, 60, 53, 0.69); border-radius: 3px; box-shadow: inset 0 -2px 2px rgba(255, 65, 55, 0.75); padding-bottom: 4px;">Исполнитель: ${escapeHtml(track.artist)}</p></span>
                     <p class="track-listeners">Слушателей: ${track.listeners}</p>
                     <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
                         <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Подробнее</span>
