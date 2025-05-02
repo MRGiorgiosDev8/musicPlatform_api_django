@@ -229,8 +229,8 @@ h2,
 }
 
 .arrow-track {
-    width: 140px;
-    height: 140px;
+    width: 130px;
+    height: 130px;
     margin-left: -22vh;
     opacity: 0;
 }
@@ -245,4 +245,8 @@ h2,
 
 .alert-danger, .alert-dark {
     margin-top: 7vh;
+}
+
+.btn-show-more {
+    scale: 1.2;
 }
