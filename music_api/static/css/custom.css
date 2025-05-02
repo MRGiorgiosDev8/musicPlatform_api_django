@@ -5,7 +5,7 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-  }
+}
 
 main {
     border-left: 11px solid rgba(0, 0, 0, 0.926);
@@ -113,25 +113,25 @@ main {
     background-size: 16px 16px;
     border: none;
     cursor: pointer;
-  }
-  
-  .form-control::-moz-search-cancel-button {
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .form-control::-ms-clear {
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-    border: none;
-    cursor: pointer;
-  }
+}
 
-  h2 {
+.form-control::-moz-search-cancel-button {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.form-control::-ms-clear {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm0 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'/%3E%3C/svg%3E");
+    background-size: 16px 16px;
+    border: none;
+    cursor: pointer;
+}
+
+h2 {
     text-align: center;
     color: #dc3030e6;
     margin-top: 3vh;
@@ -149,11 +149,12 @@ main {
     border-bottom: 8px solid whitesmoke;
     box-shadow: 0px 0px 3px rgb(104, 104, 104);
     padding: 4px;
-  }
+}
 
-  h2, .track-item {
+h2,
+.track-item {
     box-shadow: 0px 0px 11px rgb(18, 18, 18);
-  }
+}
 
 /* Стили для поиска музыки */
 .search-container {
@@ -173,11 +174,19 @@ main {
     transition: all 0.3s ease;
     cursor: pointer;
     opacity: 0;
-    transform: translateX(-100px);
-    visibility: hidden; 
-    will-change: transform, opacity; 
-    transition: visibility 0.01s; 
+    transform: translateY(-100px);
+    visibility: hidden;
+    will-change: transform, opacity;
+    margin-bottom: 15px;
 }
+
+#searchResults h2 {
+    transform: translateY(-100px);
+    opacity: 0;
+    will-change: transform, opacity;
+    margin: 20px 0;
+    transition: none; 
+  }
 
 .track-item:hover {
     background-color: #141414;
