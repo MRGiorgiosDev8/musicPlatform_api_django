@@ -23,7 +23,7 @@ const setupMusicSearch = () => {
 
     const loadingElement = document.createElement('div');
     loadingElement.className = 'search-loading';
-    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Идет поиск музыки...';
+    loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> music search...';
     loadingElement.style.display = 'none';
     resultsContainer.appendChild(loadingElement);
 
@@ -40,7 +40,7 @@ const setupMusicSearch = () => {
 
         const loadMoreButton = document.createElement('button');
         loadMoreButton.className = 'btn btn-sm btn-outline-danger';
-        loadMoreButton.innerHTML = 'Показать еще <i class="fas fa-chevron-down"></i>';
+        loadMoreButton.innerHTML = 'Show More <i class="fas fa-chevron-down"></i>';
         loadMoreButton.disabled = currentPage >= totalPages;
         loadMoreButton.addEventListener('click', () => {
             currentPage++;
@@ -59,7 +59,7 @@ const setupMusicSearch = () => {
         if (allTracks.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="alert alert-dark">
-                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(searchInput.value.trim())}" ничего не найдено
+                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(searchInput.value.trim())}" nothing found
                 </div>
             `;
             return;
@@ -67,7 +67,7 @@ const setupMusicSearch = () => {
 
         if (currentPage === 1) {
             const resultsHeader = document.createElement('h2');
-            resultsHeader.textContent = 'Результаты поиска';
+            resultsHeader.textContent = 'Results';
             resultsContainer.appendChild(resultsHeader);
         }
 
@@ -127,7 +127,7 @@ const setupMusicSearch = () => {
             const response = await fetch(`/music_api/search/?q=${encodeURIComponent(query)}`);
 
             if (!response.ok) {
-                throw new Error('Ошибка сервера');
+                throw new Error('Server error');
             }
 
             const data = await response.json();
@@ -139,10 +139,10 @@ const setupMusicSearch = () => {
 
             displayResults();
         } catch (error) {
-            console.error('Ошибка поиска:', error);
+            console.error('Search Error:', error);
             resultsContainer.innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> Произошла ошибка при поиске музыки
+                    <i class="fas fa-exclamation-triangle"></i> There was an error when searching for music
                 </div>
             `;
         } finally {
