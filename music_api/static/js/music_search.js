@@ -78,14 +78,21 @@ const setupMusicSearch = () => {
             resultsContainer.appendChild(resultsHeader);
 
             let html = data.map(track => `
-                <div class="track-item">
-                    <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
-                    <h5 class="track-title">${escapeHtml(track.name)}</h5>
-                    <p class="track-artist"><span style="color: whitesmoke; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px;  padding-left: 4px;">Исполнитель: ${escapeHtml(track.artist)}</p></span>
-                    <p class="track-listeners">Слушателей: ${track.listeners}</p>
-                    <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Подробнее</span>
-                    </a>
+                <div class="track-item-wrapper">
+                    <img class="arrow-track" src="/static/images/arrowruby.svg" class="track-arrow" alt="Arrow">
+                    <div class="track-item">
+                        <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
+                        <h5 class="track-title">${escapeHtml(track.name)}</h5>
+                        <p class="track-artist">
+                            <span style="color: whitesmoke; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+                                Исполнитель: ${escapeHtml(track.artist)}
+                            </span>
+                        </p>
+                        <p class="track-listeners">Слушателей: ${track.listeners}</p>
+                        <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Подробнее</span>
+                        </a>
+                    </div>
                 </div>
             `).join('');
 

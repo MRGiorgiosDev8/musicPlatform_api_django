@@ -178,6 +178,7 @@ h2,
     visibility: hidden;
     will-change: transform, opacity;
     margin-bottom: 15px;
+    flex-grow: 1;
 }
 
 #searchResults h2 {
@@ -225,4 +226,19 @@ h2,
     height: 80px;
     margin-bottom: 7px;
     border: 0.3px solid whitesmoke;
+}
+
+.arrow-track {
+    width: 140px;
+    height: 140px;
+    margin-left: -22vh;
+    opacity: 0;
+}
+
+.track-item-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+    margin-bottom: 20px;
+    position: relative;
 }

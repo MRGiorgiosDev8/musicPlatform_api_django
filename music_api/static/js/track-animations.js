@@ -27,6 +27,20 @@ document.addEventListener('DOMContentLoaded', function() {
         items.forEach(item => {
           item.style.visibility = 'visible';
 
+          const arrow = item.closest('.track-item-wrapper')?.querySelector('.arrow-track');
+
+          if (arrow) {
+            Object.assign(arrow.style, {
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%) translateX(-7vh)',
+              opacity: '0',
+              pointerEvents: 'none',
+              zIndex: '10',
+              willChange: 'transform, opacity'
+            });
+          }
+
           item.addEventListener('mouseenter', () => {
             anime({
               targets: item,
@@ -34,6 +48,25 @@ document.addEventListener('DOMContentLoaded', function() {
               duration: 50,
               easing: 'easeOutQuad'
             });
+
+            if (arrow) {
+              anime({
+                targets: arrow,
+                opacity: [0, 1],
+                translateX: ['-7vh', '-5vh'],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: function() {
+                  anime({
+                    targets: arrow,
+                    translateX: ['-5vh', '-3vh', '-7vh', '-5vh'],
+                    duration: 600,
+                    easing: 'easeInOutQuad',
+                    loop: 2
+                  });
+                }
+              });
+            }
           });
 
           item.addEventListener('mouseleave', () => {
@@ -43,6 +76,16 @@ document.addEventListener('DOMContentLoaded', function() {
               duration: 50,
               easing: 'easeOutQuad'
             });
+
+            if (arrow) {
+              anime({
+                targets: arrow,
+                opacity: 0,
+                translateX: '-7vh',
+                duration: 200,
+                easing: 'easeInQuad'
+              });
+            }
           });
         });
       }
