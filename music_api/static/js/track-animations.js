@@ -53,16 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
               anime({
                 targets: arrow,
                 opacity: [0, 1],
-                translateX: ['-7vh', '-5vh'],
+                translateX: ['-7vh', '-4vh'],
                 duration: 300,
                 easing: 'easeOutQuad',
                 complete: function() {
                   anime({
                     targets: arrow,
-                    translateX: ['-5vh', '-3vh', '-7vh', '-5vh'],
-                    duration: 600,
+                    translateX: ['-7vh', '-4vh', '-7vh', '-4vh'],
+                    duration: 2000,
                     easing: 'easeInOutQuad',
-                    loop: 2
+                    loop: 1
                   });
                 }
               });
