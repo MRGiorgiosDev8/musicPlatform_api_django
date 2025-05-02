@@ -1,0 +1,143 @@
+document.addEventListener('DOMContentLoaded', function() {
+  const animateHeader = (header) => {
+    if (!header) return;
+
+    header.style.opacity = '0';
+    header.style.transform = 'translateY(-100px)';
+    header.style.willChange = 'transform, opacity';
+
+    anime({
+      targets: header,
+      translateY: [-100, 0],
+      opacity: [0, 1],
+      duration: 600,
+      easing: 'easeOutQuint'
+    });
+  };
+
+  const animateTracks = (items) => {
+    anime({
+      targets: items,
+      translateY: [140, 0],
+      opacity: [1, 1],
+      duration: 600,
+      easing: 'easeOutQuad',
+      delay: anime.stagger(150, {start: 300}),
+      begin: function() {
+        items.forEach(item => {
+          item.style.visibility = 'visible';
+
+          const arrow = item.closest('.track-item-wrapper')?.querySelector('.arrow-track');
+
+          if (arrow) {
+            Object.assign(arrow.style, {
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%) translateX(-7vh)',
+              opacity: '0',
+              pointerEvents: 'none',
+              zIndex: '10',
+              willChange: 'transform, opacity'
+            });
+          }
+
+          item.addEventListener('mouseenter', () => {
+            anime({
+              targets: item,
+              translateY: -4,
+              duration: 50,
+              easing: 'easeOutQuad'
+            });
+
+            if (arrow) {
+              anime({
+                targets: arrow,
+                opacity: [0, 1],
+                translateX: ['-7vh', '-4vh'],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: function() {
+                  anime({
+                    targets: arrow,
+                    translateX: ['-7vh', '-4vh', '-7vh', '-4vh'],
+                    duration: 2000,
+                    easing: 'easeInOutQuad',
+                    loop: 1
+                  });
+                }
+              });
+            }
+          });
+
+          item.addEventListener('mouseleave', () => {
+            anime({
+              targets: item,
+              translateY: 0,
+              duration: 50,
+              easing: 'easeOutQuad'
+            });
+
+            if (arrow) {
+              anime({
+                targets: arrow,
+                opacity: 0,
+                translateX: '-7vh',
+                duration: 200,
+                easing: 'easeInQuad'
+              });
+            }
+          });
+        });
+      }
+    });
+  };
+
+  const initAnimations = () => {
+    const resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+
+    const header = resultsContainer.querySelector('h2');
+    if (header) {
+      animateHeader(header);
+    }
+
+    const existingItems = document.querySelectorAll('.track-item');
+    if (existingItems.length > 0) {
+      animateTracks(existingItems);
+    }
+
+    new MutationObserver((mutations) => {
+      const newItems = [];
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            if (node.nodeName === 'H2') {
+              animateHeader(node);
+            }
+            if (node.classList.contains('track-item')) {
+              newItems.push(node);
+            }
+            node.querySelectorAll('.track-item').forEach(item => newItems.push(item));
+          }
+        });
+      });
+
+      if (newItems.length > 0) {
+        animateTracks(newItems);
+      }
+    }).observe(resultsContainer, {
+      childList: true,
+      subtree: true
+    });
+  };
+
+  const checkAnime = () => {
+    if (typeof anime !== 'undefined') {
+      initAnimations();
+    } else {
+      setTimeout(checkAnime, 100);
+    }
+  };
+
+  checkAnime();
+});
