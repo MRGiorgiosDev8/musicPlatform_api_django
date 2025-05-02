@@ -24,7 +24,27 @@ document.addEventListener('DOMContentLoaded', function() {
       easing: 'easeOutQuad',
       delay: anime.stagger(150, {start: 300}),
       begin: function() {
-        items.forEach(item => item.style.visibility = 'visible');
+        items.forEach(item => {
+          item.style.visibility = 'visible';
+
+          item.addEventListener('mouseenter', () => {
+            anime({
+              targets: item,
+              translateY: -4,
+              duration: 50,
+              easing: 'easeOutQuad'
+            });
+          });
+
+          item.addEventListener('mouseleave', () => {
+            anime({
+              targets: item,
+              translateY: 0,
+              duration: 50,
+              easing: 'easeOutQuad'
+            });
+          });
+        });
       }
     });
   };
