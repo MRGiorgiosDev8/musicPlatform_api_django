@@ -4,11 +4,18 @@ from rest_framework import status
 import requests
 from django.shortcuts import render
 from .serializers import TrackSerializer
+from rest_framework.pagination import PageNumberPagination
 
 def index(request):
     return render(request, 'index.html')
 
+class TrackPagination(PageNumberPagination):
+    page_size = 14
+    page_size_query_param = 'page_size'
+    max_page_size = 30
+
 class TrackSearchAPIView(APIView):
+    pagination_class = TrackPagination
     def get(self, request):
         query = request.query_params.get('q', '')
         if not query:
@@ -40,7 +47,7 @@ class TrackSearchAPIView(APIView):
 
             serializer = TrackSerializer(data=enriched_tracks, many=True)
             if serializer.is_valid():
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return self.paginate_queryset(serializer.data)
             return Response(enriched_tracks, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -48,6 +55,11 @@ class TrackSearchAPIView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
+
+    def paginate_queryset(self, queryset):
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, self.request)
+        return paginator.get_paginated_response(result_page)
 
     def _get_lastfm_tracks(self, query):
         try:
@@ -58,7 +70,7 @@ class TrackSearchAPIView(APIView):
                     'track': query,
                     'api_key': '49b6213396a4b5a21637bcf627a4bf3d',
                     'format': 'json',
-                    'limit': 15
+                    'limit': 100
                 }
             )
             data = response.json()
