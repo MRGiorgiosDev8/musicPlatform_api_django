@@ -29,8 +29,8 @@ const setupMusicSearch = () => {
 
     let currentPage = 1;
     let totalPages = 1;
-    let allTracks = []; 
-    const tracksPerPage = 6; 
+    let allTracks = [];
+    const tracksPerPage = 6;
 
     const createLoadMoreButton = () => {
         const loadMoreContainer = document.createElement('div');
@@ -131,7 +131,7 @@ const setupMusicSearch = () => {
             }
 
             const data = await response.json();
-            allTracks = data.results || data; 
+            allTracks = data.results || data;
             localStorage.setItem(`music_search_${query}`, JSON.stringify(allTracks));
 
             currentPage = 1;
