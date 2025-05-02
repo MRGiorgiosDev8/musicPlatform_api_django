@@ -22,7 +22,7 @@
     <header>
         <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top">
             <div class="container">
-                <a class="d-flex logo-font align-items-center navbar-brand">
+                <a class="d-flex logo-font align-items-center navbar-brand" href="/">
                     <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo">
                     <span class="logo-text">RubySound.fm</span>
                 </a>
@@ -33,10 +33,19 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <form class="d-flex ms-auto form-search" role="search">
-                        <input class="form-control me-2 input-search" type="search" aria-label="Search"
-                            style="padding-left: 30px; background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;%23dc3030&quot;><path d=&quot;M10 2a8 8 0 105.293 14.707l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z&quot;/></svg>'); background-repeat: no-repeat; background-position: 10px center; background-size: 16px;">
-                        <button class="btn custom-button" type="submit">Search</button>
+                    <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
+                        <div class="position-relative flex-grow-1">
+                            <input class="form-control me-2 input-search" type="search" name="q" id="search-query"
+                                aria-label="Search tracks" autocomplete="on" placeholder="Find music..."
+                                style="padding-left: 30px;
+             background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;%23dc3030&quot;><path d=&quot;M10 2a8 8 0 105.293 14.707l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z&quot;/></svg>');
+             background-repeat: no-repeat;
+             background-position: 10px center;
+             background-size: 16px;">
+                        </div>
+                        <button class="btn custom-button ms-2" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
                     </form>
                 </div>
             </div>
@@ -70,9 +79,9 @@
 
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/music_search.js' %}"></script>
-<!--    <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>-->
-        <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>
-        <script src="{% static 'js/track-animations.js' %}"></script>
+    <!--    <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>
+    <script src="{% static 'js/track-animations.js' %}"></script>
 </body>
 
 </html>
