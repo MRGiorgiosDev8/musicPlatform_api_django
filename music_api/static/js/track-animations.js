@@ -31,9 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
           if (arrow) {
             Object.assign(arrow.style, {
-              position: 'absolute',
-              top: '50%',
-              transform: 'translateY(-50%) translateX(-7vh)',
               opacity: '0',
               pointerEvents: 'none',
               zIndex: '10',
