@@ -1,4 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
+  const animateAlert = (alert) => {
+    if (!alert) return;
+
+    alert.style.opacity = '0';
+    alert.style.transform = 'scale(0.8)';
+    alert.style.transformOrigin = 'center';
+
+    anime({
+      targets: alert,
+      opacity: [0, 1],
+      scale: [0.8, 1],
+      duration: 500,
+      easing: 'easeOutBack'
+    });
+  };
+
   const animateHeader = (header) => {
     if (!header) return;
 
@@ -93,6 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsContainer = document.getElementById('searchResults');
     if (!resultsContainer) return;
 
+    resultsContainer.querySelectorAll('.alert').forEach(alert => {
+      animateAlert(alert);
+    });
+
     const header = resultsContainer.querySelector('h2');
     if (header) {
       animateHeader(header);
@@ -108,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function() {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
+            if (node.classList.contains('alert')) {
+              animateAlert(node);
+            }
             if (node.nodeName === 'H2') {
               animateHeader(node);
             }

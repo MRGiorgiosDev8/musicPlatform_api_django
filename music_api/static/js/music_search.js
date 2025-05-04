@@ -59,7 +59,7 @@ const setupMusicSearch = () => {
         if (allTracks.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="alert alert-dark">
-                    <i class="fas fa-info-circle"></i> По запросу "${escapeHtml(searchInput.value.trim())}" nothing found
+                    <i class="fas fa-info-circle"></i> On request "${escapeHtml(searchInput.value.trim())}" nothing found
                 </div>
             `;
             return;
@@ -82,12 +82,12 @@ const setupMusicSearch = () => {
                     <h5 class="track-title">${escapeHtml(track.name)}</h5>
                     <p class="track-artist">
                         <span style="color: whitesmoke; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-                            Исполнитель: ${escapeHtml(track.artist)}
+                           Artist: ${escapeHtml(track.artist)}
                         </span>
                     </p>
                     <p class="track-listeners">Слушателей: ${track.listeners}</p>
                     <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Подробнее</span>
+                        <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Read More</span>
                     </a>
                 </div>
             </div>
