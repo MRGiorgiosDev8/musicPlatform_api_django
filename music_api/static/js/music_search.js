@@ -85,7 +85,7 @@ const setupMusicSearch = () => {
                            Artist: ${escapeHtml(track.artist)}
                         </span>
                     </p>
-                    <p class="track-listeners">Слушателей: ${track.listeners}</p>
+                    <p class="track-listeners">Listeners: ${track.listeners}</p>
                     <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
                         <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Read More</span>
                     </a>

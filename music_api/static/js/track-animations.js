@@ -1,17 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
-  const animateAlert = (alert) => {
-    if (!alert) return;
+  const animateLogoText = () => {
+    const logoText = document.querySelector('.logo-text');
+    if (!logoText) return;
 
-    alert.style.opacity = '0';
-    alert.style.transform = 'scale(0.8)';
-    alert.style.transformOrigin = 'center';
+    const originalText = logoText.textContent;
+    logoText.innerHTML = '';
+
+    originalText.split('').forEach((char, index) => {
+      const letterSpan = document.createElement('span');
+      letterSpan.className = 'logo-letter';
+      letterSpan.textContent = char === ' ' ? '&nbsp;' : char;
+      Object.assign(letterSpan.style, {
+        display: 'inline-block',
+        transformOrigin: '50% 50%',
+        transformStyle: 'preserve-3d',
+        opacity: '0',
+        transform: 'rotateX(90deg)',
+        verticalAlign: 'top'
+      });
+      logoText.appendChild(letterSpan);
+    });
 
     anime({
-      targets: alert,
+      targets: '.logo-letter',
+      rotateX: [90, 0],
       opacity: [0, 1],
-      scale: [0.8, 1],
-      duration: 500,
-      easing: 'easeOutBack'
+      duration: 1000,
+      delay: anime.stagger(80, {start: 300}),
+      easing: 'easeOutElastic(1, 0.6)',
+      complete: function() {
+        logoText.textContent = originalText;
+      }
     });
   };
 
@@ -72,10 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 complete: function() {
                   anime({
                     targets: arrow,
-                    translateX: ['-7vh', '-4vh', '-7vh', '-4vh'],
-                    duration: 2000,
-                    easing: 'easeInOutQuad',
-                    loop: 1
+                    translateX: ['-4vh', '-3vh', '-4vh'],
+                    duration: 1000,
+                    easing: 'easeInOutSine',
+                    loop: true
                   });
                 }
               });
@@ -91,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (arrow) {
+              anime.remove(arrow);
               anime({
                 targets: arrow,
                 opacity: 0,
@@ -105,7 +125,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
+  const animateAlert = (alert) => {
+    if (!alert) return;
+
+    alert.style.opacity = '0';
+    alert.style.transform = 'scale(0.8)';
+    alert.style.transformOrigin = 'center';
+
+    anime({
+      targets: alert,
+      opacity: [0, 1],
+      scale: [0.8, 1],
+      duration: 500,
+      easing: 'easeOutBack'
+    });
+  };
+
   const initAnimations = () => {
+    animateLogoText();
+
     const resultsContainer = document.getElementById('searchResults');
     if (!resultsContainer) return;
 
@@ -124,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     new MutationObserver((mutations) => {
-      const newItems = [];
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === 1) {
@@ -135,16 +172,14 @@ document.addEventListener('DOMContentLoaded', function() {
               animateHeader(node);
             }
             if (node.classList.contains('track-item')) {
-              newItems.push(node);
+              animateTracks([node]);
             }
-            node.querySelectorAll('.track-item').forEach(item => newItems.push(item));
+            node.querySelectorAll('.track-item').forEach(item => {
+              animateTracks([item]);
+            });
           }
         });
       });
-
-      if (newItems.length > 0) {
-        animateTracks(newItems);
-      }
     }).observe(resultsContainer, {
       childList: true,
       subtree: true
