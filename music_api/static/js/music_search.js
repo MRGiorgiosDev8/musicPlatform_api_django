@@ -90,7 +90,7 @@ const setupMusicSearch = () => {
           </p>
           <p class="track-listeners text-black">Listeners: ${track.listeners}</p>
           <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
-            <i class="fas fa-external-link-alt"></i> <span style="color: #282828;">Read More</span>
+            <i class="fas fa-external-link-alt"></i> <span style="color:#282828;">Read More</span>
           </a>
         </div>
       </div>`).join('');
