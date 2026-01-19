@@ -57,7 +57,7 @@ function showSpinner(show = true) {
     spinner = document.createElement('div');
     spinner.id = 'trending-spinner';
     spinner.className = 'search-loading';
-    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> загрузка артистов...';
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> loading...';
     document.getElementById('trending-container').before(spinner);
   }
   spinner.style.display = show ? 'block' : 'none';
