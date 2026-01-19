@@ -1,8 +1,7 @@
 const TRENDING_URL = '/music_api/trending/';
 const CACHE_KEY   = 'trending_artists';
-const CACHE_TTL   = 10 * 60 * 1000;          // 10 мин
+const CACHE_TTL   = 10 * 60 * 1000;
 
-/* ---------- кэш ---------- */
 function getCached() {
   const raw = localStorage.getItem(CACHE_KEY);
   if (!raw) return null;
@@ -16,7 +15,6 @@ function setCached(data) {
   localStorage.setItem(CACHE_KEY, JSON.stringify({ts: Date.now(), data}));
 }
 
-/* ---------- рендер карточек ---------- */
 function renderCards(list) {
   const container = document.getElementById('trending-container');
   container.innerHTML = '';
@@ -53,28 +51,26 @@ function renderCards(list) {
   });
 }
 
-/* ---------- спиннер-загрузка (Bootstrap-иконка) ---------- */
 function showSpinner(show = true) {
   let spinner = document.getElementById('trending-spinner');
   if (!spinner) {
     spinner = document.createElement('div');
     spinner.id = 'trending-spinner';
-    spinner.className = 'search-loading';          // тот же класс, что и в music_search.js
+    spinner.className = 'search-loading';
     spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> загрузка артистов...';
     document.getElementById('trending-container').before(spinner);
   }
   spinner.style.display = show ? 'block' : 'none';
 }
 
-/* ---------- загрузка: кэш → сеть ---------- */
 async function loadTrending() {
   const cached = getCached();
-  if (cached) {                 // мгновенно показываем кэш
+  if (cached) {
     renderCards(cached);
-    return;                     // сетевой запрос не делаем → спиннер не нужен
+    return;
   }
 
-  showSpinner(true);            // показываем спиннер
+  showSpinner(true);
   try {
     const res = await fetch(TRENDING_URL);
     if (!res.ok) throw new Error(res.status);
@@ -86,7 +82,7 @@ async function loadTrending() {
     document.getElementById('trending-container').innerHTML =
       '<div class="col-12 text-center text-danger">Не удалось загрузить данные.</div>';
   } finally {
-    showSpinner(false);         // прячем спиннер
+    showSpinner(false);
   }
 }
 
