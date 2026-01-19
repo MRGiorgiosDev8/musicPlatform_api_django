@@ -1,21 +1,25 @@
+import requests
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import requests
-from django.shortcuts import render
-from .serializers import TrackSerializer
 from rest_framework.pagination import PageNumberPagination
+from .serializers import TrackSerializer, TrendingSerializer
+
 
 def index(request):
     return render(request, 'index.html')
+
 
 class TrackPagination(PageNumberPagination):
     page_size = 14
     page_size_query_param = 'page_size'
     max_page_size = 30
 
+
 class TrackSearchAPIView(APIView):
     pagination_class = TrackPagination
+
     def get(self, request):
         query = request.query_params.get('q', '')
         if not query:
@@ -34,7 +38,6 @@ class TrackSearchAPIView(APIView):
                     track['name'],
                     track['artist']
                 )
-
                 enriched_track = {
                     'name': track['name'],
                     'artist': track['artist'],
@@ -89,7 +92,6 @@ class TrackSearchAPIView(APIView):
                 timeout=2
             )
             data = response.json()
-
             if data.get('data'):
                 return data['data'][0]['album']['cover_xl'] or \
                     data['data'][0]['album']['cover_big'] or \
@@ -97,3 +99,96 @@ class TrackSearchAPIView(APIView):
             return None
         except:
             return None
+
+LASTFM_KEY = '49b6213396a4b5a21637bcf627a4bf3d'
+
+def _get_lastfm_chart(limit=20):
+    url = 'http://ws.audioscrobbler.com/2.0/'
+    params = {
+        'method': 'chart.gettopartists',
+        'api_key': LASTFM_KEY,
+        'format': 'json',
+        'limit': limit
+    }
+    resp = requests.get(url, params=params, timeout=5)
+    resp.raise_for_status()
+    data = resp.json()
+    return data['artists']['artist']
+
+def _get_deezer_artist_info(name):
+    url = 'https://api.deezer.com/search/artist'
+    params = {'q': name, 'limit': 1}
+    r = requests.get(url, params=params, timeout=3)
+    if r.status_code != 200:
+        return None, None
+    data = r.json()
+    if not data.get('data'):
+        return None, None
+    art = data['data'][0]
+    genre = art.get('genre', {}).get('name', '—')
+    pic = art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
+    return genre, pic
+
+def _get_genius_bio(name):
+    try:
+        r = requests.get(
+            'https://genius.com/api/search/multi',
+            params={'q': name},
+            timeout=4
+        )
+        r.raise_for_status()
+        hits = r.json()['response']['sections'][0]['hits']
+        if hits:
+            url = hits[0]['result']['api_path']
+            detail = requests.get(f'https://genius.com{url}', timeout=4).json()
+            bio = detail['response']['song']['description']['plain'][:250] + '…'
+            return bio
+    except:
+        pass
+    return ''
+
+def _lastfm_artist_releases(mbid, name):
+    url = 'http://ws.audioscrobbler.com/2.0/'
+    params = {
+        'method': 'artist.gettopalbums',
+        'artist': name,
+        'mbid': mbid,
+        'api_key': LASTFM_KEY,
+        'format': 'json',
+        'limit': 3
+    }
+    try:
+        r = requests.get(url, params=params, timeout=4)
+        r.raise_for_status()
+        albums = r.json()['topalbums']['album']
+        return [{'title': a['name'],
+                 'playcount': a.get('playcount', 0),
+                 'url': a['url'],
+                 'cover': a['image'][-1]['#text'] or '/static/images/default.svg'} for a in albums]
+    except:
+        return []
+
+class TrendingArtistsAPIView(APIView):
+    def get(self, request):
+        try:
+            lastfm_artists = _get_lastfm_chart(12)   # 12 штук
+            payload = {'artists': []}
+            for art in lastfm_artists:
+                name = art['name']
+                mbid = art.get('mbid', '')
+                genre, photo = _get_deezer_artist_info(name)
+                bio = _get_genius_bio(name)
+                releases = _lastfm_artist_releases(mbid, name)
+                payload['artists'].append({
+                    'name': name,
+                    'mbid': mbid,
+                    'genre': genre or '—',
+                    'photo_url': photo or '/static/images/default.svg',
+                    'bio': bio or 'Биография пока недоступна.',
+                    'releases': releases
+                })
+            serializer = TrendingSerializer(data=payload)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

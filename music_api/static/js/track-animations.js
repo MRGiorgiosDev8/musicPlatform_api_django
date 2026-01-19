@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (arrow) {
               anime({
                 targets: arrow,
-                opacity: [0, 1],
+                opacity: [0, 0.93],
                 translateX: ['-7vh', '-4vh'],
                 duration: 300,
                 easing: 'easeOutQuad',

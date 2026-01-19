@@ -51,9 +51,9 @@
     </header>
 
     <main class="flex-grow-1">
-        {% block content %}
-        {% endblock %}
-    </main>
+    {% block popular %}{% endblock %}
+    {% block content %}{% endblock %}
+</main>
 
     <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
@@ -80,6 +80,7 @@
     <!--    <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>-->
     <script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script>
     <script src="{% static 'js/track-animations.js' %}"></script>
+    <script src="{% static 'js/trending.js' %}"></script>
 </body>
 
 </html>
