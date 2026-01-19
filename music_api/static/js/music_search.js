@@ -80,18 +80,17 @@ const setupMusicSearch = () => {
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
     let html = tracksToShow.map(track => `
       <div class="track-item-wrapper">
-        <img class="arrow-track" src="/static/images/arrowruby.svg" class="track-arrow" alt="Arrow">
         <div class="track-item">
           <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
           <h5 class="track-title">${escapeHtml(track.name)}</h5>
           <p class="track-artist">
-            <span style="color: whitesmoke; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+            <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
               Artist: ${escapeHtml(track.artist)}
             </span>
           </p>
-          <p class="track-listeners">Listeners: ${track.listeners}</p>
+          <p class="track-listeners text-black">Listeners: ${track.listeners}</p>
           <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
-            <i class="fas fa-external-link-alt"></i> <span style="color: #dedede;">Read More</span>
+            <i class="fas fa-external-link-alt"></i> <span style="color: #282828;">Read More</span>
           </a>
         </div>
       </div>`).join('');

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     originalText.split('').forEach((char, index) => {
       const letterSpan = document.createElement('span');
       letterSpan.className = 'logo-letter';
-      letterSpan.textContent = char === ' ' ? '&nbsp;' : char;
+      letterSpan.textContent = char === ' ' ? '\u00A0' : char; // &nbsp; как символ
       Object.assign(letterSpan.style, {
         display: 'inline-block',
         transformOrigin: '50% 50%',
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
       rotateX: [90, 0],
       opacity: [0, 1],
       duration: 1000,
-      delay: anime.stagger(80, {start: 300}),
+      delay: anime.stagger(80, { start: 300 }),
       easing: 'easeOutElastic(1, 0.6)',
       complete: function() {
         logoText.textContent = originalText;
@@ -57,22 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
       opacity: [1, 1],
       duration: 600,
       easing: 'easeOutQuad',
-      delay: anime.stagger(150, {start: 300}),
+      delay: anime.stagger(150, { start: 300 }),
       begin: function() {
         items.forEach(item => {
           item.style.visibility = 'visible';
 
-          const arrow = item.closest('.track-item-wrapper')?.querySelector('.arrow-track');
-
-          if (arrow) {
-            Object.assign(arrow.style, {
-              opacity: '0',
-              pointerEvents: 'none',
-              zIndex: '10',
-              willChange: 'transform, opacity'
-            });
-          }
-
+          // Стрелка не трогаем и события hover упрощаем
           item.addEventListener('mouseenter', () => {
             anime({
               targets: item,
@@ -80,25 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
               duration: 50,
               easing: 'easeOutQuad'
             });
-
-            if (arrow) {
-              anime({
-                targets: arrow,
-                opacity: [0, 0.93],
-                translateX: ['-7vh', '-4vh'],
-                duration: 300,
-                easing: 'easeOutQuad',
-                complete: function() {
-                  anime({
-                    targets: arrow,
-                    translateX: ['-4vh', '-3vh', '-4vh'],
-                    duration: 1000,
-                    easing: 'easeInOutSine',
-                    loop: true
-                  });
-                }
-              });
-            }
           });
 
           item.addEventListener('mouseleave', () => {
@@ -108,17 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
               duration: 50,
               easing: 'easeOutQuad'
             });
-
-            if (arrow) {
-              anime.remove(arrow);
-              anime({
-                targets: arrow,
-                opacity: 0,
-                translateX: '-7vh',
-                duration: 200,
-                easing: 'easeInQuad'
-              });
-            }
           });
         });
       }
