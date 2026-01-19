@@ -116,36 +116,18 @@ def _get_lastfm_chart(limit=20):
     return data['artists']['artist']
 
 def _get_deezer_artist_info(name):
+    """возвращает ТОЛЬКО фото"""
     url = 'https://api.deezer.com/search/artist'
     params = {'q': name, 'limit': 1}
     r = requests.get(url, params=params, timeout=3)
     if r.status_code != 200:
-        return None, None
+        return None
     data = r.json()
     if not data.get('data'):
-        return None, None
+        return None
     art = data['data'][0]
-    genre = art.get('genre', {}).get('name', '—')
     pic = art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
-    return genre, pic
-
-def _get_genius_bio(name):
-    try:
-        r = requests.get(
-            'https://genius.com/api/search/multi',
-            params={'q': name},
-            timeout=4
-        )
-        r.raise_for_status()
-        hits = r.json()['response']['sections'][0]['hits']
-        if hits:
-            url = hits[0]['result']['api_path']
-            detail = requests.get(f'https://genius.com{url}', timeout=4).json()
-            bio = detail['response']['song']['description']['plain'][:250] + '…'
-            return bio
-    except:
-        pass
-    return ''
+    return pic
 
 def _lastfm_artist_releases(mbid, name):
     url = 'http://ws.audioscrobbler.com/2.0/'
@@ -171,20 +153,16 @@ def _lastfm_artist_releases(mbid, name):
 class TrendingArtistsAPIView(APIView):
     def get(self, request):
         try:
-            lastfm_artists = _get_lastfm_chart(12)   # 12 штук
+            lastfm_artists = _get_lastfm_chart(10)
             payload = {'artists': []}
             for art in lastfm_artists:
                 name = art['name']
                 mbid = art.get('mbid', '')
-                genre, photo = _get_deezer_artist_info(name)
-                bio = _get_genius_bio(name)
+                photo = _get_deezer_artist_info(name)
                 releases = _lastfm_artist_releases(mbid, name)
                 payload['artists'].append({
                     'name': name,
-                    'mbid': mbid,
-                    'genre': genre or '—',
                     'photo_url': photo or '/static/images/default.svg',
-                    'bio': bio or 'Биография пока недоступна.',
                     'releases': releases
                 })
             serializer = TrendingSerializer(data=payload)

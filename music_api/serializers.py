@@ -9,21 +9,17 @@ class TrackSerializer(serializers.Serializer):
     mbid = serializers.CharField(required=False, allow_blank=True, default='')
 
 
+# api/serializers.py
 class ReleaseShortSerializer(serializers.Serializer):
     title = serializers.CharField()
     playcount = serializers.IntegerField()
     url = serializers.URLField()
     cover = serializers.URLField()
 
-
 class ArtistShortSerializer(serializers.Serializer):
     name = serializers.CharField()
-    mbid = serializers.CharField(allow_blank=True)
-    genre = serializers.CharField()
-    bio = serializers.CharField(allow_blank=True)
     photo_url = serializers.URLField(required=False, allow_blank=True)
     releases = ReleaseShortSerializer(many=True)
-
 
 class TrendingSerializer(serializers.Serializer):
     artists = ArtistShortSerializer(many=True)

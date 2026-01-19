@@ -33,8 +33,6 @@ function renderCards(list) {
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body">
               <h5 class="card-title mb-1">${a.name}</h5>
-              <p class="text-muted small mb-2">${a.genre}</p>
-              <p class="card-text small">${a.bio}</p>
             </div>
             <div class="card-footer bg-white mt-auto">
               <small class="text-muted">Последние релизы:</small>
