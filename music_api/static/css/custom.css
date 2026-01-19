@@ -8,10 +8,6 @@ body {
 }
 
 main {
-    border-left: 11px solid rgba(0, 0, 0, 0.926);
-    border-right: 11px solid rgba(0, 0, 0, 0.926);
-    border-radius: 11%;
-    box-shadow: 0px 0px 40px rgb(104, 104, 104);
     zoom: 0.96;
 }
 
@@ -30,8 +26,8 @@ main {
 .custom-navbar,
 .footer-nav,
 .track-item {
-    border: 11px solid rgb(229, 229, 229);
-    box-shadow: 0px 0px 11px rgb(104, 104, 104);
+    border: 7px solid rgb(229, 229, 229);
+    box-shadow: 0px 0px 7px rgb(104, 104, 104);
 }
 
 .logo-font {
@@ -254,4 +250,24 @@ h2,
 
 .btn-show-more {
     scale: 1.2;
+}
+
+.popular-h2 {
+    font-size: 2em;
+    margin-top: 4vh;
+    margin-bottom: 4vh;
+    border-radius: 20px;
+    border: 2px solid #ffff;
+    box-shadow: none;
+    background-color: rgba(241, 241, 241, 0.649);
+    border-radius: 14px;
+    -webkit-text-stroke: #fff 0.3px;
+    font-weight: 400;
+    color: #434343f6;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.card-custom {
+    border-left: 1.4px solid #dc3030f6;
+    border-right: 1.4px solid #dc3030e6;
 }
