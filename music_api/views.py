@@ -6,16 +6,13 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TrackSerializer, TrendingSerializer
 
-
 def index(request):
     return render(request, 'index.html')
-
 
 class TrackPagination(PageNumberPagination):
     page_size = 14
     page_size_query_param = 'page_size'
     max_page_size = 30
-
 
 class TrackSearchAPIView(APIView):
     pagination_class = TrackPagination
@@ -23,10 +20,7 @@ class TrackSearchAPIView(APIView):
     def get(self, request):
         query = request.query_params.get('q', '')
         if not query:
-            return Response(
-                {"error": "Query parameter 'q' is required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Query parameter 'q' is required"}, status=status.HTTP_400_BAD_REQUEST)
         try:
             lastfm_tracks = self._get_lastfm_tracks(query)
             if not lastfm_tracks:
@@ -34,19 +28,15 @@ class TrackSearchAPIView(APIView):
 
             enriched_tracks = []
             for track in lastfm_tracks:
-                cover_url = self._get_deezer_cover(
-                    track['name'],
-                    track['artist']
-                )
-                enriched_track = {
+                cover_url = self._get_deezer_cover(track['name'], track['artist'])
+                enriched_tracks.append({
                     'name': track['name'],
                     'artist': track['artist'],
                     'listeners': track['listeners'],
                     'url': track['url'],
                     'image_url': cover_url or '/static/images/default.svg',
                     'mbid': track.get('mbid', '')
-                }
-                enriched_tracks.append(enriched_track)
+                })
 
             serializer = TrackSerializer(data=enriched_tracks, many=True)
             if serializer.is_valid():
@@ -54,10 +44,7 @@ class TrackSearchAPIView(APIView):
             return Response(enriched_tracks, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
+            return Response({"error": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def paginate_queryset(self, queryset):
         paginator = self.pagination_class()
@@ -94,8 +81,8 @@ class TrackSearchAPIView(APIView):
             data = response.json()
             if data.get('data'):
                 return data['data'][0]['album']['cover_xl'] or \
-                    data['data'][0]['album']['cover_big'] or \
-                    data['data'][0]['album']['cover_medium']
+                       data['data'][0]['album']['cover_big'] or \
+                       data['data'][0]['album']['cover_medium']
             return None
         except:
             return None
@@ -112,11 +99,9 @@ def _get_lastfm_chart(limit=20):
     }
     resp = requests.get(url, params=params, timeout=5)
     resp.raise_for_status()
-    data = resp.json()
-    return data['artists']['artist']
+    return resp.json()['artists']['artist']
 
 def _get_deezer_artist_info(name):
-    """возвращает ТОЛЬКО фото"""
     url = 'https://api.deezer.com/search/artist'
     params = {'q': name, 'limit': 1}
     r = requests.get(url, params=params, timeout=3)
@@ -126,8 +111,7 @@ def _get_deezer_artist_info(name):
     if not data.get('data'):
         return None
     art = data['data'][0]
-    pic = art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
-    return pic
+    return art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
 
 def _lastfm_artist_releases(mbid, name):
     url = 'http://ws.audioscrobbler.com/2.0/'
@@ -154,19 +138,17 @@ class TrendingArtistsAPIView(APIView):
     def get(self, request):
         try:
             lastfm_artists = _get_lastfm_chart(10)
-            payload = {'artists': []}
+            artists = []
             for art in lastfm_artists:
                 name = art['name']
                 mbid = art.get('mbid', '')
                 photo = _get_deezer_artist_info(name)
                 releases = _lastfm_artist_releases(mbid, name)
-                payload['artists'].append({
+                artists.append({
                     'name': name,
                     'photo_url': photo or '/static/images/default.svg',
                     'releases': releases
                 })
-            serializer = TrendingSerializer(data=payload)
-            serializer.is_valid(raise_exception=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'artists': artists}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
