@@ -1,21 +1,22 @@
 const TRENDING_URL = '/music_api/trending/';
 const CACHE_KEY   = 'trending_artists';
-const CACHE_TTL   = 10 * 60 * 1000; 
+const CACHE_TTL   = 10 * 60 * 1000;          // 10 мин
 
+/* ---------- кэш ---------- */
 function getCached() {
   const raw = localStorage.getItem(CACHE_KEY);
   if (!raw) return null;
   try {
     const {ts, data} = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) return null; 
+    if (Date.now() - ts > CACHE_TTL) return null;
     return data;
   } catch { return null; }
 }
-
 function setCached(data) {
   localStorage.setItem(CACHE_KEY, JSON.stringify({ts: Date.now(), data}));
 }
 
+/* ---------- рендер карточек ---------- */
 function renderCards(list) {
   const container = document.getElementById('trending-container');
   container.innerHTML = '';
@@ -30,7 +31,7 @@ function renderCards(list) {
       <div class="card h-100 shadow-sm rounded-sm card-custom">
         <div class="row g-0 h-100">
           <div class="col-md-4">
-            <img src="${a.photo_url}" class="img-fluid rounded-start h-100 object-fit-cover " alt="${a.name}">
+            <img src="${a.photo_url}" class="img-fluid rounded-start h-100 object-fit-cover" alt="${a.name}">
           </div>
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body"><h5 class="card-title mb-1">${a.name}</h5></div>
@@ -52,22 +53,40 @@ function renderCards(list) {
   });
 }
 
+/* ---------- спиннер-загрузка (Bootstrap-иконка) ---------- */
+function showSpinner(show = true) {
+  let spinner = document.getElementById('trending-spinner');
+  if (!spinner) {
+    spinner = document.createElement('div');
+    spinner.id = 'trending-spinner';
+    spinner.className = 'search-loading';          // тот же класс, что и в music_search.js
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> загрузка артистов...';
+    document.getElementById('trending-container').before(spinner);
+  }
+  spinner.style.display = show ? 'block' : 'none';
+}
 
+/* ---------- загрузка: кэш → сеть ---------- */
 async function loadTrending() {
   const cached = getCached();
-  if (cached) renderCards(cached);          
+  if (cached) {                 // мгновенно показываем кэш
+    renderCards(cached);
+    return;                     // сетевой запрос не делаем → спиннер не нужен
+  }
+
+  showSpinner(true);            // показываем спиннер
   try {
     const res = await fetch(TRENDING_URL);
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    setCached(data.artists);               
-    renderCards(data.artists);             
+    setCached(data.artists);
+    renderCards(data.artists);
   } catch (e) {
     console.error(e);
-    if (!cached) {
-      document.getElementById('trending-container').innerHTML =
-        '<div class="col-12 text-center text-danger">Не удалось загрузить данные.</div>';
-    }
+    document.getElementById('trending-container').innerHTML =
+      '<div class="col-12 text-center text-danger">Не удалось загрузить данные.</div>';
+  } finally {
+    showSpinner(false);         // прячем спиннер
   }
 }
 
