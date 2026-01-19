@@ -85,10 +85,10 @@ const setupMusicSearch = () => {
           <h5 class="track-title">${escapeHtml(track.name)}</h5>
           <p class="track-artist">
             <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-              Artist: ${escapeHtml(track.artist)}
+              Артист: ${escapeHtml(track.artist)}
             </span>
           </p>
-          <p class="track-listeners text-black">Listeners: ${track.listeners}</p>
+          <p class="track-listeners text-black mb-1 small">Прослушиваний: ${track.listeners}</p>
           <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
             <i class="fas fa-external-link-alt"></i> <span style="color:#282828;">Read More</span>
           </a>

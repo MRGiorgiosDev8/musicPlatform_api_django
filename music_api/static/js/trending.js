@@ -22,6 +22,7 @@ function renderCards(list) {
     container.innerHTML = '<div class="col-12 text-center text-muted">Нет данных.</div>';
     return;
   }
+
   list.forEach(a => {
     const card = document.createElement('div');
     card.className = 'col';
@@ -34,7 +35,7 @@ function renderCards(list) {
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body"><h5 class="card-title mb-1">${a.name}</h5></div>
             <div class="card-footer bg-white mt-auto">
-              <small class="text-muted">Последние релизы:</small>
+              <small class="text-muted">Популярные релизы:</small>
               <ul class="list-unstyled mb-0 mt-1">
                 ${a.releases.map(r => `
                   <li class="d-flex align-items-center mb-1">
@@ -49,6 +50,8 @@ function renderCards(list) {
       </div>`;
     container.appendChild(card);
   });
+
+  document.dispatchEvent(new Event('trending:rendered'));
 }
 
 function showSpinner(show = true) {
@@ -63,6 +66,7 @@ function showSpinner(show = true) {
   spinner.style.display = show ? 'block' : 'none';
 }
 
+/* ---------- загрузка ---------- */
 async function loadTrending() {
   const cached = getCached();
   if (cached) {
