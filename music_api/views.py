@@ -152,3 +152,58 @@ class TrendingArtistsAPIView(APIView):
             return Response({'artists': artists}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+class YearChartAPIView(APIView):
+
+    def get(self, request):
+        try:
+            lastfm_tracks = self._get_live_chart(15)
+            tracks = self._enrich_live_tracks(lastfm_tracks)
+            return Response({'tracks': tracks}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e), 'trace': traceback.format_exc()},
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def _get_live_chart(self, limit=15):
+        url = 'http://ws.audioscrobbler.com/2.0/'
+        params = {
+            'method': 'chart.gettoptracks',
+            'api_key': '49b6213396a4b5a21637bcf627a4bf3d',
+            'format': 'json',
+            'limit': limit
+        }
+        resp = requests.get(url, params=params, timeout=5)
+        resp.raise_for_status()
+        return resp.json()['tracks']['track']
+
+    def _enrich_live_tracks(self, tracks):
+        enriched = []
+        for tr in tracks:
+            cover = self._get_deezer_cover(tr['name'], tr['artist']['name'])
+            enriched.append({
+                'name': tr['name'],
+                'artist': tr['artist']['name'],
+                'listeners': int(tr.get('listeners', 0)),
+                'url': tr['url'],
+                'image_url': cover or '/static/images/default.svg'
+            })
+        return enriched
+
+    def _get_deezer_cover(self, track_name, artist_name):
+        try:
+            response = requests.get(
+                'https://api.deezer.com/search',
+                params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
+                timeout=2
+            )
+            data = response.json()
+            if data.get('data'):
+                return data['data'][0]['album']['cover_xl'] or \
+                       data['data'][0]['album']['cover_big'] or \
+                       data['data'][0]['album']['cover_medium']
+            return None
+        except:
+            return None

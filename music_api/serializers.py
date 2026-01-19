@@ -23,3 +23,10 @@ class ArtistShortSerializer(serializers.Serializer):
 
 class TrendingSerializer(serializers.Serializer):
     artists = ArtistShortSerializer(many=True)
+
+class YearTrackSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    artist = serializers.CharField()
+    listeners = serializers.IntegerField()
+    url = serializers.URLField()
+    image_url = serializers.URLField()
