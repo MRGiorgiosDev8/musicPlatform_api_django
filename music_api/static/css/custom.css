@@ -252,7 +252,47 @@ h2 {
     font-family: "Roboto", sans-serif;
 }
 
-.card-custom, .card-year {
+.card-custom,
+.card-year {
     border-left: 1.4px solid rgba(255, 65, 55, 0.75);
     border-right: 1.4px solid rgba(255, 65, 55, 0.75);
+}
+
+
+/* Мобильные устройства */
+@media (max-width: 575.98px) {
+    .logo-font img {
+        width: 51px;
+        height: 51px;
+        margin-left: 3vh;
+    }
+
+    .custom-navbar {
+        padding-bottom: 1.4vh;
+    }
+
+    .popular-h2 {
+        margin-top: -7vh;
+    }
+}
+
+/* Планшеты */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .logo-font img {
+        width: 60px;
+        height: 60px;
+        margin-top: 0;
+    }
+
+     .custom-navbar {
+        padding-bottom: 1.6vh;
+    }
+}
+
+/* Ноутбуки и десктопы */
+@media (min-width: 768px) {
+    .logo-font img {
+        width: 70px;
+        height: 70px;
+    }
 }
