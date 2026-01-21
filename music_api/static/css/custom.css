@@ -139,7 +139,6 @@ h2 {
     border-left: 2px solid rgba(255, 65, 55, 0.75);
     border-right: 2px solid rgba(255, 65, 55, 0.75);
     border-radius: 14px;
-    -webkit-text-stroke: #fff 0.2px;
     font-weight: 400;
 }
 
@@ -246,7 +245,6 @@ h2 {
     box-shadow: none;
     background-color: rgba(241, 241, 241, 0.649);
     border-radius: 14px;
-    -webkit-text-stroke: #fff 0.2px;
     font-weight: 400;
     color: #242424f6;
     font-family: "Roboto", sans-serif;
@@ -274,6 +272,10 @@ h2 {
     .popular-h2 {
         margin-top: -7vh;
     }
+
+    .btn-show-more {
+        margin-top: 1vh;
+    }
 }
 
 /* Планшеты */
@@ -284,8 +286,12 @@ h2 {
         margin-top: 0;
     }
 
-     .custom-navbar {
+    .custom-navbar {
         padding-bottom: 1.6vh;
+    }
+
+    .btn-show-more {
+        margin-top: 0.3vh;
     }
 }
 

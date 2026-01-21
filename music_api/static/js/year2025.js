@@ -32,7 +32,7 @@ async function loadYear2025() {
   } catch (e) {
     console.error(e);
     document.getElementById('year2025-container').innerHTML =
-      '<div class="col-12 text-center text-danger">Не удалось загрузить данные.</div>';
+      '<div class="col-12 text-start text-danger">Не удалось загрузить данные.</div>';
   } finally { showSpinner(false); }
 }
 
