@@ -6,22 +6,5 @@ services:
     ports:
       - "8000:8000"
     volumes:
-        - ./staticfiles:/app/staticfiles
-    environment:
-      - DEBUG=0
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: musicdb
-      POSTGRES_USER: musicuser
-      POSTGRES_PASSWORD: musicpass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+      - ./staticfiles:/app/staticfiles
+    restart: unless-stopped

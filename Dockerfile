@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
 
@@ -13,4 +13,8 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "music_project.wsgi:application"]
+ENV DEBUG=1
+ENV SECRET_KEY="georgetestdocker"
+ENV ALLOWED_HOSTS="*"
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "music_project.wsgi:application"]
