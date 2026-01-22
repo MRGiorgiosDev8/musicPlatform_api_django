@@ -1,7 +1,7 @@
 body {
     background-image: url('../images/backgroundai.png');
     background-size: auto;
-    /* background-size: cover; */
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -140,6 +140,9 @@ h2 {
     border-right: 2px solid rgba(255, 65, 55, 0.75);
     border-radius: 14px;
     font-weight: 400;
+    border-top: 1.7px solid #fff;
+    border-bottom: 1.7px solid #fff;
+    box-shadow: #a1a1a1 1px 1px 2px;
 }
 
 /* Стили для поиска музыки */
@@ -151,8 +154,10 @@ h2 {
 }
 
 .track-item {
-    background-color: white;
+    background-color: rgba(245, 245, 245, 0.738);
     padding: 14px;
+    border-top: 1.7px solid #fff;
+    border-bottom: 1.7px solid #fff;
     border-left: 1.4px solid rgba(255, 65, 55, 0.75);
     border-right: 1.4px solid rgba(255, 65, 55, 0.75);
     border-radius: 14px;
@@ -177,9 +182,10 @@ h2 {
 }
 
 .track-title {
-    color: #fff;
+    color: black;
     font-size: 1.1rem;
     margin-bottom: 5px;
+    padding: 3px;
 }
 
 .track-artist {
@@ -210,9 +216,9 @@ h2 {
 
 .track-image {
     border-radius: 7px;
-    width: 80px;
-    height: 80px;
-    border: 0.3px solid whitesmoke;
+    width: 88px;
+    height: 88px;
+    border: 1.7px solid rgb(255, 255, 255);
 }
 
 .arrow-track {

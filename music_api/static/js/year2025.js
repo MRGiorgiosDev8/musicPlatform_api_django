@@ -56,7 +56,7 @@ function renderTracks2025(list) {
           <p class="card-text small text-muted mb-0">Прослушиваний: ${t.listeners.toLocaleString('ru-RU')}</p>
         </div>
         <div class="card-footer p-2 bg-white">
-          <a href="${t.url}" target="_blank" class="btn btn-sm btn-outline-danger w-100">
+          <a href="${t.url}" target="_blank" class="btn btn-sm btn-outline-danger w-100 shadow-sm">
             <i class="fas fa-external-link-alt"></i> Слушать
           </a>
         </div>

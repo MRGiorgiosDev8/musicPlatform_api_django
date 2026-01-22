@@ -39,7 +39,7 @@ function renderCards(list) {
               <ul class="list-unstyled mb-0 mt-1">
                 ${a.releases.map(r => `
                   <li class="d-flex align-items-center mb-1">
-                    <img src="${r.cover}" width="32" height="32" class="rounded me-2" alt="">
+                    <img src="${r.cover}" width="32" height="32" class="rounded me-2 shadow-sm" alt="">
                     <div><div class="fw-semibold">${r.title}</div>
                          <div class="small text-muted">${r.playcount} прослушиваний</div></div>
                   </li>`).join('')}

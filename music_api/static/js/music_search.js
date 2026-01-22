@@ -47,7 +47,7 @@ const setupMusicSearch = () => {
     loadMoreContainer.style.textAlign = 'center';
     loadMoreContainer.style.margin = '20px 0';
     const loadMoreButton = document.createElement('button');
-    loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more';
+    loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-5';
     loadMoreButton.innerHTML = 'Show More <i class="fas fa-chevron-down"></i>';
     loadMoreButton.disabled = currentPage >= totalPages;
     loadMoreButton.addEventListener('click', () => {
@@ -80,16 +80,16 @@ const setupMusicSearch = () => {
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
     let html = tracksToShow.map(track => `
       <div class="track-item-wrapper">
-        <div class="track-item">
-          <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image">
-          <h5 class="track-title">${escapeHtml(track.name)}</h5>
+        <div class="track-item shadow-sm">
+          <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid">
+          <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
           <p class="track-artist">
             <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
               Артист: ${escapeHtml(track.artist)}
             </span>
           </p>
-          <p class="track-listeners text-black mb-1 small">Прослушиваний: ${track.listeners}</p>
-          <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger">
+          <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
+          <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger shadow-sm">
             <i class="fas fa-external-link-alt"></i> <span style="color:#282828;">Read More</span>
           </a>
         </div>
