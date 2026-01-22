@@ -1,3 +1,8 @@
+![GitHub last commit](https://img.shields.io/github/last-commit/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
+![Repository size](https://img.shields.io/github/repo-size/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
+![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-%23e0115f)
+![License](https://img.shields.io/github/license/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
+
 # 🎵 RubySound.fm 
 
 **RubySound.fm** — мини веб-приложение на **Django + Django REST Framework** для поиска музыки, просмотра трендовых артистов и актуальных музыкальных чартов.
@@ -223,4 +228,4 @@ docker run -p 8000:8000 georgio8/music_project:latest
 ```
 #### 🔗 Публичный доступ к проекту через туннель
 При необходимости я могу показать работающие приложение в сети, используя SSH туннель.  
-Запустив я скину публичный URL, по которому можно открыть проект.
+Запустив, я скину публичный URL, по которому можно открыть проект.
