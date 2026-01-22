@@ -9,7 +9,6 @@ class TrackSerializer(serializers.Serializer):
     mbid = serializers.CharField(required=False, allow_blank=True, default='')
 
 
-# api/serializers.py
 class ReleaseShortSerializer(serializers.Serializer):
     title = serializers.CharField()
     playcount = serializers.IntegerField()
