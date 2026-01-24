@@ -78,22 +78,30 @@ const setupMusicSearch = () => {
 
     const startIndex = (currentPage - 1) * tracksPerPage;
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
-    let html = tracksToShow.map(track => `
-      <div class="track-item-wrapper">
-        <div class="track-item shadow-sm">
-          <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid">
-          <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
-          <p class="track-artist">
-            <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-              Артист: ${escapeHtml(track.artist)}
-            </span>
-          </p>
-          <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
-          <a href="${track.url}" target="_blank" class="btn btn-sm btn-outline-danger shadow-sm">
-            <i class="fas fa-external-link-alt"></i> <span style="color:#282828;">Read More</span>
-          </a>
-        </div>
-      </div>`).join('');
+    let html = tracksToShow.map(track => {
+      const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
+      const audioBlock = hasAudio
+        ? `<audio controls preload="none" style="width:100%; filter:sepia(1) saturate(2) hue-rotate(320deg);">
+         <source src="${track.url}">
+         Your browser does not support audio.
+       </audio>`
+        : `<div class="small text-muted">Preview unavailable</div>`;
+
+      return `
+    <div class="track-item-wrapper">
+      <div class="track-item shadow-sm">
+        <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid">
+        <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
+        <p class="track-artist">
+          <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+            Артист: ${escapeHtml(track.artist)}
+          </span>
+        </p>
+        <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
+        ${audioBlock}
+      </div>
+    </div>`;
+    }).join('');
 
     resultsContainer.insertAdjacentHTML('beforeend', html);
     const oldButton = resultsContainer.querySelector('.load-more-container');
