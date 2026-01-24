@@ -131,10 +131,10 @@ main {
 
 h2 {
     text-align: center;
-    color: #242424f6;
+    color: #242424e0;
     font-family: "Roboto", sans-serif;
-    font-size: 2.6em;
-    background-color: rgba(241, 241, 241, 0.649);
+    font-size: 2.3em;
+    background-color: #ffffff80;
     border: 2px solid #ffff;
     border-left: 2px solid rgba(255, 65, 55, 0.75);
     border-right: 2px solid rgba(255, 65, 55, 0.75);
@@ -154,7 +154,7 @@ h2 {
 }
 
 .track-item {
-    background-color: rgba(245, 245, 245, 0.738);
+    background-color: #ffffff80;
     padding: 14px;
     border-top: 1.7px solid #fff;
     border-bottom: 1.7px solid #fff;
@@ -175,10 +175,6 @@ h2 {
     will-change: transform, opacity;
     margin: 20px 0;
     transition: none;
-}
-
-.track-item:hover {
-    background-color: #fff;
 }
 
 .track-title {
@@ -236,7 +232,7 @@ h2 {
 }
 
 .btn-show-more {
-    scale: 1.2;
+    scale: 1.1;
 }
 
 .popular-h2 {
@@ -249,11 +245,21 @@ h2 {
     border-left: 2px solid rgba(255, 65, 55, 0.75);
     border-right: 2px solid rgba(255, 65, 55, 0.75);
     box-shadow: none;
-    background-color: rgba(241, 241, 241, 0.649);
+    background-color: #ffffff80;
     border-radius: 14px;
     font-weight: 400;
     color: #242424f6;
     font-family: "Roboto", sans-serif;
+}
+
+.popular-h2::after {
+    content: "";
+    display: block;
+    width: 5%;
+    height: 1.5px;
+    background-color: rgba(255, 65, 55, 0.75);
+    margin: 8.3px auto 0;
+    border-radius: 7%;
 }
 
 .card-custom,
@@ -262,6 +268,11 @@ h2 {
     border-right: 1.4px solid rgba(255, 65, 55, 0.75);
 }
 
+.card-footer,
+.card-custom,
+.card-year {
+    background-color: #ffffff80;
+}
 
 /* Мобильные устройства */
 @media (max-width: 575.98px) {

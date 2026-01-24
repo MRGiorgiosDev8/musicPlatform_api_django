@@ -32,7 +32,7 @@ const setupMusicSearch = () => {
 
   const loadingElement = document.createElement('div');
   loadingElement.className = 'search-loading';
-  loadingElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> music search...';
+  loadingElement.innerHTML = '<i class="fas fa-spinner mt-3 fa-spin"></i> music search...';
   loadingElement.style.display = 'none';
   resultsContainer.appendChild(loadingElement);
 
@@ -47,7 +47,7 @@ const setupMusicSearch = () => {
     loadMoreContainer.style.textAlign = 'center';
     loadMoreContainer.style.margin = '20px 0';
     const loadMoreButton = document.createElement('button');
-    loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-5';
+    loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-3';
     loadMoreButton.innerHTML = 'Show More <i class="fas fa-chevron-down"></i>';
     loadMoreButton.disabled = currentPage >= totalPages;
     loadMoreButton.addEventListener('click', () => {

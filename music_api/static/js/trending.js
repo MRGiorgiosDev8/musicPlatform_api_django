@@ -34,7 +34,7 @@ function renderCards(list) {
           </div>
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body"><h5 class="card-title mb-1">${a.name}</h5></div>
-            <div class="card-footer bg-white mt-auto">
+            <div class="card-footer mt-auto">
               <small class="text-muted">Популярные релизы:</small>
               <ul class="list-unstyled mb-0 mt-1">
                 ${a.releases.map(r => `
