@@ -73,7 +73,7 @@ function renderTracks2025(list) {
            <source src="${t.url}">
            Ваш браузер не поддерживает аудио.
          </audio>`
-      : `<div class="small text-muted">Превью недоступно</div>`;
+      : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
     col.innerHTML = `
       <div class="card h-100 shadow-sm rounded-sm card-year">

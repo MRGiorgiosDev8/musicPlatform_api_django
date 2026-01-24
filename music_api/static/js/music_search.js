@@ -72,7 +72,7 @@ const setupMusicSearch = () => {
 
     if (currentPage === 1) {
       const resultsHeader = document.createElement('h2');
-      resultsHeader.textContent = 'Results';
+      resultsHeader.textContent = 'Результаты поиска';
       resultsContainer.appendChild(resultsHeader);
     }
 
@@ -85,7 +85,7 @@ const setupMusicSearch = () => {
          <source src="${track.url}">
          Your browser does not support audio.
        </audio>`
-        : `<div class="small text-muted">Preview unavailable</div>`;
+        : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
       return `
     <div class="track-item-wrapper">

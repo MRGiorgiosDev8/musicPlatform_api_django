@@ -66,7 +66,7 @@ def _get_deezer_preview(track_name, artist_name):
 class YearChartAPIView(APIView):
     def get(self, request):
         try:
-            lastfm_tracks = self._get_live_chart(15)
+            lastfm_tracks = self._get_live_chart(35)
             tracks = self._enrich_live_tracks(lastfm_tracks)
             return Response({'tracks': tracks}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -75,7 +75,7 @@ class YearChartAPIView(APIView):
             return Response({'error': str(e), 'trace': traceback.format_exc()},
                             status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    def _get_live_chart(self, limit=15):
+    def _get_live_chart(self, limit=35):
         url = 'http://ws.audioscrobbler.com/2.0/'
         params = {
             'method': 'chart.gettoptracks',
@@ -219,7 +219,7 @@ def _lastfm_artist_releases(mbid, name):
 class TrendingArtistsAPIView(APIView):
     def get(self, request):
         try:
-            lastfm_artists = _get_lastfm_chart(10)
+            lastfm_artists = _get_lastfm_chart(30)
             artists = []
             for art in lastfm_artists:
                 name = art['name']
