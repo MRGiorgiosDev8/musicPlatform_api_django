@@ -13,22 +13,23 @@ def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
         r = requests.get(
             'https://itunes.apple.com/search',
             params={
-                'term': f'{track_name} {artist_name}',
+                'term': track_name,
                 'media': 'music',
                 'entity': 'song',
-                'limit': 1
+                'attribute': 'songTerm',
+                'limit': 5
             },
             timeout=timeout
         )
         r.raise_for_status()
         data = r.json()
-        if not data['resultCount']:
-            return {'cover': None, 'preview': None}
-
-        item = data['results'][0]
-        cover = item['artworkUrl100'].replace('100x100bb', '600x600bb')
-        preview = item.get('previewUrl')
-        return {'cover': cover, 'preview': preview}
+        for item in data.get('results', []):
+            if (item.get('trackName', '').lower() == track_name.lower() and
+                item.get('artistName', '').lower() == artist_name.lower()):
+                cover = item['artworkUrl100'].replace('100x100bb', '600x600bb')
+                preview = item.get('previewUrl')
+                return {'cover': cover, 'preview': preview}
+        return {'cover': None, 'preview': None}
     except Exception:
         return {'cover': None, 'preview': None}
 
