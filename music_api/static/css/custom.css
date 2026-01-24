@@ -293,6 +293,10 @@ h2 {
     .btn-show-more {
         margin-top: 1vh;
     }
+
+    .popular-h2::after {
+        width: 16%;
+    }
 }
 
 /* Планшеты */

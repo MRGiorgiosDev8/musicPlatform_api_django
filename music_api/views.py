@@ -6,13 +6,111 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from .serializers import TrackSerializer, TrendingSerializer
 
-def index(request):
-    return render(request, 'index.html')
+LASTFM_KEY = '49b6213396a4b5a21637bcf627a4bf3d'
+
+def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
+    try:
+        r = requests.get(
+            'https://itunes.apple.com/search',
+            params={
+                'term': f'{track_name} {artist_name}',
+                'media': 'music',
+                'entity': 'song',
+                'limit': 1
+            },
+            timeout=timeout
+        )
+        r.raise_for_status()
+        data = r.json()
+        if not data['resultCount']:
+            return {'cover': None, 'preview': None}
+
+        item = data['results'][0]
+        cover = item['artworkUrl100'].replace('100x100bb', '600x600bb')
+        preview = item.get('previewUrl')
+        return {'cover': cover, 'preview': preview}
+    except Exception:
+        return {'cover': None, 'preview': None}
+
+def _get_deezer_cover(track_name, artist_name):
+    try:
+        r = requests.get(
+            'https://api.deezer.com/search',
+            params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
+            timeout=2
+        )
+        data = r.json()
+        if data.get('data'):
+            alb = data['data'][0]['album']
+            return alb.get('cover_xl') or alb.get('cover_big') or alb.get('cover_medium') or None
+        return None
+    except Exception:
+        return None
+
+
+def _get_deezer_preview(track_name, artist_name):
+    try:
+        r = requests.get(
+            'https://api.deezer.com/search',
+            params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
+            timeout=3
+        )
+        data = r.json()
+        if data.get('data'):
+            return data['data'][0].get('preview')
+        return None
+    except Exception:
+        return None
+
+class YearChartAPIView(APIView):
+    def get(self, request):
+        try:
+            lastfm_tracks = self._get_live_chart(15)
+            tracks = self._enrich_live_tracks(lastfm_tracks)
+            return Response({'tracks': tracks}, status=status.HTTP_200_OK)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({'error': str(e), 'trace': traceback.format_exc()},
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def _get_live_chart(self, limit=15):
+        url = 'http://ws.audioscrobbler.com/2.0/'
+        params = {
+            'method': 'chart.gettoptracks',
+            'api_key': LASTFM_KEY,
+            'format': 'json',
+            'limit': limit
+        }
+        resp = requests.get(url, params=params, timeout=5)
+        resp.raise_for_status()
+        return resp.json()['tracks']['track']
+
+    def _enrich_live_tracks(self, tracks):
+        enriched = []
+        for tr in tracks:
+            name = tr['name']
+            artist = tr['artist']['name']
+
+            itunes = _get_itunes(name, artist)
+
+            cover = itunes['cover'] or _get_deezer_cover(name, artist)
+            preview = itunes['preview'] or _get_deezer_preview(name, artist)
+
+            enriched.append({
+                'name': name,
+                'artist': artist,
+                'listeners': int(tr.get('listeners', 0)),
+                'url': preview or tr['url'],
+                'image_url': cover or '/static/images/default.svg'
+            })
+        return enriched
 
 class TrackPagination(PageNumberPagination):
     page_size = 14
     page_size_query_param = 'page_size'
     max_page_size = 30
+
 
 class TrackSearchAPIView(APIView):
     pagination_class = TrackPagination
@@ -28,12 +126,13 @@ class TrackSearchAPIView(APIView):
 
             enriched_tracks = []
             for track in lastfm_tracks:
-                cover_url = self._get_deezer_cover(track['name'], track['artist'])
+                cover_url = _get_deezer_cover(track['name'], track['artist'])
+                preview_url = _get_deezer_preview(track['name'], track['artist'])
                 enriched_tracks.append({
                     'name': track['name'],
                     'artist': track['artist'],
                     'listeners': track['listeners'],
-                    'url': track['url'],
+                    'url': preview_url or track['url'],
                     'image_url': cover_url or '/static/images/default.svg',
                     'mbid': track.get('mbid', '')
                 })
@@ -58,7 +157,7 @@ class TrackSearchAPIView(APIView):
                 params={
                     'method': 'track.search',
                     'track': query,
-                    'api_key': '49b6213396a4b5a21637bcf627a4bf3d',
+                    'api_key': LASTFM_KEY,
                     'format': 'json',
                     'limit': 100
                 }
@@ -67,27 +166,6 @@ class TrackSearchAPIView(APIView):
             return data.get('results', {}).get('trackmatches', {}).get('track', [])
         except:
             return None
-
-    def _get_deezer_cover(self, track_name, artist_name):
-        try:
-            response = requests.get(
-                'https://api.deezer.com/search',
-                params={
-                    'q': f'artist:"{artist_name}" track:"{track_name}"',
-                    'limit': 1
-                },
-                timeout=2
-            )
-            data = response.json()
-            if data.get('data'):
-                return data['data'][0]['album']['cover_xl'] or \
-                       data['data'][0]['album']['cover_big'] or \
-                       data['data'][0]['album']['cover_medium']
-            return None
-        except:
-            return None
-
-LASTFM_KEY = '49b6213396a4b5a21637bcf627a4bf3d'
 
 def _get_lastfm_chart(limit=20):
     url = 'http://ws.audioscrobbler.com/2.0/'
@@ -101,6 +179,7 @@ def _get_lastfm_chart(limit=20):
     resp.raise_for_status()
     return resp.json()['artists']['artist']
 
+
 def _get_deezer_artist_info(name):
     url = 'https://api.deezer.com/search/artist'
     params = {'q': name, 'limit': 1}
@@ -112,6 +191,7 @@ def _get_deezer_artist_info(name):
         return None
     art = data['data'][0]
     return art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
+
 
 def _lastfm_artist_releases(mbid, name):
     url = 'http://ws.audioscrobbler.com/2.0/'
@@ -134,6 +214,7 @@ def _lastfm_artist_releases(mbid, name):
     except:
         return []
 
+
 class TrendingArtistsAPIView(APIView):
     def get(self, request):
         try:
@@ -153,57 +234,6 @@ class TrendingArtistsAPIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-class YearChartAPIView(APIView):
 
-    def get(self, request):
-        try:
-            lastfm_tracks = self._get_live_chart(15)
-            tracks = self._enrich_live_tracks(lastfm_tracks)
-            return Response({'tracks': tracks}, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return Response({'error': str(e), 'trace': traceback.format_exc()},
-                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
-    def _get_live_chart(self, limit=15):
-        url = 'http://ws.audioscrobbler.com/2.0/'
-        params = {
-            'method': 'chart.gettoptracks',
-            'api_key': '49b6213396a4b5a21637bcf627a4bf3d',
-            'format': 'json',
-            'limit': limit
-        }
-        resp = requests.get(url, params=params, timeout=5)
-        resp.raise_for_status()
-        return resp.json()['tracks']['track']
-
-    def _enrich_live_tracks(self, tracks):
-        enriched = []
-        for tr in tracks:
-            cover = self._get_deezer_cover(tr['name'], tr['artist']['name'])
-            enriched.append({
-                'name': tr['name'],
-                'artist': tr['artist']['name'],
-                'listeners': int(tr.get('listeners', 0)),
-                'url': tr['url'],
-                'image_url': cover or '/static/images/default.svg'
-            })
-        return enriched
-
-    def _get_deezer_cover(self, track_name, artist_name):
-        try:
-            response = requests.get(
-                'https://api.deezer.com/search',
-                params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
-                timeout=2
-            )
-            data = response.json()
-            if data.get('data'):
-                return data['data'][0]['album']['cover_xl'] or \
-                       data['data'][0]['album']['cover_big'] or \
-                       data['data'][0]['album']['cover_medium']
-            return None
-        except:
-            return None
+def index(request):
+    return render(request, 'index.html')
