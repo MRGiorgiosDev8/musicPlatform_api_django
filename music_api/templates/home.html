@@ -4,29 +4,43 @@
 
 {% block popular %}
 <section id="popular-block" class="container my-5">
-  <h1 class="visually-hidden">
-    Поиск и прослушивание музыки онлайн — тренды и чарты 2026
-  </h1>
-  <div class="row mb-5 info-project">
+  <h1 class="visually-hidden">Поиск и прослушивание музыки онлайн — тренды и чарты 2026</h1>
+
+  <div class="row mb-5 info-project position-relative">
+    <svg class="note-icon d-none d-lg-block left" aria-hidden="true"
+         viewBox="0 0 120 120" preserveAspectRatio="meet">
+      <image href="{% static 'images/note_rubin.svg' %}"
+             width="120" height="120"/>
+    </svg>
+
+    <svg class="note-icon d-none d-lg-block right" aria-hidden="true"
+         viewBox="0 0 120 120" preserveAspectRatio="meet">
+      <image href="{% static 'images/note_rubin.svg' %}"
+             width="120" height="120"/>
+    </svg>
+
     <div class="col-lg-8 mx-auto text-center box-info">
       <h2 class="mb-3 about-h2">О проекте</h2>
       <p class="lead mb-0">
-        <span class="ruby_span">RubySound.fm</span> — веб-приложение на <span class="django_span">Django</span> и <span class="rest_span">REST Framework</span> для поиска музыки и артистов,
-        а также для прослушивания превью треков. Проект объединяет данные из <span class="fm_span">Last.fm</span>, <span class="deexer_span">Deezer</span> и <span class="tune_span">iTunes</span> 
-        предоставляет <span class="api_span">REST API </span> и интерактивный фронтенд с возможностью прослушивания превью и анимациями.
+        <span class="ruby_span">RubySound.fm</span> — веб-приложение на
+        <span class="django_span">Django</span> и
+        <span class="rest_span">REST Framework</span> для поиска музыки и артистов,
+        а также для прослушивания превью треков. Проект объединяет данные из
+        <span class="fm_span">Last.fm</span>, <span class="deexer_span">Deezer</span> и
+        <span class="tune_span">iTunes</span>, предоставляет
+        <span class="api_span">REST API</span> и интерактивный фронтенд с возможностью
+        прослушивания превью и анимациями.
       </p>
     </div>
   </div>
 
   <h2 class="mb-4 text-center popular-h2 shadow-sm">Топ-Артисты</h2>
-
   <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container">
     <div class="col-12 text-center text-muted"></div>
   </div>
 
-  <h2 class="mb-4 mt-3 text-center year2025-h3 popular-h2 shadow-sm">Актуальный чарт </h2>
+  <h2 class="mb-4 mt-3 text-center year2025-h3 popular-h2 shadow-sm">Актуальный чарт</h2>
   <div id="year2025-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3"></div>
-
 
   <script type="module" src="{% static 'js/year2025.js' %}"></script>
 </section>

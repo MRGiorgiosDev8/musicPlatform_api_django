@@ -308,6 +308,29 @@ main {
     font-size: 1.1em;
 }
 
+.info-project {
+    position: relative;
+    overflow: hidden;
+}
+
+.note-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 140px;
+    width: 140px;
+    pointer-events: none;
+    opacity: 0.98;
+}
+
+.note-icon.left {
+    left: 11vh;
+}
+
+.note-icon.right {
+    right: 11vh;
+}
+
 /* Мобильные устройства */
 @media (max-width: 575.98px) {
     .logo-font img {
