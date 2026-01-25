@@ -321,7 +321,7 @@ main {
     }
 
     .popular-h2 {
-        margin-top: -7vh;
+        margin-top: -3vh;
     }
 
     .btn-show-more {
@@ -330,6 +330,30 @@ main {
 
     .popular-h2::after {
         width: 16%;
+    }
+
+    .info-project {
+        margin-top: -6vh;
+        border: none;
+        border-radius: 0;
+    }
+
+    .box-info p {
+        font-size: 1.1em;
+        font-weight: 300;
+    }
+
+    .django_span,
+    .rest_span {
+        font-size: 19px;
+    }
+
+    .ruby_span {
+        font-size: 1.1em;
+    }
+
+    .about-h2::after {
+        width: 14%;
     }
 }
 

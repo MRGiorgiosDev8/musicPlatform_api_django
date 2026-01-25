@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const logo = document.querySelector('.logo-img');
   if (logo) {
     gsap.to(logo, {
-      scale: 1.01,
+      scale: 1.011,
       duration: 0.3,
       ease: 'power1.inOut',
       yoyo: true,
