@@ -2,6 +2,8 @@ const YEAR_URL = '/music_api/year-chart/';
 const CACHE_KEY = 'year2025_tracks';
 const CACHE_TTL = 15 * 60 * 1000;
 
+let activeAudio = null;          
+
 function getCached() {
   const raw = localStorage.getItem(CACHE_KEY);
   if (!raw) return null;
@@ -77,7 +79,7 @@ function renderTracks2025(list) {
 
     col.innerHTML = `
       <div class="card h-100 shadow-sm rounded-sm card-year">
-        <img src="${cover}" class="card-img-top" alt="${t.name}" onerror="this.src='/static/images/default.svg'">
+        <img src="${cover}" class="card-img-top" alt="${t.name}" onerror="this.src='/static/images/default.svg'" loading="lazy">
         <div class="card-body p-2">
           <h6 class="card-title mb-1">${t.name}</h6>
           <p class="card-text small mb-1">Артист: ${t.artist}</p>
@@ -88,6 +90,19 @@ function renderTracks2025(list) {
         </div>
       </div>`;
     container.appendChild(col);
+  });
+
+  container.querySelectorAll('audio').forEach(audio => {
+    audio.addEventListener('play', () => {
+      if (activeAudio && activeAudio !== audio) {
+        activeAudio.pause();
+        activeAudio.currentTime = 0;
+      }
+      activeAudio = audio;
+    });
+    audio.addEventListener('ended', () => {
+      if (activeAudio === audio) activeAudio = null;
+    });
   });
 
   document.dispatchEvent(new Event('year2025:rendered'));

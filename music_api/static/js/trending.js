@@ -30,7 +30,7 @@ function renderCards(list) {
       <div class="card h-100 shadow-sm rounded-sm card-custom">
         <div class="row g-0 h-100">
           <div class="col-md-4">
-            <img src="${a.photo_url}" class="img-fluid rounded-start h-100 w-100 object-fit-cover" alt="${a.name}">
+            <img src="${a.photo_url}" class="img-fluid rounded-start h-100 w-100 object-fit-cover" alt="${a.name}" loading="lazy">
           </div>
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body"><h5 class="card-title mb-1">${a.name}</h5></div>
@@ -39,7 +39,7 @@ function renderCards(list) {
               <ul class="list-unstyled mb-0 mt-1">
                 ${a.releases.map(r => `
                   <li class="d-flex align-items-center mb-1">
-                    <img src="${r.cover}" width="32" height="32" class="rounded me-2 shadow-sm" alt="">
+                    <img src="${r.cover}" width="32" height="32" class="rounded me-2 shadow-sm" alt="cover" loading="lazy">
                     <div><div class="fw-semibold">${r.title}</div>
                          <div class="small text-muted">${r.playcount} прослушиваний</div></div>
                   </li>`).join('')}

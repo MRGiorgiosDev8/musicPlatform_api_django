@@ -17,6 +17,8 @@ const showPopular = () => {
   if (popular) popular.style.display = '';
 };
 
+let activeAudio = null;
+
 const setupMusicSearch = () => {
   const searchForm = document.querySelector('.form-search');
   const searchInput = document.querySelector('.input-search');
@@ -84,7 +86,7 @@ const setupMusicSearch = () => {
       return `
     <div class="track-item-wrapper">
       <div class="track-item shadow-sm">
-        <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid">
+          <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid" loading="lazy">
         <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
         <p class="track-artist">
           <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
@@ -98,6 +100,20 @@ const setupMusicSearch = () => {
     }).join('');
 
     resultsContainer.insertAdjacentHTML('beforeend', html);
+
+    resultsContainer.querySelectorAll('audio').forEach(audio => {
+      audio.addEventListener('play', () => {
+        if (activeAudio && activeAudio !== audio) {
+          activeAudio.pause();
+          activeAudio.currentTime = 0;
+        }
+        activeAudio = audio;
+      });
+      audio.addEventListener('ended', () => {
+        if (activeAudio === audio) activeAudio = null;
+      });
+    });
+
     const oldButton = resultsContainer.querySelector('.load-more-container');
     if (oldButton) oldButton.remove();
     if (currentPage < totalPages) resultsContainer.appendChild(createLoadMoreButton());
