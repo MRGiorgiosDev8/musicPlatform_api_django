@@ -32,7 +32,7 @@ const setupMusicSearch = () => {
 
   const loadingElement = document.createElement('div');
   loadingElement.className = 'search-loading';
-  loadingElement.innerHTML = '<i class="fas fa-spinner mt-3 fa-spin"></i> music search...';
+  loadingElement.innerHTML = '<i class="fas fa-spinner mt-3 fa-spin"></i> <span style="font-weight: 300;">поиск музыки ...</span>';
   loadingElement.style.display = 'none';
   resultsContainer.appendChild(loadingElement);
 

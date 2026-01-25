@@ -3,7 +3,6 @@ gsap.fromTo('.popular-h2',
   { scale: 1, duration: 0.6, ease: 'power3.inOut' }
 );
 
-
 function animateCards() {
   const cards = document.querySelectorAll('#trending-container .card-custom');
   if (!cards.length) return;
@@ -42,4 +41,16 @@ document.addEventListener('year2025:rendered', animateYear2025);
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(animateCards, 150);
   setTimeout(animateYear2025, 250);
+
+  const logo = document.querySelector('.logo-img');
+  if (logo) {
+    gsap.to(logo, {
+      scale: 1.01,
+      duration: 0.3,
+      ease: 'power1.inOut',
+      yoyo: true,
+      repeat: -1,
+      transformOrigin: 'center center'
+    });
+  }
 });

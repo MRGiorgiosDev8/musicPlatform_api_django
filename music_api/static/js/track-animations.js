@@ -62,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
         items.forEach(item => {
           item.style.visibility = 'visible';
 
-          // Стрелка не трогаем и события hover упрощаем
           item.addEventListener('mouseenter', () => {
             anime({
               targets: item,

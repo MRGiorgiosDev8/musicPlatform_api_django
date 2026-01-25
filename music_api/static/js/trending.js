@@ -60,7 +60,7 @@ function showSpinner(show = true) {
     spinner = document.createElement('div');
     spinner.id = 'trending-spinner';
     spinner.className = 'search-loading';
-    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> loading...';
+    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight: 300;">загрузка данных ...</span>';
     document.getElementById('trending-container').before(spinner);
   }
   spinner.style.display = show ? 'block' : 'none';

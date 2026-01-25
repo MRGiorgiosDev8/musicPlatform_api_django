@@ -22,7 +22,7 @@ function showSpinner(show = true) {
     sp = document.createElement('div');
     sp.id = 'year2025-spinner';
     sp.className = 'search-loading';
-    sp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> loading...';
+    sp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight: 300;">загрузка данных ...</span>';
     document.getElementById('year2025-container').before(sp);
   }
   sp.style.display = show ? 'block' : 'none';

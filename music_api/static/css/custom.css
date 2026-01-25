@@ -59,6 +59,7 @@ main {
     height: 70px;
     filter: brightness(0.93);
     margin-right: 0.4vh;
+    display: block;
 }
 
 .nav-link {
