@@ -70,12 +70,6 @@ const setupMusicSearch = () => {
       return;
     }
 
-    if (currentPage === 1) {
-      const resultsHeader = document.createElement('h2');
-      resultsHeader.textContent = 'Результаты поиска';
-      resultsContainer.appendChild(resultsHeader);
-    }
-
     const startIndex = (currentPage - 1) * tracksPerPage;
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
     let html = tracksToShow.map(track => {

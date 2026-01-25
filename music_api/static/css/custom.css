@@ -129,22 +129,6 @@ main {
     cursor: pointer;
 }
 
-h2 {
-    text-align: center;
-    color: #242424c5;
-    font-family: "Roboto", sans-serif;
-    font-size: 2.3em;
-    background-color: #ffffff80;
-    border: 2px solid #ffff;
-    border-left: 2px solid rgba(255, 65, 55, 0.75);
-    border-right: 2px solid rgba(255, 65, 55, 0.75);
-    border-radius: 14px;
-    font-weight: 400;
-    border-top: 1.7px solid #fff;
-    border-bottom: 1.7px solid #fff;
-    box-shadow: #a1a1a1 1px 1px 2px;
-}
-
 /* Стили для поиска музыки */
 .search-container {
     max-width: 800px;
@@ -249,7 +233,7 @@ h2 {
     border-radius: 14px;
     font-weight: 400;
     color: #242424f6;
-    font-family: "Roboto", sans-serif;
+    font-family: "Play", sans-serif;
 }
 
 .popular-h2::after {
@@ -263,15 +247,64 @@ h2 {
 }
 
 .card-custom,
-.card-year {
+.card-year,
+.info-project {
     border-left: 1.4px solid rgba(255, 65, 55, 0.75);
     border-right: 1.4px solid rgba(255, 65, 55, 0.75);
 }
 
 .card-footer,
 .card-custom,
-.card-year {
+.card-year,
+.info-project {
     background-color: #ffffff80;
+}
+
+.info-project {
+    border-radius: 11px;
+    font-family: "Roboto", sans-serif;
+}
+
+.box-info {
+    padding: 14px;
+    padding-bottom: 11px;
+    padding-top: 20px;
+}
+
+.box-info p {
+    font-size: 1.2em;
+    font-weight: 300;
+}
+
+.about-h2 {
+    font-size: 2.1em;
+    font-family: "Play", sans-serif;
+    font-weight: 400;
+    color: #242424f6;
+}
+
+.about-h2::after {
+    content: "";
+    display: block;
+    width: 7%;
+    height: 1.5px;
+    background-color: rgba(255, 65, 55, 0.75);
+    margin: 8.3px auto 0;
+    border-radius: 7%;
+}
+
+
+.django_span,
+.rest_span {
+    font-weight: 400;
+    font-size: 20px;
+    color: #363636f6;
+}
+
+.ruby_span {
+    color: #cb5e5e;
+    font-weight: 500;
+    font-size: 1.1em;
 }
 
 /* Мобильные устройства */
