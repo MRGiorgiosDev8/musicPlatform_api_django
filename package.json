@@ -1,0 +1,14 @@
+{
+  "name": "musicplatform-api-django",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "gsap": "^3.14.2"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

@@ -313,7 +313,7 @@ main {
     }
 
     .about-h2::after {
-        width: 14%;
+        width: 13%;
     }
 }
 
@@ -338,4 +338,25 @@ main {
         width: 70px;
         height: 70px;
     }
+}
+
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: portrait),
+       (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  .hide-ipad-pro {
+    display: none !important;
+  }
+}
+
+@media (width: 1180px) and (height: 820px),
+       (width: 820px) and (height: 1180px) {
+  .hide-ipad-pro {
+    display: none !important;
+  }
+}
+
+@media (width: 1113px) and (height: 744px),
+       (width: 744px) and (height: 1113px) {
+  .hide-ipad-mini {
+    display: none !important;
+  }
 }
