@@ -13,8 +13,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-ENV DEBUG=1
-ENV SECRET_KEY="georgetestdocker"
-ENV ALLOWED_HOSTS="*"
-
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "music_project.wsgi:application"]

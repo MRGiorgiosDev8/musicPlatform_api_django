@@ -20,8 +20,6 @@ class ArtistShortSerializer(serializers.Serializer):
     photo_url = serializers.URLField(required=False, allow_blank=True)
     releases = ReleaseShortSerializer(many=True)
 
-class TrendingSerializer(serializers.Serializer):
-    artists = ArtistShortSerializer(many=True)
 
 class YearTrackSerializer(serializers.Serializer):
     name = serializers.CharField()

@@ -1,3 +1,5 @@
+const TREND_CACHE_TTL = 10 * 60 * 1000;   
+
 const escapeHtml = (unsafe) => {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -5,6 +7,18 @@ const escapeHtml = (unsafe) => {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+};
+
+const getCachedTrend = key => {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+  try {
+    const { ts, data } = JSON.parse(raw);
+    return Date.now() - ts > TREND_CACHE_TTL ? null : data;
+  } catch { return null; }
+};
+const setCachedTrend = (key, data) => {
+  localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
 };
 
 const hidePopular = () => {
@@ -128,9 +142,10 @@ const setupMusicSearch = () => {
     loadingElement.style.display = 'block';
     resultsContainer.appendChild(loadingElement);
 
-    const cached = localStorage.getItem(`music_search_${query}`);
+    const cacheKey = `music_search_${query}`;
+    const cached = getCachedTrend(cacheKey);          
     if (cached) {
-      allTracks = JSON.parse(cached);
+      allTracks = cached;
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
       loadingElement.style.display = 'none';
@@ -143,7 +158,7 @@ const setupMusicSearch = () => {
       if (!response.ok) throw new Error('Server error');
       const data = await response.json();
       allTracks = data.results || data;
-      localStorage.setItem(`music_search_${query}`, JSON.stringify(allTracks));
+      setCachedTrend(cacheKey, allTracks);            
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
       displayResults();

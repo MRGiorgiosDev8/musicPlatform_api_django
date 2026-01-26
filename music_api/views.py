@@ -4,9 +4,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from .serializers import TrackSerializer, TrendingSerializer
+from .serializers import TrackSerializer
+from decouple import config
 
-LASTFM_KEY = '49b6213396a4b5a21637bcf627a4bf3d'
+LASTFM_KEY = config("LASTFM_KEY")
 
 def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
     try:
