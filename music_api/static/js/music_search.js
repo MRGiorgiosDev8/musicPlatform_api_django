@@ -64,6 +64,7 @@ const setupMusicSearch = () => {
     loadMoreContainer.style.margin = '20px 0';
     const loadMoreButton = document.createElement('button');
     loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-3';
+    loadMoreButton.style.transform = 'scale(1.1)';
     loadMoreButton.innerHTML = 'Show More <i class="fas fa-chevron-down"></i>';
     loadMoreButton.disabled = currentPage >= totalPages;
     loadMoreButton.addEventListener('click', () => {
