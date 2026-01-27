@@ -1,4 +1,4 @@
-const YEAR_URL  = '/music_api/year-chart/';
+const YEAR_URL = '/music_api/year-chart/';
 const CACHE_TTL = 10 * 60 * 1000;
 
 let activeAudio = null;
@@ -32,31 +32,37 @@ function showSpinner(show = true) {
     sp = document.createElement('div');
     sp.id = 'year2025-spinner';
     sp.className = 'search-loading';
-    sp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight: 300;">загрузка данных ...</span>';
+    sp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight:300;">загрузка данных ...</span>';
     document.getElementById('year2025-container').before(sp);
   }
   sp.style.display = show ? 'block' : 'none';
 }
 
-function initGenreButtons() {
-  const container = document.getElementById('genre-buttons');
+function initYearGenreButtons() {
+  const container = document.getElementById('year-genre-container');
   if (!container) return;
 
   container.innerHTML = '';
+  container.classList.add('genre-carousel');
+
   GENRES.forEach((g, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'btn btn-outline-danger';
+    btn.className = 'btn btn-outline-danger flex-shrink-0';
     if (idx === 0) btn.classList.add('active');
-    btn.textContent = g.label;
+    btn.style.minWidth = '120px';
+    btn.style.whiteSpace = 'nowrap';
+    btn.style.display = 'inline-flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+
     btn.dataset.genre = g.value;
+    btn.innerHTML = `<img src="/static/images/default.svg" width="24" height="24" class="me-1">${g.label}`;
 
     btn.addEventListener('click', () => {
       container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      const genre = btn.dataset.genre;
-      loadYear2025(genre);
+      loadYear2025(g.value);
     });
 
     container.appendChild(btn);
@@ -79,7 +85,6 @@ async function loadYear2025(genre = '') {
     const data = await res.json();
 
     genreCache[genre] = { ts: Date.now(), data: data.tracks };
-
     renderTracks2025(data.tracks);
   } catch (e) {
     console.error(e);
@@ -112,9 +117,7 @@ function renderTracks2025(list) {
            <source src="${t.url}">
            Ваш браузер не поддерживает аудио.
          </audio>`
-      : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">
-           Превью недоступно
-         </div>`;
+      : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
     col.innerHTML = `
       <div class="card h-100 shadow-sm rounded-sm card-year">
@@ -125,9 +128,7 @@ function renderTracks2025(list) {
         <div class="card-body p-2">
           <h6 class="card-title mb-1">${t.name}</h6>
           <p class="card-text small mb-1">Артист: ${t.artist}</p>
-          <p class="card-text small text-muted mb-2">
-            Прослушиваний: ${t.listeners}
-          </p>
+          <p class="card-text small text-muted mb-2">Прослушиваний: ${t.listeners}</p>
           ${audioBlock}
         </div>
       </div>
@@ -152,6 +153,6 @@ function renderTracks2025(list) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initGenreButtons();
+  initYearGenreButtons();
   loadYear2025();
 });

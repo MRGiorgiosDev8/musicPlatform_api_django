@@ -272,8 +272,19 @@ main {
 }
 
 .search-loading i.fa-spinner {
-  font-size: 2.1rem; 
-  color: var(--color-primary); 
+    font-size: 2.1rem;
+    color: var(--color-primary);
+}
+
+.trending-genre-carousel-wrapper .d-flex,
+.year-genre-carousel-wrapper .d-flex {
+    scrollbar-width: none;      
+    -ms-overflow-style: none;   
+}
+
+.trending-genre-carousel-wrapper .d-flex::-webkit-scrollbar,
+.year-genre-carousel-wrapper .d-flex::-webkit-scrollbar {
+    display: none;             
 }
 
 @media (max-width: 575.98px) {
