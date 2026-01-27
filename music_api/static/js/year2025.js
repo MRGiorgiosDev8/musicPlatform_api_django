@@ -11,6 +11,19 @@ const GENRES = [
   { value: 'hip-hop', label: 'Hip-Hop' },
   { value: 'electronic', label: 'Electronic' },
   { value: 'jazz', label: 'Jazz' },
+  { value: 'rap', label: 'Rap' },
+  { value: 'soul', label: 'Soul' },
+  { value: 'indie', label: 'Indie' },
+  { value: 'r&b', label: 'R&B' },
+  { value: 'k-pop', label: 'K-Pop' },
+  { value: 'lo-fi', label: 'Lo-Fi' },
+  { value: 'house', label: 'House' },
+  { value: 'dubstep', label: 'Dubstep' },
+  { value: 'trap', label: 'Trap' },
+  { value: 'blues', label: 'Blues' },
+  { value: 'metal', label: 'Metal' },
+  { value: 'country', label: 'Country' },
+  { value: 'punk', label: 'Punk' },
 ];
 
 function showSpinner(show = true) {

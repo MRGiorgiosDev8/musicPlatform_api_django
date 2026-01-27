@@ -24,12 +24,16 @@ def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
         )
         r.raise_for_status()
         data = r.json()
+
         for item in data.get('results', []):
-            if (item.get('trackName', '').lower() == track_name.lower() and
-                item.get('artistName', '').lower() == artist_name.lower()):
-                cover = item['artworkUrl100'].replace('100x100bb', '600x600bb')
-                preview = item.get('previewUrl')
-                return {'cover': cover, 'preview': preview}
+            if (
+                item.get('trackName', '').lower() == track_name.lower()
+                and item.get('artistName', '').lower() == artist_name.lower()
+            ):
+                return {
+                    'cover': item['artworkUrl100'].replace('100x100bb', '600x600bb'),
+                    'preview': item.get('previewUrl')
+                }
         return {'cover': None, 'preview': None}
     except Exception:
         return {'cover': None, 'preview': None}
@@ -44,10 +48,10 @@ def _get_deezer_cover(track_name, artist_name):
         data = r.json()
         if data.get('data'):
             alb = data['data'][0]['album']
-            return alb.get('cover_xl') or alb.get('cover_big') or alb.get('cover_medium') or None
-        return None
+            return alb.get('cover_xl') or alb.get('cover_big') or alb.get('cover_medium')
     except Exception:
-        return None
+        pass
+    return None
 
 
 def _get_deezer_preview(track_name, artist_name):
@@ -60,22 +64,24 @@ def _get_deezer_preview(track_name, artist_name):
         data = r.json()
         if data.get('data'):
             return data['data'][0].get('preview')
-        return None
     except Exception:
-        return None
+        pass
+    return None
+
 
 class YearChartAPIView(APIView):
     def get(self, request):
         genre = request.query_params.get('genre')
-        try:
-            limit = 15
-            if genre:
-                lastfm_tracks = self._get_by_genre_with_listeners(genre, limit)
-            else:
-                lastfm_tracks = self._get_live_chart(limit)
+        limit = 15
 
-            tracks = self._enrich_live_tracks(lastfm_tracks)
-            return Response({'tracks': tracks}, status=status.HTTP_200_OK)
+        try:
+            if genre:
+                tracks = self._get_by_genre_with_listeners(genre, limit)
+            else:
+                tracks = self._get_live_chart(limit)
+
+            enriched = self._enrich_tracks(tracks)
+            return Response({'tracks': enriched}, status=status.HTTP_200_OK)
 
         except Exception as e:
             import traceback
@@ -85,58 +91,38 @@ class YearChartAPIView(APIView):
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-    def _get_by_genre_with_listeners(self, genre, limit=15):
-        url = 'http://ws.audioscrobbler.com/2.0/'
-        params = {
-            'method': 'tag.gettoptracks',
-            'tag': genre,
-            'api_key': LASTFM_KEY,
-            'format': 'json',
-            'limit': limit
-        }
-        r = requests.get(url, params=params, timeout=5)
+    def _get_live_chart(self, limit):
+        r = requests.get(
+            'http://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'chart.gettoptracks',
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': limit
+            },
+            timeout=5
+        )
         r.raise_for_status()
-        tracks = r.json()['tracks']['track']
+        return r.json()['tracks']['track']
 
-        for tr in tracks:
-            try:
-                track_info = self._get_track_info(tr['name'], tr['artist']['name'])
-                if track_info and 'listeners' in track_info:
-                    tr['listeners'] = track_info['listeners']
-            except Exception:
-                tr['listeners'] = tr.get('listeners', '0')
-        return tracks
-
-    def _get_track_info(self, track_name, artist_name):
-        url = 'http://ws.audioscrobbler.com/2.0/'
-        params = {
-            'method': 'track.getInfo',
-            'api_key': LASTFM_KEY,
-            'artist': artist_name,
-            'track': track_name,
-            'format': 'json'
-        }
-        r = requests.get(url, params=params, timeout=5)
+    def _get_by_genre_with_listeners(self, genre, limit):
+        r = requests.get(
+            'http://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'tag.gettoptracks',
+                'tag': genre,
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': limit
+            },
+            timeout=5
+        )
         r.raise_for_status()
-        data = r.json()
-        if 'track' in data and 'listeners' in data['track']:
-            return {'listeners': data['track']['listeners']}
-        return None
+        return r.json()['tracks']['track']
 
-    def _get_live_chart(self, limit=15):
-        url = 'http://ws.audioscrobbler.com/2.0/'
-        params = {
-            'method': 'chart.gettoptracks',
-            'api_key': LASTFM_KEY,
-            'format': 'json',
-            'limit': limit
-        }
-        resp = requests.get(url, params=params, timeout=5)
-        resp.raise_for_status()
-        return resp.json()['tracks']['track']
-
-    def _enrich_live_tracks(self, tracks):
+    def _enrich_tracks(self, tracks):
         enriched = []
+
         for tr in tracks:
             name = tr['name']
             artist = tr['artist']['name']
@@ -152,7 +138,9 @@ class YearChartAPIView(APIView):
                 'url': preview or tr.get('url'),
                 'image_url': cover or '/static/images/default.svg'
             })
+
         return enriched
+
 
 class TrackPagination(PageNumberPagination):
     page_size = 14
@@ -166,119 +154,163 @@ class TrackSearchAPIView(APIView):
     def get(self, request):
         query = request.query_params.get('q', '')
         if not query:
-            return Response({"error": "Query parameter 'q' is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Query parameter 'q' is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
-            lastfm_tracks = self._get_lastfm_tracks(query)
-            if not lastfm_tracks:
+            tracks = self._get_lastfm_tracks(query)
+            if not tracks:
                 return Response([], status=status.HTTP_200_OK)
 
-            enriched_tracks = []
-            for track in lastfm_tracks:
-                cover_url = _get_deezer_cover(track['name'], track['artist'])
-                preview_url = _get_deezer_preview(track['name'], track['artist'])
-                enriched_tracks.append({
-                    'name': track['name'],
-                    'artist': track['artist'],
-                    'listeners': track['listeners'],
-                    'url': preview_url or track['url'],
-                    'image_url': cover_url or '/static/images/default.svg',
-                    'mbid': track.get('mbid', '')
+            enriched = []
+            for tr in tracks:
+                cover = _get_deezer_cover(tr['name'], tr['artist'])
+                preview = _get_deezer_preview(tr['name'], tr['artist'])
+                enriched.append({
+                    'name': tr['name'],
+                    'artist': tr['artist'],
+                    'listeners': tr['listeners'],
+                    'url': preview or tr['url'],
+                    'image_url': cover or '/static/images/default.svg',
+                    'mbid': tr.get('mbid', '')
                 })
 
-            serializer = TrackSerializer(data=enriched_tracks, many=True)
-            if serializer.is_valid():
-                return self.paginate_queryset(serializer.data)
-            return Response(enriched_tracks, status=status.HTTP_200_OK)
+            serializer = TrackSerializer(data=enriched, many=True)
+            serializer.is_valid(raise_exception=True)
+            return self.paginate_queryset(serializer.data)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def paginate_queryset(self, queryset):
         paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(queryset, self.request)
-        return paginator.get_paginated_response(result_page)
+        page = paginator.paginate_queryset(queryset, self.request)
+        return paginator.get_paginated_response(page)
 
     def _get_lastfm_tracks(self, query):
-        try:
-            response = requests.get(
-                'http://ws.audioscrobbler.com/2.0/',
-                params={
-                    'method': 'track.search',
-                    'track': query,
-                    'api_key': LASTFM_KEY,
-                    'format': 'json',
-                    'limit': 100
-                }
-            )
-            data = response.json()
-            return data.get('results', {}).get('trackmatches', {}).get('track', [])
-        except:
-            return None
+        r = requests.get(
+            'http://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'track.search',
+                'track': query,
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': 100
+            }
+        )
+        return r.json().get('results', {}).get('trackmatches', {}).get('track', [])
 
-def _get_lastfm_chart(limit=20):
-    url = 'http://ws.audioscrobbler.com/2.0/'
-    params = {
-        'method': 'chart.gettopartists',
-        'api_key': LASTFM_KEY,
-        'format': 'json',
-        'limit': limit
-    }
-    resp = requests.get(url, params=params, timeout=5)
-    resp.raise_for_status()
-    return resp.json()['artists']['artist']
+
+def _get_lastfm_artists_by_genre(genre, limit=30):
+    r = requests.get(
+        'http://ws.audioscrobbler.com/2.0/',
+        params={
+            'method': 'tag.gettopartists',
+            'tag': genre,
+            'api_key': LASTFM_KEY,
+            'format': 'json',
+            'limit': limit * 2
+        },
+        timeout=5
+    )
+    r.raise_for_status()
+
+    artists = r.json()['topartists']['artist']
+
+    for a in artists:
+        a['listeners'] = int(a.get('listeners', 0))
+        a['playcount'] = int(a.get('playcount', 0))
+
+    artists.sort(
+        key=lambda a: (a['listeners'], a['playcount']),
+        reverse=True
+    )
+
+    return artists[:limit]
+
+
+def _get_lastfm_chart(limit=30):
+    r = requests.get(
+        'http://ws.audioscrobbler.com/2.0/',
+        params={
+            'method': 'chart.gettopartists',
+            'api_key': LASTFM_KEY,
+            'format': 'json',
+            'limit': limit
+        },
+        timeout=5
+    )
+    r.raise_for_status()
+    return r.json()['artists']['artist']
 
 
 def _get_deezer_artist_info(name):
-    url = 'https://api.deezer.com/search/artist'
-    params = {'q': name, 'limit': 1}
-    r = requests.get(url, params=params, timeout=3)
-    if r.status_code != 200:
-        return None
+    r = requests.get(
+        'https://api.deezer.com/search/artist',
+        params={'q': name, 'limit': 1},
+        timeout=3
+    )
     data = r.json()
-    if not data.get('data'):
-        return None
-    art = data['data'][0]
-    return art.get('picture_xl') or art.get('picture_big') or art.get('picture_medium')
+    if data.get('data'):
+        art = data['data'][0]
+        return art.get('picture_xl') or art.get('picture_big')
+    return None
 
 
 def _lastfm_artist_releases(mbid, name):
-    url = 'http://ws.audioscrobbler.com/2.0/'
-    params = {
-        'method': 'artist.gettopalbums',
-        'artist': name,
-        'mbid': mbid,
-        'api_key': LASTFM_KEY,
-        'format': 'json',
-        'limit': 3
-    }
     try:
-        r = requests.get(url, params=params, timeout=4)
+        r = requests.get(
+            'http://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'artist.gettopalbums',
+                'artist': name,
+                'mbid': mbid,
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': 3
+            },
+            timeout=4
+        )
         r.raise_for_status()
         albums = r.json()['topalbums']['album']
-        return [{'title': a['name'],
-                 'playcount': a.get('playcount', 0),
-                 'url': a['url'],
-                 'cover': a['image'][-1]['#text'] or '/static/images/default.svg'} for a in albums]
-    except:
+        return [
+            {
+                'title': a['name'],
+                'playcount': a.get('playcount', 0),
+                'url': a['url'],
+                'cover': a['image'][-1]['#text'] or '/static/images/default.svg'
+            }
+            for a in albums
+        ]
+    except Exception:
         return []
 
 
 class TrendingArtistsAPIView(APIView):
     def get(self, request):
+        genre = request.query_params.get('genre')
+
         try:
-            lastfm_artists = _get_lastfm_chart(30)
+            if genre:
+                artists_raw = _get_lastfm_artists_by_genre(genre, 16)
+            else:
+                artists_raw = _get_lastfm_chart(16)
+
             artists = []
-            for art in lastfm_artists:
+            for art in artists_raw:
                 name = art['name']
-                mbid = art.get('mbid', '')
-                photo = _get_deezer_artist_info(name)
-                releases = _lastfm_artist_releases(mbid, name)
                 artists.append({
                     'name': name,
-                    'photo_url': photo or '/static/images/default.svg',
-                    'releases': releases
+                    'photo_url': _get_deezer_artist_info(name) or '/static/images/default.svg',
+                    'listeners': art.get('listeners', 0),
+                    'playcount': art.get('playcount', 0),
+                    'releases': _lastfm_artist_releases(art.get('mbid', ''), name)
                 })
+
             return Response({'artists': artists}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 

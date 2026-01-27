@@ -1,85 +1,152 @@
 const TRENDING_URL = '/music_api/trending/';
-const CACHE_KEY   = 'trending_artists';
-const CACHE_TTL   = 10 * 60 * 1000;
+const CACHE_TTL = 10 * 60 * 1000;
 
-function getCached() {
-  const raw = localStorage.getItem(CACHE_KEY);
-  if (!raw) return null;
-  try {
-    const {ts, data} = JSON.parse(raw);
-    if (Date.now() - ts > CACHE_TTL) return null;
-    return data;
-  } catch { return null; }
+let trendingGenreCache = {};
+
+const TRENDING_GENRES = [
+  { value: '', label: 'Все' },
+  { value: 'rock', label: 'Rock' },
+  { value: 'pop', label: 'Pop' },
+  { value: 'hip-hop', label: 'Hip-Hop' },
+  { value: 'electronic', label: 'Electronic' },
+  { value: 'jazz', label: 'Jazz' },
+  { value: 'rap', label: 'Rap' },
+  { value: 'soul', label: 'Soul' },
+  { value: 'indie', label: 'Indie' },
+  { value: 'r&b', label: 'R&B' },
+  { value: 'k-pop', label: 'K-Pop' },
+  { value: 'lo-fi', label: 'Lo-Fi' },
+  { value: 'house', label: 'House' },
+  { value: 'dubstep', label: 'Dubstep' },
+  { value: 'trap', label: 'Trap' },
+  { value: 'blues', label: 'Blues' },
+  { value: 'metal', label: 'Metal' },
+  { value: 'country', label: 'Country' },
+  { value: 'punk', label: 'Punk' },
+];
+
+function showSpinner(show = true) {
+  let sp = document.getElementById('trending-spinner');
+
+  if (!sp) {
+    sp = document.createElement('div');
+    sp.id = 'trending-spinner';
+    sp.className = 'search-loading';
+    sp.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight:300;">загрузка данных ...</span>';
+
+    document.getElementById('trending-container').before(sp);
+  }
+
+  sp.style.display = show ? 'block' : 'none';
 }
-function setCached(data) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ts: Date.now(), data}));
+
+function initTrendingGenreButtons() {
+  const container = document.getElementById('trending-genre-buttons');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  TRENDING_GENRES.forEach((g, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-danger';
+    if (idx === 0) btn.classList.add('active');
+
+    btn.textContent = g.label;
+    btn.dataset.genre = g.value;
+
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('button')
+        .forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+      loadTrending(g.value);
+    });
+
+    container.appendChild(btn);
+  });
 }
 
 function renderCards(list) {
   const container = document.getElementById('trending-container');
   container.innerHTML = '';
+
   if (!list.length) {
-    container.innerHTML = '<div class="col-12 text-center text-muted">Нет данных.</div>';
+    container.innerHTML =
+      '<div class="col-12 text-center text-muted">Нет данных.</div>';
     return;
   }
 
   list.forEach(a => {
-    const card = document.createElement('div');
-    card.className = 'col';
-    card.innerHTML = `
+    const col = document.createElement('div');
+    col.className = 'col';
+
+    col.innerHTML = `
       <div class="card h-100 shadow-sm rounded-sm card-custom">
         <div class="row g-0 h-100">
           <div class="col-md-4">
-            <img src="${a.photo_url}" class="img-fluid rounded-start h-100 w-100 object-fit-cover" alt="${a.name}" loading="lazy">
+            <img src="${a.photo_url}"
+                 class="img-fluid rounded-start h-100 w-100 object-fit-cover"
+                 alt="${a.name}" loading="lazy">
           </div>
           <div class="col-md-8 d-flex flex-column">
-            <div class="card-body"><h5 class="card-title mb-1">${a.name}</h5></div>
+            <div class="card-body">
+              <h5 class="card-title mb-1">${a.name}</h5>
+            </div>
             <div class="card-footer mt-auto">
               <small class="text-muted">Популярные релизы:</small>
               <ul class="list-unstyled mb-0 mt-1">
                 ${a.releases.map(r => `
                   <li class="d-flex align-items-center mb-1">
-                    <img src="${r.cover}" width="32" height="32" class="rounded me-2 shadow-sm" alt="cover" loading="lazy">
-                    <div><div class="fw-semibold">${r.title}</div>
-                         <div class="small text-muted">${r.playcount} прослушиваний</div></div>
-                  </li>`).join('')}
+                    <img src="${r.cover}" width="32" height="32"
+                         class="rounded me-2 shadow-sm" loading="lazy">
+                    <div>
+                      <div class="fw-semibold">${r.title}</div>
+                      <div class="small text-muted">
+                        ${r.playcount} прослушиваний
+                      </div>
+                    </div>
+                  </li>
+                `).join('')}
               </ul>
             </div>
           </div>
         </div>
-      </div>`;
-    container.appendChild(card);
+      </div>
+    `;
+
+    container.appendChild(col);
   });
 
   document.dispatchEvent(new Event('trending:rendered'));
 }
 
-function showSpinner(show = true) {
-  let spinner = document.getElementById('trending-spinner');
-  if (!spinner) {
-    spinner = document.createElement('div');
-    spinner.id = 'trending-spinner';
-    spinner.className = 'search-loading';
-    spinner.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight: 300;">загрузка данных ...</span>';
-    document.getElementById('trending-container').before(spinner);
-  }
-  spinner.style.display = show ? 'block' : 'none';
-}
+async function loadTrending(genre = '') {
+  const cached = trendingGenreCache[genre];
 
-/* ---------- загрузка ---------- */
-async function loadTrending() {
-  const cached = getCached();
-  if (cached) {
-    renderCards(cached);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    renderCards(cached.data);
     return;
   }
 
   showSpinner(true);
+
   try {
-    const res = await fetch(TRENDING_URL);
+    const url = genre
+      ? `${TRENDING_URL}?genre=${encodeURIComponent(genre)}`
+      : TRENDING_URL;
+
+    const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
+
     const data = await res.json();
-    setCached(data.artists);
+
+    trendingGenreCache[genre] = {
+      ts: Date.now(),
+      data: data.artists
+    };
+
     renderCards(data.artists);
   } catch (e) {
     console.error(e);
@@ -90,4 +157,7 @@ async function loadTrending() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadTrending);
+document.addEventListener('DOMContentLoaded', () => {
+  initTrendingGenreButtons();
+  loadTrending();
+});
