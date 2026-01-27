@@ -6,17 +6,21 @@
 <section id="popular-block" class="container my-5">
   <h1 class="visually-hidden">Поиск и прослушивание музыки онлайн — тренды и чарты 2026</h1>
 
+  <div class="d-none d-lg-flex justify-content-start mb-3 mt-5">
+    <a href="#year2026-chart" id="goto-year-chart" class="btn btn-danger btn-sm me-2">
+      🎵 Актуальный чарт <span class="text-white">⬇</span>
+    </a>
+  </div>
+
   <div class="row mb-5 info-project position-relative">
-    <svg class="note-icon d-none d-lg-block left hide-ipad-pro hide-ipad-mini" aria-hidden="true"
-         viewBox="0 0 120 120" preserveAspectRatio="meet">
-      <image href="{% static 'images/note_rubin.svg' %}"
-             width="120" height="120"/>
+    <svg class="note-icon d-none d-lg-block left hide-ipad-pro hide-ipad-mini" aria-hidden="true" viewBox="0 0 120 120"
+      preserveAspectRatio="meet">
+      <image href="{% static 'images/note_rubin.svg' %}" width="120" height="120" />
     </svg>
 
-    <svg class="note-icon d-none d-lg-block right hide-ipad-pro hide-ipad-mini" aria-hidden="true"
-         viewBox="0 0 120 120" preserveAspectRatio="meet">
-      <image href="{% static 'images/note_rubin.svg' %}"
-             width="120" height="120"/>
+    <svg class="note-icon d-none d-lg-block right hide-ipad-pro hide-ipad-mini" aria-hidden="true" viewBox="0 0 120 120"
+      preserveAspectRatio="meet">
+      <image href="{% static 'images/note_rubin.svg' %}" width="120" height="120" />
     </svg>
 
     <div class="col-lg-8 mx-auto text-center box-info">
@@ -35,11 +39,19 @@
   </div>
 
   <h2 class="mb-4 text-center popular-h2 shadow-sm">Топ-Артисты</h2>
-  <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container">
-    <div class="col-12 text-center text-muted"></div>
-  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3"></div>
 
-  <h2 class="mb-4 mt-3 text-center year2025-h3 popular-h2 shadow-sm">Актуальный чарт</h2>
+
+  <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container"></div>
+  <h2 id="year2026-chart" class="mb-4 mt-5 text-center popular-h2 shadow-sm">
+    Актуальный чарт
+  </h2>
+
+  <div class="row mb-3">
+    <div class="col-auto">
+      <div id="genre-buttons" class="btn-group" role="group" aria-label="Жанры"></div>
+    </div>
+  </div>
   <div id="year2025-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3"></div>
 
   <script type="module" src="{% static 'js/year2025.js' %}"></script>

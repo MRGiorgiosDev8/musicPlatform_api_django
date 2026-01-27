@@ -1,5 +1,5 @@
 :root {
-    --color-primary: #dc3030;
+    --color-primary: #d33030;
     --color-primary-dark: #e13737ec;
     --color-bg: #000000;
     --color-card-bg: rgba(255, 255, 255, 0.5);
@@ -102,6 +102,7 @@ main {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
     text-shadow: 1px 1px 2px rgb(98, 98, 98), 0 0 1em rgb(255, 255, 255);
+    color: var(--color-text-light);
 }
 
 .input-search {
@@ -270,10 +271,20 @@ main {
     right: 11vh;
 }
 
+.search-loading i.fa-spinner {
+  font-size: 2.1rem; 
+  color: var(--color-primary); 
+}
+
 @media (max-width: 575.98px) {
+
+    body {
+        background-attachment: scroll;
+    }
+
     .logo-font img {
-        width: 51px;
-        height: 51px;
+        width: 80px;
+        height: 80px;
         margin-left: 3vh;
     }
 
@@ -283,6 +294,11 @@ main {
 
     .popular-h2 {
         margin-top: -3vh;
+    }
+
+    .about-h2,
+    .popular-h2 {
+        border: none;
     }
 
     .btn-show-more {
@@ -318,10 +334,9 @@ main {
 }
 
 @media (min-width: 576px) and (max-width: 767.98px) {
-    .logo-font img {
-        width: 60px;
-        height: 60px;
-        margin-top: 0;
+
+    body {
+        background-attachment: scroll
     }
 
     .custom-navbar {
@@ -341,22 +356,22 @@ main {
 }
 
 @media (min-width: 1024px) and (max-width: 1366px) and (orientation: portrait),
-       (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-  .hide-ipad-pro {
-    display: none !important;
-  }
+(min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+    .hide-ipad-pro {
+        display: none !important;
+    }
 }
 
 @media (width: 1180px) and (height: 820px),
-       (width: 820px) and (height: 1180px) {
-  .hide-ipad-pro {
-    display: none !important;
-  }
+(width: 820px) and (height: 1180px) {
+    .hide-ipad-pro {
+        display: none !important;
+    }
 }
 
 @media (width: 1113px) and (height: 744px),
-       (width: 744px) and (height: 1113px) {
-  .hide-ipad-mini {
-    display: none !important;
-  }
+(width: 744px) and (height: 1113px) {
+    .hide-ipad-mini {
+        display: none !important;
+    }
 }

@@ -1,22 +1,17 @@
-const YEAR_URL = '/music_api/year-chart/';
-const CACHE_KEY = 'year2025_tracks';
-const CACHE_TTL = 15 * 60 * 1000;
+const YEAR_URL  = '/music_api/year-chart/';
+const CACHE_TTL = 10 * 60 * 1000;
 
-let activeAudio = null;          
+let activeAudio = null;
+let genreCache = {};
 
-function getCached() {
-  const raw = localStorage.getItem(CACHE_KEY);
-  if (!raw) return null;
-  try {
-    const { ts, data } = JSON.parse(raw);
-    return Date.now() - ts > CACHE_TTL ? null : data;
-  } catch {
-    return null;
-  }
-}
-function setCached(data) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-}
+const GENRES = [
+  { value: '', label: 'Все' },
+  { value: 'rock', label: 'Rock' },
+  { value: 'pop', label: 'Pop' },
+  { value: 'hip-hop', label: 'Hip-Hop' },
+  { value: 'electronic', label: 'Electronic' },
+  { value: 'jazz', label: 'Jazz' },
+];
 
 function showSpinner(show = true) {
   let sp = document.getElementById('year2025-spinner');
@@ -30,24 +25,52 @@ function showSpinner(show = true) {
   sp.style.display = show ? 'block' : 'none';
 }
 
-async function loadYear2025() {
-  const cached = getCached();
-  if (cached) {
-    renderTracks2025(cached);
+function initGenreButtons() {
+  const container = document.getElementById('genre-buttons');
+  if (!container) return;
+
+  container.innerHTML = '';
+  GENRES.forEach((g, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-danger';
+    if (idx === 0) btn.classList.add('active');
+    btn.textContent = g.label;
+    btn.dataset.genre = g.value;
+
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const genre = btn.dataset.genre;
+      loadYear2025(genre);
+    });
+
+    container.appendChild(btn);
+  });
+}
+
+async function loadYear2025(genre = '') {
+  const container = document.getElementById('year2025-container');
+  const cached = genreCache[genre];
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    renderTracks2025(cached.data);
     return;
   }
 
   showSpinner(true);
   try {
-    const res = await fetch(YEAR_URL);
+    const url = genre ? `${YEAR_URL}?genre=${encodeURIComponent(genre)}` : YEAR_URL;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    setCached(data.tracks);
+
+    genreCache[genre] = { ts: Date.now(), data: data.tracks };
+
     renderTracks2025(data.tracks);
   } catch (e) {
     console.error(e);
-    document.getElementById('year2025-container').innerHTML =
-      '<div class="col-12 text-start text-danger">Не удалось загрузить данные.</div>';
+    container.innerHTML = '<div class="col-12 text-start text-danger">Не удалось загрузить данные.</div>';
   } finally {
     showSpinner(false);
   }
@@ -56,6 +79,7 @@ async function loadYear2025() {
 function renderTracks2025(list) {
   const container = document.getElementById('year2025-container');
   container.innerHTML = '';
+
   if (!list.length) {
     container.innerHTML = '<div class="col-12 text-center text-muted">Нет данных.</div>';
     return;
@@ -65,9 +89,9 @@ function renderTracks2025(list) {
     const col = document.createElement('div');
     col.className = 'col';
 
-    const cover = (t.image_url && t.image_url !== '/static/images/default.svg')
-                ? t.image_url
-                : '/static/images/default.svg';
+    const cover = t.image_url && t.image_url !== '/static/images/default.svg'
+      ? t.image_url
+      : '/static/images/default.svg';
 
     const hasAudio = t.url && /\.(mp3|m4a)(\?.*)?$/i.test(t.url);
     const audioBlock = hasAudio
@@ -75,20 +99,26 @@ function renderTracks2025(list) {
            <source src="${t.url}">
            Ваш браузер не поддерживает аудио.
          </audio>`
-      : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
+      : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">
+           Превью недоступно
+         </div>`;
 
     col.innerHTML = `
       <div class="card h-100 shadow-sm rounded-sm card-year">
-        <img src="${cover}" class="card-img-top" alt="${t.name}" onerror="this.src='/static/images/default.svg'" loading="lazy">
+        <img src="${cover}" class="card-img-top"
+             alt="${t.name}"
+             onerror="this.src='/static/images/default.svg'"
+             loading="lazy">
         <div class="card-body p-2">
           <h6 class="card-title mb-1">${t.name}</h6>
           <p class="card-text small mb-1">Артист: ${t.artist}</p>
           <p class="card-text small text-muted mb-2">
-            Прослушиваний: ${t.listeners.toLocaleString('ru-RU')}
+            Прослушиваний: ${t.listeners}
           </p>
           ${audioBlock}
         </div>
-      </div>`;
+      </div>
+    `;
     container.appendChild(col);
   });
 
@@ -108,4 +138,7 @@ function renderTracks2025(list) {
   document.dispatchEvent(new Event('year2025:rendered'));
 }
 
-document.addEventListener('DOMContentLoaded', loadYear2025);
+document.addEventListener('DOMContentLoaded', () => {
+  initGenreButtons();
+  loadYear2025();
+});

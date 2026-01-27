@@ -66,17 +66,64 @@ def _get_deezer_preview(track_name, artist_name):
 
 class YearChartAPIView(APIView):
     def get(self, request):
+        genre = request.query_params.get('genre')
         try:
-            lastfm_tracks = self._get_live_chart(35)
+            limit = 15
+            if genre:
+                lastfm_tracks = self._get_by_genre_with_listeners(genre, limit)
+            else:
+                lastfm_tracks = self._get_live_chart(limit)
+
             tracks = self._enrich_live_tracks(lastfm_tracks)
             return Response({'tracks': tracks}, status=status.HTTP_200_OK)
+
         except Exception as e:
             import traceback
             traceback.print_exc()
-            return Response({'error': str(e), 'trace': traceback.format_exc()},
-                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response(
+                {'error': str(e), 'trace': traceback.format_exc()},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
-    def _get_live_chart(self, limit=35):
+    def _get_by_genre_with_listeners(self, genre, limit=15):
+        url = 'http://ws.audioscrobbler.com/2.0/'
+        params = {
+            'method': 'tag.gettoptracks',
+            'tag': genre,
+            'api_key': LASTFM_KEY,
+            'format': 'json',
+            'limit': limit
+        }
+        r = requests.get(url, params=params, timeout=5)
+        r.raise_for_status()
+        tracks = r.json()['tracks']['track']
+
+        for tr in tracks:
+            try:
+                track_info = self._get_track_info(tr['name'], tr['artist']['name'])
+                if track_info and 'listeners' in track_info:
+                    tr['listeners'] = track_info['listeners']
+            except Exception:
+                tr['listeners'] = tr.get('listeners', '0')
+        return tracks
+
+    def _get_track_info(self, track_name, artist_name):
+        url = 'http://ws.audioscrobbler.com/2.0/'
+        params = {
+            'method': 'track.getInfo',
+            'api_key': LASTFM_KEY,
+            'artist': artist_name,
+            'track': track_name,
+            'format': 'json'
+        }
+        r = requests.get(url, params=params, timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        if 'track' in data and 'listeners' in data['track']:
+            return {'listeners': data['track']['listeners']}
+        return None
+
+    def _get_live_chart(self, limit=15):
         url = 'http://ws.audioscrobbler.com/2.0/'
         params = {
             'method': 'chart.gettoptracks',
@@ -95,15 +142,14 @@ class YearChartAPIView(APIView):
             artist = tr['artist']['name']
 
             itunes = _get_itunes(name, artist)
-
             cover = itunes['cover'] or _get_deezer_cover(name, artist)
             preview = itunes['preview'] or _get_deezer_preview(name, artist)
 
             enriched.append({
                 'name': name,
                 'artist': artist,
-                'listeners': int(tr.get('listeners', 0)),
-                'url': preview or tr['url'],
+                'listeners': tr.get('listeners', '0'),  # строка
+                'url': preview or tr.get('url'),
                 'image_url': cover or '/static/images/default.svg'
             })
         return enriched
