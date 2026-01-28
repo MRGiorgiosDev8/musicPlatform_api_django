@@ -93,7 +93,7 @@ class YearChartAPIView(APIView):
 
     def _get_live_chart(self, limit):
         r = requests.get(
-            'http://ws.audioscrobbler.com/2.0/',
+            'https://ws.audioscrobbler.com/2.0/',
             params={
                 'method': 'chart.gettoptracks',
                 'api_key': LASTFM_KEY,
@@ -107,7 +107,7 @@ class YearChartAPIView(APIView):
 
     def _get_by_genre_with_listeners(self, genre, limit):
         r = requests.get(
-            'http://ws.audioscrobbler.com/2.0/',
+            'https://ws.audioscrobbler.com/2.0/',
             params={
                 'method': 'tag.gettoptracks',
                 'tag': genre,
@@ -134,7 +134,7 @@ class YearChartAPIView(APIView):
             enriched.append({
                 'name': name,
                 'artist': artist,
-                'listeners': tr.get('listeners', '0'),  # строка
+                'listeners': tr.get('listeners', '0'),
                 'url': preview or tr.get('url'),
                 'image_url': cover or '/static/images/default.svg'
             })
@@ -191,7 +191,7 @@ class TrackSearchAPIView(APIView):
 
     def _get_lastfm_tracks(self, query):
         r = requests.get(
-            'http://ws.audioscrobbler.com/2.0/',
+            'https://ws.audioscrobbler.com/2.0/',
             params={
                 'method': 'track.search',
                 'track': query,
@@ -205,7 +205,7 @@ class TrackSearchAPIView(APIView):
 
 def _get_lastfm_artists_by_genre(genre, limit=30):
     r = requests.get(
-        'http://ws.audioscrobbler.com/2.0/',
+        'https://ws.audioscrobbler.com/2.0/',
         params={
             'method': 'tag.gettopartists',
             'tag': genre,
@@ -233,7 +233,7 @@ def _get_lastfm_artists_by_genre(genre, limit=30):
 
 def _get_lastfm_chart(limit=30):
     r = requests.get(
-        'http://ws.audioscrobbler.com/2.0/',
+        'https://ws.audioscrobbler.com/2.0/',
         params={
             'method': 'chart.gettopartists',
             'api_key': LASTFM_KEY,
@@ -262,7 +262,7 @@ def _get_deezer_artist_info(name):
 def _lastfm_artist_releases(mbid, name):
     try:
         r = requests.get(
-            'http://ws.audioscrobbler.com/2.0/',
+            'https://ws.audioscrobbler.com/2.0/',
             params={
                 'method': 'artist.gettopalbums',
                 'artist': name,

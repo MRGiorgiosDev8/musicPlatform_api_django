@@ -50,11 +50,8 @@ function initYearGenreButtons() {
     btn.type = 'button';
     btn.className = 'btn btn-outline-danger flex-shrink-0';
     if (idx === 0) btn.classList.add('active');
+    btn.dataset.genre = g.value;
     btn.style.minWidth = '120px';
-    btn.style.whiteSpace = 'nowrap';
-    btn.style.display = 'inline-flex';
-    btn.style.alignItems = 'center';
-    btn.style.justifyContent = 'center';
 
     btn.dataset.genre = g.value;
     btn.innerHTML = `<img src="/static/images/default.svg" width="24" height="24" class="me-1">${g.label}`;

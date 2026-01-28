@@ -1,4 +1,4 @@
-const TREND_CACHE_TTL = 10 * 60 * 1000;   
+const TREND_CACHE_TTL = 10 * 60 * 1000;
 
 const escapeHtml = (unsafe) => {
   return unsafe
@@ -144,7 +144,7 @@ const setupMusicSearch = () => {
     resultsContainer.appendChild(loadingElement);
 
     const cacheKey = `music_search_${query}`;
-    const cached = getCachedTrend(cacheKey);          
+    const cached = getCachedTrend(cacheKey);
     if (cached) {
       allTracks = cached;
       currentPage = 1;
@@ -159,14 +159,14 @@ const setupMusicSearch = () => {
       if (!response.ok) throw new Error('Server error');
       const data = await response.json();
       allTracks = data.results || data;
-      setCachedTrend(cacheKey, allTracks);            
+      setCachedTrend(cacheKey, allTracks);
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
       displayResults();
     } catch (error) {
       console.error('Search Error:', error);
       resultsContainer.innerHTML = `
-        <div class="alert alert-danger">
+        <div class="alert alert-danger mt-4">
           <i class="fas fa-exclamation-triangle"></i> There was an error when searching for music
         </div>`;
     } finally {
