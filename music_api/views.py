@@ -152,6 +152,7 @@ class TrackSearchAPIView(APIView):
     pagination_class = TrackPagination
 
     def get(self, request):
+        import traceback
         query = request.query_params.get('q', '')
         if not query:
             return Response(
@@ -177,12 +178,10 @@ class TrackSearchAPIView(APIView):
                     'mbid': tr.get('mbid', '')
                 })
 
-            serializer = TrackSerializer(data=enriched, many=True)
-            serializer.is_valid(raise_exception=True)
-            return self.paginate_queryset(serializer.data)
+            return self.paginate_queryset(enriched)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response({'error': str(e), 'trace': traceback.format_exc()}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def paginate_queryset(self, queryset):
         paginator = self.pagination_class()

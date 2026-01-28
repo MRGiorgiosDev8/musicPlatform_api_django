@@ -4,21 +4,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!logoText) return;
 
     const originalText = logoText.textContent;
+    console.log('Animating logo text with letters count:', originalText.length);
     logoText.innerHTML = '';
 
     originalText.split('').forEach((char) => {
       const span = document.createElement('span');
       span.className = 'logo-letter';
       span.textContent = char === ' ' ? '\u00A0' : char;
-      Object.assign(span.style, {
-        display: 'inline-block',
-        transformOrigin: '50% 50%',
-        opacity: '0',
-        transform: 'rotateX(90deg)',
-      });
       logoText.appendChild(span);
     });
 
+    gsap.set('.logo-letter', {opacity: 0, rotateX: 90, transformOrigin: '50% 50%'});
     gsap.to('.logo-letter', {
       rotateX: 0,
       opacity: 1,
@@ -33,24 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const animateHeader = (header) => {
     if (!header) return;
+    console.log('Animating header:', header);
     gsap.fromTo(header,
       { y: -100, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
     );
-  };
-
-  const animateTracks = (items) => {
-    items.forEach(item => item.style.visibility = 'visible');
-
-    gsap.fromTo(items,
-      { y: 140, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out', stagger: 0.15 }
-    );
-
-    items.forEach(item => {
-      item.addEventListener('mouseenter', () => gsap.to(item, { y: -4, duration: 0.05, ease: 'power2.out' }));
-      item.addEventListener('mouseleave', () => gsap.to(item, { y: 0, duration: 0.05, ease: 'power2.out' }));
-    });
   };
 
   const animateAlert = (alert) => {
@@ -59,6 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
       { scale: 0.8, opacity: 0 },
       { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.7)' }
     );
+  };
+
+  const animateTrackItem = (item) => {
+    if (item.dataset.animated) return;
+    item.dataset.animated = 'true';
+    console.log('Animating new track item:', item);
+    gsap.fromTo(item,
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+    );
+
+    item.addEventListener('mouseenter', () => {
+      gsap.to(item, { y: -4, duration: 0.05, ease: 'power2.out' });
+    });
+    item.addEventListener('mouseleave', () => {
+      gsap.to(item, { y: 0, duration: 0.05, ease: 'power2.out' });
+    });
   };
 
   const initAnimations = () => {
@@ -70,11 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = resultsContainer.querySelector('h2');
     if (header) animateHeader(header);
 
-    const tracks = resultsContainer.querySelectorAll('.track-item');
-    if (tracks.length) animateTracks(tracks);
-
     const alerts = resultsContainer.querySelectorAll('.alert');
-    if (alerts.length) animateAlert(alerts);
+    if (alerts.length) alerts.forEach(alert => animateAlert(alert));
+
+    const existingTracks = resultsContainer.querySelectorAll('.track-item');
+    existingTracks.forEach(item => animateTrackItem(item));
 
     new MutationObserver((mutations) => {
       mutations.forEach(mutation => {
@@ -83,11 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (node.classList.contains('alert')) animateAlert(node);
           if (node.nodeName === 'H2') animateHeader(node);
-          if (node.classList.contains('track-item')) animateTracks([node]);
-          node.querySelectorAll('.track-item').forEach(item => animateTracks([item]));
+
+          if (node.classList.contains('track-item')) {
+            animateTrackItem(node);
+          }
+
+          const nestedTracks = node.querySelectorAll('.track-item');
+          nestedTracks.forEach(item => {
+            animateTrackItem(item);
+          });
         });
       });
-    }).observe(resultsContainer, { childList: true, subtree: true });
+    }).observe(document.body, { childList: true, subtree: true });
   };
 
   initAnimations();

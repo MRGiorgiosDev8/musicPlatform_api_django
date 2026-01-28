@@ -152,10 +152,6 @@ main {
     border-top: 1.7px solid #fff;
     border-bottom: 1.7px solid #fff;
     cursor: pointer;
-    opacity: 0;
-    transform: translateY(-100px);
-    visibility: hidden;
-    will-change: transform, opacity;
 }
 
 .track-item-wrapper {

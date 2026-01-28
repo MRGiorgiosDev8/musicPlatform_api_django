@@ -12,7 +12,7 @@ window.initChartScroll = function() {
     e.preventDefault();
 
     gsap.to(window, {
-      duration: 1.5,
+      duration: 0.7,
       scrollTo: { y: target, offsetY: 20 },
       ease: "power2.inOut"
     });
