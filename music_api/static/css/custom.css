@@ -276,15 +276,42 @@ main {
     color: var(--color-primary);
 }
 
-.trending-genre-carousel-wrapper .d-flex,
-.year-genre-carousel-wrapper .d-flex {
-    scrollbar-width: none;      
-    -ms-overflow-style: none;   
+.carousel-wrapper .d-flex {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-.trending-genre-carousel-wrapper .d-flex::-webkit-scrollbar,
-.year-genre-carousel-wrapper .d-flex::-webkit-scrollbar {
-    display: none;             
+.carousel-wrapper .d-flex::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-wrapper .scroll-left,
+.carousel-wrapper .scroll-right {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    border-radius: 50%;
+    top: 40% !important;
+}
+
+.carousel-wrapper .scroll-left:hover,
+.carousel-wrapper .scroll-right:hover {
+    opacity: 1;
+}
+
+.genre-btn {
+    background-color: var(--color-card-bg-light) !important;
+    color: var(--color-primary) !important;
+}
+
+.genre-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: var(--color-text-light) !important;
 }
 
 @media (max-width: 575.98px) {
@@ -303,9 +330,6 @@ main {
         padding-bottom: 1.4vh;
     }
 
-    .popular-h2 {
-        margin-top: -3vh;
-    }
 
     .about-h2,
     .popular-h2 {

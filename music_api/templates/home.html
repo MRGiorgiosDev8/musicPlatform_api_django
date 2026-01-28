@@ -41,9 +41,11 @@
 
   <h2 class="mb-4 text-center popular-h2 shadow-sm">Топ-Артисты</h2>
 
-  <div class="trending-genre-carousel-wrapper mb-2">
-    <div class="d-flex overflow-auto" id="trending-genre-container" style="gap: 8px; padding-bottom: 8px;"></div>
-  </div>
+ <div class="carousel-wrapper position-relative mb-2">
+  <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
+  <div class="d-flex overflow-auto" id="trending-genre-container" style="gap: 8px; padding-bottom: 8px;"></div>
+  <button class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
+</div>
 
   <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container"></div>
 
@@ -51,9 +53,11 @@
     Актуальный чарт
   </h2>
 
-  <div class="year-genre-carousel-wrapper mb-2">
-    <div class="d-flex overflow-auto" id="year-genre-container" style="gap: 8px; padding-bottom: 8px;"> </div>
-  </div>
+<div class="carousel-wrapper position-relative mb-2">
+  <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
+  <div class="d-flex overflow-auto" id="year-genre-container" style="gap: 8px; padding-bottom: 8px;"></div>
+  <button class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
+</div>
 
   <div id="year2025-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3"></div>
 

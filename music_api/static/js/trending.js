@@ -47,7 +47,7 @@ function initTrendingGenreButtons() {
   TRENDING_GENRES.forEach((g, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'btn btn-outline-danger flex-shrink-0';
+    btn.className = 'btn btn-outline-danger flex-shrink-0 genre-btn';
     if (idx === 0) btn.classList.add('active');
     btn.dataset.genre = g.value;
     btn.style.minWidth = '120px';
