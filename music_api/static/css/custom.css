@@ -238,7 +238,7 @@ main {
 }
 
 .ruby_span {
-    color: #cb5e5e;
+    color: #cb4a4a;
     font-weight: 500;
     font-size: 1.1em;
 }
@@ -289,7 +289,7 @@ main {
     padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
-    opacity: 0.8;
+    opacity: 0.6;
     transition: opacity 0.2s;
     border-radius: 50%;
     top: 40% !important;
@@ -317,8 +317,6 @@ main {
     }
 
     .logo-font img {
-        width: 80px;
-        height: 80px;
         margin-left: 3vh;
     }
 
@@ -386,22 +384,13 @@ main {
     }
 }
 
-@media (min-width: 1024px) and (max-width: 1366px) and (orientation: portrait),
-(min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
-    .hide-ipad-pro {
-        display: none !important;
-    }
-}
-
-@media (width: 1180px) and (height: 820px),
-(width: 820px) and (height: 1180px) {
-    .hide-ipad-pro {
-        display: none !important;
-    }
-}
-
-@media (width: 1113px) and (height: 744px),
+@media 
+(min-width: 1024px) and (max-width: 1366px),
+(width: 1180px) and (height: 820px),
+(width: 820px) and (height: 1180px),
+(width: 1113px) and (height: 744px),
 (width: 744px) and (height: 1113px) {
+    .hide-ipad-pro,
     .hide-ipad-mini {
         display: none !important;
     }

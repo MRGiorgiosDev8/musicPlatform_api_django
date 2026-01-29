@@ -23,6 +23,14 @@ const TRENDING_GENRES = [
   { value: 'metal', label: 'Metal' },
   { value: 'country', label: 'Country' },
   { value: 'punk', label: 'Punk' },
+  { value: 'classical', label: 'Classical' },
+  { value: 'grunge', label: 'Grunge' },
+  { value: 'alternative', label: 'Alternative' },
+  { value: 'phonk', label: 'Phonk' },
+  { value: 'grunge', label: 'Grunge' },
+  { value: 'edm', label: 'EDM' },
+  { value: 'folk', label: 'Folk' },
+  { value: 'hyperpop', label: 'Hyperpop' },
 ];
 
 function showSpinner(show = true) {
