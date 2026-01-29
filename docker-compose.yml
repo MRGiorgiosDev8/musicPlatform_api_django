@@ -4,6 +4,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ./static:/app/static
       - ./staticfiles:/app/staticfiles
     restart: unless-stopped
     env_file:
