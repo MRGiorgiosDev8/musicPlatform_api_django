@@ -1,12 +1,16 @@
 import requests
+import logging
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from decouple import config
+from django.core.cache import cache
 
 LASTFM_KEY = config("LASTFM_KEY")
+
+logger = logging.getLogger(__name__)
 
 def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
     try:
@@ -34,44 +38,51 @@ def _get_itunes(track_name: str, artist_name: str, timeout: int = 3):
                     'preview': item.get('previewUrl')
                 }
         return {'cover': None, 'preview': None}
-    except Exception:
+    except Exception as e:
+        logger.warning(
+            "iTunes API error for track='%s', artist='%s': %s",
+            track_name,
+            artist_name,
+            str(e),
+            exc_info=True
+        )
         return {'cover': None, 'preview': None}
 
-def _get_deezer_cover(track_name, artist_name):
+def _get_deezer_data(track_name, artist_name, timeout=3):
     try:
         r = requests.get(
             'https://api.deezer.com/search',
             params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
-            timeout=2
+            timeout=timeout
         )
         data = r.json()
         if data.get('data'):
-            alb = data['data'][0]['album']
-            return alb.get('cover_xl') or alb.get('cover_big') or alb.get('cover_medium')
-    except Exception:
-        pass
-    return None
-
-
-def _get_deezer_preview(track_name, artist_name):
-    try:
-        r = requests.get(
-            'https://api.deezer.com/search',
-            params={'q': f'artist:"{artist_name}" track:"{track_name}"', 'limit': 1},
-            timeout=3
+            item = data['data'][0]
+            album = item.get('album', {})
+            return {
+                'cover': album.get('cover_xl') or album.get('cover_big') or album.get('cover_medium'),
+                'preview': item.get('preview')
+            }
+    except Exception as e:
+        logger.warning(
+            "Deezer API error for track='%s', artist='%s': %s",
+            track_name,
+            artist_name,
+            str(e),
+            exc_info=True
         )
-        data = r.json()
-        if data.get('data'):
-            return data['data'][0].get('preview')
-    except Exception:
-        pass
-    return None
+    return {'cover': None, 'preview': None}
 
 
 class YearChartAPIView(APIView):
     def get(self, request):
         genre = request.query_params.get('genre')
         limit = 15
+
+        cache_key = f"year_chart:{genre or 'all'}"
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached, status=status.HTTP_200_OK)
 
         try:
             if genre:
@@ -80,7 +91,11 @@ class YearChartAPIView(APIView):
                 tracks = self._get_live_chart(limit)
 
             enriched = self._enrich_tracks(tracks)
-            return Response({'tracks': enriched}, status=status.HTTP_200_OK)
+            data = {'tracks': enriched}
+
+            cache.set(cache_key, data, timeout=60 * 10)
+
+            return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             import traceback
@@ -127,8 +142,9 @@ class YearChartAPIView(APIView):
             artist = tr['artist']['name']
 
             itunes = _get_itunes(name, artist)
-            cover = itunes['cover'] or _get_deezer_cover(name, artist)
-            preview = itunes['preview'] or _get_deezer_preview(name, artist)
+            deezer = _get_deezer_data(name, artist)
+            cover = itunes['cover'] or deezer['cover']
+            preview = itunes['preview'] or deezer['preview']
 
             enriched.append({
                 'name': name,
@@ -166,8 +182,11 @@ class TrackSearchAPIView(APIView):
 
             enriched = []
             for tr in tracks:
-                cover = _get_deezer_cover(tr['name'], tr['artist'])
-                preview = _get_deezer_preview(tr['name'], tr['artist'])
+                itunes = _get_itunes(tr['name'], tr['artist'])
+                deezer = _get_deezer_data(tr['name'], tr['artist'])
+
+                cover = itunes['cover'] or deezer['cover']
+                preview = itunes['preview'] or deezer['preview']
                 enriched.append({
                     'name': tr['name'],
                     'artist': tr['artist'],
@@ -202,46 +221,65 @@ class TrackSearchAPIView(APIView):
 
 
 def _get_lastfm_artists_by_genre(genre, limit=30):
-    r = requests.get(
-        'https://ws.audioscrobbler.com/2.0/',
-        params={
-            'method': 'tag.gettopartists',
-            'tag': genre,
-            'api_key': LASTFM_KEY,
-            'format': 'json',
-            'limit': limit * 2
-        },
-        timeout=5
-    )
-    r.raise_for_status()
+    try:
+        r = requests.get(
+            'https://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'tag.gettopartists',
+                'tag': genre,
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': limit * 2
+            },
+            timeout=5
+        )
+        r.raise_for_status()
 
-    artists = r.json()['topartists']['artist']
+        artists = r.json()['topartists']['artist']
 
-    for a in artists:
-        a['listeners'] = int(a.get('listeners', 0))
-        a['playcount'] = int(a.get('playcount', 0))
+        for a in artists:
+            a['listeners'] = int(a.get('listeners', 0))
+            a['playcount'] = int(a.get('playcount', 0))
 
-    artists.sort(
-        key=lambda a: (a['listeners'], a['playcount']),
-        reverse=True
-    )
+        artists.sort(
+            key=lambda a: (a['listeners'], a['playcount']),
+            reverse=True
+        )
 
-    return artists[:limit]
+        return artists[:limit]
+
+    except Exception as e:
+        logger.warning(
+            "Last.fm genre artists error for genre='%s': %s",
+            genre,
+            str(e),
+            exc_info=True
+        )
+        return []
 
 
 def _get_lastfm_chart(limit=30):
-    r = requests.get(
-        'https://ws.audioscrobbler.com/2.0/',
-        params={
-            'method': 'chart.gettopartists',
-            'api_key': LASTFM_KEY,
-            'format': 'json',
-            'limit': limit
-        },
-        timeout=5
-    )
-    r.raise_for_status()
-    return r.json()['artists']['artist']
+    try:
+        r = requests.get(
+            'https://ws.audioscrobbler.com/2.0/',
+            params={
+                'method': 'chart.gettopartists',
+                'api_key': LASTFM_KEY,
+                'format': 'json',
+                'limit': limit
+            },
+            timeout=5
+        )
+        r.raise_for_status()
+        return r.json()['artists']['artist']
+
+    except Exception as e:
+        logger.warning(
+            "Last.fm chart error: %s",
+            str(e),
+            exc_info=True
+        )
+        return []
 
 
 def _get_deezer_artist_info(name):
@@ -289,6 +327,11 @@ def _lastfm_artist_releases(mbid, name):
 class TrendingArtistsAPIView(APIView):
     def get(self, request):
         genre = request.query_params.get('genre')
+        cache_key = f"trending_artists:{genre or 'all'}"
+
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached, status=status.HTTP_200_OK)
 
         try:
             if genre:
@@ -307,7 +350,10 @@ class TrendingArtistsAPIView(APIView):
                     'releases': _lastfm_artist_releases(art.get('mbid', ''), name)
                 })
 
-            return Response({'artists': artists}, status=status.HTTP_200_OK)
+            data = {'artists': artists}
+            cache.set(cache_key, data, timeout=60 * 10)
+
+            return Response(data, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
