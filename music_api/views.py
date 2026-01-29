@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from .serializers import TrackSerializer
 from decouple import config
 
 LASTFM_KEY = config("LASTFM_KEY")
