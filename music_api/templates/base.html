@@ -107,19 +107,30 @@
     </footer>
 
     {% compress js %}
+    <!-- Библиотеки (vendor) -->
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/gsap.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/ScrollToPlugin.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/CustomBounce.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/CustomEase.min.js' %}"></script>
 
-    <script src="{% static 'js/track-animations.js' %}"></script>
-    <script src="{% static 'js/animation_home.js' %}"></script>
-    <script src="{% static 'js/scrolling.js' %}"></script>
-    <script src="{% static 'js/trending.js' %}"></script>
-    <script src="{% static 'js/music_search.js' %}"></script>
-    <script src="{% static 'js/scrollbutton.js' %}"></script>
-    <script src="{% static 'js/card_search_animation.js' %}"></script>
+    <!-- Анимации и визуальные эффекты -->
+    <script src="{% static 'js/animation/track-animations.js' %}"></script>
+    <script src="{% static 'js/animation/animation_home.js' %}"></script>
+    <script src="{% static 'js/animation/card_search_animation.js' %}"></script>
+    <script src="{% static 'js/animation/alert_log_animation.js' %}"></script>
+
+    <!-- Фичи сайта (modules/features) -->
+    <script src="{% static 'js/features/trending.js' %}"></script>
+    <script src="{% static 'js/features/year2025.js' %}"></script>
+    <script src="{% static 'js/features/music_search.js' %}"></script>
+
+    <!-- Модули поиска и UI-специфичные скрипты -->
+    <script src="{% static 'js/UI/scrollbutton.js' %}"></script>
+    <script src="{% static 'js/UI/scrolling.js' %}"></script>
+
+    <!-- Утилиты -->
+    <script src="{% static 'js/utils/utils.js' %}"></script>
     {% endcompress %}
 
 </body>

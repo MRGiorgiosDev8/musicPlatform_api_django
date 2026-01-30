@@ -320,12 +320,13 @@ main {
 
     .logo-font img {
         margin-left: 3vh;
+        width: 67px;
+        height: 67px;
     }
 
     .custom-navbar {
         padding-bottom: 1.4vh;
     }
-
 
     .about-h2,
     .popular-h2 {

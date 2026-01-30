@@ -15,10 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     container.addEventListener('wheel', (e) => {
-      if (e.deltaY !== 0) {
+      if (window.innerWidth > 768) {
         e.preventDefault();
-        container.scrollBy({ left: e.deltaY, behavior: 'smooth' });
       }
-    });
+    }, { passive: false });
+
+    container.addEventListener('touchmove', e => {
+      if (window.innerWidth > 768) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   });
 });
