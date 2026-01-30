@@ -30,7 +30,6 @@
     { value: 'hyperpop', label: 'Hyperpop' },
   ],
 
-  // Универсальный спиннер
   showSpinner(spinnerId, containerId, show = true) {
     let sp = document.getElementById(spinnerId);
     if (!sp) {
@@ -44,7 +43,6 @@
     sp.style.display = show ? 'block' : 'none';
   },
 
-  // Инициализация кнопок жанров
   initGenreButtons(containerId, onSelect, addCarouselClass = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -71,7 +69,6 @@
     });
   },
 
-  // Работа с кэшем
   getCached(cacheObj, key) {
     const cached = cacheObj[key];
     if (cached && Date.now() - cached.ts < this.CACHE_TTL) {
@@ -84,15 +81,16 @@
     cacheObj[key] = { ts: Date.now(), data };
   },
 
-  // Рендер пустого состояния
   renderEmpty(containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-      container.innerHTML = '<div class="col-12 text-center text-muted">Нет данных.</div>';
+      container.innerHTML = `
+        <div class="alert alert-danger mt-4 alert-log">
+          <i class="fas fa-exclamation-triangle"></i> Нет данных.
+        </div>`;
     }
   },
 
-  // Универсальная обработка ошибки (исправляет баг с undefined container)
   showError(containerId, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
     if (container) {
@@ -103,7 +101,6 @@
     }
   },
 
-  // Базовый fetch с обработкой ошибок
   async fetchData(url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
