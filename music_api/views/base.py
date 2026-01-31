@@ -1,9 +1,11 @@
 import logging
-import requests
 from decouple import config
 
-# Reusable logger for the entire views package
+# Центральный логгер приложения
+# Используется для логирования ошибок и событий
 logger = logging.getLogger(__name__)
 
-# API Configuration
+# API-ключ Last.fm
+# Загружается из переменных окружения
+# (не хранится в коде и не коммитится в репозиторий)
 LASTFM_KEY = config("LASTFM_KEY")

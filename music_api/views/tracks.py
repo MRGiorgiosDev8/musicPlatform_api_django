@@ -5,21 +5,22 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
-
-from .base import logger, LASTFM_KEY
+from .base import LASTFM_KEY
 from .services import _get_itunes, _get_deezer_data
 
 
 class TrackPagination(PageNumberPagination):
+    """Настройки пагинации для треков"""
     page_size = 14
     page_size_query_param = 'page_size'
     max_page_size = 30
 
 
 class YearChartAPIView(APIView):
-    """Чарт треков (общий или по жанру)"""
+    """API для получения чарта треков"""
 
     def get(self, request):
+        """Получение чарта треков с кешированием"""
         genre = request.query_params.get('genre')
         limit = 15
 
@@ -48,6 +49,7 @@ class YearChartAPIView(APIView):
             )
 
     def _get_live_chart(self, limit):
+        """Получение топ треков без жанра"""
         r = requests.get(
             'https://ws.audioscrobbler.com/2.0/',
             params={
@@ -62,6 +64,7 @@ class YearChartAPIView(APIView):
         return r.json()['tracks']['track']
 
     def _get_by_genre_with_listeners(self, genre, limit):
+        """Получение топ треков по жанру"""
         r = requests.get(
             'https://ws.audioscrobbler.com/2.0/',
             params={
@@ -77,6 +80,7 @@ class YearChartAPIView(APIView):
         return r.json()['tracks']['track']
 
     def _enrich_tracks(self, tracks):
+        """Добавление дополнительной информации к трекам"""
         enriched = []
         for tr in tracks:
             name = tr['name']
@@ -98,10 +102,11 @@ class YearChartAPIView(APIView):
 
 
 class TrackSearchAPIView(APIView):
-    """Поиск треков с пагинацией"""
+    """API для поиска треков с пагинацией"""
     pagination_class = TrackPagination
 
     def get(self, request):
+        """Поиск треков по запросу"""
         query = request.query_params.get('q', '')
         if not query:
             return Response(
@@ -139,11 +144,13 @@ class TrackSearchAPIView(APIView):
             )
 
     def paginate_queryset(self, queryset):
+        """Пагинация результатов"""
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, self.request)
         return paginator.get_paginated_response(page)
 
     def _get_lastfm_tracks(self, query):
+        """Получение треков с LastFM по запросу"""
         r = requests.get(
             'https://ws.audioscrobbler.com/2.0/',
             params={
