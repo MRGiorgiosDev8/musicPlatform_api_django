@@ -1,7 +1,7 @@
 const Year2025App = {
   URL: '/music_api/year-chart/',
   cache: {},
-  activeAudio: null, // Уникальная переменная для этого модуля
+  activeAudio: null,
 
   init() {
     Utils.initGenreButtons('year-genre-container', (genre) => this.load(genre), true);
@@ -30,7 +30,7 @@ const Year2025App = {
              <source src="${t.url}">
              Ваш браузер не поддерживает аудио.
            </audio>`
-        : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
+        : `<div class="fs-6 text-body d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
       col.innerHTML = `
         <div class="card h-100 shadow-sm rounded-sm card-year">
@@ -40,7 +40,9 @@ const Year2025App = {
                loading="lazy">
           <div class="card-body p-2">
             <h6 class="card-title mb-1">${t.name}</h6>
-            <p class="card-text small mb-1">Артист: ${t.artist}</p>
+            <p class="card-text small mb-1">
+              Артист: <span class="text-secondary fw-medium">${t.artist}</span>
+            </p>
             <p class="card-text small text-muted mb-2">Прослушиваний: ${t.listeners}</p>
             ${audioBlock}
           </div>
@@ -49,7 +51,6 @@ const Year2025App = {
       container.appendChild(col);
     });
 
-    // Уникальная логика аудио только для этого модуля
     this.initAudioControls();
     document.dispatchEvent(new Event('year2025:rendered'));
   },

@@ -15,7 +15,9 @@
     --border-radius-footer: 20px;
     --border-radius-card: 14px;
     --border-radius-small: 11px;
-    --transition-speed: 0.3s;
+    --border-accent: 1.4px solid rgba(255, 65, 55, 0.75);
+    --border-light-gray: 1.4px solid rgba(150, 150, 150, 0.304);
+    --border-accent-heading: 2px solid rgba(255, 65, 55, 0.75);
 }
 
 body {
@@ -40,10 +42,6 @@ main {
     border-radius: var(--border-radius-navbar);
     border: 7px solid rgb(229, 229, 229);
     box-shadow: 0px 0px 7px rgb(104, 104, 104);
-}
-
-.logo-font {
-    margin-left: -4.8vh;
 }
 
 .logo-text {
@@ -107,7 +105,7 @@ main {
 
 .input-search {
     padding: 3px;
-    font-family: var(--font-main);
+
     font-weight: 300;
 }
 
@@ -142,15 +140,14 @@ main {
 .info-project {
     background-color: var(--color-card-bg-light);
     border-radius: var(--border-radius-card);
-    border-left: 1.4px solid rgba(255, 65, 55, 0.75);
-    border-right: 1.4px solid rgba(255, 65, 55, 0.75);
-    transition: all var(--transition-speed) ease;
+    border-left: var(--border-accent);
+    border-right: var(--border-accent);
+    border-top: var(--border-light-gray);
+    border-bottom: var(--border-light-gray);
 }
 
 .track-item {
     padding: 14px;
-    border-top: 1.7px solid #fff;
-    border-bottom: 1.7px solid #fff;
     cursor: pointer;
 }
 
@@ -196,9 +193,15 @@ main {
     color: var(--color-text-dark);
     border-radius: var(--border-radius-card);
     background-color: var(--color-card-bg-light);
-    border-left: 2px solid rgba(255, 65, 55, 0.75);
-    border-right: 2px solid rgba(255, 65, 55, 0.75);
+    border-left: var(--border-accent-heading);
+    border-right: var(--border-accent-heading);
+    border-bottom: var(--border-light-gray);
 }
+
+.popular-h2 {
+    border-top: var(--border-light-gray);
+}
+
 
 .popular-h2 {
     font-size: 1.8em;
@@ -211,7 +214,7 @@ main {
     content: "";
     display: block;
     height: 1.5px;
-    background-color: rgba(255, 65, 55, 0.75);
+    background-color: var(--color-link-hover);
     border-radius: 7%;
     width: 7%;
     margin: 8.3px auto 0;
@@ -222,7 +225,7 @@ main {
 }
 
 .box-info {
-    padding: 14px 14px 11px 14px;
+    padding: 18px 18px 18px 18px;
 }
 
 .box-info p {
@@ -245,7 +248,8 @@ main {
 }
 
 .info-project {
-    border-radius: var(--border-radius-small);
+    border-radius: var(--border-radius-card);
+    padding-top: 7px;
     position: relative;
     overflow: hidden;
 }
@@ -303,8 +307,9 @@ main {
 
 .genre-btn {
     background-color: var(--color-card-bg-light) !important;
-    color: var(--color-primary) !important;
-    font-weight: 500;
+    color: var(--color-text-dark) !important;
+    font-weight: 400;
+    font-family: var(--font-heading);
 }
 
 .genre-btn:hover {
@@ -319,7 +324,7 @@ main {
     }
 
     .logo-font img {
-        margin-left: 3vh;
+
         width: 67px;
         height: 67px;
     }
@@ -387,12 +392,12 @@ main {
     }
 }
 
-@media 
-(min-width: 1024px) and (max-width: 1366px),
+@media (min-width: 1024px) and (max-width: 1366px),
 (width: 1180px) and (height: 820px),
 (width: 820px) and (height: 1180px),
 (width: 1113px) and (height: 744px),
 (width: 744px) and (height: 1113px) {
+
     .hide-ipad-pro,
     .hide-ipad-mini {
         display: none !important;
