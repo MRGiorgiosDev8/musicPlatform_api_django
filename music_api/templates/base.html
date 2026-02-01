@@ -57,16 +57,18 @@
                     <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo" class="img-fluid me-2 logo-img">
                     <span class="logo-text d-sm-inline">RubySound.fm</span>
                 </a>
-                <button class="navbar-toggler btn-sm p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler btn-sm p-1" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon custom-toggler-icon mt-2"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
                         <div class="position-relative flex-grow-1">
-                            <input class="form-control me-2 input-search input-search-icon" type="search" name="q" id="search-query"
-                                aria-label="Search tracks" autocomplete="on" placeholder="поиск музыки...">
+                            <input class="form-control me-2 input-search input-search-icon" type="search" name="q"
+                                id="search-query" aria-label="Search tracks" autocomplete="on"
+                                placeholder="поиск музыки...">
                         </div>
                         <button class="btn custom-button ms-2" type="submit">Search</button>
                     </form>
@@ -76,6 +78,10 @@
     </header>
 
     <main class="flex-grow-1">
+        <div id="searchLoader" class="search-loading" hidden>
+            <i class="fas fa-spinner fa-spin"></i>
+            <span style="font-weight: 300;">поиск музыки ...</span>
+        </div>
         {% block popular %}{% endblock %}
         {% block content %}{% endblock %}
     </main>
@@ -83,8 +89,7 @@
     <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="brand-span">
-                <span class="text-danger copyright">&copy;</span> RubySound.fm <span
-                    class="text-danger">♬</span>
+                <span class="text-danger copyright">&copy;</span> RubySound.fm <span class="text-danger">♬</span>
             </span>
             <nav class="link-footer nav">
                 <a class="nav-link" href="https://github.com/MRGiorgiosDev8" target="_blank" title="GitHub">
@@ -130,4 +135,5 @@
     {% endcompress %}
 
 </body>
+
 </html>

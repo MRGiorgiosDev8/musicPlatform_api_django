@@ -46,11 +46,10 @@ const setupMusicSearch = () => {
     document.querySelector('main').prepend(resultsContainer);
   }
 
-  const loadingElement = document.createElement('div');
-  loadingElement.className = 'search-loading';
-  loadingElement.innerHTML = '<i class="fas fa-spinner mt-3 fa-spin"></i> <span style="font-weight: 300;">поиск музыки ...</span>';
-  loadingElement.style.display = 'none';
-  resultsContainer.appendChild(loadingElement);
+  const loadingElement = document.getElementById('searchLoader');
+
+  const showLoader = () => { if (loadingElement) loadingElement.hidden = false; };
+  const hideLoader = () => { if (loadingElement) loadingElement.hidden = true; };
 
   let currentPage = 1;
   let totalPages = 1;
@@ -65,7 +64,11 @@ const setupMusicSearch = () => {
     const loadMoreButton = document.createElement('button');
     loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-3';
     loadMoreButton.style.transform = 'scale(1.1)';
-    loadMoreButton.innerHTML = 'Show More <i class="fas fa-chevron-down"></i>';
+    const textNode = document.createTextNode('Show More ');
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-chevron-down';
+    loadMoreButton.appendChild(textNode);
+    loadMoreButton.appendChild(icon);
     loadMoreButton.disabled = currentPage >= totalPages;
     loadMoreButton.addEventListener('click', () => {
       currentPage++;
@@ -77,13 +80,20 @@ const setupMusicSearch = () => {
 
   const displayResults = () => {
     hidePopular();
-    if (currentPage === 1) resultsContainer.innerHTML = '';
+    if (currentPage === 1) {
+      resultsContainer.replaceChildren();
+    }
 
     if (allTracks.length === 0) {
-      resultsContainer.innerHTML = `
+      resultsContainer.insertAdjacentHTML(
+        'beforeend',
+        `
         <div class="alert alert-dark">
-          <i class="fas fa-info-circle"></i> On request "${escapeHtml(searchInput.value.trim())}" nothing found
-        </div>`;
+          <i class="fas fa-info-circle"></i>
+          On request "${escapeHtml(searchInput.value.trim())}" nothing found
+        </div>
+        `
+      );
       return;
     }
 
@@ -93,25 +103,25 @@ const setupMusicSearch = () => {
       const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
       const audioBlock = hasAudio
         ? `<audio controls preload="none" style="width:100%; filter:sepia(1) saturate(2) hue-rotate(320deg);">
-         <source src="${track.url}">
-         Your browser does not support audio.
-       </audio>`
+             <source src="${track.url}">
+             Your browser does not support audio.
+           </audio>`
         : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
       return `
-    <div class="track-item-wrapper">
-      <div class="track-item shadow-sm">
+      <div class="track-item-wrapper">
+        <div class="track-item shadow-sm">
           <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid" loading="lazy">
-        <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
-        <p class="track-artist">
-          <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-            Артист: ${escapeHtml(track.artist)}
-          </span>
-        </p>
-        <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
-        ${audioBlock}
-      </div>
-    </div>`;
+          <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
+          <p class="track-artist">
+            <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+              Артист: ${escapeHtml(track.artist)}
+            </span>
+          </p>
+          <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
+          ${audioBlock}
+        </div>
+      </div>`;
     }).join('');
 
     resultsContainer.insertAdjacentHTML('beforeend', html);
@@ -139,9 +149,8 @@ const setupMusicSearch = () => {
     const query = searchInput.value.trim();
     if (!query) return;
 
-    resultsContainer.innerHTML = '';
-    loadingElement.style.display = 'block';
-    resultsContainer.appendChild(loadingElement);
+    resultsContainer.replaceChildren();
+    showLoader();
 
     const cacheKey = `music_search_${query}`;
     const cached = getCachedTrend(cacheKey);
@@ -149,7 +158,7 @@ const setupMusicSearch = () => {
       allTracks = cached;
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
-      loadingElement.style.display = 'none';
+      hideLoader();
       displayResults();
       return;
     }
@@ -158,19 +167,28 @@ const setupMusicSearch = () => {
       const response = await fetch(`/music_api/search/?q=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('Server error');
       const data = await response.json();
-      allTracks = data.results || data;
+      allTracks = Array.isArray(data.results)
+        ? data.results
+        : Array.isArray(data)
+          ? data
+          : [];
       setCachedTrend(cacheKey, allTracks);
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
       displayResults();
     } catch (error) {
       console.error('Search Error:', error);
-      resultsContainer.innerHTML = `
+      resultsContainer.insertAdjacentHTML(
+        'beforeend',
+        `
         <div class="alert alert-danger mt-4">
-          <i class="fas fa-exclamation-triangle"></i> There was an error when searching for music
-        </div>`;
+          <i class="fas fa-exclamation-triangle"></i>
+          There was an error when searching for music
+        </div>
+        `
+      );
     } finally {
-      loadingElement.style.display = 'none';
+      hideLoader();
     }
   });
 

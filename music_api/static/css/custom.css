@@ -135,10 +135,17 @@ body {
 .info-project {
     background-color: var(--color-card-bg-light);
     border-radius: var(--border-radius-card);
+}
+
+.track-item,
+.card-custom,
+.card-year {
+    border: var(--border-light-gray);
+}
+
+.info-project {
     border-left: var(--border-accent);
     border-right: var(--border-accent);
-    border-top: var(--border-light-gray);
-    border-bottom: var(--border-light-gray);
 }
 
 .track-item {
@@ -326,6 +333,17 @@ body {
     background-repeat: no-repeat;
     background-position: 10px center;
     background-size: 16px;
+}
+
+.search-loading {
+    text-align: center;
+    color: var(--color-primary);
+    padding: 20px;
+    font-size: 1.1rem;
+}
+.search-loading i.fa-spinner {
+    font-size: 2.1rem;
+    color: var(--color-primary);
 }
 
 @media (max-width: 575.98px) {
