@@ -1,56 +1,52 @@
-gsap.fromTo('.popular-h2',
-  { scale: 0 },
-  { scale: 1, duration: 0.6, ease: 'power3.inOut' }
-);
+const Animations = {
+  fadeUp(selector) {
+    const elements = document.querySelectorAll(selector);
+    if (!elements.length) return;
 
-function animateCards() {
-  const cards = document.querySelectorAll('#trending-container .card-custom');
-  if (!cards.length) return;
+    gsap.fromTo(elements,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: 'power2.out',
+        overwrite: true
+      }
+    );
+  },
 
-  gsap.fromTo(cards,
-    { opacity: 0, y: 40 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      stagger: 0.08,
-      ease: 'power2.inOut'
+  initLogo() {
+    const logo = document.querySelector('.logo-img');
+    if (logo) {
+      gsap.to(logo, {
+        scale: 1.011,
+        duration: 0.3,
+        ease: 'power1.inOut',
+        yoyo: true,
+        repeat: -1,
+        transformOrigin: 'center center'
+      });
     }
-  );
-}
+  },
 
-function animateYear2025() {
-  const cards = document.querySelectorAll('#year2025-container .card-year');
-  if (!cards.length) return;
+  animateHeader() {
+    gsap.fromTo('.popular-h2',
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, ease: 'power3.out' }
+    );
+  }
+};
 
-  gsap.fromTo(cards,
-    { opacity: 0, y: 40 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      stagger: 0.08,
-      ease: 'power2.inOut'
-    }
-  );
-}
-
-document.addEventListener('trending:rendered', animateCards);
-document.addEventListener('year2025:rendered', animateYear2025);
+document.addEventListener('trending:rendered', () => Animations.fadeUp('#trending-container .card-custom'));
+document.addEventListener('year2025:rendered', () => Animations.fadeUp('#year2025-container .card-year'));
 
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(animateCards, 150);
-  setTimeout(animateYear2025, 250);
+  Animations.initLogo();
+  Animations.animateHeader();
 
-  const logo = document.querySelector('.logo-img');
-  if (logo) {
-    gsap.to(logo, {
-      scale: 1.011,
-      duration: 0.3,
-      ease: 'power1.inOut',
-      yoyo: true,
-      repeat: -1,
-      transformOrigin: 'center center'
-    });
-  }
+  setTimeout(() => {
+    Animations.fadeUp('#trending-container .card-custom');
+    Animations.fadeUp('#year2025-container .card-year');
+  }, 200);
 });

@@ -1,73 +1,76 @@
 (function () {
-  function initTrackCards() {
-    const observer = new MutationObserver((mutations, obs) => {
-      const container = document.getElementById('searchResults');
-      if (!container) return;
+  const SearchAnimations = {
+    config: {
+      y: -100,
+      scale: 0.99,
+      opacity: 0,
+      duration: 0.3,
+      ease: 'back.out(1.7)'
+    },
 
-      obs.disconnect();
+    processItems(elements, timeline) {
+      elements.forEach(item => {
+        if (!item || item.dataset.animated) return;
 
-      const queue = window.gsap.timeline({ delay: 0.25 });
-
-      function animateTrackItem(item) {
-        if (item.dataset.animated) return;
-
-        window.gsap.set(item, {
-          y: -100,
-          scale: 0.99,
-          opacity: 0
+        gsap.set(item, {
+          y: this.config.y,
+          scale: this.config.scale,
+          opacity: this.config.opacity
         });
 
-        queue.to(item, {
+        timeline.to(item, {
           y: 0,
           scale: 1,
           opacity: 1,
-          duration: 0.3,
-          ease: 'elastic.out(1, 0.6)'
-        });
-
-        item.dataset.animated = 'true';
-      }
-
-      const items = Array.from(container.querySelectorAll('.track-item')).filter(
-        item => !item.dataset.animated
-      );
-
-      items.forEach(item => {
-        window.gsap.set(item, {
-          y: -100,
-          scale: 0.99,
-          opacity: 0
-        });
-
-        queue.to(item, {
-          y: 0,
-          scale: 1,
-          opacity: 1,
-          duration: 0.3,
-          ease: 'elastic.out(1, 0.6)'
+          duration: this.config.duration,
+          ease: this.config.ease
         });
 
         item.dataset.animated = 'true';
       });
+    },
 
-      new MutationObserver(mutations =>
-        mutations.forEach(m =>
-          m.addedNodes.forEach(node => {
-            if (node.nodeType !== 1) return;
-            if (node.classList.contains('track-item')) animateTrackItem(node);
-            node.querySelectorAll?.('.track-item').forEach(animateTrackItem);
-          })
-        )
-      ).observe(container, { childList: true, subtree: true });
-    });
+    init() {
 
-    observer.observe(document.body, { childList: true, subtree: true });
-    return;
-  }
+      const bodyObserver = new MutationObserver((mutations, obs) => {
+        const container = document.getElementById('searchResults');
+        if (!container) return;
+
+        obs.disconnect();
+
+        const queue = gsap.timeline({ delay: 0.25 });
+
+        const initialItems = container.querySelectorAll('.track-item');
+        if (initialItems.length) {
+          this.processItems(initialItems, queue);
+        }
+
+        const searchObserver = new MutationObserver(mutations => {
+          mutations.forEach(m => {
+            m.addedNodes.forEach(node => {
+              if (node.nodeType !== 1) return;
+
+              const targets = node.classList.contains('track-item')
+                ? [node]
+                : node.querySelectorAll?.('.track-item');
+
+              if (targets && targets.length) {
+                this.processItems(targets, queue);
+              }
+            });
+          });
+        });
+
+        searchObserver.observe(container, { childList: true, subtree: true });
+      });
+
+      bodyObserver.observe(document.body, { childList: true, subtree: true });
+    }
+  };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTrackCards);
+    document.addEventListener('DOMContentLoaded', () => SearchAnimations.init());
   } else {
-    initTrackCards();
+    SearchAnimations.init();
   }
 })();

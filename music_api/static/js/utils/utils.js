@@ -69,6 +69,7 @@ const Utils = {
 
       btn.append(img, document.createTextNode(g.label));
       fragment.appendChild(btn);
+      if (typeof animateGenreBtn === 'function') animateGenreBtn(btn, idx);
     });
 
     container.appendChild(fragment);
