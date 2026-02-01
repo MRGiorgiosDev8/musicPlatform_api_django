@@ -66,6 +66,7 @@
       });
 
       container.appendChild(btn);
+      animateGenreBtn(btn, idx);
     });
   },
 
@@ -94,10 +95,16 @@
   showError(containerId, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
     if (container) {
-      container.innerHTML = `
-        <div class="alert alert-danger mt-4 alert-log">
-          <i class="fas fa-exclamation-triangle"></i> ${message}
-        </div>`;
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger mt-4 alert-log';
+      alertDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+      Array.from(container.querySelectorAll('.alert-log')).forEach(el => el.remove());
+      container.appendChild(alertDiv);
+      setTimeout(() => {
+        if (alertDiv.parentNode) {
+          alertDiv.parentNode.removeChild(alertDiv);
+        }
+      }, 30000);
     }
   },
 

@@ -57,22 +57,16 @@
                     <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo" class="img-fluid me-2 logo-img">
                     <span class="logo-text d-sm-inline">RubySound.fm</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
-                    style="font-size: 0.75rem; padding: 0.125rem 0.25rem; margin-top: 7.4px;">
-                    <span class="navbar-toggler-icon"
-                        style="width: 2.7em; height: 2.7em; background-size: 70%; filter: invert(1);"></span>
+                <button class="navbar-toggler btn-sm p-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon custom-toggler-icon mt-2"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
                         <div class="position-relative flex-grow-1">
-                            <input class="form-control me-2 input-search" type="search" name="q" id="search-query"
-                                aria-label="Search tracks" autocomplete="on" placeholder="поиск музыки..." style="padding-left: 30px;
-             background-image: url('data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;%23dc3030&quot;><path d=&quot;M10 2a8 8 0 105.293 14.707l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z&quot;/></svg>');
-             background-repeat: no-repeat;
-             background-position: 10px center;
-             background-size: 16px;">
+                            <input class="form-control me-2 input-search input-search-icon" type="search" name="q" id="search-query"
+                                aria-label="Search tracks" autocomplete="on" placeholder="поиск музыки...">
                         </div>
                         <button class="btn custom-button ms-2" type="submit">Search</button>
                     </form>
@@ -89,8 +83,8 @@
     <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="brand-span">
-                <span style="color: red;" class="copyright">&copy;</span> RubySound.fm <span
-                    style="color: red;">♬</span>
+                <span class="text-danger copyright">&copy;</span> RubySound.fm <span
+                    class="text-danger">♬</span>
             </span>
             <nav class="link-footer nav">
                 <a class="nav-link" href="https://github.com/MRGiorgiosDev8" target="_blank" title="GitHub">
@@ -119,6 +113,7 @@
     <script src="{% static 'js/animation/animation_home.js' %}"></script>
     <script src="{% static 'js/animation/card_search_animation.js' %}"></script>
     <script src="{% static 'js/animation/alert_log_animation.js' %}"></script>
+    <script src="{% static 'js/animation/carousel_animation.js' %}"></script>
 
     <!-- Фичи сайта (modules/features) -->
     <script src="{% static 'js/features/trending.js' %}"></script>
