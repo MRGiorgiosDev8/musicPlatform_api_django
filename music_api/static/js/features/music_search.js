@@ -99,44 +99,76 @@ const setupMusicSearch = () => {
 
     const startIndex = (currentPage - 1) * tracksPerPage;
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
-    let html = tracksToShow.map(track => {
+
+    tracksToShow.forEach(track => {
+      const trackItemWrapper = document.createElement('div');
+      trackItemWrapper.className = 'track-item-wrapper';
+
+      const trackItem = document.createElement('div');
+      trackItem.className = 'track-item shadow-sm';
+
+      const img = document.createElement('img');
+      img.src = track.image_url;
+      img.alt = escapeHtml(track.name);
+      img.className = 'track-image shadow-sm img-fluid';
+      img.loading = 'lazy';
+
+      const h5 = document.createElement('h5');
+      h5.className = 'track-title text-start';
+      h5.textContent = track.name;
+
+      const pArtist = document.createElement('p');
+      pArtist.className = 'track-artist';
+
+      const spanArtist = document.createElement('span');
+      spanArtist.style.color = 'black';
+      spanArtist.style.borderLeft = '3px solid rgba(255, 13, 0, 0.73)';
+      spanArtist.style.borderRadius = '3px';
+      spanArtist.style.paddingLeft = '4px';
+      spanArtist.textContent = `Артист: ${track.artist}`;
+
+      pArtist.appendChild(spanArtist);
+
+      const pListeners = document.createElement('p');
+      pListeners.className = 'track-listeners text-black mb-3 small';
+      pListeners.textContent = `Прослушиваний: ${track.listeners}`;
+
       const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
-      const audioBlock = hasAudio
-        ? `<audio controls preload="none" style="width:100%; filter:sepia(1) saturate(2) hue-rotate(320deg);">
-             <source src="${track.url}">
-             Your browser does not support audio.
-           </audio>`
-        : `<div class="fs-6 text-muted d-inline-block border-bottom border-danger">Превью недоступно</div>`;
 
-      return `
-      <div class="track-item-wrapper">
-        <div class="track-item shadow-sm">
-          <img src="${track.image_url}" alt="${escapeHtml(track.name)}" class="track-image shadow-sm img-fluid" loading="lazy">
-          <h5 class="track-title text-start">${escapeHtml(track.name)}</h5>
-          <p class="track-artist">
-            <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-              Артист: ${escapeHtml(track.artist)}
-            </span>
-          </p>
-          <p class="track-listeners text-black mb-3 small">Прослушиваний: ${track.listeners}</p>
-          ${audioBlock}
-        </div>
-      </div>`;
-    }).join('');
+      if (hasAudio) {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.preload = 'none';
+        audio.style.width = '100%';
+        audio.style.filter = 'sepia(1) saturate(2) hue-rotate(320deg)';
 
-    resultsContainer.insertAdjacentHTML('beforeend', html);
+        const source = document.createElement('source');
+        source.src = track.url;
 
-    resultsContainer.querySelectorAll('audio').forEach(audio => {
-      audio.addEventListener('play', () => {
-        if (activeAudio && activeAudio !== audio) {
-          activeAudio.pause();
-          activeAudio.currentTime = 0;
-        }
-        activeAudio = audio;
-      });
-      audio.addEventListener('ended', () => {
-        if (activeAudio === audio) activeAudio = null;
-      });
+        audio.appendChild(source);
+
+        audio.addEventListener('play', () => {
+          if (activeAudio && activeAudio !== audio) {
+            activeAudio.pause();
+            activeAudio.currentTime = 0;
+          }
+          activeAudio = audio;
+        });
+        audio.addEventListener('ended', () => {
+          if (activeAudio === audio) activeAudio = null;
+        });
+
+        trackItem.append(img, h5, pArtist, pListeners, audio);
+      } else {
+        const noPreview = document.createElement('div');
+        noPreview.className = 'fs-6 text-muted d-inline-block border-bottom border-danger';
+        noPreview.textContent = 'Превью недоступно';
+
+        trackItem.append(img, h5, pArtist, pListeners, noPreview);
+      }
+
+      trackItemWrapper.appendChild(trackItem);
+      resultsContainer.appendChild(trackItemWrapper);
     });
 
     const oldButton = resultsContainer.querySelector('.load-more-container');

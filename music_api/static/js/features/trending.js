@@ -14,40 +14,99 @@ const TrendingApp = {
       return;
     }
 
-    container.innerHTML = '';
+    container.replaceChildren();
+
+    const fragment = document.createDocumentFragment();
+
     list.forEach(a => {
       const col = document.createElement('div');
       col.className = 'col';
-      col.innerHTML = `
-        <div class="card h-100 shadow-sm rounded-sm card-custom">
-          <div class="row g-0 h-100">
-            <div class="col-md-4">
-              <img src="${a.photo_url}" class="img-fluid rounded-start h-100 w-100 object-fit-cover" alt="${a.name}" loading="lazy">
-            </div>
-            <div class="col-md-8 d-flex flex-column">
-              <div class="card-body">
-                <h5 class="card-title mb-1">${a.name}</h5>
-              </div>
-              <div class="card-footer mt-auto">
-                <small class="text-muted">Популярные альбомы:</small>
-                <ul class="list-unstyled mb-0 mt-1">
-                  ${a.releases.map(r => `
-                    <li class="d-flex align-items-center mb-1">
-                      <img src="${r.cover}" width="32" height="32" class="rounded me-2 shadow-sm" loading="lazy">
-                      <div>
-                        <div class="fw-semibold">${r.title}</div>
-                        <div class="small text-muted">Прослушиваний:&nbsp;${r.playcount}</div>
-                      </div>
-                    </li>
-                  `).join('')}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      container.appendChild(col);
+
+      const card = document.createElement('div');
+      card.className = 'card h-100 shadow-sm rounded-sm card-custom';
+
+      const row = document.createElement('div');
+      row.className = 'row g-0 h-100';
+
+      const colImg = document.createElement('div');
+      colImg.className = 'col-md-4';
+
+      const img = document.createElement('img');
+      img.src = a.photo_url;
+      img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
+      img.alt = a.name;
+      img.loading = 'lazy';
+
+      colImg.appendChild(img);
+
+      const colContent = document.createElement('div');
+      colContent.className = 'col-md-8 d-flex flex-column';
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title mb-1';
+      cardTitle.textContent = a.name;
+
+      cardBody.appendChild(cardTitle);
+
+      const cardFooter = document.createElement('div');
+      cardFooter.className = 'card-footer mt-auto';
+
+      const smallText = document.createElement('small');
+      smallText.className = 'text-muted';
+      smallText.textContent = 'Популярные альбомы:';
+
+      const ul = document.createElement('ul');
+      ul.className = 'list-unstyled mb-0 mt-1';
+
+      a.releases.forEach(r => {
+        const li = document.createElement('li');
+        li.className = 'd-flex align-items-center mb-1';
+
+        const coverImg = document.createElement('img');
+        coverImg.src = r.cover;
+        coverImg.width = 32;
+        coverImg.height = 32;
+        coverImg.className = 'rounded me-2 shadow-sm';
+        coverImg.loading = 'lazy';
+
+        const divInfo = document.createElement('div');
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'fw-semibold';
+        titleDiv.textContent = r.title;
+
+        const playcountDiv = document.createElement('div');
+        playcountDiv.className = 'small text-muted';
+        playcountDiv.textContent = `Прослушиваний:\u00A0${r.playcount}`;
+
+        divInfo.appendChild(titleDiv);
+        divInfo.appendChild(playcountDiv);
+
+        li.appendChild(coverImg);
+        li.appendChild(divInfo);
+
+        ul.appendChild(li);
+      });
+
+      cardFooter.appendChild(smallText);
+      cardFooter.appendChild(ul);
+
+      colContent.appendChild(cardBody);
+      colContent.appendChild(cardFooter);
+
+      row.appendChild(colImg);
+      row.appendChild(colContent);
+
+      card.appendChild(row);
+      col.appendChild(card);
+
+      fragment.appendChild(col);
     });
+
+    container.appendChild(fragment);
 
     document.dispatchEvent(new Event('trending:rendered'));
   },
