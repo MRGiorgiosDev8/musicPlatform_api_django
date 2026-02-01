@@ -41,6 +41,11 @@
 
   <h2 class="mb-4 text-center popular-h2 shadow-sm">Топ-Артисты</h2>
 
+  <div id="trending-spinner" class="search-loading" hidden>
+    <i class="fas fa-spinner fa-spin"></i>
+    <span style="font-weight: 300;">загрузка трендов…</span>
+  </div>
+
  <div class="carousel-wrapper position-relative mb-2">
   <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
   <div class="d-flex overflow-auto gap-2 pb-2" id="trending-genre-container"></div>
@@ -49,9 +54,16 @@
 
   <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container"></div>
 
+
   <h2 id="year2026-chart" class="mb-4  text-center popular-h2 shadow-sm">
     Актуальный чарт
   </h2>
+
+  <div id="year-spinner" class="search-loading" hidden>
+    <i class="fas fa-spinner fa-spin"></i>
+    <span style="font-weight: 300;">загрузка чарта…</span>
+  </div>
+
 
 <div class="carousel-wrapper position-relative mb-2">
   <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>

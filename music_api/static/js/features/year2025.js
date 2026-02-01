@@ -113,7 +113,7 @@ const Year2025App = {
       return;
     }
 
-    Utils.showSpinner('year2025-spinner', 'year2025-container', true);
+    Utils.showYearSpinner(true);
     try {
       const url = genre ? `${this.URL}?genre=${encodeURIComponent(genre)}` : this.URL;
       const data = await Utils.fetchData(url);
@@ -124,7 +124,7 @@ const Year2025App = {
       console.error(e);
       Utils.showError('year2025-container');
     } finally {
-      Utils.showSpinner('year2025-spinner', 'year2025-container', false);
+      Utils.showYearSpinner(false);
     }
   }
 };

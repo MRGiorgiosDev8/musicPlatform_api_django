@@ -1,4 +1,4 @@
-  const Utils = {
+const Utils = {
   CACHE_TTL: 10 * 60 * 1000,
 
   GENRES: [
@@ -30,52 +30,66 @@
     { value: 'hyperpop', label: 'Hyperpop' },
   ],
 
-  showSpinner(spinnerId, containerId, show = true) {
-    let sp = document.getElementById(spinnerId);
-    if (!sp) {
-      sp = document.createElement('div');
-      sp.id = spinnerId;
-      sp.className = 'search-loading';
-      sp.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span style="font-weight:300;">загрузка данных ...</span>';
-      const container = document.getElementById(containerId);
-      if (container) container.before(sp);
-    }
-    sp.style.display = show ? 'block' : 'none';
+  showTrendingSpinner(show = true) {
+    const spinner = document.getElementById('trending-spinner');
+    if (!spinner) return;
+    spinner.hidden = !show;
+  },
+
+  showYearSpinner(show = true) {
+    const spinner = document.getElementById('year-spinner');
+    if (!spinner) return;
+    spinner.hidden = !show;
   },
 
   initGenreButtons(containerId, onSelect, addCarouselClass = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = '';
+    container.replaceChildren();
     if (addCarouselClass) container.classList.add('genre-carousel');
+
+    const fragment = document.createDocumentFragment();
 
     this.GENRES.forEach((g, idx) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'btn btn-outline-danger flex-shrink-0 genre-btn';
-      if (idx === 0) btn.classList.add('active');
       btn.dataset.genre = g.value;
       btn.style.minWidth = '120px';
-      btn.innerHTML = `<img src="/static/images/default.svg" width="24" height="24" class="me-1">${g.label}`;
 
-      btn.addEventListener('click', () => {
-        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        onSelect(g.value);
-      });
+      if (idx === 0) btn.classList.add('active');
 
-      container.appendChild(btn);
-      animateGenreBtn(btn, idx);
+      const img = document.createElement('img');
+      img.src = '/static/images/default.svg';
+      img.width = 24;
+      img.height = 24;
+      img.className = 'me-1';
+      img.alt = '';
+
+      btn.append(img, document.createTextNode(g.label));
+      fragment.appendChild(btn);
+    });
+
+    container.appendChild(fragment);
+
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('.genre-btn');
+      if (!btn || !container.contains(btn)) return;
+
+      container.querySelectorAll('.genre-btn.active')
+        .forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+      onSelect(btn.dataset.genre);
     });
   },
 
   getCached(cacheObj, key) {
     const cached = cacheObj[key];
-    if (cached && Date.now() - cached.ts < this.CACHE_TTL) {
-      return cached.data;
-    }
-    return null;
+    return cached && Date.now() - cached.ts < this.CACHE_TTL
+      ? cached.data
+      : null;
   },
 
   setCache(cacheObj, key, data) {
@@ -84,28 +98,36 @@
 
   renderEmpty(containerId) {
     const container = document.getElementById(containerId);
-    if (container) {
-      container.innerHTML = `
-        <div class="alert alert-danger mt-4 alert-log">
-          <i class="fas fa-exclamation-triangle"></i> Нет данных.
-        </div>`;
-    }
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger mt-4 alert-log';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle';
+
+    alert.append(icon, document.createTextNode(' Нет данных.'));
+    container.appendChild(alert);
   },
 
   showError(containerId, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
-    if (container) {
-      const alertDiv = document.createElement('div');
-      alertDiv.className = 'alert alert-danger mt-4 alert-log';
-      alertDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
-      Array.from(container.querySelectorAll('.alert-log')).forEach(el => el.remove());
-      container.appendChild(alertDiv);
-      setTimeout(() => {
-        if (alertDiv.parentNode) {
-          alertDiv.parentNode.removeChild(alertDiv);
-        }
-      }, 30000);
-    }
+    if (!container) return;
+
+    container.querySelectorAll('.alert-log').forEach(el => el.remove());
+
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger mt-4 alert-log';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle';
+
+    alert.append(icon, document.createTextNode(` ${message}`));
+    container.appendChild(alert);
+
+    setTimeout(() => alert.remove(), 30000);
   },
 
   async fetchData(url) {

@@ -118,7 +118,7 @@ const TrendingApp = {
       return;
     }
 
-    Utils.showSpinner('trending-spinner', 'trending-container', true);
+    Utils.showTrendingSpinner(true);
     try {
       const url = genre ? `${this.URL}?genre=${encodeURIComponent(genre)}` : this.URL;
       const data = await Utils.fetchData(url);
@@ -129,7 +129,7 @@ const TrendingApp = {
       console.error(e);
       Utils.showError('trending-container');
     } finally {
-      Utils.showSpinner('trending-spinner', 'trending-container', false);
+      Utils.showTrendingSpinner(false);
     }
   }
 };
