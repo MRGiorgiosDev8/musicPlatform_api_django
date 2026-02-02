@@ -53,15 +53,17 @@
     <header>
         <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top">
             <div class="container-fluid">
+                <div class="d-flex align-items-center justify-content-between">
                 <a class="d-flex align-items-center justify-content-start navbar-brand logo-font" href="/">
                     <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo" class="img-fluid me-2 logo-img">
                     <span class="logo-text d-sm-inline">RubySound.fm</span>
                 </a>
-                <button class="navbar-toggler btn-sm p-1" type="button" data-bs-toggle="collapse"
+                <button class="navbar-toggler ms-auto btn-sm p-1" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                     aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon custom-toggler-icon mt-2"></span>
                 </button>
+                </div>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
@@ -113,6 +115,7 @@
     <script src="{% static 'vendor/gsap/CustomBounce.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/CustomEase.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/SplitText.min.js' %}"></script>
+    <script src="{% static 'vendor/gsap/ScrambleTextPlugin.min.js' %}"></script>
 
     <!-- Анимации и визуальные эффекты -->
     <script src="{% static 'js/animation/track-animations.js' %}"></script>
@@ -120,6 +123,8 @@
     <script src="{% static 'js/animation/card_search_animation.js' %}"></script>
     <script src="{% static 'js/animation/alert_log_animation.js' %}"></script>
     <script src="{% static 'js/animation/carousel_animation.js' %}"></script>
+    <script src="{% static 'js/animation/collapse_toggler_animation.js' %}"></script>
+
 
     <!-- Фичи сайта (modules/features) -->
     <script src="{% static 'js/features/trending.js' %}"></script>

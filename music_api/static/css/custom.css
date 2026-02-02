@@ -40,15 +40,14 @@ body {
     box-shadow: 0px 0px 7px rgb(104, 104, 104);
 }
 
+
 .logo-text {
     color: var(--color-primary);
     font-size: 1.4em;
     margin-top: 1vh;
     font-family: var(--font-logo);
     font-weight: 400;
-    perspective: 800px;
-    display: inline-block;
-    overflow: hidden;
+    perspective: 800px
 }
 
 .logo-font img {
@@ -100,7 +99,6 @@ body {
 
 .input-search {
     padding: 3px;
-
     font-weight: 300;
 }
 
@@ -112,6 +110,8 @@ body {
 .form-search {
     margin-top: 1vh;
 }
+
+
 
 .form-control::-webkit-search-cancel-button,
 .form-control::-moz-search-cancel-button,
@@ -341,10 +341,12 @@ body {
     padding: 20px;
     font-size: 1.1rem;
 }
+
 .search-loading i.fa-spinner {
     font-size: 2.1rem;
     color: var(--color-primary);
 }
+
 
 @media (max-width: 575.98px) {
 
@@ -352,14 +354,49 @@ body {
         background-attachment: scroll;
     }
 
-    .logo-font img {
+    /* .navbar-content .container-fluid {
+        flex-wrap: wrap !important;
+    } */
 
-        width: 67px;
-        height: 67px;
+    .navbar-brand {
+        margin-right: 0;
+        flex: 1;
     }
 
-    .custom-navbar {
-        padding-bottom: 1.4vh;
+    .navbar-collapse.show {
+        margin-bottom: 11px;
+    }
+
+    .form-search {
+        margin-top: 0;
+        width: 100%;
+    }
+
+    .navbar-collapse:not(.show) {
+        display: block !important;
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+    }
+
+    .collapsing {
+        display: block !important;
+        height: 0 !important;
+        transition: none !important;
+    }
+
+    .logo-text {
+        white-space: nowrap;
+        display: inline-block;
+        max-width: 65vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+    }
+
+    .logo-font img {
+        width: 67px;
+        height: 67px;
     }
 
     .about-h2,
@@ -403,6 +440,13 @@ body {
 
     body {
         background-attachment: scroll
+    }
+
+    .navbar-collapse {
+        display: flex !important;
+        height: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 
     .custom-navbar {
