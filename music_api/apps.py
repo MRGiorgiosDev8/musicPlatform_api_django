@@ -12,7 +12,7 @@ class MusicApiConfig(AppConfig):
 
     def ready(self):
         try:
-            from .services_async import http_client
+            from .views.services_async import http_client
         except Exception as e:
             logger.warning("http_client is not available on app startup: %s", e)
             return

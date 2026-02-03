@@ -133,7 +133,16 @@ const Utils = {
 
   async fetchData(url) {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(res.status);
+    if (!res.ok) {
+      let errorMessage = `HTTP ${res.status}`;
+      try {
+        const errorData = await res.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
+      } catch (e) {
+
+      }
+      throw new Error(errorMessage);
+    }
     return res.json();
   }
 };

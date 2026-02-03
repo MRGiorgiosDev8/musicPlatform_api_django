@@ -1,8 +1,15 @@
 import time
 import asyncio
 import httpx
+import hashlib
 from django.core.cache import cache
 from .base import logger, LASTFM_KEY
+
+
+def _safe_cache_key(prefix, *parts):
+    raw = "|".join(str(p) for p in parts)
+    digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:20]
+    return f"{prefix}:{digest}"
 
 http_client = httpx.AsyncClient(
     limits=httpx.Limits(max_connections=20, max_keepalive_connections=5),
@@ -21,7 +28,7 @@ async def _get_itunes_batch_async(tracks):
     async def fetch_track_data(track):
         name = track['name']
         artist = track['artist']
-        cache_key = f"itunes:{artist.lower()}:{name.lower()}"
+        cache_key = _safe_cache_key("itunes", artist.lower(), name.lower())
         cached = cache.get(cache_key)
         if cached is not None:
             return (name, artist), cached
@@ -86,7 +93,7 @@ async def _get_deezer_batch_async(tracks):
     async def fetch_track_data(track):
         name = track['name']
         artist = track['artist']
-        cache_key = f"deezer:{artist.lower()}:{name.lower()}"
+        cache_key = _safe_cache_key("deezer", artist.lower(), name.lower())
         cached = cache.get(cache_key)
         if cached is not None:
             return (name, artist), cached
@@ -131,7 +138,7 @@ async def _get_deezer_batch_async(tracks):
     return results
 
 
-async def _get_lastfm_chart_async(limit=30):
+async def _get_lastfm_tracks_chart_async(limit=30):
     """Асинхронное получение глобального чарта треков (Last.fm)"""
     try:
         start_time = time.time()
@@ -210,7 +217,7 @@ async def _get_deezer_artists_batch_async(artist_names):
     artist_names = artist_names[:40]
     
     async def fetch_artist_photo(name):
-        cache_key = f"deezer_artist:{name.lower()}"
+        cache_key = _safe_cache_key("deezer_artist", name.lower())
         cached = cache.get(cache_key)
         if cached is not None:
             return name, cached
@@ -255,7 +262,7 @@ async def _get_lastfm_releases_batch_async(artists):
     async def fetch_artist_releases(art):
         name = art['name']
         mbid = art.get('mbid', '')
-        cache_key = f"lastfm_releases:{mbid or name.lower()}"
+        cache_key = _safe_cache_key("lastfm_releases", mbid or name.lower())
         cached = cache.get(cache_key)
         if cached is not None:
             return name, cached
@@ -341,7 +348,7 @@ async def _get_lastfm_artists_by_genre_async(genre, limit=30):
         return []
 
 
-async def _get_lastfm_chart_async(limit=30):
+async def _get_lastfm_artists_chart_async(limit=30):
     """Асинхронное получение глобального чарта артистов (Last.fm)"""
     try:
         start_time = time.time()

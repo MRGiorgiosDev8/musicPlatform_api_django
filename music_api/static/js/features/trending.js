@@ -9,7 +9,7 @@ const TrendingApp = {
 
   render(list) {
     const container = document.getElementById('trending-container');
-    if (!list.length) {
+    if (!list || !list.length) {
       Utils.renderEmpty('trending-container');
       return;
     }
@@ -19,6 +19,9 @@ const TrendingApp = {
     const fragment = document.createDocumentFragment();
 
     list.forEach(a => {
+      // Защита от некорректных данных
+      if (!a || !a.name) return;
+      
       const col = document.createElement('div');
       col.className = 'col';
 
@@ -32,10 +35,11 @@ const TrendingApp = {
       colImg.className = 'col-md-4';
 
       const img = document.createElement('img');
-      img.src = a.photo_url;
+      img.src = a.photo_url || '/static/images/default.svg';
       img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
       img.alt = a.name;
       img.loading = 'lazy';
+      img.onerror = () => { img.src = '/static/images/default.svg'; };
 
       colImg.appendChild(img);
 
@@ -61,16 +65,21 @@ const TrendingApp = {
       const ul = document.createElement('ul');
       ul.className = 'list-unstyled mb-0 mt-1';
 
-      a.releases.forEach(r => {
+      // Защита от отсутствия releases
+      const releases = a.releases || [];
+      releases.forEach(r => {
+        if (!r || !r.title) return;
+        
         const li = document.createElement('li');
         li.className = 'd-flex align-items-center mb-1';
 
         const coverImg = document.createElement('img');
-        coverImg.src = r.cover;
+        coverImg.src = r.cover || '/static/images/default.svg';
         coverImg.width = 32;
         coverImg.height = 32;
         coverImg.className = 'rounded me-2 shadow-sm';
         coverImg.loading = 'lazy';
+        coverImg.onerror = () => { coverImg.src = '/static/images/default.svg'; };
 
         const divInfo = document.createElement('div');
 
@@ -80,7 +89,7 @@ const TrendingApp = {
 
         const playcountDiv = document.createElement('div');
         playcountDiv.className = 'small text-muted';
-        playcountDiv.textContent = `Прослушиваний:\u00A0${r.playcount}`;
+        playcountDiv.textContent = `Прослушиваний:\u00A0${r.playcount || 0}`;
 
         divInfo.appendChild(titleDiv);
         divInfo.appendChild(playcountDiv);
@@ -123,11 +132,27 @@ const TrendingApp = {
       const url = genre ? `${this.URL}?genre=${encodeURIComponent(genre)}` : this.URL;
       const data = await Utils.fetchData(url);
 
-      Utils.setCache(this.cache, genre, data.artists);
-      this.render(data.artists);
+      if (!data || typeof data !== 'object') {
+        throw new Error('Неверный формат ответа сервера');
+      }
+
+      const artists = data.artists || [];
+
+      if (!artists.length) {
+        console.warn('Нет артистов для жанра:', genre || 'все');
+        Utils.setCache(this.cache, genre, artists);
+        this.render(artists);
+        return;
+      }
+
+      Utils.setCache(this.cache, genre, artists);
+      this.render(artists);
     } catch (e) {
-      console.error(e);
-      Utils.showError('trending-container');
+      console.error('Ошибка загрузки трендов:', e);
+      const errorMessage = e.message || 'Не удалось загрузить данные';
+      Utils.showError('trending-container', errorMessage);
+
+      this.render([]);
     } finally {
       Utils.showTrendingSpinner(false);
     }

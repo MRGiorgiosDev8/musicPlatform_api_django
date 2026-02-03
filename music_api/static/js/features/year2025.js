@@ -118,11 +118,27 @@ const Year2025App = {
       const url = genre ? `${this.URL}?genre=${encodeURIComponent(genre)}` : this.URL;
       const data = await Utils.fetchData(url);
 
-      Utils.setCache(this.cache, genre, data.tracks);
-      this.render(data.tracks);
+      if (!data || typeof data !== 'object') {
+        throw new Error('Неверный формат ответа сервера');
+      }
+
+      const tracks = data.tracks || [];
+
+      if (!tracks.length) {
+        console.warn('Нет данных для жанра:', genre || 'все');
+        Utils.setCache(this.cache, genre, tracks);
+        this.render(tracks);
+        return;
+      }
+
+      Utils.setCache(this.cache, genre, tracks);
+      this.render(tracks);
     } catch (e) {
-      console.error(e);
-      Utils.showError('year2025-container');
+      console.error('Ошибка загрузки чарта:', e);
+      const errorMessage = e.message || 'Не удалось загрузить данные';
+      Utils.showError('year2025-container', errorMessage);
+
+      this.render([]);
     } finally {
       Utils.showYearSpinner(false);
     }

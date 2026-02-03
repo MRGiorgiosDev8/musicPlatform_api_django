@@ -7,11 +7,12 @@ from django.core.cache import cache
 import asyncio
 import logging
 from decouple import config
+from asgiref.sync import async_to_sync
 
 # Асинхронные сервисные функции
 from .services_async import (
     _get_lastfm_artists_by_genre_async,
-    _get_lastfm_chart_async,
+    _get_lastfm_artists_chart_async,
     _get_deezer_artists_batch_async,
     _get_lastfm_releases_batch_async
 )
@@ -38,7 +39,7 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
         if genre:
             artists_raw = await _get_lastfm_artists_by_genre_async(genre, limit)
         else:
-            artists_raw = await _get_lastfm_chart_async(limit)
+            artists_raw = await _get_lastfm_artists_chart_async(limit)
 
         if not artists_raw:
             return {'artists': []}, False
@@ -99,8 +100,7 @@ class TrendingArtistsAPIView(APIView):
             return Response({'error': f'Limit must be 1-{LASTFM_CHART_LIMIT}'}, status=400)
 
         try:
-            # Используем asyncio.run для консистентности с остальными View
-            data, cached_flag = asyncio.run(_async_get_artists(genre, limit))
+            data, cached_flag = async_to_sync(_async_get_artists)(genre, limit)
 
             response_data = {
                 'artists': data.get('artists', []),
@@ -114,8 +114,9 @@ class TrendingArtistsAPIView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            logger.error(f"TrendingArtistsAPIView error: {str(e)}")
+            logger.error(f"TrendingArtistsAPIView error: {str(e)}", exc_info=True)
             return Response({
                 'error': 'Internal server error',
-                'details': 'Failed to fetch artist charts'
+                'details': 'Failed to fetch artist charts',
+                'artists': []
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

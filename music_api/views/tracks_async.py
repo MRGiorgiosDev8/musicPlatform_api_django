@@ -8,10 +8,11 @@ from django.core.cache import cache
 import asyncio
 import logging
 from decouple import config
+from asgiref.sync import async_to_sync
 
 # Асинхронные сервисные функции
 from .services_async import (
-    _get_lastfm_chart_async,
+    _get_lastfm_tracks_chart_async,
     _get_lastfm_tracks_by_genre_async,
     _search_lastfm_tracks_async,
     _get_itunes_batch_async,
@@ -40,10 +41,20 @@ async def _enrich_tracks_list_async(tracks_list):
 
     tracks_for_batch = []
     for tr in tracks_list:
-        # Учитываем, что в чартах 'artist' это dict, а в поиске - str
-        artist_name = tr['artist']['name'] if isinstance(tr['artist'], dict) else tr['artist']
+        if not isinstance(tr, dict):
+            continue
+
+        name = tr.get('name')
+        artist_field = tr.get('artist')
+        if not name or artist_field is None:
+            continue
+
+        artist_name = artist_field.get('name') if isinstance(artist_field, dict) else artist_field
+        if not artist_name:
+            continue
+
         tracks_for_batch.append({
-            'name': tr['name'],
+            'name': name,
             'artist': artist_name
         })
 
@@ -67,14 +78,31 @@ async def _enrich_tracks_list_async(tracks_list):
     # Собираем финальные данные
     enriched = []
     for tr in tracks_list:
-        name = tr['name']
-        artist = tr['artist']['name'] if isinstance(tr['artist'], dict) else tr['artist']
+        if not isinstance(tr, dict):
+            continue
+
+        name = tr.get('name')
+        artist_field = tr.get('artist')
+        if not name or artist_field is None:
+            continue
+
+        artist = artist_field.get('name') if isinstance(artist_field, dict) else artist_field
+        if not artist:
+            continue
         track_key = (name, artist)
+
+        lastfm_cover = None
+        try:
+            images = tr.get('image')
+            if isinstance(images, list) and images:
+                lastfm_cover = images[-1].get('#text') or None
+        except Exception:
+            lastfm_cover = None
 
         it_res = itunes_data.get(track_key, {})
         dz_res = deezer_data.get(track_key, {})
 
-        cover = it_res.get('cover') or dz_res.get('cover')
+        cover = it_res.get('cover') or dz_res.get('cover') or lastfm_cover
         preview = it_res.get('preview') or dz_res.get('preview')
 
         enriched.append({
@@ -94,12 +122,29 @@ class YearChartAPIView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
+    async def _get_chart_data_async(self, genre, limit):
+        """Асинхронное получение данных чарта"""
+        try:
+            if genre:
+                raw = await _get_lastfm_tracks_by_genre_async(genre, limit)
+            else:
+                raw = await _get_lastfm_tracks_chart_async(limit)
+
+            if not raw:
+                return []
+
+            enriched = await _enrich_tracks_list_async(raw)
+            return enriched
+
+        except Exception as e:
+            logger.error(f"Chart data fetch error: {e}", exc_info=True)
+            return []
+
     def get(self, request):
         genre = request.query_params.get('genre')
         limit_str = request.query_params.get('limit', str(DEFAULT_TRACK_COUNT))
 
         try:
-
             limit = min(int(limit_str), LASTFM_BATCH_LIMIT)
             if limit <= 0: raise ValueError()
         except ValueError:
@@ -111,19 +156,17 @@ class YearChartAPIView(APIView):
             return Response({'tracks': cached, 'meta': {'cached': True}}, status=200)
 
         try:
+            enriched = async_to_sync(self._get_chart_data_async)(genre, limit)
 
-            if genre:
-                raw = asyncio.run(_get_lastfm_tracks_by_genre_async(genre, limit))
+            if enriched:
+                cache.set(cache_key, enriched, timeout=CACHE_TIMEOUT)
+                return Response({'tracks': enriched, 'meta': {'cached': False}}, status=200)
             else:
-                raw = asyncio.run(_get_lastfm_chart_async(limit))
+                return Response({'tracks': [], 'meta': {'cached': False, 'error': 'No data available'}}, status=200)
 
-            enriched = asyncio.run(_enrich_tracks_list_async(raw))
-
-            cache.set(cache_key, enriched, timeout=CACHE_TIMEOUT)
-            return Response({'tracks': enriched, 'meta': {'cached': False}}, status=200)
         except Exception as e:
-            logger.error(f"Chart error: {e}")
-            return Response({'error': 'Server error'}, status=500)
+            logger.error(f"Chart API error: {e}", exc_info=True)
+            return Response({'error': 'Server error', 'tracks': []}, status=500)
 
 
 class TrackSearchAPIView(APIView):
@@ -131,6 +174,15 @@ class TrackSearchAPIView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     pagination_class = TrackPagination
+
+    async def _search_and_enrich_async(self, query, page):
+        """Асинхронный поиск и обогащение треков"""
+        try:
+            enriched_page = await _enrich_tracks_list_async(page)
+            return enriched_page
+        except Exception as e:
+            logger.error(f"Search enrich error: {e}", exc_info=True)
+            return []
 
     def get(self, request):
         query = request.query_params.get('q', '').strip()
@@ -141,7 +193,8 @@ class TrackSearchAPIView(APIView):
             cache_key_raw = f"search_raw:{query}"
             tracks_raw = cache.get(cache_key_raw)
             if not tracks_raw:
-                tracks_raw = asyncio.run(_search_lastfm_tracks_async(query, limit=LASTFM_BATCH_LIMIT))
+                tracks_raw = async_to_sync(_search_lastfm_tracks_async)(query, limit=LASTFM_BATCH_LIMIT)
+                
                 cache.set(cache_key_raw, tracks_raw, timeout=CACHE_TIMEOUT)
 
             if not tracks_raw:
@@ -150,13 +203,13 @@ class TrackSearchAPIView(APIView):
             paginator = self.pagination_class()
             page = paginator.paginate_queryset(tracks_raw, request)
 
-            enriched_page = asyncio.run(_enrich_tracks_list_async(page))
+            enriched_page = async_to_sync(self._search_and_enrich_async)(query, page)
 
             return paginator.get_paginated_response(enriched_page)
 
         except Exception as e:
             logger.error(f"Search error: {e}", exc_info=True)
-            return Response({'error': 'Internal server error'}, status=500)
+            return Response({'error': 'Internal server error', 'results': []}, status=500)
 
     def paginate_queryset(self, queryset):
         paginator = self.pagination_class()
