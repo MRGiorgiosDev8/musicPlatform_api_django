@@ -11,6 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = config("DEBUG", cast=bool)
 SECRET_KEY = config("SECRET_KEY")
+LASTFM_KEY = config("LASTFM_KEY")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 INSTALLED_APPS = [
@@ -21,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'music_api',
+    'music_api.apps.MusicApiConfig',
     'compressor',
 ]
 

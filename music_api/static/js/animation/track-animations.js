@@ -4,10 +4,9 @@
     if (!logoText) return;
 
     const fullText = logoText.textContent.trim();
-    const firstPartText = fullText.substring(0, 9); // Первые 9 символов
-    const lastPartText = fullText.substring(9);    // Остаток
+    const firstPartText = fullText.substring(0, 9);
+    const lastPartText = fullText.substring(9);
 
-    // 1. Пересобираем HTML: оборачиваем первые 9 букв в один span, а остальное — в другой
     logoText.innerHTML = `
       <span class="logo-first-part">${firstPartText}</span>
       <span class="logo-last-part">${lastPartText}</span>
@@ -16,24 +15,21 @@
     const firstPart = logoText.querySelector('.logo-first-part');
     const lastPart = logoText.querySelector('.logo-last-part');
 
-    // 2. Для последних 3 букв все же используем SplitText, чтобы они вылетали по очереди
     const splitLast = new SplitText(lastPart, { type: "chars" });
 
     const mainTl = gsap.timeline({ delay: 0.4 });
 
-    // --- Анимация ПЕРВЫХ 9 БУКВ (Scramble целиком) ---
     mainTl.to(firstPart, {
       duration: 1.5,
       scrambleText: {
         text: firstPartText,
-        chars: "♬⏸⏹⏺⏭♪⏮♫",
+        chars: "♬♪",
         speed: 0.5,
         revealDelay: 0.2
       },
       ease: "power3.out"
     });
 
-    // --- Анимация ПОСЛЕДНИХ 3 БУКВ (Вылет снизу) ---
     gsap.set(splitLast.chars, { opacity: 0, y: 30 });
 
     mainTl.to(splitLast.chars, {
@@ -42,9 +38,8 @@
       duration: 0.6,
       ease: "back.out(1.7)",
       stagger: 0.1
-    }, "-=0.8"); // Начинаем чуть раньше, чем закончится scramble
+    }, "-=0.8");
 
-    // Заголовок
     const header = document.querySelector('#searchResults h2');
     if (header) {
       mainTl.fromTo(header,

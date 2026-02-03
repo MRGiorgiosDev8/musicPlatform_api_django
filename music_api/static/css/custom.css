@@ -47,7 +47,9 @@ body {
     margin-top: 1vh;
     font-family: var(--font-logo);
     font-weight: 400;
-    perspective: 800px
+    perspective: 800;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .logo-font img {
@@ -202,13 +204,11 @@ body {
 
 .popular-h2 {
     border-top: var(--border-light-gray);
+    font-size: 1.8em;
 }
 
-
-.popular-h2 {
-    font-size: 1.8em;
-    margin: 4vh 0;
-    padding: 4px;
+.about-h2 {
+    font-size: 2.1em;
 }
 
 .popular-h2::after,
@@ -220,10 +220,6 @@ body {
     border-radius: 7%;
     width: 7%;
     margin: 8.3px auto 0;
-}
-
-.about-h2 {
-    font-size: 2.1em;
 }
 
 .box-info {
@@ -354,44 +350,8 @@ body {
         background-attachment: scroll;
     }
 
-    /* .navbar-content .container-fluid {
-        flex-wrap: wrap !important;
-    } */
-
-    .navbar-brand {
-        margin-right: 0;
-        flex: 1;
-    }
-
     .navbar-collapse.show {
         margin-bottom: 11px;
-    }
-
-    .form-search {
-        margin-top: 0;
-        width: 100%;
-    }
-
-    .navbar-collapse:not(.show) {
-        display: block !important;
-        height: 0;
-        opacity: 0;
-        overflow: hidden;
-    }
-
-    .collapsing {
-        display: block !important;
-        height: 0 !important;
-        transition: none !important;
-    }
-
-    .logo-text {
-        white-space: nowrap;
-        display: inline-block;
-        max-width: 65vw;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: middle;
     }
 
     .logo-font img {
@@ -413,7 +373,7 @@ body {
     }
 
     .info-project {
-        margin-top: -6vh;
+        margin-top: -3vh;
         border: none;
         border-radius: 0;
     }
@@ -440,13 +400,6 @@ body {
 
     body {
         background-attachment: scroll
-    }
-
-    .navbar-collapse {
-        display: flex !important;
-        height: auto !important;
-        opacity: 1 !important;
-        visibility: visible !important;
     }
 
     .custom-navbar {

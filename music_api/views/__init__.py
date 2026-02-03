@@ -1,5 +1,5 @@
-from .tracks import YearChartAPIView, TrackSearchAPIView, TrackPagination
-from .artists import TrendingArtistsAPIView
+from .tracks_async import YearChartAPIView, TrackSearchAPIView, TrackPagination
+from .artists_async import TrendingArtistsAPIView
 from .pages import index
 
 __all__ = [

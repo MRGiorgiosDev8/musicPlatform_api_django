@@ -25,7 +25,7 @@
     </svg>
 
     <div class="col-lg-8 mx-auto text-center box-info">
-      <h2 class="mb-3 about-h2">О проекте</h2>
+      <h2 class="mb-3 about-h2 pb-2">О проекте</h2>
       <p class="lead mb-0">
         <span class="ruby_span">RubySound.fm</span> — веб-приложение на
         <span class="django_span">Django</span> и
@@ -39,37 +39,41 @@
     </div>
   </div>
 
-  <h2 class="mb-4 text-center popular-h2 shadow-sm">Топ-Артисты</h2>
+  <h2 class="mb-4 text-center popular-h2 pb-2 p-2 shadow-sm">Топ-Артисты</h2>
+
+  <div class="carousel-wrapper position-relative mb-2">
+    <button
+      class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
+    <div class="d-flex overflow-auto gap-2 pb-2" id="trending-genre-container"></div>
+    <button
+      class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
+  </div>
+
 
   <div id="trending-spinner" class="search-loading" hidden>
     <i class="fas fa-spinner fa-spin"></i>
     <span style="font-weight: 300;">загрузка трендов…</span>
   </div>
 
- <div class="carousel-wrapper position-relative mb-2">
-  <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
-  <div class="d-flex overflow-auto gap-2 pb-2" id="trending-genre-container"></div>
-  <button class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
-</div>
-
-  <div class="row row-cols-1 row-cols-lg-2 g-4" id="trending-container"></div>
+  <div class="row row-cols-1 mb-4 row-cols-lg-2 g-4" id="trending-container"></div>
 
 
-  <h2 id="year2026-chart" class="mb-4  text-center popular-h2 shadow-sm">
+  <h2 id="year2026-chart" class="mb-4 pb-2 p-2 text-center popular-h2 shadow-sm">
     Актуальный чарт
   </h2>
+
+  <div class="carousel-wrapper position-relative mb-2">
+    <button
+      class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
+    <div class="d-flex overflow-auto gap-2 pb-2" id="year-genre-container"></div>
+    <button
+      class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
+  </div>
 
   <div id="year-spinner" class="search-loading" hidden>
     <i class="fas fa-spinner fa-spin"></i>
     <span style="font-weight: 300;">загрузка чарта…</span>
   </div>
-
-
-<div class="carousel-wrapper position-relative mb-2">
-  <button class="scroll-left btn btn-danger btn-sm position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-block">&lt;</button>
-  <div class="d-flex overflow-auto gap-2 pb-2" id="year-genre-container"></div>
-  <button class="scroll-right btn btn-danger btn-sm position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-block">&gt;</button>
-</div>
 
   <div id="year2025-container" class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3"></div>
 
