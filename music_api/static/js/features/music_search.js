@@ -88,9 +88,11 @@ const setupMusicSearch = () => {
       resultsContainer.insertAdjacentHTML(
         'beforeend',
         `
-        <div class="alert alert-dark">
+        <div class="text-center">
+        <div class="alert alert-dark mt-5 alert-log d-inline-block">
           <i class="fas fa-info-circle"></i>
-          On request "${escapeHtml(searchInput.value.trim())}" nothing found
+          По запросу "${escapeHtml(searchInput.value.trim())}" ничего не найдено
+          </div>
         </div>
         `
       );

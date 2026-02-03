@@ -19,7 +19,6 @@ const TrendingApp = {
     const fragment = document.createDocumentFragment();
 
     list.forEach(a => {
-      // Защита от некорректных данных
       if (!a || !a.name) return;
       
       const col = document.createElement('div');
@@ -50,7 +49,7 @@ const TrendingApp = {
       cardBody.className = 'card-body';
 
       const cardTitle = document.createElement('h5');
-      cardTitle.className = 'card-title mb-1';
+      cardTitle.className = 'card-title mb-1 text-dark';
       cardTitle.textContent = a.name;
 
       cardBody.appendChild(cardTitle);
@@ -84,7 +83,7 @@ const TrendingApp = {
         const divInfo = document.createElement('div');
 
         const titleDiv = document.createElement('div');
-        titleDiv.className = 'fw-semibold';
+        titleDiv.classList.add('fw-semibold', 'text-body');
         titleDiv.textContent = r.title;
 
         const playcountDiv = document.createElement('div');

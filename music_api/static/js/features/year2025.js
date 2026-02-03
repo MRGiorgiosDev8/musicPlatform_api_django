@@ -41,8 +41,17 @@ const Year2025App = {
       cardBody.className = 'card-body p-2';
 
       const title = document.createElement('h6');
-      title.className = 'card-title mb-1';
+      title.className = 'card-title mb-1 text-truncate';
       title.textContent = t.name;
+      title.style.whiteSpace = 'nowrap';
+      title.style.overflow = 'hidden';
+      title.style.textOverflow = 'ellipsis';
+      title.style.cursor = 'pointer';
+      title.setAttribute('title', t.name);
+
+      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        new bootstrap.Tooltip(title);
+      }
 
       const artistP = document.createElement('p');
       artistP.className = 'card-text small mb-1';

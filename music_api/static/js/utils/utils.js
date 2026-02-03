@@ -103,14 +103,18 @@ const Utils = {
 
     container.replaceChildren();
 
+    const wrapper = document.createElement('div');
+    wrapper.className = 'text-center mx-auto';
+
     const alert = document.createElement('div');
-    alert.className = 'alert alert-danger mt-4 alert-log';
+    alert.className = 'alert alert-danger mt-4 alert-log d-inline-block';
 
     const icon = document.createElement('i');
-    icon.className = 'fas fa-exclamation-triangle';
+    icon.className = 'fas fa-exclamation-triangle me-2';
 
-    alert.append(icon, document.createTextNode(' Нет данных.'));
-    container.appendChild(alert);
+    alert.append(icon, document.createTextNode('Нет данных'));
+    wrapper.appendChild(alert);
+    container.appendChild(wrapper);
   },
 
   showError(containerId, message = 'Не удалось загрузить данные') {
