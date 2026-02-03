@@ -350,10 +350,20 @@ body {
         background-attachment: scroll;
     }
 
-    .navbar-collapse.show {
-        margin-bottom: 11px;
+    .custom-navbar, .footer-nav {
+        /* box-shadow: none; */
+        border: 5px solid rgb(229, 229, 229);
+        border-radius: 14px;
     }
 
+    .form-search {
+        margin-bottom: 16px;
+    }
+
+    /* .navbar-collapse.show {
+        margin-bottom: 11px;
+    } */
+    
     .logo-font img {
         width: 67px;
         height: 67px;
@@ -400,10 +410,6 @@ body {
 
     body {
         background-attachment: scroll
-    }
-
-    .custom-navbar {
-        padding-bottom: 1.6vh;
     }
 
     .btn-show-more {
