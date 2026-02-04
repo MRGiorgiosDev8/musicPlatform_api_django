@@ -192,25 +192,22 @@ body {
     font-size: 1.1rem;
 }
 
-.popular-h2,
+ .popular-h2,
 .about-h2 {
     font-family: var(--font-heading);
     font-weight: 400;
     color: var(--color-text-dark);
-    border-radius: var(--border-radius-card);
-    background-color: var(--color-card-bg-light);
-    /* border-left: var(--border-accent-heading);
-    border-right: var(--border-accent-heading); */
-    box-shadow: var(--shadow-card);
+    font-size: 1.8em;
 }
 
 .popular-h2 {
-    font-size: 1.8em;
+    border-radius: var(--border-radius-card);
+    background-color: var(--color-card-bg-light);
+    box-shadow: var(--shadow-card);
 }
 
 .about-h2 {
     font-size: 2.1em;
-    border-bottom: var(--border-light-gray);
 }
 
 .popular-h2::after,
@@ -354,9 +351,8 @@ body {
 
     .custom-navbar,
     .footer-nav {
-        /* box-shadow: none; */
-        border: 5px solid rgb(229, 229, 229);
-        border-radius: 14px;
+        border: none;
+        border-radius: 0;
     }
 
     .form-search {
