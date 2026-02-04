@@ -14,8 +14,8 @@
 - **Python 3.12**
 - **Django**
 - **Django REST Framework**
-- **Uvicorn  (ASGI)**
-- **http (async HTTP)x** 
+- **Uvicorn(ASGI)**
+- **httpx (async)** 
 - **WhiteNoise**, **django-compressor**
 - **GSAP** (анимации)
 
