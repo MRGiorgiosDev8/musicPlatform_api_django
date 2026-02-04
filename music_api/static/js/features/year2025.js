@@ -28,13 +28,13 @@ const Year2025App = {
         : '/static/images/default.svg';
 
       const card = document.createElement('div');
-      card.className = 'card h-100 shadow-sm rounded-sm card-year';
+      card.className = 'card h-100 rounded-sm card-year';
 
       const img = document.createElement('img');
       img.src = cover;
       img.alt = t.name;
       img.loading = 'lazy';
-      img.className = 'card-img-top';
+      img.className = 'card-img-top shadow';
       img.onerror = () => { img.src = '/static/images/default.svg'; };
 
       const cardBody = document.createElement('div');

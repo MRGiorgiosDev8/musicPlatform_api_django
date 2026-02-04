@@ -25,13 +25,13 @@ const TrendingApp = {
       col.className = 'col';
 
       const card = document.createElement('div');
-      card.className = 'card h-100 shadow-sm rounded-sm card-custom';
+      card.className = 'card h-100 rounded-sm card-custom';
 
       const row = document.createElement('div');
       row.className = 'row g-0 h-100';
 
       const colImg = document.createElement('div');
-      colImg.className = 'col-md-4';
+      colImg.className = 'col-md-4 shadow';
 
       const img = document.createElement('img');
       img.src = a.photo_url || '/static/images/default.svg';
@@ -76,7 +76,7 @@ const TrendingApp = {
         coverImg.src = r.cover || '/static/images/default.svg';
         coverImg.width = 32;
         coverImg.height = 32;
-        coverImg.className = 'rounded me-2 shadow-sm';
+        coverImg.className = 'rounded me-2 shadow';
         coverImg.loading = 'lazy';
         coverImg.onerror = () => { coverImg.src = '/static/images/default.svg'; };
 

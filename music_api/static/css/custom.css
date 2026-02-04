@@ -18,6 +18,9 @@
     --border-accent: 1.4px solid rgba(255, 65, 55, 0.75);
     --border-light-gray: 1.4px solid rgba(150, 150, 150, 0.304);
     --border-accent-heading: 2px solid rgba(255, 65, 55, 0.75);
+    --shadow-card:
+        0 1px 3px rgba(0, 0, 0, 0.06),
+        0 4px 10px rgba(0, 0, 0, 0.04);
 }
 
 body {
@@ -113,8 +116,6 @@ body {
     margin-top: 1vh;
 }
 
-
-
 .form-control::-webkit-search-cancel-button,
 .form-control::-moz-search-cancel-button,
 .form-control::-ms-clear {
@@ -137,6 +138,7 @@ body {
 .info-project {
     background-color: var(--color-card-bg-light);
     border-radius: var(--border-radius-card);
+    box-shadow: var(--shadow-card);
 }
 
 .track-item,
@@ -197,18 +199,18 @@ body {
     color: var(--color-text-dark);
     border-radius: var(--border-radius-card);
     background-color: var(--color-card-bg-light);
-    border-left: var(--border-accent-heading);
-    border-right: var(--border-accent-heading);
-    border-bottom: var(--border-light-gray);
+    /* border-left: var(--border-accent-heading);
+    border-right: var(--border-accent-heading); */
+    box-shadow: var(--shadow-card);
 }
 
 .popular-h2 {
-    border-top: var(--border-light-gray);
     font-size: 1.8em;
 }
 
 .about-h2 {
     font-size: 2.1em;
+    border-bottom: var(--border-light-gray);
 }
 
 .popular-h2::after,
@@ -350,7 +352,8 @@ body {
         background-attachment: scroll;
     }
 
-    .custom-navbar, .footer-nav {
+    .custom-navbar,
+    .footer-nav {
         /* box-shadow: none; */
         border: 5px solid rgb(229, 229, 229);
         border-radius: 14px;
@@ -360,10 +363,6 @@ body {
         margin-bottom: 16px;
     }
 
-    /* .navbar-collapse.show {
-        margin-bottom: 11px;
-    } */
-    
     .logo-font img {
         width: 67px;
         height: 67px;
