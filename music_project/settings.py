@@ -87,6 +87,13 @@ STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder',
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "musicplatform-locmem",
+    }
+}
+
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
