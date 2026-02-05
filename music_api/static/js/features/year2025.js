@@ -60,7 +60,9 @@ const Year2025App = {
 
       const listenersP = document.createElement('p');
       listenersP.className = 'card-text small text-muted mb-2';
-      listenersP.textContent = `Прослушиваний: ${t.listeners}`;
+
+      const count = t.playcount || t.listeners || 0;
+      listenersP.textContent = `Прослушиваний: ${count}`;
 
       cardBody.appendChild(title);
       cardBody.appendChild(artistP);

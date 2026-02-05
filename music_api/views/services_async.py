@@ -2,6 +2,7 @@ import time
 import asyncio
 import httpx
 import hashlib
+import json
 from django.core.cache import cache
 from .base import logger, LASTFM_KEY
 
@@ -10,6 +11,7 @@ def _safe_cache_key(prefix, *parts):
     raw = "|".join(str(p) for p in parts)
     digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:20]
     return f"{prefix}:{digest}"
+
 
 http_client = httpx.AsyncClient(
     limits=httpx.Limits(max_connections=20, max_keepalive_connections=5),
@@ -20,11 +22,11 @@ lastfm_sem = asyncio.Semaphore(5)
 itunes_sem = asyncio.Semaphore(3)
 deezer_sem = asyncio.Semaphore(15)
 
-async def _get_itunes_batch_async(tracks):
 
+async def _get_itunes_batch_async(tracks):
     results = {}
     tracks = tracks[:25]
-    
+
     async def fetch_track_data(track):
         name = track['name']
         artist = track['artist']
@@ -36,7 +38,7 @@ async def _get_itunes_batch_async(tracks):
         try:
             async with itunes_sem:
                 await asyncio.sleep(0.1)
-                
+
                 r = await http_client.get(
                     'https://itunes.apple.com/search',
                     params={
@@ -51,8 +53,8 @@ async def _get_itunes_batch_async(tracks):
 
                 for item in data.get('results', []):
                     if (
-                        item.get('trackName', '').lower() == name.lower()
-                        and item.get('artistName', '').lower() == artist.lower()
+                            item.get('trackName', '').lower() == name.lower()
+                            and item.get('artistName', '').lower() == artist.lower()
                     ):
                         result = {
                             'cover': item['artworkUrl100'].replace('100x100bb', '600x600bb'),
@@ -86,10 +88,9 @@ async def _get_itunes_batch_async(tracks):
 
 
 async def _get_deezer_batch_async(tracks):
-
     results = {}
     tracks = tracks[:40]
-    
+
     async def fetch_track_data(track):
         name = track['name']
         artist = track['artist']
@@ -155,7 +156,14 @@ async def _get_lastfm_tracks_chart_async(limit=30):
         logger.info("Last.fm tracks chart API request took %.2f ms", elapsed)
 
         r.raise_for_status()
-        return r.json()['tracks']['track']
+        tracks = r.json()['tracks']['track']
+
+        # Преобразуем числовые поля для консистентности
+        for track in tracks:
+            track['listeners'] = int(track.get('listeners', 0))
+            track['playcount'] = int(track.get('playcount', 0))
+
+        return tracks
 
     except Exception as e:
         logger.warning("Last.fm tracks chart error: %s", str(e), exc_info=True)
@@ -180,7 +188,36 @@ async def _get_lastfm_tracks_by_genre_async(genre, limit=30):
         logger.info("Last.fm genre tracks API request took %.2f ms for genre='%s'", elapsed, genre)
 
         r.raise_for_status()
-        return r.json()['tracks']['track']
+        response_data = r.json()
+        tracks = response_data['tracks']['track']
+
+        enriched_tracks = []
+        for track in tracks:
+            try:
+                info_response = await http_client.get(
+                    'https://ws.audioscrobbler.com/2.0/',
+                    params={
+                        'method': 'track.getInfo',
+                        'api_key': LASTFM_KEY,
+                        'format': 'json',
+                        'track': track.get('name'),
+                        'artist': track.get('artist', {}).get('name'),
+                        'autocorrect': 1
+                    }
+                )
+                info_response.raise_for_status()
+                track_info = info_response.json().get('track', {})
+
+                track['listeners'] = int(track_info.get('listeners', 0))
+                track['playcount'] = int(track_info.get('playcount', 0))
+
+            except Exception as e:
+                track['listeners'] = 0
+                track['playcount'] = 0
+
+            enriched_tracks.append(track)
+
+        return enriched_tracks
 
     except Exception as e:
         logger.warning("Last.fm genre tracks error for genre='%s': %s", genre, str(e), exc_info=True)
@@ -211,11 +248,11 @@ async def _search_lastfm_tracks_async(query, limit=50):
         logger.warning("Last.fm track search error for query='%s': %s", query, str(e), exc_info=True)
         return []
 
-async def _get_deezer_artists_batch_async(artist_names):
 
+async def _get_deezer_artists_batch_async(artist_names):
     results = {}
     artist_names = artist_names[:40]
-    
+
     async def fetch_artist_photo(name):
         cache_key = _safe_cache_key("deezer_artist", name.lower())
         cached = cache.get(cache_key)
@@ -255,10 +292,9 @@ async def _get_deezer_artists_batch_async(artist_names):
 
 
 async def _get_lastfm_releases_batch_async(artists):
-
     results = {}
     artists = artists[:75]
-    
+
     async def fetch_artist_releases(art):
         name = art['name']
         mbid = art.get('mbid', '')
@@ -334,12 +370,10 @@ async def _get_lastfm_artists_by_genre_async(genre, limit=30):
         r.raise_for_status()
         artists = r.json()['topartists']['artist']
 
-        # Преобразуем числовые поля
         for a in artists:
             a['listeners'] = int(a.get('listeners', 0))
             a['playcount'] = int(a.get('playcount', 0))
 
-        # Сортируем по популярности и обрезаем до нужного лимита
         artists.sort(key=lambda a: (a['listeners'], a['playcount']), reverse=True)
         return artists[:limit]
 
