@@ -24,7 +24,10 @@
 }
 
 body {
-    background-image: url('../images/backgroundai.png');
+    background-image:
+        linear-gradient(rgba(231, 231, 231, 0.35), rgba(230, 230, 230, 0.722)),
+        url('../images/backgroundai.png');
+    /* background-image: url('../images/backgroundai.png'); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -192,7 +195,7 @@ body {
     font-size: 1.1rem;
 }
 
- .popular-h2,
+.popular-h2,
 .about-h2 {
     font-family: var(--font-heading);
     font-weight: 400;
@@ -207,8 +210,9 @@ body {
 }
 
 .about-h2 {
-    font-size: 2.1em;
+    font-size: 2.4em;
 }
+
 
 .popular-h2::after,
 .about-h2::after {
@@ -239,7 +243,7 @@ body {
 }
 
 .ruby_span {
-    color: #cb4a4a;
+    color: #c43d3d;
     font-weight: 500;
     font-size: 1.1em;
 }
@@ -303,23 +307,23 @@ body {
 }
 
 .genre-btn {
-    background-color: var(--color-card-bg-light) !important;
+    background-color: var(--color-card-bg-light);
     color: var(--color-text-dark) !important;
     font-weight: 400;
     font-family: var(--font-heading);
+    border-color: rgba(175, 175, 175, 0.865) !important;
+
 }
 
 .genre-btn:hover {
     background-color: var(--color-primary) !important;
     color: var(--color-text-light) !important;
+    border-color: var(--color-primary) !important;
 }
 
-.custom-toggler-icon {
-    width: 1.5em;
-    height: 1.5em;
-    background-size: 80%;
-    filter: invert(1);
-    display: inline-block;
+.genre-btn.active {
+    color: var(--color-text-light) !important;
+    border-color: var(--color-primary) !important;
 }
 
 .input-search-icon {
@@ -342,6 +346,24 @@ body {
     color: var(--color-primary);
 }
 
+.hamburger .hamburger-inner,
+.hamburger .hamburger-inner::before,
+.hamburger .hamburger-inner::after {
+    background-color: #fff;
+}
+
+.hamburger.hamburger--elastic {
+    scale: 0.8;
+    margin-top: 14px;
+}
+
+.hamburger.hamburger--elastic .hamburger-inner,
+.hamburger.hamburger--elastic .hamburger-inner::before,
+.hamburger.hamburger--elastic .hamburger-inner::after {
+    height: 1.8px;
+    background-color: #fff;
+}
+
 
 @media (max-width: 575.98px) {
 
@@ -359,9 +381,8 @@ body {
         margin-bottom: 16px;
     }
 
-    .logo-font img {
-        width: 67px;
-        height: 67px;
+    .logo-text {
+        font-size: 1.5em;
     }
 
     .about-h2,
@@ -405,10 +426,6 @@ body {
 
     body {
         background-attachment: scroll
-    }
-
-    .btn-show-more {
-        margin-top: 0.3vh;
     }
 }
 
