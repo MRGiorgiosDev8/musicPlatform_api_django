@@ -1,5 +1,5 @@
 :root {
-    --color-primary: #d33030;
+    --color-primary: #e52f2f;
     --color-primary-dark: #e13737ec;
     --color-bg: #000000;
     --color-card-bg: rgba(255, 255, 255, 0.5);
@@ -45,7 +45,6 @@ body {
     border: 7px solid rgb(229, 229, 229);
     box-shadow: 0px 0px 7px rgb(104, 104, 104);
 }
-
 
 .logo-text {
     color: var(--color-primary);

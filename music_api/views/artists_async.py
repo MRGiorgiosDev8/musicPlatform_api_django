@@ -75,6 +75,9 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
                 'releases': releases_data.get(name, [])
             })
 
+        # Сортируем по количеству прослушиваний (сначала listeners, потом playcount)
+        enriched_artists.sort(key=lambda artist: (artist['listeners'], artist['playcount']), reverse=True)
+
         data = {'artists': enriched_artists}
         cache.set(cache_key, data, timeout=CACHE_TIMEOUT)
         return data, False

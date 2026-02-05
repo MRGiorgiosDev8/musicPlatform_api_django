@@ -134,6 +134,10 @@ class YearChartAPIView(APIView):
                 return []
 
             enriched = await _enrich_tracks_list_async(raw)
+            
+            # Сортируем по количеству прослушиваний (сначала listeners, потом playcount)
+            enriched.sort(key=lambda track: (track['listeners'], track['playcount']), reverse=True)
+            
             return enriched
 
         except Exception as e:

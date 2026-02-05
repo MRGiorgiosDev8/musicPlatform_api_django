@@ -95,7 +95,7 @@ CACHES = {
 }
 
 COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
+COMPRESS_OFFLINE = False
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
