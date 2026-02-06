@@ -67,39 +67,53 @@
     };
   }
 
-  function setupButton(btn) {
-    const reveal = btn.querySelector('.genre-btn-reveal');
-    if (!reveal) return;
+  function isTouchDevice() {
+    return window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  }
 
-    let pointerType = null;
+  function revealAtCenter(btn) {
+    const center = getButtonCenter(btn);
+    revealAt(btn, center.x, center.y);
+  }
 
+  function setupDesktopButton(btn) {
     btn.addEventListener('mouseenter', function (e) {
-      pointerType = 'mouse';
       revealAt(btn, e.clientX, e.clientY);
     });
 
     btn.addEventListener('mouseleave', function () {
-      if (pointerType === 'mouse') hideReveal(btn);
+      hideReveal(btn);
     });
+  }
 
-    btn.addEventListener('touchstart', function (e) {
-      pointerType = 'touch';
-      const center = getButtonCenter(btn);
-      revealAt(btn, center.x, center.y);
-    }, { passive: true });
+  function setupMobileButton(btn) {
+    // Обработчики вешаются в utils.js при изменении класса .active
+  }
 
-    btn.addEventListener('touchend', function () {
-      if (pointerType === 'touch') {
-        setTimeout(function () {
-          hideReveal(btn);
-        }, 150);
-      }
-    }, { passive: true });
+  function setupButton(btn) {
+    const reveal = btn.querySelector('.genre-btn-reveal');
+    if (!reveal) return;
+
+    if (isTouchDevice()) {
+      setupMobileButton(btn);
+    } else {
+      setupDesktopButton(btn);
+    }
   }
 
   window.animateGenreBtn = function (btn, _idx) {
     if (!btn || !btn.classList.contains('genre-btn')) return;
     setupButton(btn);
+  };
+
+  window.showActiveReveal = function(btn) {
+    if (!btn || !isTouchDevice()) return;
+    revealAtCenter(btn);
+  };
+
+  window.hideActiveReveal = function(btn) {
+    if (!btn || !isTouchDevice()) return;
+    hideReveal(btn);
   };
 
   function initAll() {
@@ -117,4 +131,3 @@
     initAll();
   }
 })();
-

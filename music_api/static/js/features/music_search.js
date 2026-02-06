@@ -48,8 +48,16 @@ const setupMusicSearch = () => {
 
   const loadingElement = document.getElementById('searchLoader');
 
-  const showLoader = () => { if (loadingElement) loadingElement.hidden = false; };
-  const hideLoader = () => { if (loadingElement) loadingElement.hidden = true; };
+  const showLoader = () => {
+    if (window.Spinners && window.Spinners.search) {
+      window.Spinners.search.show();
+    }
+  };
+  const hideLoader = () => {
+    if (window.Spinners && window.Spinners.search) {
+      window.Spinners.search.hide();
+    }
+  };
 
   let currentPage = 1;
   let totalPages = 1;

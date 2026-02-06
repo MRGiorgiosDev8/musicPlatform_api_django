@@ -83,10 +83,7 @@
     </header>
 
     <main class="flex-grow-1">
-        <div id="searchLoader" class="search-loading" hidden>
-            <i class="fas fa-spinner fa-spin"></i>
-            <span class="fw-normal">загрузка данных…</span>
-        </div>
+        <div id="searchLoader" class="search-loading" hidden></div>
         {% block popular %}{% endblock %}
         {% block content %}{% endblock %}
     </main>
@@ -119,6 +116,8 @@
     <script src="{% static 'vendor/gsap/CustomEase.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/SplitText.min.js' %}"></script>
     <script src="{% static 'vendor/gsap/ScrambleTextPlugin.min.js' %}"></script>
+    <script src="{% static 'vendor/gsap/DrawSVGPlugin.min.js' %}"></script>
+    <script src="{% static 'vendor/gsap/MorphSVGPlugin.min.js' %}"></script>
 
     <!-- Анимации и визуальные эффекты -->
     <script src="{% static 'js/animation/track-animations.js' %}"></script>
@@ -128,6 +127,7 @@
     <script src="{% static 'js/animation/carousel_animation.js' %}"></script>
     <script src="{% static 'js/animation/hamburger_animation.js' %}"></script>
     <script src="{% static 'js/animation/radial_reveal_animation.js' %}"></script>
+    <script src="{% static 'js/animation/spinner_animation.js' %}"></script>
 
     <!-- Фичи сайта (modules/features) -->
     <script src="{% static 'js/features/trending.js' %}"></script>

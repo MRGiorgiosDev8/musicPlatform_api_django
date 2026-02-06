@@ -31,15 +31,23 @@ const Utils = {
   ],
 
   showTrendingSpinner(show = true) {
-    const spinner = document.getElementById('trending-spinner');
-    if (!spinner) return;
-    spinner.hidden = !show;
+    if (window.Spinners && window.Spinners.trending) {
+      if (show) {
+        window.Spinners.trending.show();
+      } else {
+        window.Spinners.trending.hide();
+      }
+    }
   },
 
   showYearSpinner(show = true) {
-    const spinner = document.getElementById('year-spinner');
-    if (!spinner) return;
-    spinner.hidden = !show;
+    if (window.Spinners && window.Spinners.year) {
+      if (show) {
+        window.Spinners.year.show();
+      } else {
+        window.Spinners.year.hide();
+      }
+    }
   },
 
   initGenreButtons(containerId, onSelect, addCarouselClass = false) {
@@ -83,13 +91,18 @@ const Utils = {
       btn.append(img, label);
       fragment.appendChild(btn);
 
-      // Передаем кнопку в твой модульный код анимаций
       if (typeof animateGenreBtn === 'function') animateGenreBtn(btn, idx);
     });
 
     container.appendChild(fragment);
 
-    // Слушатель клика с обработкой активного состояния для "воды"
+    setTimeout(() => {
+      const firstActiveBtn = container.querySelector('.genre-btn.active');
+      if (firstActiveBtn && typeof showActiveReveal === 'function') {
+        showActiveReveal(firstActiveBtn);
+      }
+    }, 100);
+
     container.addEventListener('click', (e) => {
       const btn = e.target.closest('.genre-btn');
       if (!btn || !container.contains(btn)) return;
@@ -103,10 +116,15 @@ const Utils = {
           if (f && typeof gsap !== 'undefined') gsap.set(f, { height: '0%', borderRadius: '50% 50% 0 0' });
           const rev = b.querySelector('.genre-btn-reveal');
           if (rev && typeof gsap !== 'undefined') gsap.set(rev, { scale: 0 });
+
+          if (typeof hideActiveReveal === 'function') hideActiveReveal(b);
         }
       });
 
       btn.classList.add('active');
+
+      if (typeof showActiveReveal === 'function') showActiveReveal(btn);
+      
       onSelect(btn.dataset.genre);
     });
   },
