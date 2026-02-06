@@ -306,21 +306,44 @@ body {
 }
 
 .genre-btn {
+    position: relative;
+    overflow: hidden;
     background-color: var(--color-card-bg-light);
     color: var(--color-text-dark) !important;
     font-weight: 400;
     font-family: var(--font-heading);
-    border-color: rgba(175, 175, 175, 0.865) !important;
+    border: 1.4px dotted rgba(175, 175, 175, 0.865) !important;
 
 }
 
-.genre-btn:hover {
-    background-color: var(--color-primary) !important;
+.genre-btn .genre-btn-reveal {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    pointer-events: none;
+    transform-origin: center center;
+    transform: scale(0);
+    z-index: 0;
+}
+
+.genre-btn>*:not(.genre-btn-reveal) {
+    position: relative;
+    z-index: 1;
+}
+
+.genre-btn .genre-btn-label {
+    color: inherit;
+}
+
+.genre-btn:hover,
+.genre-btn:hover .genre-btn-label {
+    background-color: transparent !important;
     color: var(--color-text-light) !important;
     border-color: var(--color-primary) !important;
 }
 
 .genre-btn.active {
+    background-color: var(--color-primary) !important;
     color: var(--color-text-light) !important;
     border-color: var(--color-primary) !important;
 }

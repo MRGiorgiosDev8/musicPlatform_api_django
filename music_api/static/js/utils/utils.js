@@ -60,6 +60,15 @@ const Utils = {
 
       if (idx === 0) btn.classList.add('active');
 
+      const fill = document.createElement('span');
+      fill.className = 'btn-fill';
+      btn.appendChild(fill);
+
+      const reveal = document.createElement('div');
+      reveal.className = 'genre-btn-reveal';
+      reveal.setAttribute('aria-hidden', 'true');
+      btn.insertBefore(reveal, btn.firstChild);
+
       const img = document.createElement('img');
       img.src = '/static/images/default.svg';
       img.width = 24;
@@ -67,19 +76,35 @@ const Utils = {
       img.className = 'me-1';
       img.alt = '';
 
-      btn.append(img, document.createTextNode(g.label));
+      const label = document.createElement('span');
+      label.className = 'genre-btn-label';
+      label.textContent = g.label;
+
+      btn.append(img, label);
       fragment.appendChild(btn);
+
+      // Передаем кнопку в твой модульный код анимаций
       if (typeof animateGenreBtn === 'function') animateGenreBtn(btn, idx);
     });
 
     container.appendChild(fragment);
 
+    // Слушатель клика с обработкой активного состояния для "воды"
     container.addEventListener('click', (e) => {
       const btn = e.target.closest('.genre-btn');
       if (!btn || !container.contains(btn)) return;
 
-      container.querySelectorAll('.genre-btn.active')
-        .forEach(b => b.classList.remove('active'));
+      const allBtns = container.querySelectorAll('.genre-btn');
+
+      allBtns.forEach(b => {
+        if (b !== btn) {
+          b.classList.remove('active');
+          const f = b.querySelector('.btn-fill');
+          if (f && typeof gsap !== 'undefined') gsap.set(f, { height: '0%', borderRadius: '50% 50% 0 0' });
+          const rev = b.querySelector('.genre-btn-reveal');
+          if (rev && typeof gsap !== 'undefined') gsap.set(rev, { scale: 0 });
+        }
+      });
 
       btn.classList.add('active');
       onSelect(btn.dataset.genre);
@@ -100,18 +125,13 @@ const Utils = {
   renderEmpty(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-
     container.replaceChildren();
-
     const wrapper = document.createElement('div');
     wrapper.className = 'text-center mx-auto';
-
     const alert = document.createElement('div');
     alert.className = 'alert alert-danger mt-4 alert-log d-inline-block';
-
     const icon = document.createElement('i');
     icon.className = 'fas fa-exclamation-triangle me-2';
-
     alert.append(icon, document.createTextNode('Нет данных'));
     wrapper.appendChild(alert);
     container.appendChild(wrapper);
@@ -120,18 +140,13 @@ const Utils = {
   showError(containerId, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
     if (!container) return;
-
     container.querySelectorAll('.alert-log').forEach(el => el.remove());
-
     const alert = document.createElement('div');
     alert.className = 'alert alert-danger mt-4 alert-log';
-
     const icon = document.createElement('i');
     icon.className = 'fas fa-exclamation-triangle';
-
     alert.append(icon, document.createTextNode(` ${message}`));
     container.appendChild(alert);
-
     setTimeout(() => alert.remove(), 30000);
   },
 
@@ -142,9 +157,7 @@ const Utils = {
       try {
         const errorData = await res.json();
         errorMessage = errorData.error || errorData.message || errorMessage;
-      } catch (e) {
-
-      }
+      } catch (e) {}
       throw new Error(errorMessage);
     }
     return res.json();
