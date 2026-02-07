@@ -74,7 +74,7 @@ gsap.registerPlugin(DrawSVGPlugin);
         gsap.killTweensOf(container);
         gsap.to(container, {
           opacity: 0,
-          duration: 0.5,
+          duration: 0.1,
           ease: 'power1.in',
           onComplete() {
             container.hidden = true;
