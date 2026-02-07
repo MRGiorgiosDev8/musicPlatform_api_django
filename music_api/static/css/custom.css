@@ -4,7 +4,7 @@
     --color-bg: #000000;
     --color-card-bg: rgba(255, 255, 255, 0.5);
     --color-card-bg-light: #ededed64;
-    --color-text-dark: #242424f6;
+    --color-text-dark: #151515;
     --color-text-light: #fff;
     --color-text-muted: #777;
     --color-link-hover: #ff3737;
@@ -305,18 +305,18 @@ body {
 .genre-btn {
     position: relative;
     overflow: hidden;
-    background-color: var(--color-card-bg-light) !important;
-    color: var(--color-text-dark) !important;
+    background-color: var(--color-card-bg-light);
+    color: var(--color-text-dark);
     font-weight: 400;
-    font-family: var(--font-heading) !important;
-    border: 1.4px dotted rgb(69, 69, 69) !important;
+    font-family: var(--font-heading);
+    border: 1.4px dotted rgb(69, 69, 69);
 
 }
 
 .genre-btn .genre-btn-reveal {
     position: absolute;
     border-radius: 50%;
-    background-color: var(--color-primary) !important;
+    background-color: var(--color-primary);
     pointer-events: none;
     transform-origin: center center;
     transform: scale(0);
@@ -329,14 +329,18 @@ body {
 }
 
 .genre-btn .genre-btn-label {
-    color: inherit !important;
+    color: inherit;
 }
 
-.genre-btn:hover,
-.genre-btn:hover .genre-btn-label {
-    background-color: transparent !important;
-    color: var(--color-text-light) !important;
-    border-color: var(--color-primary) !important;
+.genre-btn,
+.genre-btn:focus,
+.genre-btn:active,
+.genre-btn:focus-visible {
+    background-color: var(--color-card-bg-light) !important;
+    color: var(--color-text-dark) !important;
+    border-color: rgb(69, 69, 69) !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .genre-btn.active {
@@ -384,15 +388,25 @@ body {
 }
 
 .liquid-spinner-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .liquid-spinner {
-  width: 50px;
-  height: 50px;
-  color: var(--color-primary);
+    width: 50px;
+    height: 50px;
+    color: var(--color-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+
+    .genre-btn:hover,
+    .genre-btn:hover .genre-btn-label {
+        background-color: transparent;
+        color: var(--color-text-light);
+        border-color: var(--color-primary);
+    }
 }
 
 
@@ -446,7 +460,12 @@ body {
 
     .ruby_span {
         font-size: 1.1em;
-        color: #e44646;
+        color: var(--color-primary);
+    }
+
+    .genre-btn {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
 
     .about-h2::after {
@@ -479,4 +498,3 @@ body {
         display: none !important;
     }
 }
-
