@@ -19,7 +19,7 @@
     --border-light-gray: 1.4px solid rgba(150, 150, 150, 0.304);
     --border-accent-heading: 2px solid rgba(255, 65, 55, 0.75);
     --shadow-card:
-        0 1px 3px rgba(0, 0, 0, 0.149),
+        0 1px 3px rgba(23, 23, 23, 0.103),
         0 4px 10px rgba(0, 0, 0, 0.077);
 }
 
@@ -107,8 +107,9 @@ body {
 }
 
 .input-search:focus {
-    border-color: #d52e2e;
-    box-shadow: 0 0 5px #ee3333;
+    border-color: rgb(255, 0, 0);
+    box-shadow: none;
+    outline: none;
 }
 
 .form-search {
@@ -184,12 +185,6 @@ body {
     font-size: 0.9em;
 }
 
-.search-loading {
-    text-align: center;
-    color: var(--color-primary);
-    padding: 20px;
-    font-size: 1.1rem;
-}
 
 .popular-h2,
 .about-h2 {
@@ -208,7 +203,6 @@ body {
 .about-h2 {
     font-size: 2.4em;
 }
-
 
 .popular-h2::after,
 .about-h2::after {
@@ -267,6 +261,13 @@ body {
 
 .note-icon.right {
     right: 11vh;
+}
+
+.search-loading {
+    text-align: center;
+    color: var(--color-primary);
+    padding: 20px;
+    font-size: 1.1rem;
 }
 
 .search-loading i.fa-spinner {
