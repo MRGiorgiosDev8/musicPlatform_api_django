@@ -1,0 +1,91 @@
+@media (max-width: 575.98px) {
+    body {
+        background-attachment: scroll;
+    }
+
+    .custom-navbar,
+    .footer-nav {
+        border: none;
+        border-radius: 0;
+    }
+
+    .form-search {
+        margin-bottom: 16px;
+    }
+
+    .logo-text {
+        font-size: 1.5em;
+    }
+
+    .about-h2,
+    .popular-h2 {
+        border: none;
+    }
+
+    .btn-show-more {
+        margin-top: 1vh;
+    }
+
+    .popular-h2::after {
+        width: 16%;
+    }
+
+    .info-project {
+        margin-top: -3vh;
+        border: none;
+        border-radius: 0;
+    }
+
+    .box-info p {
+        font-size: 1.1em;
+    }
+
+    .django_span,
+    .rest_span {
+        font-size: 19px;
+    }
+
+    .ruby_span {
+        font-size: 1.1em;
+        color: var(--color-primary);
+    }
+
+    .genre-btn {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    .about-h2::after {
+        width: 13%;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    body {
+        background-attachment: scroll
+    }
+
+     .form-search {
+        margin-bottom: 16px;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1366px),
+(width: 1180px) and (height: 820px),
+(width: 820px) and (height: 1180px),
+(width: 1113px) and (height: 744px),
+(width: 744px) and (height: 1113px) {
+    .hide-ipad-pro,
+    .hide-ipad-mini {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1800px) and (max-width: 2000px) {
+    .container-wide {
+        width: 100% !important;
+        max-width: 1800px !important;
+        padding-left: 11rem !important;
+        padding-right: 11rem !important;
+    }
+}

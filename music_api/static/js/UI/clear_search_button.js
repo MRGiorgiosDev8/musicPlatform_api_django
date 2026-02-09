@@ -3,32 +3,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearButton = document.getElementById('clearSearch');
 
     if (searchInput && clearButton) {
-        // Показываем/скрываем крестик в зависимости от наличия текста
+        let isProcessing = false;
+        
         function toggleClearButton() {
-            if (searchInput.value.trim()) {
-                clearButton.style.display = 'flex';
-            } else {
-                clearButton.style.display = 'none';
-            }
+            const hasValue = searchInput.value.trim().length > 0;
+            const displayStyle = hasValue ? 'flex' : 'none';
+            
+            requestAnimationFrame(() => {
+                clearButton.style.display = displayStyle;
+            });
         }
 
-        // Очищаем поле при клике на крестик
-        clearButton.addEventListener('click', function(e) {
-            e.preventDefault();
+        function clearSearch() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
             searchInput.value = '';
+            
+            const inputEvent = new Event('input', { bubbles: true, cancelable: true });
+            const changeEvent = new Event('change', { bubbles: true, cancelable: true });
+            
+            searchInput.dispatchEvent(inputEvent);
+            searchInput.dispatchEvent(changeEvent);
+            
             searchInput.focus();
             toggleClearButton();
             
-            // НЕ обновляем анимацию неоновой рамки, чтобы она продолжала работать
-            // НЕ триггерим событие input, чтобы не сбивать анимацию
+            setTimeout(() => {
+                isProcessing = false;
+            }, 100);
+        }
+
+        clearButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            clearSearch();
+        });
+        
+        clearButton.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            clearSearch();
         });
 
-        // Отслеживаем ввод текста
         searchInput.addEventListener('input', toggleClearButton);
         searchInput.addEventListener('keyup', toggleClearButton);
         searchInput.addEventListener('change', toggleClearButton);
 
-        // Инициализация при загрузке
         toggleClearButton();
     }
 });

@@ -1,0 +1,35 @@
+:root {
+    --color-primary: #e52f2f;
+    --color-primary-dark: #e13737ec;
+    --color-bg: #000000;
+    --color-card-bg: rgba(255, 255, 255, 0.5);
+    --color-card-bg-light: #ffffff83;
+    --color-text-dark: #151515;
+    --color-text-light: #fff;
+    --color-text-muted: #777;
+    --color-link-hover: #ff3737;
+    --font-logo: "Archivo Black", sans-serif;
+    --font-main: "Roboto", sans-serif;
+    --font-heading: "Play", sans-serif;
+    --border-radius-navbar: 30px;
+    --border-radius-footer: 20px;
+    --border-radius-card: 14px;
+    --border-radius-small: 11px;
+    --border-accent: 1.4px solid rgba(255, 65, 55, 0.75);
+    --border-light-gray: 1.4px solid rgba(150, 150, 150, 0.304);
+    --border-accent-heading: 2px solid rgba(255, 65, 55, 0.75);
+    --shadow-card:
+        0 1px 3px rgba(23, 23, 23, 0.103),
+        0 4px 10px rgba(0, 0, 0, 0.077);
+}
+
+body {
+    background-image: url('../images/backgroundai.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+}

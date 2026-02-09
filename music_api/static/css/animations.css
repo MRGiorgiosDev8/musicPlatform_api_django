@@ -1,0 +1,28 @@
+.nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-button {
+    transition: all 0.2s ease;
+}
+
+.btn-clear-search {
+    transition: all 0.2s ease;
+}
+
+.carousel-wrapper .scroll-left,
+.carousel-wrapper .scroll-right {
+    transition: opacity 0.2s;
+}
+
+.genre-btn .genre-btn-reveal {
+    transform-origin: center center;
+    transform: scale(0);
+}
+
+.input-search:-webkit-autofill,
+.input-search:-webkit-autofill:hover,
+.input-search:-webkit-autofill:focus,
+.input-search:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}

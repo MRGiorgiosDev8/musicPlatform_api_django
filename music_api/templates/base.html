@@ -28,7 +28,7 @@
     {% compress css %}
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'vendor/hamburgers/hamburgers.min.css' %}">
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% endcompress %}
 
     <link rel="icon" type="image/x-icon" href="{% static 'images/musicico.ico' %}">
@@ -72,7 +72,7 @@
                     <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
                         <div class="position-relative flex-grow-1">
                             <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
-                                id="search-query" aria-label="Search tracks" autocomplete="off" 
+                                id="search-query" aria-label="Search tracks" autocomplete="off"
                                 placeholder="поиск музыки..." style="appearance: none; -webkit-appearance: none;">
                             <button type="button" class="btn-clear-search" id="clearSearch" style="display: none;">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
