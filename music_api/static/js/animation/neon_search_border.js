@@ -21,8 +21,9 @@ class NeonSearchBorder {
 
         const inputStyles = window.getComputedStyle(searchInput);
         const borderRadius = parseFloat(inputStyles.borderRadius) || 4;
-        const width = searchInput.offsetWidth;
-        const height = searchInput.offsetHeight;
+        const rect = searchInput.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
 
         this.searchInput = searchInput;
 
@@ -41,8 +42,8 @@ class NeonSearchBorder {
         `;
 
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', width);
-        svg.setAttribute('height', height);
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
         svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
         svg.style.cssText = `
             position: absolute;
@@ -116,7 +117,6 @@ class NeonSearchBorder {
         path.setAttribute('stroke-width', '1.2');
         path.setAttribute('filter', 'url(#neon-glow-outer)');
         path.style.cssText = `
-            stroke-dasharray: 1000;
             stroke-dashoffset: 1000;
         `;
 
@@ -129,12 +129,12 @@ class NeonSearchBorder {
         secondPath.setAttribute('stroke', '#ff3333');
         secondPath.setAttribute('stroke-width', '1.2');
         secondPath.setAttribute('filter', 'url(#neon-glow-outer)');
-        secondPath.style.cssText = `
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-        `;
 
         svg.appendChild(secondPath);
+
+        setTimeout(() => {
+            this.updatePathDashArrays();
+        }, 0);
 
         svgWrapper.appendChild(svg);
 
@@ -185,6 +185,9 @@ class NeonSearchBorder {
 
             const path1 = this.mainPath;
             const path2 = this.secondPath;
+
+            this.updatePathDashArrays();
+
             const fullLength = path1.getTotalLength();
             const segmentLength = fullLength * 0.06;
 
@@ -198,14 +201,14 @@ class NeonSearchBorder {
 
             this.timeline.to(path1, {
                 strokeDashoffset: -fullLength,
-                duration: 2,
+                duration: 1.7,
                 ease: 'none',
                 repeat: -1
             }, 0);
 
             this.timeline.to(path2, {
                 strokeDashoffset: -fullLength - segmentLength,
-                duration: 2,
+                duration: 1.7,
                 ease: 'none',
                 repeat: -1
             }, 0);
@@ -228,14 +231,17 @@ class NeonSearchBorder {
 
         const inputStyles = window.getComputedStyle(this.searchInput);
         const borderRadius = parseFloat(inputStyles.borderRadius) || 4;
-        const width = this.searchInput.offsetWidth;
-        const height = this.searchInput.offsetHeight;
+        const rect = this.searchInput.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
 
         const svg = this.svgBorder.querySelector('svg');
         if (svg) {
-            svg.setAttribute('width', width);
-            svg.setAttribute('height', height);
+            svg.removeAttribute('width');
+            svg.removeAttribute('height');
             svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.style.width = '100%';
+            svg.style.height = '100%';
         }
 
         const pathData = this.createRoundedRectPath(
@@ -250,6 +256,32 @@ class NeonSearchBorder {
         }
         if (this.secondPath) {
             this.secondPath.setAttribute('d', pathData);
+        }
+        
+        setTimeout(() => {
+            this.updatePathDashArrays();
+        }, 0);
+    }
+
+    updatePathDashArrays() {
+        if (!this.mainPath || !this.secondPath) return;
+        
+        try {
+            const fullLength = this.mainPath.getTotalLength();
+            const segmentLength = fullLength * 0.15; 
+            
+            this.mainPath.style.strokeDasharray = `${segmentLength} ${fullLength}`;
+            this.mainPath.style.strokeDashoffset = '0';
+            
+            this.secondPath.style.strokeDasharray = `${segmentLength} ${fullLength}`;
+            this.secondPath.style.strokeDashoffset = `${-segmentLength}`;
+        } catch (error) {
+            console.warn('Failed to update path dash arrays:', error);
+            
+            const fallbackLength = 1000;
+            const fallbackSegment = fallbackLength * 0.15;
+            this.mainPath.style.strokeDasharray = `${fallbackSegment} ${fallbackLength}`;
+            this.secondPath.style.strokeDasharray = `${fallbackSegment} ${fallbackLength}`;
         }
     }
 

@@ -71,9 +71,14 @@
                 <div class="collapse navbar-collapse w-100" id="navbarNav">
                     <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
                         <div class="position-relative flex-grow-1">
-                            <input class="form-control me-2 input-search input-search-icon" type="search" name="q"
-                                id="search-query" aria-label="Search tracks" autocomplete="on"
-                                placeholder="поиск музыки...">
+                            <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
+                                id="search-query" aria-label="Search tracks" autocomplete="off" 
+                                placeholder="поиск музыки..." style="appearance: none; -webkit-appearance: none;">
+                            <button type="button" class="btn-clear-search" id="clearSearch" style="display: none;">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                </svg>
+                            </button>
                         </div>
                         <button class="btn custom-button ms-2" type="submit">Search</button>
                     </form>
@@ -90,10 +95,10 @@
 
     <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
-            <span class="brand-span">
+            <span class="brand-span ms-lg-1 ms-0">
                 <span class="text-danger copyright">&copy;</span> RubySound.fm <span class="text-danger">♬</span>
             </span>
-            <nav class="link-footer nav">
+            <nav class="link-footer nav me-0 me-lg-1">
                 <a class="nav-link" href="https://github.com/MRGiorgiosDev8/musicPlatform_api_django.git" target="_blank" title="GitHub">
                     <i class="fab fa-github github-icon"></i>
                 </a>
@@ -138,6 +143,7 @@
     <script src="{% static 'js/UI/scrollbutton.js' %}"></script>
     <script src="{% static 'js/UI/scrolling.js' %}"></script>
     <script src="{% static 'js/UI/search_button_scroll.js' %}"></script>
+    <script src="{% static 'js/UI/clear_search_button.js' %}"></script>
 
     <!-- Утилиты -->
     <script src="{% static 'js/utils/utils.js' %}"></script>

@@ -223,9 +223,9 @@ const setupMusicSearch = () => {
       resultsContainer.insertAdjacentHTML(
         'beforeend',
         `
-        <div class="alert alert-danger mt-4">
+        <div class="alert alert-danger alert-log mt-4">
           <i class="fas fa-exclamation-triangle"></i>
-          There was an error when searching for music
+          Произошла ошибка при поиске музыки
         </div>
         `
       );

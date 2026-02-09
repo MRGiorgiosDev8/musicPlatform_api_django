@@ -16,20 +16,6 @@ const Animations = {
     );
   },
 
-  initLogo() {
-    const logo = document.querySelector('.logo-img');
-    if (logo) {
-      gsap.to(logo, {
-        scale: 1.011,
-        duration: 0.3,
-        ease: 'power1.inOut',
-        yoyo: true,
-        repeat: -1,
-        transformOrigin: 'center center'
-      });
-    }
-  },
-
   animateHeader() {
     gsap.fromTo('.popular-h2',
       { scale: 0, opacity: 0 },
@@ -42,7 +28,6 @@ document.addEventListener('trending:rendered', () => Animations.fadeUp('#trendin
 document.addEventListener('year2025:rendered', () => Animations.fadeUp('#year2025-container .card-year'));
 
 document.addEventListener('DOMContentLoaded', () => {
-  Animations.initLogo();
   Animations.animateHeader();
 
   setTimeout(() => {
