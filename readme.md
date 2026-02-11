@@ -141,6 +141,11 @@ ALLOWED_HOSTS=*
 
 # API-ключ Last.fm
 LASTFM_KEY=your_lastfm_api_key_here
+
+# Настройки Redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=0
 ```
 
 Для генерации нового случайного значения SECRET_KEY выполните:
