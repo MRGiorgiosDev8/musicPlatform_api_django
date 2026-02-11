@@ -17,7 +17,3 @@ EXPOSE 8000
 
 
 CMD ["uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-
-#Продакшен-сервер
-#Запуск через Uvicorn с несколькими воркерами:
-#uvicorn music_project.asgi:application --host 0.0.0.0 --port 8000 --workers 4
