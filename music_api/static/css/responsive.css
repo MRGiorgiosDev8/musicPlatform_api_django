@@ -17,11 +17,6 @@
         font-size: 1.5em;
     }
 
-    .about-h2,
-    .popular-h2 {
-        border: none;
-    }
-
     .btn-show-more {
         margin-top: 1vh;
     }
@@ -46,7 +41,7 @@
     }
 
     .ruby_span {
-        font-size: 1.1em;
+        font-size: 1.2em;
         color: var(--color-primary);
     }
 

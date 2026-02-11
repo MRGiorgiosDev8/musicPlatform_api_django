@@ -55,7 +55,10 @@ const Year2025App = {
 
       const artistP = document.createElement('p');
       artistP.className = 'card-text small mb-1';
-      artistP.innerHTML = 'Артист: <span class="text-secondary fw-medium"></span>';
+      artistP.style.borderLeft = '3px solid rgba(255, 13, 0, 0.73)';
+      artistP.style.borderRadius = '3px';
+      artistP.style.paddingLeft = '4px';
+      artistP.innerHTML = 'Артист: <span class="text-dark fw-medium"></span>';
       artistP.querySelector('span').textContent = t.artist;
 
       const listenersP = document.createElement('p');

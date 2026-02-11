@@ -257,7 +257,7 @@ class NeonSearchBorder {
         if (this.secondPath) {
             this.secondPath.setAttribute('d', pathData);
         }
-        
+
         setTimeout(() => {
             this.updatePathDashArrays();
         }, 0);
@@ -265,19 +265,19 @@ class NeonSearchBorder {
 
     updatePathDashArrays() {
         if (!this.mainPath || !this.secondPath) return;
-        
+
         try {
             const fullLength = this.mainPath.getTotalLength();
-            const segmentLength = fullLength * 0.15; 
-            
+            const segmentLength = fullLength * 0.15;
+
             this.mainPath.style.strokeDasharray = `${segmentLength} ${fullLength}`;
             this.mainPath.style.strokeDashoffset = '0';
-            
+
             this.secondPath.style.strokeDasharray = `${segmentLength} ${fullLength}`;
             this.secondPath.style.strokeDashoffset = `${-segmentLength}`;
         } catch (error) {
             console.warn('Failed to update path dash arrays:', error);
-            
+
             const fallbackLength = 1000;
             const fallbackSegment = fallbackLength * 0.15;
             this.mainPath.style.strokeDasharray = `${fallbackSegment} ${fallbackLength}`;

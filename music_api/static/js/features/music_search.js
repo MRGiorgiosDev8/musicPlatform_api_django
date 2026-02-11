@@ -70,13 +70,25 @@ const setupMusicSearch = () => {
     loadMoreContainer.style.textAlign = 'center';
     loadMoreContainer.style.margin = '20px 0';
     const loadMoreButton = document.createElement('button');
-    loadMoreButton.className = 'btn btn-sm btn-outline-danger btn-show-more shadow-sm mt-3';
+    loadMoreButton.className = 'btn btn-sm btn-show-more mt-3';
     loadMoreButton.style.transform = 'scale(1.1)';
-    const textNode = document.createTextNode('Show More ');
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-chevron-down';
-    loadMoreButton.appendChild(textNode);
-    loadMoreButton.appendChild(icon);
+    loadMoreButton.style.transition = 'transform 0.3s ease, background-color 0.3s ease';
+    loadMoreButton.style.backgroundColor = 'transparent';
+    loadMoreButton.style.border = 'none';
+    loadMoreButton.style.outline = 'none';
+    loadMoreButton.style.opacity = '0.90';
+    loadMoreButton.addEventListener('mouseenter', () => {
+      loadMoreButton.style.transform = 'scale(0.95)';
+    });
+    loadMoreButton.addEventListener('mouseleave', () => {
+      loadMoreButton.style.transform = 'scale(1.1)';
+    });
+    const arrowIcon = document.createElement('img');
+    arrowIcon.src = '/static/images/arrow-down.svg';
+    arrowIcon.alt = 'Show More';
+    arrowIcon.style.width = '50px';
+    arrowIcon.style.height = '50px';
+    loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;
     loadMoreButton.addEventListener('click', () => {
       currentPage++;
@@ -112,10 +124,10 @@ const setupMusicSearch = () => {
 
     tracksToShow.forEach(track => {
       const trackItemWrapper = document.createElement('div');
-      trackItemWrapper.className = 'track-item-wrapper';
+      trackItemWrapper.className = 'track-item-wrapper mb-5';
 
       const trackItem = document.createElement('div');
-      trackItem.className = 'track-item shadow-sm';
+      trackItem.className = 'track-item';
 
       const img = document.createElement('img');
       img.src = track.image_url;
@@ -223,9 +235,11 @@ const setupMusicSearch = () => {
       resultsContainer.insertAdjacentHTML(
         'beforeend',
         `
-        <div class="alert alert-danger alert-log mt-4">
+        <div class="text-center">
+        <div class="alert alert-danger alert-log mt-4 d-inline-block">
           <i class="fas fa-exclamation-triangle"></i>
           Произошла ошибка при поиске музыки
+        </div>
         </div>
         `
       );

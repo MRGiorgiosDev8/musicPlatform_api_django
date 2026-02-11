@@ -25,8 +25,10 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    {% compress css %}
+<!--    Подключение Bootstrap -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    {% compress css %}
     <link rel="stylesheet" href="{% static 'vendor/hamburgers/hamburgers.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
@@ -61,7 +63,7 @@
             <div class="container-fluid">
                 <div class="d-flex align-items-center justify-content-between w-100">
                     <a class="d-flex align-items-center justify-content-start navbar-brand logo-font" href="/">
-                        <img src="{% static 'images/musicheadphonelogo.svg' %}" alt="Logo"
+                        <img src="{% static 'images/musicheadphonelogo1.svg' %}" alt="Logo"
                             class="img-fluid me-2 logo-img">
                         <span class="logo-text d-sm-inline">RubySound.fm</span>
                     </a>
@@ -149,7 +151,6 @@
 
     <!-- Модули поиска и UI-специфичные скрипты -->
     <script src="{% static 'js/UI/scrollbutton.js' %}"></script>
-    <script src="{% static 'js/UI/scrolling.js' %}"></script>
     <script src="{% static 'js/UI/search_button_scroll.js' %}"></script>
     <script src="{% static 'js/UI/clear_search_button.js' %}"></script>
 

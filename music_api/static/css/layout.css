@@ -64,6 +64,8 @@
     box-shadow: var(--shadow-card);
     border-left: var(--border-accent);
     border-right: var(--border-accent);
+    border-top: var(--border-light-white);
+    border-bottom: var(--border-light-white);
     padding-top: 7px;
     position: relative;
     overflow: hidden;
