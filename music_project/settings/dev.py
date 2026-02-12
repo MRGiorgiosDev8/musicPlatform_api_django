@@ -6,13 +6,7 @@ from .base import *
 # Включаем режим отладки для разработки
 DEBUG = True
 
-# Настройки базы данных для разработки (SQLite)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Используем SQLite
-        'NAME': BASE_DIR / 'db.sqlite3',         # Файл базы данных
-    }
-}
+# База данных берется из DATABASE_URL (PostgreSQL)
 
 # Разрешённые хосты для разработки
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']

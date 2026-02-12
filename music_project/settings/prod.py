@@ -9,17 +9,7 @@ DEBUG = False
 # Разрешённые хосты для продакшена, по умолчанию локальные адреса для тестирования в Docker
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1,0.0.0.0").split(",")
 
-# Настройки базы данных для продакшена (раскомментировать и настроить при необходимости)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT'),
-#     }
-# }
+# База данных берется из DATABASE_URL (PostgreSQL)
 
 # Настройки безопасности для локального тестирования в Docker (не подходят для облачного деплоя)
 SECURE_BROWSER_XSS_FILTER = True  # Включаем фильтр XSS в браузере для защиты от межсайтовых скриптов

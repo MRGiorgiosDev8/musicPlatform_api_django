@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - RubySound.fm{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Account Settings</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    {% if user.avatar %}
+                                        <img src="{{ user.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px;">
+                                    {% else %}
+                                        <div class="bg-secondary rounded-circle d-inline-block align-top" style="width: 150px; height: 150px;">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 4rem; line-height: 150px;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="avatar" class="form-label">Change Avatar</label>
+                                    <input type="file" class="form-control" name="avatar" id="avatar" accept="image/*">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="bio" class="form-label">Bio</label>
+                                    <textarea class="form-control" name="bio" id="bio" rows="3">{{ user.bio }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="gender" class="form-label">Gender</label>
+                                            <select class="form-select" name="gender" id="gender">
+                                                <option value="">Select Gender</option>
+                                                {% for choice in user.GENDER_CHOICES %}
+                                                    <option value="{{ choice.0 }}" {% if user.gender == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="country" class="form-label">Country</label>
+                                            <input type="text" class="form-control" name="country" id="country" value="{{ user.country }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="birth_date" class="form-label">Birth Date</label>
+                                            <input type="date" class="form-control" name="birth_date" id="birth_date" value="{{ user.birth_date|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" name="is_public_favorites" id="is_public_favorites" {% if user.is_public_favorites %}checked{% endif %}>
+                                                <label class="form-check-label" for="is_public_favorites">
+                                                    Public Favorites
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'playlists' %}" class="btn btn-secondary">My Playlists</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

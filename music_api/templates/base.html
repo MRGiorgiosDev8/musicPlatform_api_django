@@ -24,6 +24,7 @@
         href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=Play:wght@400;700&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <!--    Подключение Bootstrap -->
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -77,7 +78,32 @@
                 </div>
 
                 <div class="collapse navbar-collapse w-100" id="navbarNav">
-                    <form class="d-flex ms-auto form-search" role="search" autocomplete="on">
+                    <ul class="navbar-nav me-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'profile' %}">
+                                    <i class="bi bi-person"></i> Profile
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'playlists' %}">
+                                    <i class="bi bi-music-note-list"></i> My Playlists
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    <form class="d-flex form-search" role="search" autocomplete="on">
                         <div class="position-relative flex-grow-1">
                             <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
                                 id="search-query" aria-label="Search tracks" autocomplete="off"
@@ -156,6 +182,9 @@
 
     <!-- Утилиты -->
     <script src="{% static 'js/utils/utils.js' %}"></script>
+    
+    <!-- Favorite Button Functionality -->
+    <script src="{% static 'js/favorite-button.js' %}"></script>
 
 </body>
 

@@ -4,6 +4,18 @@
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
+
+# Определяем, запущено ли приложение в Docker
+USE_DOCKER = os.environ.get('USE_DOCKER') == 'true'
+
+# Хосты для Docker и локального запуска
+if USE_DOCKER:
+    DB_HOST = "postgres"
+    REDIS_HOST = "redis"
+else:
+    DB_HOST = "localhost"
+    REDIS_HOST = "localhost"
 
  # Построение путей внутри проекта, например: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -23,7 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'music_api.apps.MusicApiConfig',
+    'users.apps.UsersConfig',
     'compressor',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -57,13 +71,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'music_project.wsgi.application'
 
-# База данных
+# База данных (с учетом Docker или локального запуска)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(
+        config(
+            'DATABASE_URL',
+            default=f'postgres://postgres:postgres@{DB_HOST}:5432/music_platform'
+        )
+    )
 }
+DATABASES['default']['CONN_MAX_AGE'] = 600
 
  # Валидация паролей
 AUTH_PASSWORD_VALIDATORS = [
@@ -95,8 +112,7 @@ STATICFILES_FINDERS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Конфигурация Redis
-REDIS_HOST = config("REDIS_HOST", default="localhost")
+# Конфигурация Redis (с учетом Docker или локального запуска)
 REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
 REDIS_DB = config("REDIS_DB", cast=int, default=0)
 
@@ -126,3 +142,22 @@ LASTFM_KEY = config("LASTFM_KEY")
 
 # Тип поля первичного ключа по умолчанию
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Пользовательская модель
+AUTH_USER_MODEL = 'users.User'
+
+# Настройки редиректа для авторизации
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+
+# DRF + JWT + Session Authentication
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
