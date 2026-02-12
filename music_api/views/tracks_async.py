@@ -149,8 +149,9 @@ class YearChartAPIView(APIView):
         limit_str = request.query_params.get('limit', str(DEFAULT_TRACK_COUNT))
 
         try:
-            limit = min(int(limit_str), LASTFM_BATCH_LIMIT)
-            if limit <= 0: raise ValueError()
+            limit = int(limit_str)
+            if limit <= 0 or limit > LASTFM_BATCH_LIMIT:
+                raise ValueError()
         except ValueError:
             return Response({'error': f'Limit must be 1-{LASTFM_BATCH_LIMIT}'}, status=400)
 

@@ -97,8 +97,9 @@ class TrendingArtistsAPIView(APIView):
         limit_str = request.query_params.get('limit', str(DEFAULT_ARTIST_COUNT))
 
         try:
-            limit = min(int(limit_str), LASTFM_CHART_LIMIT)
-            if limit <= 0: raise ValueError()
+            limit = int(limit_str)
+            if limit <= 0 or limit > LASTFM_CHART_LIMIT:
+                raise ValueError()
         except ValueError:
             return Response({'error': f'Limit must be 1-{LASTFM_CHART_LIMIT}'}, status=400)
 
