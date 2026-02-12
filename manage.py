@@ -6,7 +6,11 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_project.settings')
+    # Use production settings in Docker, development settings otherwise
+    if os.environ.get('USE_DOCKER') == 'true':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_project.settings.prod')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_project.settings.dev')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

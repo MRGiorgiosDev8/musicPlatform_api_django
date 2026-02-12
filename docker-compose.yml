@@ -10,8 +10,9 @@ services:
       - ./staticfiles:/app/staticfiles
     restart: unless-stopped
     env_file:
-      - .env.dev
+      - .env
     environment:
+      USE_DOCKER: "true"
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:

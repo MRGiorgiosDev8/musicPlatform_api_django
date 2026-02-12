@@ -9,11 +9,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Set environment variable to indicate we're in Docker
+ENV USE_DOCKER=true
+
 RUN python manage.py collectstatic --noinput
 RUN python manage.py compress
 
-
 EXPOSE 8000
 
-
-CMD ["uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
