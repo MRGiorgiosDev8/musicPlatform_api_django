@@ -2,6 +2,7 @@
 ![Repository size](https://img.shields.io/github/repo-size/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-%23e0115f)
 ![License](https://img.shields.io/github/license/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
+![Tests](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/tests.yml?label=tests&logo=github&color=%23e0115f)
 
 # 🎵 RubySound.fm
 **RubySound.fm** — музыкальный агрегатор на **Django + DRF**, построенный на **асинхронной архитектуре**. 
@@ -114,6 +115,7 @@
 - **Статус**: 8 тестов успешно пройдены (8 passed).
   - Скорость выполнения в Docker: **6.20s** ⚡️
   - Скорость выполнения локально: **9.69s**
+> **CI**: Настроена автоматическая проверка кода через GitHub Actions (тесты запускаются при каждом пуше).
 ---
 
 ### 🎨 Фронтенд
