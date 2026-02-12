@@ -1,0 +1,70 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: music_platform
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run migrations
+        env:
+          USE_DOCKER: false
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/music_platform
+          REDIS_HOST: localhost
+          SECRET_KEY: "ci-test-key"
+          LASTFM_KEY: "test-key"
+          DEBUG: True
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/music_platform
+        run: |
+          export DJANGO_SETTINGS_MODULE=music_project.settings.test
+          python manage.py migrate
+
+      - name: Run Tests
+        env:
+          USE_DOCKER: false
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/music_platform
+          REDIS_HOST: localhost
+          SECRET_KEY: "ci-test-key"
+          LASTFM_KEY: "test-key"
+          DEBUG: True
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/music_platform
+        run: |
+          export DJANGO_SETTINGS_MODULE=music_project.settings.test
+          pytest -v --cov=music_api --cov=users
