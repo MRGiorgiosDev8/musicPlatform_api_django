@@ -160,17 +160,15 @@
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
-Для быстрого запуска проекта можно использовать готовый Docker-образ:
+**Использование готового образа:**
 
-1. **Использование готового образа:**
-
-- Скачивание конфигурации и запуск всех сервисов:
+- Вы можете запустить проект одной строкой. Команда скачает конфигурацию, поднимет контейнеры, применит миграции и откроет сайт:
 ```bash
-curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml && docker compose up -d
-```
-Автоматическая настройка базы данных (миграции):
-```bash
-docker compose exec web python manage.py migrate
+curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml && \
+docker compose up -d && \
+sleep 5 && \
+docker compose exec web python manage.py migrate && \
+open http://localhost:8000
 ```
 - Остальной запуск про локальный dev — для тех, кто хочет разбираться глубже.
 
