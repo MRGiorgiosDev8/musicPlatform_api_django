@@ -162,7 +162,9 @@
 
 **Использование готового образа:**
 
-- Вы можете запустить проект одной строкой. Команда скачает конфигурацию, поднимет контейнеры, применит миграции и откроет сайт:
+- Вы можете запустить проект одной строкой. Команда скачает конфигурацию, поднимет контейнеры, применит миграции и откроет сайт
+
+**Для macOS/Linux (Terminal)**
 ```bash
 curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml && \
 docker compose up -d && \
@@ -170,6 +172,15 @@ sleep 5 && \
 docker compose exec web python manage.py migrate && \
 open http://localhost:8000
 ```
+Для Windows (PowerShell)
+```bash
+curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml; `
+docker compose up -d; `
+Start-Sleep -Seconds 5; `
+docker compose exec web python manage.py migrate; `
+start http://localhost:8000
+```
+
 - Остальной запуск про локальный dev — для тех, кто хочет разбираться глубже.
 
 
