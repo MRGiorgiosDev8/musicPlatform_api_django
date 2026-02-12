@@ -1,21 +1,19 @@
 services:
   web:
-    # Используем твой образ из Docker Hub
     image: georgio8/music_project:latest
     ports:
       - "8000:8000"
     mem_limit: 512m
-    # Статику оставляем в именованных томах, если нужно,
-    # но локальный маппинг (- .:/app) убираем
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       USE_DOCKER: "true"
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      # Добавь хост базы данных, чтобы Django знал куда идти
       DB_HOST: postgres
+      POSTGRES_DB: music_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      LASTFM_KEY: "49b6213396a4b5a21637bcf627a4bf3d"
     depends_on:
       - postgres
       - redis
