@@ -8,7 +8,7 @@ import os
 import dj_database_url
 from decouple import config
 
-os.environ.setdefault("SECRET_KEY", "test-secret-key")
+SECRET_KEY = "o-+l(a04j^$sjp!7d-34c#$rmor^=k3#d_6#00vwemb%#j!1b2"
 os.environ.setdefault("LASTFM_KEY", "test-lastfm-key")
 os.environ.setdefault("DATABASE_URL", "postgres://postgres:postgres@postgres:5432/music_platform")
 

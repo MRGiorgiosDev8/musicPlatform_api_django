@@ -1,16 +1,18 @@
-# Запустить все тесты в Docker (с исправлением ошибок Flush)
+# Запустить все тесты в Docker
+# Теперь pytest сам возьмет настройки из pytest.ini
 test:
-	docker compose exec web pytest -v --create-db --no-migrations
+	docker compose exec web pytest
 
 # Запустить все тесты локально (macOS)
+# Подставляем текущего пользователя Mac как владельца БД
 test-local:
 	DJANGO_SETTINGS_MODULE=music_project.settings.test \
 	DATABASE_URL=postgres://$(shell whoami):@localhost:5432/music_platform \
-	pytest -v --create-db --no-migrations
+	pytest
 
 # Запустить тесты с отчетом о покрытии (coverage)
 test-cov:
-	docker compose exec web pytest --cov=music_api --cov=users --cov-report=term-missing --create-db --no-migrations
+	docker compose exec web pytest --cov=music_api --cov=users --cov-report=term-missing
 
 # Создать миграции
 migrations:
@@ -23,3 +25,7 @@ migrate:
 # Создать суперпользователя
 admin:
 	docker compose exec web python manage.py createsuperuser
+
+# Остановить и удалить контейнеры
+down:
+	docker compose down
