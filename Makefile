@@ -1,16 +1,16 @@
-# Запустить все тесты в Docker
+# Запустить все тесты в Docker (с исправлением ошибок Flush)
 test:
-	docker compose exec web pytest -v
+	docker compose exec web pytest -v --create-db --no-migrations
 
 # Запустить все тесты локально (macOS)
 test-local:
 	DJANGO_SETTINGS_MODULE=music_project.settings.test \
 	DATABASE_URL=postgres://$(shell whoami):@localhost:5432/music_platform \
-	pytest -v
+	pytest -v --create-db --no-migrations
 
 # Запустить тесты с отчетом о покрытии (coverage)
 test-cov:
-	docker compose exec web pytest --cov=music_api --cov=users --cov-report=term-missing
+	docker compose exec web pytest --cov=music_api --cov=users --cov-report=term-missing --create-db --no-migrations
 
 # Создать миграции
 migrations:

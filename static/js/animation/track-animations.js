@@ -1,4 +1,30 @@
 (function () {
+  const LOGO_ANIM_SESSION_KEY = 'logoAnimated';
+
+  function hasLogoAnimatedInSession() {
+    try {
+      return sessionStorage.getItem(LOGO_ANIM_SESSION_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  function markLogoAnimatedInSession() {
+    try {
+      sessionStorage.setItem(LOGO_ANIM_SESSION_KEY, 'true');
+    } catch {
+
+    }
+  }
+
+  function clearLogoAnimatedInSession() {
+    try {
+      sessionStorage.removeItem(LOGO_ANIM_SESSION_KEY);
+    } catch {
+
+    }
+  }
+
   function initLogoHeader() {
     const logoText = document.querySelector('.logo-text');
     if (!logoText) return;
@@ -14,6 +40,12 @@
 
     const firstPart = logoText.querySelector('.logo-first-part');
     const lastPart = logoText.querySelector('.logo-last-part');
+
+    if (hasLogoAnimatedInSession()) {
+      gsap.set(firstPart, { clearProps: 'all' });
+      gsap.set(lastPart, { clearProps: 'all' });
+      return;
+    }
 
     const splitLast = new SplitText(lastPart, { type: "chars" });
 
@@ -48,7 +80,15 @@
         "-=0.3"
       );
     }
+
+    markLogoAnimatedInSession();
   }
 
-  document.addEventListener('DOMContentLoaded', initLogoHeader);
+  document.addEventListener('DOMContentLoaded', () => {
+    const navbarBrand = document.querySelector('.navbar-brand');
+    if (navbarBrand) {
+      navbarBrand.addEventListener('click', clearLogoAnimatedInSession);
+    }
+    initLogoHeader();
+  });
 })();

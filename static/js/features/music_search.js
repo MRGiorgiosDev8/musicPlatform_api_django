@@ -63,12 +63,33 @@ const setupMusicSearch = () => {
   let totalPages = 1;
   let allTracks = [];
   const tracksPerPage = 6;
+  let renderVersion = 0;
+
+  const createFavoriteControl = async (track) => {
+    const container = document.createElement('div');
+    container.className = 'd-flex justify-content-end mt-2';
+
+    if (typeof window.createFavoriteButtonWithCheck !== 'function') {
+      return container;
+    }
+
+    try {
+      const favoriteButton = await window.createFavoriteButtonWithCheck(track.name, track.artist);
+      favoriteButton.classList.add('shadow-sm');
+      container.appendChild(favoriteButton);
+    } catch (error) {
+      console.error('Favorite button init error:', error);
+    }
+
+    return container;
+  };
 
   const createLoadMoreButton = () => {
     const loadMoreContainer = document.createElement('div');
     loadMoreContainer.className = 'load-more-container';
     loadMoreContainer.style.textAlign = 'center';
     loadMoreContainer.style.margin = '20px 0';
+
     const loadMoreButton = document.createElement('button');
     loadMoreButton.className = 'btn btn-sm btn-show-more mt-3';
     loadMoreButton.style.transform = 'scale(1.1)';
@@ -77,28 +98,34 @@ const setupMusicSearch = () => {
     loadMoreButton.style.border = 'none';
     loadMoreButton.style.outline = 'none';
     loadMoreButton.style.opacity = '0.90';
+
     loadMoreButton.addEventListener('mouseenter', () => {
       loadMoreButton.style.transform = 'scale(0.95)';
     });
     loadMoreButton.addEventListener('mouseleave', () => {
       loadMoreButton.style.transform = 'scale(1.1)';
     });
+
     const arrowIcon = document.createElement('img');
     arrowIcon.src = '/static/images/arrow-down.svg';
     arrowIcon.alt = 'Show More';
     arrowIcon.style.width = '50px';
     arrowIcon.style.height = '50px';
+
     loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;
-    loadMoreButton.addEventListener('click', () => {
+
+    loadMoreButton.addEventListener('click', async () => {
       currentPage++;
-      displayResults();
+      await displayResults();
     });
+
     loadMoreContainer.appendChild(loadMoreButton);
     return loadMoreContainer;
   };
 
-  const displayResults = () => {
+  const displayResults = async () => {
+    const currentRenderVersion = ++renderVersion;
     hidePopular();
     if (currentPage === 1) {
       resultsContainer.replaceChildren();
@@ -109,9 +136,9 @@ const setupMusicSearch = () => {
         'beforeend',
         `
         <div class="text-center">
-        <div class="alert alert-dark mt-5 alert-log d-inline-block">
-          <i class="fas fa-info-circle"></i>
-          По запросу "${escapeHtml(searchInput.value.trim())}" ничего не найдено
+          <div class="alert alert-dark mt-5 alert-log d-inline-block">
+            <i class="fas fa-info-circle"></i>
+            По запросу "${escapeHtml(searchInput.value.trim())}" ничего не найдено
           </div>
         </div>
         `
@@ -122,23 +149,26 @@ const setupMusicSearch = () => {
     const startIndex = (currentPage - 1) * tracksPerPage;
     const tracksToShow = allTracks.slice(startIndex, startIndex + tracksPerPage);
 
-    tracksToShow.forEach(track => {
+    for (const track of tracksToShow) {
       const trackItemWrapper = document.createElement('div');
       trackItemWrapper.className = 'track-item-wrapper mb-5';
 
       const trackItem = document.createElement('div');
       trackItem.className = 'track-item';
 
+      // Изображение
       const img = document.createElement('img');
       img.src = track.image_url;
       img.alt = escapeHtml(track.name);
       img.className = 'track-image shadow-sm img-fluid';
       img.loading = 'lazy';
 
+      // Название трека
       const h5 = document.createElement('h5');
       h5.className = 'track-title text-start';
       h5.textContent = track.name;
 
+      // Артист
       const pArtist = document.createElement('p');
       pArtist.className = 'track-artist';
 
@@ -151,11 +181,16 @@ const setupMusicSearch = () => {
 
       pArtist.appendChild(spanArtist);
 
+      // Прослушивания
       const pListeners = document.createElement('p');
       pListeners.className = 'track-listeners text-black mb-3 small';
       pListeners.textContent = `Прослушиваний: ${track.listeners}`;
 
       const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
+
+      // Кнопка избранного
+      const favoriteControl = await createFavoriteControl(track);
+      if (currentRenderVersion !== renderVersion) return;
 
       if (hasAudio) {
         const audio = document.createElement('audio');
@@ -180,18 +215,17 @@ const setupMusicSearch = () => {
           if (activeAudio === audio) activeAudio = null;
         });
 
-        trackItem.append(img, h5, pArtist, pListeners, audio);
+        trackItem.append(img, h5, pArtist, pListeners, favoriteControl, audio);
       } else {
         const noPreview = document.createElement('div');
         noPreview.className = 'fs-6 text-muted d-inline-block border-bottom border-danger';
         noPreview.textContent = 'Превью недоступно';
-
-        trackItem.append(img, h5, pArtist, pListeners, noPreview);
+        trackItem.append(img, h5, pArtist, pListeners, favoriteControl, noPreview);
       }
 
       trackItemWrapper.appendChild(trackItem);
       resultsContainer.appendChild(trackItemWrapper);
-    });
+    }
 
     const oldButton = resultsContainer.querySelector('.load-more-container');
     if (oldButton) oldButton.remove();
@@ -213,7 +247,7 @@ const setupMusicSearch = () => {
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
       hideLoader();
-      displayResults();
+      await displayResults();
       return;
     }
 
@@ -221,11 +255,7 @@ const setupMusicSearch = () => {
       const response = await fetch(`/music_api/search/?q=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('Server error');
       const data = await response.json();
-      allTracks = Array.isArray(data.results)
-        ? data.results
-        : Array.isArray(data)
-          ? data
-          : [];
+      allTracks = Array.isArray(data.results) ? data.results : Array.isArray(data) ? data : [];
       setCachedTrend(cacheKey, allTracks);
       currentPage = 1;
       totalPages = Math.ceil(allTracks.length / tracksPerPage);
@@ -236,10 +266,10 @@ const setupMusicSearch = () => {
         'beforeend',
         `
         <div class="text-center">
-        <div class="alert alert-danger alert-log mt-4 d-inline-block">
-          <i class="fas fa-exclamation-triangle"></i>
-          Произошла ошибка при поиске музыки
-        </div>
+          <div class="alert alert-danger alert-log mt-4 d-inline-block">
+            <i class="fas fa-exclamation-triangle"></i>
+            Произошла ошибка при поиске музыки
+          </div>
         </div>
         `
       );

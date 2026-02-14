@@ -28,6 +28,9 @@ engine = DATABASES["default"].get("ENGINE", "")
 if "postgresql" not in engine:
     raise RuntimeError(f"PostgreSQL is required for tests, got ENGINE={engine!r}")
 
+# Keep test DB connections short-lived to avoid teardown flush conflicts
+DATABASES["default"]["CONN_MAX_AGE"] = 0
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -45,9 +48,12 @@ LOGGING = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 

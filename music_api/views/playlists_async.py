@@ -59,8 +59,7 @@ def _remove_track_from_favorites(user, track):
             defaults={'tracks': []},
         )
         tracks = playlist.tracks or []
-        
-        # Find and remove the track
+
         updated_tracks = []
         removed = False
         
@@ -84,7 +83,7 @@ def _remove_track_from_favorites(user, track):
 
 
 class PlaylistMeAPIView(APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -94,21 +93,7 @@ class PlaylistMeAPIView(APIView):
             return Response({'detail': 'Failed to load playlist.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def _get_playlist_async(self, request):
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        
-        if not request.user or not request.user.is_authenticated:
-            user = await sync_to_async(User.objects.first)()
-            if not user:
-                user = await User.objects.acreate(
-                    username='testuser',
-                    email='test@example.com',
-                    password='testpass123'
-                )
-        else:
-            user = request.user
-            
-        playlist = await _get_or_create_favorites(user)
+        playlist = await _get_or_create_favorites(request.user)
         tracks = playlist.tracks or []
         enriched = await _enrich_tracks_list_async(tracks)
         return Response(
@@ -118,90 +103,65 @@ class PlaylistMeAPIView(APIView):
 
 
 class PlaylistTrackAddAPIView(APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    @staticmethod
+    def _validate_track_payload(request):
         name = str(request.data.get('name', '')).strip()
         artist = str(request.data.get('artist', '')).strip()
         if not name or not artist:
-            return Response(
+            return None, Response(
                 {'detail': 'Both name and artist are required.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return {'name': name, 'artist': artist}, None
+
+    def post(self, request):
+        track, error_response = self._validate_track_payload(request)
+        if error_response:
+            return error_response
 
         try:
-            return async_to_sync(self._add_track_async)(request, name, artist)
+            return async_to_sync(self._add_track_async)(request, track)
         except Exception:
             logger.error('Failed to add track to playlist', exc_info=True)
             return Response({'detail': 'Failed to add track.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    async def _add_track_async(self, request, name, artist):
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        
-        if not request.user or not request.user.is_authenticated:
-            user = await sync_to_async(User.objects.first)()
-            if not user:
-                user = await User.objects.acreate(
-                    username='testuser',
-                    email='test@example.com',
-                    password='testpass123'
-                )
-        else:
-            user = request.user
-            
-        playlist, added = await _add_track_to_favorites(
-            user,
-            {'name': name, 'artist': artist},
-        )
+    async def _add_track_async(self, request, track):
+        playlist, added = await _add_track_to_favorites(request.user, track)
 
         if not added:
-            return Response({'detail': 'Track already exists.'}, status=status.HTTP_409_CONFLICT)
+            return Response(
+                {'detail': 'Track already exists.', 'track': track, 'title': playlist.title},
+                status=status.HTTP_409_CONFLICT,
+            )
 
         return Response(
-            {'detail': 'Track added.', 'title': playlist.title},
+            {'detail': 'Track added.', 'track': track, 'title': playlist.title},
             status=status.HTTP_201_CREATED,
         )
 
     def delete(self, request):
-        name = str(request.data.get('name', '')).strip()
-        artist = str(request.data.get('artist', '')).strip()
-        if not name or not artist:
-            return Response(
-                {'detail': 'Both name and artist are required.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        track, error_response = self._validate_track_payload(request)
+        if error_response:
+            return error_response
 
         try:
-            return async_to_sync(self._delete_track_async)(request, name, artist)
+            return async_to_sync(self._delete_track_async)(request, track)
         except Exception:
             logger.error('Failed to remove track from playlist', exc_info=True)
             return Response({'detail': 'Failed to remove track.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    async def _delete_track_async(self, request, name, artist):
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        
-        if not request.user or not request.user.is_authenticated:
-            user = await sync_to_async(User.objects.first)()
-            if not user:
-                user = await User.objects.acreate(
-                    username='testuser',
-                    email='test@example.com',
-                    password='testpass123'
-                )
-        else:
-            user = request.user
-            
-        playlist, removed = await _remove_track_from_favorites(
-            user,
-            {'name': name, 'artist': artist},
-        )
+    async def _delete_track_async(self, request, track):
+        playlist, removed = await _remove_track_from_favorites(request.user, track)
 
         if not removed:
-            return Response({'detail': 'Track not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'detail': 'Track not found.', 'track': track, 'title': playlist.title},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         return Response(
-            {'detail': 'Track removed.', 'title': playlist.title},
+            {'detail': 'Track removed.', 'track': track, 'title': playlist.title},
             status=status.HTTP_200_OK,
         )
