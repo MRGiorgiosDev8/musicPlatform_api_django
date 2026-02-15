@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns="http://www.w3.org/1999/html">
 
+{% load compress %}
+
+{% load static %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -27,7 +31,7 @@
 
     <!--    Подключение Bootstrap -->
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
+    {% compress css %}
     <link rel="stylesheet" href="/static/vendor/hamburgers/hamburgers.min.css">
     <link rel="stylesheet" href="/static/css/global.css">
     <link rel="stylesheet" href="/static/css/base.css">
@@ -37,6 +41,7 @@
     <link rel="stylesheet" href="/static/css/forms.css">
     <link rel="stylesheet" href="/static/css/animations.css">
     <link rel="stylesheet" href="/static/css/responsive.css">
+    {% endcompress %}
 
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/static/css/pages/auth.css">
@@ -56,14 +61,16 @@
       "description": "RubySound.fm — поиск треков, обложки альбомов и актуальная статистика прослушиваний.",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ request.build_absolute_uri }}search/?q={search_term_string}",
+        "target": "{{ request.scheme }}://{{ request.get_host }}{% url 'search_page' %}?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
     </script>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+    data-is-search-page="{% if request.resolver_match and request.resolver_match.url_name == 'search_page' %}true{% else %}false{% endif %}"
+    data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     <header>
         <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top">
             <div class="container-fluid">
@@ -117,7 +124,7 @@
                                 Войти
                             </a>
                         </li>
-                         <li class="nav-item d-flex align-items-center">
+                        <li class="nav-item d-flex align-items-center">
                             <span class="border-start border-secondary h-50 mt-2"></span>
                         </li>
                         <li class="nav-item me-5">
@@ -128,7 +135,8 @@
                         </li>
                         {% endif %}
                     </ul>
-                    <form class="d-flex form-search w-75" role="search" autocomplete="on">
+                    <form class="d-flex form-search w-75" role="search" autocomplete="on"
+                        action="{% url 'search_page' %}" method="get">
                         <div class="position-relative flex-grow-1">
                             <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
                                 id="search-query" aria-label="Search tracks" autocomplete="off"
@@ -183,7 +191,7 @@
     <script src="/static/vendor/gsap/ScrambleTextPlugin.min.js"></script>
     <script src="/static/vendor/gsap/DrawSVGPlugin.min.js"></script>
     <script src="/static/vendor/gsap/MorphSVGPlugin.min.js"></script>
-
+    {% compress js %}
     <!-- Анимации и визуальные эффекты -->
     <script src="/static/js/animation/track-animations.js"></script>
     <script src="/static/js/animation/animation_home.js"></script>
@@ -211,6 +219,7 @@
 
     <!-- Favorite Button Functionality -->
     <script src="/static/js/UI/favorite-button.js"></script>
+    {% endcompress %}
 
 </body>
 

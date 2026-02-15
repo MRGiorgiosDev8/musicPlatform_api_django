@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% load compress %}
+
+{% load static %}
+
 {% block title %}Login - RubySound.fm{% endblock %}
 
 {% block content %}
@@ -21,12 +25,12 @@
 
         {% if next %}
             {% if user.is_authenticated %}
-                <div class="alert alert-warning alert-login">
+                <div class="alert alert-danger alert-login">
                     Your account doesn't have access to this page. To proceed,
                     please login with an account that has access.
                 </div>
             {% else %}
-                <div class="alert alert-login">
+                <div class="alert alert-danger alert-login">
                     Please login to see this page.
                 </div>
             {% endif %}
@@ -59,7 +63,7 @@
             <input type="hidden" name="next" value="{{ next }}">
         </form>
 
-        <div class="text-center mt-3">
+        <div class="text-center mt-4">
             <p class="mb-0">Нет аккаунта? <a href="{% url 'signup' %}">Зарегистрироваться</a></p>
         </div>
     </section>

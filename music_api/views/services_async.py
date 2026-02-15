@@ -18,6 +18,7 @@ def _build_http_client():
         timeout=httpx.Timeout(7.0, connect=2.0),
     )
 
+
 async def _get_itunes_batch_async(tracks):
     results = {}
     tracks = tracks[:25]

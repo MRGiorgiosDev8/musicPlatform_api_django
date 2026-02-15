@@ -1,35 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}RubySound.fm{% endblock %}
 
+{% load compress %}
+
+{% load static %}
+
 {% block popular %}
 
 <section id="popular-block" class="container container-wide my-5">
   <h1 class="visually-hidden">Поиск и прослушивание музыки онлайн — тренды и чарты 2026</h1>
   
   <div class="row mb-5 info-project position-relative">
-    <svg class="note-icon d-none d-lg-block left hide-ipad-pro hide-ipad-mini" aria-hidden="true" viewBox="0 0 120 120"
-      preserveAspectRatio="meet">
-      <image href="/static/images/note_rubin.svg" width="120" height="120" />
-    </svg>
-
-    <svg class="note-icon d-none d-lg-block right hide-ipad-pro hide-ipad-mini" aria-hidden="true" viewBox="0 0 120 120"
-      preserveAspectRatio="meet">
-      <image href="/static/images/note_rubin.svg" width="120" height="120" />
-    </svg>
-
-    <div class="col-lg-8 mx-auto text-center box-info">
-      <h2 class="mb-3 about-h2 pb-2">О проекте</h2>
-      <p class="lead mb-0">
-        <span class="ruby_span">RubySound.fm</span> — веб-приложение на
-        <span class="django_span">Django</span> и
-        <span class="rest_span">REST Framework</span> для поиска музыки и артистов,
-        а также для прослушивания превью треков. Проект объединяет данные из
-        <span class="fm_span">Last.fm</span>, <span class="deexer_span">Deezer</span> и
-        <span class="tune_span">iTunes</span>, предоставляет
-        <span class="api_span">REST API</span> и интерактивный фронтенд с возможностью
-        прослушивания превью и анимациями.
-      </p>
+    <div class="col-12">
+      <div class="col-lg-8 mx-auto text-center box-info">
+        <h2 class="mb-3 about-h2 pb-2">О проекте</h2>
+        <p class="lead mb-0">
+          <span class="ruby_span">RubySound.fm</span> — веб-приложение на
+          <span class="django_span">Django</span> и
+          <span class="rest_span">REST Framework</span> для поиска музыки и артистов,
+          а также для прослушивания превью треков. Проект объединяет данные из
+          <span class="fm_span">Last.fm</span>, <span class="deexer_span">Deezer</span> и
+          <span class="tune_span">iTunes</span>, предоставляет
+          <span class="api_span">REST API</span> и интерактивный фронтенд с возможностью
+          прослушивания превью и анимациями.
+        </p>
+      </div>
     </div>
+    
+    <svg class="note-icon d-none d-lg-block left hide-ipad-pro hide-ipad-pro" aria-hidden="true" viewBox="0 0 120 120"
+      preserveAspectRatio="meet">
+      <image href="/static/images/note_rubin.svg" width="120" height="120" />
+    </svg>
+
+    <svg class="note-icon d-none d-lg-block right hide-ipad-pro hide-ipad-pro" aria-hidden="true" viewBox="0 0 120 120"
+      preserveAspectRatio="meet">
+      <image href="/static/images/note_rubin.svg" width="120" height="120" />
+    </svg>
   </div>
 
   <h2 class="mb-4 text-center popular-h2 pb-2 p-2">Топ-Артисты</h2>

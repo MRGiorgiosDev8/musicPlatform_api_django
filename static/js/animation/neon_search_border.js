@@ -302,11 +302,11 @@ class NeonSearchBorder {
 }
 
 
-window.onload = () => {
+window.addEventListener('load', () => {
     const neonBorder = new NeonSearchBorder();
     requestAnimationFrame(() => {
         if (typeof neonBorder.recreateSVG === 'function') {
             neonBorder.recreateSVG();
         }
     });
-};
+});

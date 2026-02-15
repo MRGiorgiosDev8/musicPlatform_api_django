@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% load compress %}
+
+{% load static %}
+
 {% block title %}Sign Up - RubySound.fm{% endblock %}
 
 {% block content %}
@@ -14,13 +18,13 @@
         {% if form.errors %}
             {% if form.non_field_errors %}
                 {% for error in form.non_field_errors %}
-                    <div class="signup-error">{{ error }}</div>
+                    <div class="alert alert-danger">{{ error }}</div>
                 {% endfor %}
             {% endif %}
 
             {% for field in form %}
                 {% for error in field.errors %}
-                    <div class="signup-error">{{ error }}</div>
+                    <div class=" alert alert-danger">{{ error }}</div>
                 {% endfor %}
             {% endfor %}
         {% endif %}
@@ -79,7 +83,7 @@
             </div>
         </form>
 
-        <div class="text-center mt-3">
+        <div class="text-center mt-4">
             <p class="mb-0">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
         </div>
     </section>

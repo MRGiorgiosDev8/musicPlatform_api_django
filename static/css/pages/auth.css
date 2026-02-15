@@ -1,5 +1,5 @@
 .auth-page {
-    min-height: calc(100vh - 180px);
+    min-height: calc(80vh - 80px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7,7 +7,7 @@
 }
 
 .signup-page {
-    min-height: calc(100vh - 180px);
+    min-height: 90vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,7 +17,7 @@
 .auth-widget {
     width: min(480px, 100%);
     background: var(--color-card-bg-light);
-    border: var( --border-light-white);
+    border: var(--border-light-white);
     border-radius: var(--border-radius-small);
     box-shadow: var(--shadow-card);
     padding: 2.1rem 1.9rem;
@@ -74,7 +74,7 @@
 .signup-widget {
     width: min(540px, 100%);
     background: var(--color-card-bg-light);
-    border: var( --border-light-white);
+    border: var(--border-light-white);
     border-radius: var(--border-radius-small);
     box-shadow: var(--shadow-card);
     padding: 2.2rem 2rem;

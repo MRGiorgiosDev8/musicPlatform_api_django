@@ -37,16 +37,12 @@ const setupMusicSearch = () => {
   const searchForm = document.querySelector('.form-search');
   const searchInput = document.querySelector('.input-search');
   if (!searchForm || !searchInput) return;
+  const isSearchPage = document.body?.dataset?.isSearchPage === 'true';
+  const isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
 
   let resultsContainer = document.getElementById('searchResults');
-  if (!resultsContainer) {
-    resultsContainer = document.createElement('div');
-    resultsContainer.id = 'searchResults';
-    resultsContainer.className = 'search-container';
-    document.querySelector('main').prepend(resultsContainer);
-  }
-
-  const loadingElement = document.getElementById('searchLoader');
+  if (isSearchPage && !resultsContainer) return;
+  if (!isSearchPage) return;
 
   const showLoader = () => {
     if (window.Spinners && window.Spinners.search) {
@@ -67,7 +63,8 @@ const setupMusicSearch = () => {
 
   const createFavoriteControl = async (track) => {
     const container = document.createElement('div');
-    container.className = 'd-flex justify-content-end mt-2';
+    container.className = 'd-flex align-items-center';
+    if (!isAuthenticated) return container;
 
     if (typeof window.createFavoriteButtonWithCheck !== 'function') {
       return container;
@@ -75,7 +72,36 @@ const setupMusicSearch = () => {
 
     try {
       const favoriteButton = await window.createFavoriteButtonWithCheck(track.name, track.artist);
-      favoriteButton.classList.add('shadow-sm');
+      const syncFavoriteVisualState = () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        favoriteButton.style.background = 'transparent';
+        favoriteButton.style.color = isActive ? '#dc3545' : '#dc3545';
+        favoriteButton.style.transform = isActive ? 'scale(1.1)' : 'scale(1.03)';
+      };
+
+      const applyIconOnlyStyle = () => {
+        favoriteButton.className = 'favorite-icon-btn';
+        favoriteButton.style.background = 'transparent';
+        favoriteButton.style.border = 'none';
+        favoriteButton.style.boxShadow = 'none';
+        favoriteButton.style.padding = '0';
+        favoriteButton.style.minWidth = 'auto';
+        favoriteButton.style.lineHeight = '1';
+        favoriteButton.style.display = 'inline-flex';
+        favoriteButton.style.alignItems = 'center';
+        favoriteButton.style.justifyContent = 'center';
+        favoriteButton.style.cursor = 'pointer';
+        favoriteButton.style.borderRadius = '0';
+        favoriteButton.style.color = '#dc3545';
+        favoriteButton.style.fontSize = '1.3rem';
+        favoriteButton.style.transition = 'transform 0.15s ease';
+        syncFavoriteVisualState();
+      };
+
+      applyIconOnlyStyle();
+      favoriteButton.addEventListener('click', () => {
+        requestAnimationFrame(applyIconOnlyStyle);
+      });
       container.appendChild(favoriteButton);
     } catch (error) {
       console.error('Favorite button init error:', error);
@@ -192,6 +218,10 @@ const setupMusicSearch = () => {
       const favoriteControl = await createFavoriteControl(track);
       if (currentRenderVersion !== renderVersion) return;
 
+      const titleRow = document.createElement('div');
+      titleRow.className = 'd-flex align-items-center justify-content-between gap-2';
+      titleRow.append(h5, favoriteControl);
+
       if (hasAudio) {
         const audio = document.createElement('audio');
         audio.controls = true;
@@ -215,12 +245,12 @@ const setupMusicSearch = () => {
           if (activeAudio === audio) activeAudio = null;
         });
 
-        trackItem.append(img, h5, pArtist, pListeners, favoriteControl, audio);
+        trackItem.append(img, titleRow, pArtist, pListeners, audio);
       } else {
         const noPreview = document.createElement('div');
         noPreview.className = 'fs-6 text-muted d-inline-block border-bottom border-danger';
         noPreview.textContent = 'Превью недоступно';
-        trackItem.append(img, h5, pArtist, pListeners, favoriteControl, noPreview);
+        trackItem.append(img, titleRow, pArtist, pListeners, noPreview);
       }
 
       trackItemWrapper.appendChild(trackItem);
@@ -232,9 +262,7 @@ const setupMusicSearch = () => {
     if (currentPage < totalPages) resultsContainer.appendChild(createLoadMoreButton());
   };
 
-  searchForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const query = searchInput.value.trim();
+  const runSearch = async (query) => {
     if (!query) return;
 
     resultsContainer.replaceChildren();
@@ -276,11 +304,23 @@ const setupMusicSearch = () => {
     } finally {
       hideLoader();
     }
+  };
+
+  searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    await runSearch(query);
   });
 
   searchInput.addEventListener('input', () => {
     if (!searchInput.value.trim()) showPopular();
   });
+
+  const initialQuery = new URLSearchParams(window.location.search).get('q');
+  if (initialQuery) {
+    searchInput.value = initialQuery;
+    runSearch(initialQuery);
+  }
 };
 
 document.addEventListener('DOMContentLoaded', setupMusicSearch);

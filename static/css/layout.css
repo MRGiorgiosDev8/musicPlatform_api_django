@@ -7,6 +7,10 @@
     box-shadow: 0px 0px 7px rgb(104, 104, 104);
 }
 
+main {
+    padding-top: 100px;
+}
+
 .logo-text {
     color: var(--color-primary);
     font-size: 1.4em;
@@ -67,7 +71,6 @@
     border-top: var(--border-light-white);
     border-bottom: var(--border-light-white);
     padding-top: 7px;
-    position: relative;
     overflow: hidden;
 }
 

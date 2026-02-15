@@ -2,9 +2,11 @@ const Year2025App = {
   URL: '/music_api/year-chart/',
   cache: {},
   activeAudio: null,
+  audioControlsInitialized: false,
 
   init() {
     Utils.initGenreButtons('year-genre-container', (genre) => this.load(genre), true);
+    this.initAudioControls();
     this.load();
   },
 
@@ -98,12 +100,14 @@ const Year2025App = {
 
     container.appendChild(fragment);
 
-    this.initAudioControls();
     document.dispatchEvent(new Event('year2025:rendered'));
   },
 
   initAudioControls() {
     const container = document.getElementById('year2025-container');
+    if (!container || this.audioControlsInitialized) return;
+    this.audioControlsInitialized = true;
+
     container.addEventListener('play', (event) => {
       const audio = event.target;
       if (audio.tagName !== 'AUDIO') return;

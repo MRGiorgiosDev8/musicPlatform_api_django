@@ -63,7 +63,15 @@ async function favoritesRequest(url, options = {}) {
 
 function setButtonState(button, isFavorite) {
     button.className = isFavorite ? 'btn btn-danger btn-sm' : 'btn btn-outline-danger btn-sm';
-    button.innerHTML = `<i class="bi bi-heart${isFavorite ? '-fill' : ''}"></i>`;
+    
+    while (button.firstChild) {
+        button.removeChild(button.firstChild);
+    }
+    
+    const icon = document.createElement('i');
+    icon.className = `bi bi-heart${isFavorite ? '-fill' : ''}`;
+    button.appendChild(icon);
+    
     button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
     button.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
 }

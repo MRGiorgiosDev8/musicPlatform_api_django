@@ -1,15 +1,15 @@
-/* #playlists-root {
+#playlists-root {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1.3rem;
 }
 
-.track-item-wrapper {
+.track-item-playlist {
     width: 100%;
     margin-bottom: 0 !important;
 }
 
-.track-item {
+.track-playlist {
     display: flex;
     align-items: center;
     gap: 0.9rem;
@@ -20,7 +20,7 @@
     box-shadow: var(--shadow-card);
 }
 
-.track-item .track-image {
+.track-playlist .track-image {
     width: 60px;
     height: 60px;
     border-radius: 8px;
@@ -76,7 +76,7 @@
 }
 
 @media (max-width: 767.98px) {
-    .track-item {
+    .track-playlist {
         align-items: flex-start;
         flex-wrap: wrap;
     }
@@ -89,4 +89,4 @@
         margin-top: 0.1rem;
     }
 }
- */
+

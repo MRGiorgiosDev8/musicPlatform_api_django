@@ -22,12 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
         toastEl.setAttribute('role', 'alert');
         toastEl.setAttribute('aria-live', 'assertive');
         toastEl.setAttribute('aria-atomic', 'true');
-        toastEl.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        `;
+        const dFlex = document.createElement('div');
+        dFlex.className = 'd-flex';
+        
+        const toastBody = document.createElement('div');
+        toastBody.className = 'toast-body';
+        toastBody.textContent = message;
+        
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close btn-close-white me-2 m-auto';
+        closeButton.setAttribute('data-bs-dismiss', 'toast');
+        closeButton.setAttribute('aria-label', 'Close');
+        
+        dFlex.appendChild(toastBody);
+        dFlex.appendChild(closeButton);
+        toastEl.appendChild(dFlex);
         container.appendChild(toastEl);
 
         if (window.bootstrap && window.bootstrap.Toast) {
@@ -42,13 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showEmptyStateIfNeeded = () => {
         if (root.querySelector('.track-item-wrapper')) return;
-        root.innerHTML = `
-            <div class="col-12">
-                <div class="alert alert-secondary mb-0">
-                    You have no liked tracks yet.
-                </div>
-            </div>
-        `;
+        const col12 = document.createElement('div');
+        col12.className = 'col-12';
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-secondary mb-0';
+        alert.textContent = 'You have no liked tracks yet.';
+        
+        col12.appendChild(alert);
+        root.appendChild(col12);
     };
 
     root.addEventListener('click', async (event) => {

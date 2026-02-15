@@ -7,9 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = wrapper.querySelector('.d-flex.overflow-auto');
     const btnLeft = wrapper.querySelector('.scroll-left');
     const btnRight = wrapper.querySelector('.scroll-right');
-    const firstItem = container.querySelector('.genre-btn');
+    if (!container || !btnLeft || !btnRight) return;
 
-    if (!container || !firstItem) return;
+    const firstItem = container.querySelector('.genre-btn');
+    if (!firstItem) return;
 
     const animateSnap = (direction) => {
       const style = window.getComputedStyle(container);

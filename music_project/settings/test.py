@@ -28,7 +28,6 @@ engine = DATABASES["default"].get("ENGINE", "")
 if "postgresql" not in engine:
     raise RuntimeError(f"PostgreSQL is required for tests, got ENGINE={engine!r}")
 
-# Keep test DB connections short-lived to avoid teardown flush conflicts
 DATABASES["default"]["CONN_MAX_AGE"] = 0
 
 CACHES = {
