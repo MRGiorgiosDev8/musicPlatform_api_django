@@ -1,6 +1,8 @@
 .profile-page {
-    max-width: 1100px;
+    min-height: 90vh;
     margin: 0 auto;
+    font-family: var(--font-main);
+    padding-top: 1.4rem;
 }
 
 .profile-main-title {
@@ -26,14 +28,15 @@
 
 .profile-widget {
     background: var(--color-card-bg-light);
-    border: var( --border-light-white);
+    border: var(--border-light-white);
     border-radius: var(--border-radius-small);
     box-shadow: var(--shadow-card);
     padding: 1.8rem;
 }
 
 .profile-widget-title {
-    font-weight: 500;
+    font-weight: 400;
+    display: inline-block;
     font-size: 1.03rem;
     letter-spacing: 0.02em;
     margin-bottom: 1.3rem;
@@ -41,8 +44,8 @@
 }
 
 .profile-avatar-wrap {
-    width: 190px;
-    height: 190px;
+    width: 230px;
+    height: 230px;
     margin: 0 auto 1.1rem;
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(247, 23, 23, 0.364);
@@ -60,7 +63,8 @@
     margin: 0 auto;
 }
 
-.profile-avatar-edit {
+.profile-avatar-edit,
+.btn-ruby-profile {
     min-height: 52px;
     padding: 0 14px;
     border-radius: 11px;
@@ -68,13 +72,30 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: var( --border-light-white);
+    border: 1px solid rgba(180, 180, 180, 0.523);
     background: var(--color-card-bg-light);
-    color: rgba(255, 13, 0, 0.85);
     transition: transform 0.15s ease, background 0.15s ease;
+    font-size: 0.95rem;
+    line-height: 1;
+    gap: 8px;
 }
 
-.profile-avatar-edit:hover {
+.profile-avatar-edit {
+    color: rgba(255, 13, 0, 0.85);
+}
+
+.btn-ruby-profile {
+    gap: 8px;
+}
+
+.btn-ruby-profile i {
+    font-size: 1.2rem;
+    line-height: 1;
+    color: rgba(255, 13, 0, 0.85);
+}
+
+.profile-avatar-edit:hover,
+.btn-ruby-profile:hover {
     transform: translateY(-1px);
     background: #ffffff;
 }
@@ -85,10 +106,8 @@
 }
 
 .profile-avatar-edit-text {
-    font-weight: 400;
     font-size: 0.95rem;
     line-height: 1;
-    color: inherit;
     white-space: nowrap;
 }
 
@@ -142,6 +161,10 @@
     margin-left: auto;
 }
 
+.label-profile {
+   font-family: var(--font-heading);
+}
+
 @media (max-width: 991.98px) {
     .profile-grid {
         grid-template-columns: 1fr;
@@ -152,4 +175,3 @@
         gap: 1.4rem;
     }
 }
-

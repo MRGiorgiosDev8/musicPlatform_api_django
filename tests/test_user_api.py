@@ -69,7 +69,7 @@ def test_user_me_updates_profile_fields_but_not_read_only(user):
 
 
 import io
-from PIL import Image  # Убедись, что pillow установлен
+from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -91,10 +91,9 @@ def test_user_me_allows_avatar_upload(user):
     response = client.patch(
         "/api/users/me/",
         data={"avatar": avatar},
-        format="multipart",  # DRF автоматически установит правильный Boundary
+        format="multipart",
     )
 
-    # Если всё равно 400, выведи ошибку, чтобы понять, что именно не так
     if response.status_code == 400:
         print(f"Ошибки валидации: {response.json()}")
 

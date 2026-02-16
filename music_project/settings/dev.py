@@ -9,7 +9,7 @@ DEBUG = True
 # База данных берется из DATABASE_URL (PostgreSQL)
 
 # Разрешённые хосты для разработки
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 
 # Отправка писем в консоль для удобства отладки email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

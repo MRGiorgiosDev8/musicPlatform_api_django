@@ -118,7 +118,7 @@
                             </a>
                         </li>
                         {% else %}
-                        <li class="nav-item ms-auto">
+                        <li class="nav-item ms-0 ms-lg-auto">
                             <a class="nav-link premium-nav-link premium-nav-auth  {% if request.path == login_url %}is-active{% endif %}"
                                 href="{{ login_url }}">
                                 Войти
@@ -135,7 +135,7 @@
                         </li>
                         {% endif %}
                     </ul>
-                    <form class="d-flex form-search w-75" role="search" autocomplete="on"
+                    <form class="d-flex form-search w-sm-100 w-75" role="search" autocomplete="on"
                         action="{% url 'search_page' %}" method="get">
                         <div class="position-relative flex-grow-1">
                             <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
@@ -161,7 +161,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="footer-nav text-center text-lg-start py-2 mt-auto">
+    <footer class="footer-nav text-lg-start py-2 mt-auto">
         <div class="container d-flex justify-content-between align-items-center">
             <span class="brand-span ms-lg-1 ms-0">
                 <span class="text-danger copyright">&copy;</span> RubySound.fm <span class="text-danger">♬</span>

@@ -37,23 +37,18 @@ def test_csrf_protection_allows_session_post_with_csrf(user):
     client = Client(enforce_csrf_checks=True)
     client.force_login(user)
 
-    # 1. Заходим на страницу логина
-    # Используем follow=True, на случай если там есть редиректы
     response = client.get("/login/", follow=True)
 
-    # 2. Достаем токен
     csrf_token = get_token(response.wsgi_request)
 
-    # 3. Отправляем POST, добавляя REFERER
     response = client.post(
         "/api/playlists/me/tracks/",
         data='{"name":"Numb","artist":"Linkin Park"}',
         content_type="application/json",
         HTTP_X_CSRFTOKEN=csrf_token,
-        HTTP_REFERER="http://testserver/login/"  # Добавляем этот заголовок!
+        HTTP_REFERER="http://testserver/login/"
     )
 
-    # Печатаем ответ, если всё равно упадет (для отладки)
     if response.status_code != 201:
         print(f"Debug CSRF failure: {response.content}")
 

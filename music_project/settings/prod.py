@@ -78,7 +78,6 @@ LOGGING = {
     },
 }
 
-# Создаем директорию для логов, если её нет, чтобы избежать ошибок при записи
 import os
 logs_dir = BASE_DIR / 'logs'
 if not os.path.exists(logs_dir):

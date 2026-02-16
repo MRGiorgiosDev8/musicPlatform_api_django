@@ -1,60 +1,80 @@
 {% extends "base.html" %}
 
 {% load compress %}
-
 {% load static %}
 
 {% block title %}My Playlists - RubySound.fm{% endblock %}
 
 {% block content %}
 
-<div class="container mt-5">
-    <div id="playlists-root">
-                {% if tracks %}
-                    {% for track in tracks %}
-                        <div class="track-item-playlist">
-                            <div class="track-playlist" data-track-name="{{ track.name|default:''|escape }}" data-track-artist="{{ track.artist|default:''|escape }}">
-                                <img
-                                    src="{{ track.image_url|default:'/static/images/default.svg' }}"
-                                    alt="{{ track.name|default:'Unknown track' }}"
-                                    class="track-image shadow-sm img-fluid"
-                                    loading="lazy"
-                                >
-                                <div class="track-meta">
-                                    <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
-                                    <p class="track-artist">
-                                        <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-                                            Артист: {{ track.artist|default:"Unknown artist" }}
-                                        </span>
-                                    </p>
-                                </div>
+<div class="container mt-3">
+    <div id="playlists-root" class="playlist-scroll-wrapper">
 
-                                <div class="track-player">
-                                    {% if track.url %}
-                                        <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
-                                            <source src="{{ track.url }}">
-                                        </audio>
-                                    {% else %}
-                                        <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
-                                            Превью недоступно
-                                        </div>
-                                    {% endif %}
-                                </div>
+        {% if tracks %}
 
-                                <div class="track-actions">
-                                    <button type="button" class="btn btn-outline-danger btn-sm remove-favorite-btn" aria-label="Удалить трек">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
+            <ul class="track-list list-unstyled p-0 m-0">
+
+                {% for track in tracks %}
+                    <li class="track-item-playlist mt-3">
+
+                        <div class="track-playlist mb-4"
+                             data-track-name="{{ track.name|default:''|escape }}"
+                             data-track-artist="{{ track.artist|default:''|escape }}">
+
+                            <!-- IMAGE -->
+                            <img
+                                src="{{ track.image_url|default:'/static/images/default.svg' }}"
+                                alt="{{ track.name|default:'Unknown track' }}"
+                                class="track-image shadow-sm img-fluid"
+                                loading="lazy"
+                            >
+
+                            <!-- META -->
+                            <div class="track-meta">
+                                <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
+                                <p class="track-artist">
+                                    <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+                                        Артист: {{ track.artist|default:"Unknown artist" }}
+                                    </span>
+                                </p>
                             </div>
+
+                            <!-- PLAYER -->
+                            <div class="track-player">
+                                {% if track.url %}
+                                    <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
+                                        <source src="{{ track.url }}">
+                                    </audio>
+                                {% else %}
+                                    <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
+                                        Превью недоступно
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- ACTIONS -->
+                            <div class="track-actions">
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm remove-favorite-btn"
+                                        aria-label="Удалить трек">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-secondary mb-0">
-                        You have no liked tracks yet.
-                    </div>
-                {% endif %}
+
+                    </li>
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+            <div class="alert alert-secondary mb-0">
+                You have no liked tracks yet.
             </div>
+        {% endif %}
+
+    </div>
 </div>
 
 {% endblock %}

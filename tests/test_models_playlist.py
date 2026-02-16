@@ -8,21 +8,17 @@ pytestmark = pytest.mark.django_db
 
 
 def test_playlist_belongs_to_user_and_available_via_related_name(user):
-    # 1. Проверяем, что автоматический плейлист уже создался сигналом
     assert user.playlists.count() == 1
     auto_playlist = user.playlists.first()
 
-    # 2. Создаем второй плейлист вручную
     manual_playlist = Playlist.objects.create(
         user=user,
         title="Custom Playlist",
         tracks=[]
     )
 
-    # 3. Теперь их должно быть два
     assert user.playlists.count() == 2
     assert manual_playlist.user_id == user.id
-    # Проверяем связь через related_name
     assert manual_playlist in user.playlists.all()
 
 

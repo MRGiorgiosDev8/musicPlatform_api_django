@@ -1,5 +1,4 @@
 .auth-page {
-    min-height: calc(80vh - 80px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7,11 +6,10 @@
 }
 
 .signup-page {
-    min-height: 90vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 1rem 1rem;
 }
 
 .auth-widget {
@@ -111,14 +109,3 @@
     border-bottom-color: var(--color-primary);
     box-shadow: 0 1px 0 0 rgba(224, 17, 17, 0.62);
 }
-
-/* .signup-error, .alert-login {
-    background: rgba(255, 160, 160, 0.845);
-    color: #ffffff;
-    font-weight: 500;
-    border-radius: 3px;
-    padding: 0.75rem 0.9rem;
-    box-shadow: var(--shadow-card);
-    margin-bottom: 0.8rem;
-    font-size: 0.95rem;
-} */
