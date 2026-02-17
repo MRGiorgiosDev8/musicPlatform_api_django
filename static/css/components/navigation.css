@@ -46,10 +46,31 @@
 .premium-nav-link.is-active {
     color: var(--color-primary) !important;
     font-size: 1.3em;
+    animation: navActiveIn 0.28s ease-out;
 }
 
 .premium-nav-auth:hover {
     color: var(--color-primary);
+}
+
+.premium-nav-auth {
+    transition: color 0.25s ease, font-size 0.25s ease, text-shadow 0.25s ease;
+}
+
+.premium-nav-auth.is-active {
+    text-shadow: 0 0 10px rgba(224, 17, 95, 0.55);
+    animation: navActiveIn 0.28s ease-out;
+}
+
+@keyframes navActiveIn {
+    from {
+        font-size: 1.1em;
+        opacity: 0.7;
+    }
+    to {
+        font-size: 1.3em;
+        opacity: 1;
+    }
 }
 
 .premium-nav-auth:hover i,
@@ -80,4 +101,3 @@
         border-radius: 0;
     }
 }
-

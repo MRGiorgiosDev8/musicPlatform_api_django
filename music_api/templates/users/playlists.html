@@ -21,7 +21,6 @@
                              data-track-name="{{ track.name|default:''|escape }}"
                              data-track-artist="{{ track.artist|default:''|escape }}">
 
-                            <!-- IMAGE -->
                             <img
                                 src="{{ track.image_url|default:'/static/images/default.svg' }}"
                                 alt="{{ track.name|default:'Unknown track' }}"
@@ -29,7 +28,6 @@
                                 loading="lazy"
                             >
 
-                            <!-- META -->
                             <div class="track-meta">
                                 <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
                                 <p class="track-artist">
@@ -39,7 +37,6 @@
                                 </p>
                             </div>
 
-                            <!-- PLAYER -->
                             <div class="track-player">
                                 {% if track.url %}
                                     <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
@@ -52,7 +49,6 @@
                                 {% endif %}
                             </div>
 
-                            <!-- ACTIONS -->
                             <div class="track-actions">
                                 <button type="button"
                                         class="btn btn-outline-danger btn-sm remove-favorite-btn"

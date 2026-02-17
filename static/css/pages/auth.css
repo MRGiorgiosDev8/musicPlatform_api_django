@@ -2,14 +2,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
 }
 
 .signup-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 1rem;
 }
 
 .auth-widget {
@@ -86,7 +84,7 @@
     margin-bottom: 0.75rem;
 }
 
-.signup-title {
+.signup-title, .login-title, .profile-title {
     font-weight: 300;
     letter-spacing: 0.04em;
     color: #1f1f1f;
