@@ -74,33 +74,72 @@ const setupMusicSearch = () => {
       const favoriteButton = await window.createFavoriteButtonWithCheck(track.name, track.artist);
       const syncFavoriteVisualState = () => {
         const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
-        favoriteButton.style.background = 'transparent';
-        favoriteButton.style.color = isActive ? '#dc3545' : '#dc3545';
-        favoriteButton.style.transform = isActive ? 'scale(1.1)' : 'scale(1.03)';
+        const icon = favoriteButton.querySelector('i');
+        if (icon) {
+          icon.className = 'bi bi-heart-fill';
+          icon.style.fontSize = isActive ? '1.1rem' : '1.4rem';
+          icon.style.lineHeight = '1';
+          icon.style.display = 'block';
+          icon.style.margin = '0';
+        }
+
+        if (isActive) {
+          favoriteButton.style.background = '#dc3545';
+          favoriteButton.style.border = 'none';
+          favoriteButton.style.color = '#ffffff';
+          favoriteButton.style.borderRadius = '50%';
+          favoriteButton.style.width = '34px';
+          favoriteButton.style.height = '34px';
+          favoriteButton.style.padding = '3px';
+        } else {
+          favoriteButton.style.background = 'transparent';
+          favoriteButton.style.border = 'none';
+          favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
+          favoriteButton.style.borderRadius = '50%';
+          favoriteButton.style.width = '34px';
+          favoriteButton.style.height = '34px';
+          favoriteButton.style.padding = '3px';
+        }
       };
 
       const applyIconOnlyStyle = () => {
         favoriteButton.className = 'favorite-icon-btn';
-        favoriteButton.style.background = 'transparent';
-        favoriteButton.style.border = 'none';
         favoriteButton.style.boxShadow = 'none';
-        favoriteButton.style.padding = '0';
-        favoriteButton.style.minWidth = 'auto';
+        favoriteButton.style.minWidth = '34px';
         favoriteButton.style.lineHeight = '1';
         favoriteButton.style.display = 'inline-flex';
         favoriteButton.style.alignItems = 'center';
         favoriteButton.style.justifyContent = 'center';
+        favoriteButton.style.boxSizing = 'border-box';
+        favoriteButton.style.flexShrink = '0';
+        favoriteButton.style.aspectRatio = '1 / 1';
         favoriteButton.style.cursor = 'pointer';
-        favoriteButton.style.borderRadius = '0';
-        favoriteButton.style.color = '#dc3545';
-        favoriteButton.style.fontSize = '1.3rem';
-        favoriteButton.style.transition = 'transform 0.15s ease';
+        favoriteButton.style.outline = 'none';
+        favoriteButton.style.transition = 'background-color 0.2s ease, color 0.2s ease';
         syncFavoriteVisualState();
       };
 
       applyIconOnlyStyle();
-      favoriteButton.addEventListener('click', () => {
-        requestAnimationFrame(applyIconOnlyStyle);
+      const styleSyncObserver = new MutationObserver(() => {
+        applyIconOnlyStyle();
+      });
+      styleSyncObserver.observe(favoriteButton, {
+        attributes: true,
+        attributeFilter: ['aria-pressed'],
+        childList: true,
+        subtree: true
+      });
+      favoriteButton.addEventListener('mouseenter', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) {
+          favoriteButton.style.color = 'rgba(220, 53, 69, 0.95)';
+        }
+      });
+      favoriteButton.addEventListener('mouseleave', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) {
+          favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
+        }
       });
       container.appendChild(favoriteButton);
     } catch (error) {

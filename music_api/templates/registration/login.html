@@ -27,12 +27,12 @@
         {% if next %}
             {% if user.is_authenticated %}
                 <div class="alert alert-danger alert-login">
-                    Your account doesn't have access to this page. To proceed,
-                    please login with an account that has access.
+                    У вашей учётной записи нет доступа к этой странице. Чтобы продолжить, войдите в аккаунт, у которого есть соответствующие
+                    права доступа.
                 </div>
             {% else %}
                 <div class="alert alert-danger alert-login">
-                    Please login to see this page.
+                    Пожалуйста, войдите в систему, чтобы увидеть эту страницу.
                 </div>
             {% endif %}
         {% endif %}

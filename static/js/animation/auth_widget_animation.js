@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   gsap.fromTo(
     widgets,
-    { scale: 0.9, opacity: 0, transformOrigin: '50% 50%' },
-    { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+    { scale: 0.8, opacity: 0, transformOrigin: '50% 50%' },
+    { scale: 1, opacity: 1, duration: 0.8, ease: 'power2.out' }
   );
 });

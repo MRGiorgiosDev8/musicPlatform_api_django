@@ -51,13 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showEmptyStateIfNeeded = () => {
-        if (root.querySelector('.track-item-wrapper')) return;
+        if (root.querySelector('.track-item-playlist')) return;
         const col12 = document.createElement('div');
         col12.className = 'col-12';
         
         const alert = document.createElement('div');
         alert.className = 'alert alert-secondary mb-0';
-        alert.textContent = 'You have no liked tracks yet.';
+        alert.textContent = 'У вас пока нет избранных треков.';
         
         col12.appendChild(alert);
         root.appendChild(col12);
@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = event.target.closest('.remove-favorite-btn');
         if (!button) return;
 
-        const trackItem = button.closest('.track-item');
-        const cardWrapper = button.closest('.track-item-wrapper');
+        const trackItem = button.closest('.track-playlist');
+        const cardWrapper = button.closest('.track-item-playlist');
         if (!trackItem || !cardWrapper) return;
 
         const trackName = (trackItem.dataset.trackName || '').trim();
