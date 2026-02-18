@@ -34,8 +34,8 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")  # Пароль 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # Сжатие и кэширование статики с манифестом
 
 # Включаем сжатие файлов для уменьшения размера перед отдачей клиенту
-COMPRESS_ENABLED = True  # Включаем сжатие
-COMPRESS_OFFLINE = True  # Сжатие выполняется оффлайн при сборке
+COMPRESS_ENABLED = False  # Включаем сжатие
+COMPRESS_OFFLINE = False # Сжатие выполняется оффлайн при сборке
 
 # Логирование для продакшена с выводом в консоль и файл
 LOGGING = {
