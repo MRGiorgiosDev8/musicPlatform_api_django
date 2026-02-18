@@ -107,22 +107,32 @@ MEDIA_ROOT = BASE_DIR / 'media'
 REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
 REDIS_DB = config("REDIS_DB", cast=int, default=0)
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {"max_connections": 100},
-            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
-            "IGNORE_EXCEPTIONS": True,
-            "SOCKET_CONNECT_TIMEOUT": 5,
-            "SOCKET_TIMEOUT": 5,
-        },
-        "TIMEOUT": 60 * 60,
-        "KEY_PREFIX": "musicplatform",
+if USE_DOCKER:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {"max_connections": 100},
+                "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+                "IGNORE_EXCEPTIONS": True,
+                "SOCKET_CONNECT_TIMEOUT": 5,
+                "SOCKET_TIMEOUT": 5,
+            },
+            "TIMEOUT": 60 * 60,
+            "KEY_PREFIX": "musicplatform",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "musicplatform-local-cache",
+            "TIMEOUT": 60 * 60,
+            "KEY_PREFIX": "musicplatform",
+        }
+    }
 
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
