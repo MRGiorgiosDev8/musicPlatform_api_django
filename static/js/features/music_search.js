@@ -78,8 +78,9 @@ const setupMusicSearch = () => {
         if (icon) {
           icon.className = 'bi bi-heart-fill';
           icon.style.fontSize = isActive ? '1.1rem' : '1.4rem';
-          icon.style.lineHeight = '1';
-          icon.style.display = 'block';
+          icon.style.lineHeight = '34px';
+          icon.style.display = 'inline-block';
+          icon.style.verticalAlign = 'middle';
           icon.style.margin = '0';
         }
 
@@ -88,17 +89,19 @@ const setupMusicSearch = () => {
           favoriteButton.style.border = 'none';
           favoriteButton.style.color = '#ffffff';
           favoriteButton.style.borderRadius = '50%';
-          favoriteButton.style.width = '34px';
-          favoriteButton.style.height = '34px';
-          favoriteButton.style.padding = '3px';
+          favoriteButton.style.width = '33px';
+          favoriteButton.style.height = '33px';
+          favoriteButton.style.padding = '0';
+          favoriteButton.style.textAlign = 'center';
         } else {
           favoriteButton.style.background = 'transparent';
           favoriteButton.style.border = 'none';
           favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
           favoriteButton.style.borderRadius = '50%';
-          favoriteButton.style.width = '34px';
-          favoriteButton.style.height = '34px';
-          favoriteButton.style.padding = '3px';
+          favoriteButton.style.width = '33px';
+          favoriteButton.style.height = '33px';
+          favoriteButton.style.padding = '0';
+          favoriteButton.style.textAlign = 'center';
         }
       };
 

@@ -12,7 +12,7 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="row g-4" id="blcok-avatar">
+    <div class="row g-4 pre-animation" id="blcok-avatar">
         <div class="col-lg-4">
             <section class="profile-widget text-center h-100">
 
@@ -47,7 +47,7 @@
 
             <div class="vstack gap-4">
 
-                <section class="profile-widget" id="block-info">
+                <section class="profile-widget pre-animation" id="block-info">
                     <i class="bi bi-gear fs-4 text-danger"></i>
                     <div class="profile-widget-title fs-5">Основная информация</div>
 
@@ -74,7 +74,7 @@
                 </section>
 
 
-                <section class="profile-widget" id="block-info-two">
+                <section class="profile-widget pre-animation" id="block-info-two">
                     <i class="bi bi-gear fs-4 text-danger"></i>
                     <div class="profile-widget-title fs-5">Дополнительно</div>
 
@@ -125,7 +125,6 @@
 
                 </section>
 
-                <!-- SAVE BUTTON ВНИЗУ СПРАВА -->
                 <div class="text-center pt-3">
                     <button type="submit"
                             class="btn btn-sm fw-normal btn-ruby-profile text-dark">

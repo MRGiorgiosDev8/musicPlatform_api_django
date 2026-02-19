@@ -2,16 +2,20 @@
     display: flex;
     flex-direction: column;
     gap: 1.3rem;
-    min-height: auto;       
-    max-height: 70vh;        
-    overflow-y: auto;      
+    min-height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+
     scroll-behavior: smooth;
-    scrollbar-width: none;  /* Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
 }
 
 #playlists-root::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari, Opera */
+    display: none;
+    /* Chrome, Safari, Opera */
 }
 
 .track-item-playlist {
@@ -89,14 +93,41 @@
     .track-playlist {
         align-items: flex-start;
         flex-wrap: wrap;
+        gap: 0.5rem;
+        overflow: hidden;
+    }
+
+    .track-meta {
+        min-width: 100px;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .track-meta .track-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .track-player {
         flex: 1 0 100%;
         min-width: 0;
         justify-content: flex-start;
-        padding-left: 69px;
-        margin-top: 0.1rem;
+        order: 4;
     }
-}
 
+    .track-actions {
+        flex: 0 0 auto;
+        align-self: center;
+    }
+
+    .track-player audio {
+        width: 100%;
+        max-width: none;
+    }
+
+    #playlists-root {
+        max-height: 100vh;
+    }
+
+}

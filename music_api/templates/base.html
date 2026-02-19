@@ -94,7 +94,7 @@
                     {% url 'login' as login_url %}
                     {% url 'signup' as signup_url %}
                     {% url 'logout' as logout_url %}
-                    <ul class="navbar-nav gap-3 premium-nav-shell d-flex w-100">
+                    <ul class="navbar-nav gap-1 gap-md-3 premium-nav-shell d-flex w-100">
                         {% if user.is_authenticated %}
                         <li class="nav-item me-1">
                             <a class="nav-link premium-nav-link {% if request.path == profile_url %}is-active{% endif %}"
@@ -108,7 +108,7 @@
                                 Плейлисты
                             </a>
                         </li>
-                        <li class="nav-item d-flex align-items-center">
+                        <li class="nav-item d-none d-lg-flex align-items-center">
                             <span class="border-start border-secondary h-50 mt-2"></span>
                         </li>
 
@@ -124,7 +124,7 @@
                                 Войти
                             </a>
                         </li>
-                        <li class="nav-item d-flex align-items-center">
+                        <li class="nav-item d-none d-lg-flex align-items-center">
                             <span class="border-start border-secondary h-50 mt-2"></span>
                         </li>
                         <li class="nav-item me-5">
@@ -135,7 +135,7 @@
                         </li>
                         {% endif %}
                     </ul>
-                    <form class="d-flex form-search w-sm-100 w-75" role="search" autocomplete="on"
+                    <form class="d-flex form-search w-100 w-lg-75" role="search" autocomplete="on"
                         action="{% url 'search_page' %}" method="get">
                         <div class="position-relative flex-grow-1">
                             <input class="form-control me-2 input-search input-search-icon" type="text" name="q"
@@ -169,13 +169,13 @@
             <nav class="link-footer nav me-0 me-lg-1">
                 <a class="nav-link" href="https://github.com/MRGiorgiosDev8/musicPlatform_api_django.git"
                     target="_blank" title="GitHub">
-                    <i class="fab fa-github github-icon"></i>
+                    <i class="fab fa-github github-icon small-icon"></i>
                 </a>
                 <a class="nav-link" href="https://t.me/mrgiorgio8" target="_blank" title="Telegram">
-                    <i class="fab fa-telegram telegram-icon"></i>
+                    <i class="fab fa-telegram telegram-icon small-icon"></i>
                 </a>
                 <a class="nav-link" href="mailto:gerorge.oblivantsev8@gmail.com" target="_blank" title="Gmail">
-                    <i class="fas fa-envelope gmail-icon"></i>
+                    <i class="fas fa-envelope gmail-icon small-icon"></i>
                 </a>
             </nav>
         </div>

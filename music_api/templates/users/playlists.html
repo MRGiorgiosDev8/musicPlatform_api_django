@@ -7,15 +7,15 @@
 
 {% block content %}
 
-<div class="container mt-3">
-    <div id="playlists-root" class="playlist-scroll-wrapper">
+<div class="container mt-md-3">
+    <div id="playlists-root" class="playlist-scroll-wrapper mb-3">
 
         {% if tracks %}
 
             <ul class="track-list list-unstyled p-0 m-0">
 
                 {% for track in tracks %}
-                    <li class="track-item-playlist mt-3">
+                    <li class="track-item-playlist pre-animation mt-3">
 
                         <div class="track-playlist mb-4"
                              data-track-name="{{ track.name|default:''|escape }}"
@@ -37,7 +37,7 @@
                                 </p>
                             </div>
 
-                            <div class="track-player">
+                            <div class="track-player me-sm-2">
                                 {% if track.url %}
                                     <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
                                         <source src="{{ track.url }}">
@@ -51,7 +51,7 @@
 
                             <div class="track-actions">
                                 <button type="button"
-                                        class="btn btn-outline-danger btn-sm remove-favorite-btn"
+                                        class="btn btn-outline-danger btn-sm remove-favorite-btn ms-sm-2"
                                         aria-label="Удалить трек">
                                     <i class="bi bi-trash"></i>
                                 </button>

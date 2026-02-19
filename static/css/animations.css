@@ -27,7 +27,6 @@
     transition: background-color 5000s ease-in-out 0s;
 }
 
-.pre-animate {
+.pre-animation {
     opacity: 0;
-    transform: scale(0.8);
 }

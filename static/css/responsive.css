@@ -53,6 +53,10 @@
     .about-h2::after {
         width: 13%;
     }
+
+    .small-icon {
+        font-size: 1.8rem;
+    }
 }
 
 @media (min-width: 576px) and (max-width: 767.98px) {
@@ -60,7 +64,7 @@
         background-attachment: scroll
     }
 
-     .form-search {
+    .form-search {
         margin-bottom: 16px;
     }
 }
@@ -70,6 +74,7 @@
 (width: 820px) and (height: 1180px),
 (width: 1113px) and (height: 744px),
 (width: 744px) and (height: 1113px) {
+
     .hide-ipad-pro,
     .hide-ipad-mini {
         display: none !important;
