@@ -30,20 +30,23 @@ const Year2025App = {
         : '/static/images/default.svg';
 
       const card = document.createElement('div');
-      card.className = 'card h-100 rounded-sm card-year';
+      card.className = 'card h-100 rounded-sm card-year year-track-card';
 
       const img = document.createElement('img');
       img.src = cover;
       img.alt = t.name;
       img.loading = 'lazy';
-      img.className = 'card-img-top shadow';
+      img.className = 'card-img-top shadow year-track-image';
       img.onerror = () => { img.src = '/static/images/default.svg'; };
 
       const cardBody = document.createElement('div');
-      cardBody.className = 'card-body p-2';
+      cardBody.className = 'card-body p-2 year-track-body';
+
+      const metaWrap = document.createElement('div');
+      metaWrap.className = 'year-track-meta';
 
       const title = document.createElement('h6');
-      title.className = 'card-title mb-1 text-truncate';
+      title.className = 'card-title mb-1 text-truncate year-track-title';
       title.textContent = t.name;
       title.style.whiteSpace = 'nowrap';
       title.style.overflow = 'hidden';
@@ -56,7 +59,7 @@ const Year2025App = {
       }
 
       const artistP = document.createElement('p');
-      artistP.className = 'card-text small mb-1';
+      artistP.className = 'card-text small mb-1 year-track-artist';
       artistP.style.borderLeft = '3px solid rgba(255, 13, 0, 0.73)';
       artistP.style.borderRadius = '3px';
       artistP.style.paddingLeft = '4px';
@@ -64,20 +67,22 @@ const Year2025App = {
       artistP.querySelector('span').textContent = t.artist;
 
       const listenersP = document.createElement('p');
-      listenersP.className = 'card-text small text-muted mb-2';
+      listenersP.className = 'card-text small text-muted mb-2 year-track-listeners';
 
       const count = t.playcount || t.listeners || 0;
       listenersP.textContent = `Прослушиваний: ${count}`;
 
-      cardBody.appendChild(title);
-      cardBody.appendChild(artistP);
-      cardBody.appendChild(listenersP);
+      metaWrap.appendChild(title);
+      metaWrap.appendChild(artistP);
+      metaWrap.appendChild(listenersP);
+      cardBody.appendChild(metaWrap);
 
       const hasAudio = t.url && /\.(mp3|m4a)(\?.*)?$/i.test(t.url);
       if (hasAudio) {
         const audio = document.createElement('audio');
         audio.controls = true;
         audio.preload = 'none';
+        audio.className = 'year-track-audio';
         audio.style.cssText = 'width:100%; filter: sepia(1) saturate(2) hue-rotate(320deg);';
 
         const source = document.createElement('source');
@@ -87,7 +92,7 @@ const Year2025App = {
         cardBody.appendChild(audio);
       } else {
         const noPreview = document.createElement('div');
-        noPreview.className = 'fs-6 text-body d-inline-block border-bottom border-danger';
+        noPreview.className = 'fs-6 text-body d-inline-block border-bottom border-danger year-track-no-preview';
         noPreview.textContent = 'Превью недоступно';
         cardBody.appendChild(noPreview);
       }

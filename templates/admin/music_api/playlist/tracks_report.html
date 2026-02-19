@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <div id="content-main">
+        <h1>Треки и пользователи</h1>
+
+        <form method="get" style="margin: 12px 0 18px;">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Поиск: трек, артист, username, email"
+                style="min-width: 340px;"
+            >
+            <button type="submit" class="button">Найти</button>
+            {% if query %}
+                <a href="{% url 'admin:music_api_playlist_tracks_report' %}" class="button">Сбросить</a>
+            {% endif %}
+        </form>
+
+        {% if rows %}
+            <table id="result_list">
+                <thead>
+                <tr>
+                    <th>Трек</th>
+                    <th>Артист</th>
+                    <th>Пользователей</th>
+                    <th>Добавлений</th>
+                    <th>Кто добавил</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.artist }}</td>
+                        <td>{{ row.user_count }}</td>
+                        <td>{{ row.total_adds }}</td>
+                        <td>
+                            {% for u in row.users %}
+                                <a href="{% url 'admin:users_user_change' u.id %}">{{ u.username }}</a>{% if u.email %} ({{ u.email }}){% endif %}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет данных по трекам.</p>
+        {% endif %}
+    </div>
+{% endblock %}

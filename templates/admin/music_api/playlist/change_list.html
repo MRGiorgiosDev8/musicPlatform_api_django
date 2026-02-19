@@ -1,0 +1,8 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+    <li>
+        <a href="{% url 'admin:music_api_playlist_tracks_report' %}">Треки и пользователи</a>
+    </li>
+    {{ block.super }}
+{% endblock %}

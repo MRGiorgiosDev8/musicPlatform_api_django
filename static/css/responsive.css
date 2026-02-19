@@ -55,7 +55,7 @@
     }
 
     .small-icon {
-        font-size: 1.8rem;
+        font-size: 1.7rem;
     }
 }
 
@@ -66,6 +66,68 @@
 
     .form-search {
         margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #year2025-container.row-cols-2 > * {
+        width: 100%;
+    }
+
+    #year2025-container .year-track-card {
+        display: grid;
+        grid-template-columns: 62px minmax(0, 1fr);
+        grid-template-areas:
+            "cover meta"
+            "audio audio";
+        gap: 0.55rem 0.7rem;
+        padding: 0.55rem;
+    }
+
+    #year2025-container .year-track-image {
+        grid-area: cover;
+        width: 62px;
+        height: 62px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin: 0;
+    }
+
+    #year2025-container .year-track-body {
+        display: contents;
+    }
+
+    #year2025-container .year-track-meta {
+        grid-area: meta;
+        min-width: 0;
+    }
+
+    #year2025-container .year-track-title,
+    #year2025-container .year-track-artist,
+    #year2025-container .year-track-listeners {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #year2025-container .year-track-title {
+        margin-bottom: 0.2rem;
+    }
+
+    #year2025-container .year-track-artist {
+        margin-bottom: 0.2rem;
+    }
+
+    #year2025-container .year-track-listeners {
+        margin-bottom: 0;
+    }
+
+    #year2025-container .year-track-audio,
+    #year2025-container .year-track-no-preview {
+        grid-area: audio;
+        width: 100%;
+        max-width: none;
+        margin-top: 0.1rem;
     }
 }
 

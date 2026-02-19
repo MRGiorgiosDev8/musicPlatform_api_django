@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/admin/music_admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+    <div class="brand-wrap">
+        <span class="brand-note">RubySound.fm</span>
+        <h1 id="site-name">
+            <a href="{% url 'admin:index' %}">Music Aggregator Admin</a>
+        </h1>
+    </div>
+{% endblock %}
