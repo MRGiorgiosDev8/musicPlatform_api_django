@@ -2,20 +2,6 @@
     display: flex;
     flex-direction: column;
     gap: 1.3rem;
-    min-height: auto;
-    max-height: 70vh;
-    overflow-y: auto;
-
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE and Edge */
-}
-
-#playlists-root::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Opera */
 }
 
 .track-item-playlist {
@@ -140,10 +126,6 @@
     .track-player audio {
         width: 100%;
         max-width: none;
-    }
-
-    #playlists-root {
-        max-height: 78dvh;
     }
 
 }

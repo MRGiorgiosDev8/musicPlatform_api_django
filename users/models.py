@@ -5,11 +5,9 @@ from django.db import models
 class User(AbstractUser):
     GENDER_MALE = 'M'
     GENDER_FEMALE = 'F'
-    GENDER_OTHER = 'O'
     GENDER_CHOICES = [
         (GENDER_MALE, 'Мужской'),
         (GENDER_FEMALE, 'Женский'),
-        (GENDER_OTHER, 'Другой'),
     ]
 
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)

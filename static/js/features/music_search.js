@@ -39,6 +39,8 @@ const setupMusicSearch = () => {
   if (!searchForm || !searchInput) return;
   const isSearchPage = document.body?.dataset?.isSearchPage === 'true';
   const isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
+  const navbarCollapse = document.getElementById('navbarNav');
+  const navbarToggler = document.querySelector('.hamburger.hamburger--elastic');
 
   let resultsContainer = document.getElementById('searchResults');
   if (isSearchPage && !resultsContainer) return;
@@ -93,6 +95,7 @@ const setupMusicSearch = () => {
           favoriteButton.style.height = '33px';
           favoriteButton.style.padding = '0';
           favoriteButton.style.textAlign = 'center';
+          favoriteButton.style.paddingTop = '3px';
         } else {
           favoriteButton.style.background = 'transparent';
           favoriteButton.style.border = 'none';
@@ -177,8 +180,8 @@ const setupMusicSearch = () => {
     const arrowIcon = document.createElement('img');
     arrowIcon.src = '/static/images/arrow-down.svg';
     arrowIcon.alt = 'Show More';
-    arrowIcon.style.width = '50px';
-    arrowIcon.style.height = '50px';
+    arrowIcon.style.width = '45px';
+    arrowIcon.style.height = '45px';
 
     loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;
@@ -348,9 +351,25 @@ const setupMusicSearch = () => {
     }
   };
 
+  const closeMobileNavbar = () => {
+    if (!navbarCollapse) return;
+    if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+      const collapseInstance = bootstrap.Collapse.getOrCreateInstance(navbarCollapse);
+      collapseInstance.hide();
+    } else {
+      navbarCollapse.classList.remove('show');
+    }
+
+    if (navbarToggler) {
+      navbarToggler.classList.remove('is-active');
+      navbarToggler.setAttribute('aria-expanded', 'false');
+    }
+  };
+
   searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const query = searchInput.value.trim();
+    closeMobileNavbar();
     await runSearch(query);
   });
 

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, update_session_auth_hash
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from asgiref.sync import async_to_sync
@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from .serializers import UserSerializer
-from .forms import SignupForm
+from .forms import SignupForm, ProfileUpdateForm
 from music_api.models import Playlist
 from music_api.views.tracks_async import _enrich_tracks_list_async
 
@@ -38,31 +38,16 @@ def signup_view(request):
 @login_required
 def profile_view(request):
     if request.method == 'POST':
-        # Handle profile update
-        user = request.user
-        user.bio = request.POST.get('bio', '')
-        user.country = request.POST.get('country', '')
-        
-        if 'avatar' in request.FILES:
-            user.avatar = request.FILES['avatar']
-        
-        gender = request.POST.get('gender')
-        if gender in [choice[0] for choice in user.GENDER_CHOICES]:
-            user.gender = gender
-            
-        birth_date = request.POST.get('birth_date')
-        if birth_date:
-            from datetime import datetime
-            try:
-                user.birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()
-            except ValueError:
-                pass
-        
-        user.is_public_favorites = request.POST.get('is_public_favorites') == 'on'
-        user.save()
-        return redirect('profile')
-    
-    return render(request, 'users/profile.html')
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            if form.cleaned_data.get('new_password'):
+                update_session_auth_hash(request, user)
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+
+    return render(request, 'users/profile.html', {'form': form})
 
 
 @login_required
