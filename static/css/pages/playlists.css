@@ -36,8 +36,13 @@
 
 .playlist-filter-mobile-trigger {
     box-shadow: var(--shadow-card);
-    border-color: rgba(184, 95, 108, 0.45);
+    border: none;
     background: var(--color-card-bg-light);
+}
+
+.playlist-mobile-filter-wrap {
+    display: flex;
+    justify-content: center;
 }
 
 .playlist-filter-offcanvas {
@@ -45,6 +50,8 @@
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     background: #fff;
+    border: none;
+    box-shadow: var(--shadow-card);
 }
 
 .playlist-filter-offcanvas .offcanvas-title {
@@ -54,11 +61,21 @@
 
 .playlist-filter-offcanvas .offcanvas-header {
     background: linear-gradient(var(--color-card-bg), var(--color-card-bg));
-    border-bottom: 1px solid #d4d4d4;
+    border-bottom: none;
 }
 
 .playlist-filter-offcanvas .offcanvas-body {
     background: linear-gradient(var(--color-card-bg-light), var(--color-card-bg-light));
+}
+
+.playlist-filter-offcanvas .form-select {
+    border: none;
+    box-shadow: var(--shadow-card);
+}
+
+.playlist-filter-offcanvas .form-select:focus {
+    border: none;
+    box-shadow: var(--shadow-card);
 }
 
 .playlist-filter-offcanvas .btn-close {

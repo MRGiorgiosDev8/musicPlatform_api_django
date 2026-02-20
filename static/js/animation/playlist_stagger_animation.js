@@ -74,8 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     gsap.fromTo(
       mobileFilterTrigger,
-      { autoAlpha: 0, x: -100 },
-      { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }
+      { autoAlpha: 0, scale: 0, transformOrigin: "center center" },
+      { autoAlpha: 1, scale: 1, duration: 0.45, ease: "power2.out" }
     );
   };
 

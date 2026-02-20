@@ -127,6 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
         noMatchesAlert = null;
     };
 
+    const resetStaggerAnimationState = () => {
+        if (!trackList) return;
+        trackList.querySelectorAll('.track-item-playlist').forEach((item) => {
+            delete item.dataset.staggerAnimated;
+        });
+    };
+
+    const markVisibleItemsAsAnimated = () => {
+        if (!trackList) return;
+        trackList.querySelectorAll('.track-item-playlist').forEach((item) => {
+            if (item.style.display !== 'none') {
+                item.dataset.staggerAnimated = '1';
+            }
+        });
+    };
+
     const showNoMatchesState = () => {
         if (noMatchesAlert) return;
         noMatchesAlert = document.createElement('div');
@@ -286,7 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
             state.sortMode = control.value || 'new';
             syncControlValues();
             visibleTracksCount = pageSize;
-            renderTrackPagination({ animate: true });
+            renderTrackPagination({ animate: false });
+            resetStaggerAnimationState();
+            markVisibleItemsAsAnimated();
         });
     });
 
@@ -295,7 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
             state.artistFilter = control.value || 'all';
             syncControlValues();
             visibleTracksCount = pageSize;
-            renderTrackPagination({ animate: true });
+            renderTrackPagination({ animate: false });
+            resetStaggerAnimationState();
+            markVisibleItemsAsAnimated();
         });
     });
 
