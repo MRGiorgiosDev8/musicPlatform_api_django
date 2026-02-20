@@ -129,7 +129,7 @@
 .box-info p {
     font-size: 1.2em;
     font-weight: 300;
-    color: var(--color-text-dark);
+    color: rgb(0, 0, 0);
 }
 
 .django_span,
@@ -268,4 +268,62 @@
 .hamburger.hamburger--elastic .hamburger-inner::after {
     height: 1.8px;
     background-color: #fff;
+}
+
+.ruby-breadcrumb .breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: var(--color-card-bg-light);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    overflow: hidden;
+}
+
+.ruby-breadcrumb .breadcrumb::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(110deg, rgba(220, 53, 69, 0), rgba(220, 53, 69, 0.24), rgba(220, 53, 69, 0));
+    transform: translateX(-100%);
+    animation: rubyBreadcrumbSweep 3.2s ease-in-out infinite;
+}
+
+.ruby-breadcrumb .breadcrumb-item,
+.ruby-breadcrumb .breadcrumb-item a {
+    font-weight: 600;
+    color: rgb(200, 98, 98);
+    position: relative;
+    z-index: 1;
+}
+
+.ruby-breadcrumb .breadcrumb-item.active {
+    color: rgb(182, 7, 7);
+}
+
+.ruby-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--color-primary-dark);
+}
+
+.ruby-breadcrumb .breadcrumb-item a {
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.25s ease;
+}
+
+.ruby-breadcrumb .breadcrumb-item a:hover {
+    color: rgb(182, 7, 7);
+}
+
+@keyframes rubyBreadcrumbSweep {
+    0% { transform: translateX(-100%); }
+    55% { transform: translateX(95%); }
+    100% { transform: translateX(95%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ruby-breadcrumb .breadcrumb::before {
+        animation: none;
+    }
 }

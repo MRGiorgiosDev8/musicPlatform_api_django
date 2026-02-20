@@ -2,9 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const root = document.getElementById('playlists-root');
     if (!root) return;
     const trackList = root.querySelector('.track-list');
-    const tracksPerPage = 6;
-    let visibleTracksCount = tracksPerPage;
+    const sortControls = Array.from(document.querySelectorAll('[data-playlist-sort]'));
+    const artistControls = Array.from(document.querySelectorAll('[data-playlist-artist-filter]'));
+    const countDisplays = Array.from(document.querySelectorAll('[data-playlist-count-display]'));
+    const filterMetaBlocks = Array.from(document.querySelectorAll('[data-playlist-filter-meta]'));
+    const pageSize = 6;
+    let visibleTracksCount = pageSize;
     let loadMoreContainer = null;
+    let noMatchesAlert = null;
+    const state = {
+        sortMode: sortControls[0]?.value || 'new',
+        artistFilter: artistControls[0]?.value || 'all',
+    };
 
     const toastContainerId = 'playlist-toast-container';
     const getToastContainer = () => {
@@ -55,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showEmptyStateIfNeeded = () => {
-        if (root.querySelector('.track-item-playlist')) return;
+        if (trackList && trackList.querySelector('.track-item-playlist')) return;
         if (root.querySelector('.alert.alert-secondary.mb-0')) return;
         if (loadMoreContainer) {
             loadMoreContainer.remove();
@@ -70,6 +79,92 @@ document.addEventListener('DOMContentLoaded', () => {
     const getTrackItems = () => (
         trackList ? Array.from(trackList.querySelectorAll('.track-item-playlist')) : []
     );
+
+    const trackRecords = getTrackItems().map((item, idx) => {
+        const card = item.querySelector('.track-playlist');
+        const artist = ((card?.dataset?.trackArtist || '').trim());
+        const indexRaw = Number(item.dataset.trackIndex);
+        return {
+            element: item,
+            artist,
+            artistKey: artist.toLowerCase(),
+            index: Number.isNaN(indexRaw) ? idx : indexRaw,
+        };
+    });
+
+    const buildArtistFilterOptions = () => {
+        if (!artistControls.length) return;
+        const artists = Array.from(
+            new Set(
+                trackRecords
+                    .map((record) => record.artist)
+                    .filter((artist) => artist.length > 0)
+            )
+        ).sort((a, b) => a.localeCompare(b, 'ru'));
+
+        artistControls.forEach((control) => {
+            artists.forEach((artist) => {
+                const option = document.createElement('option');
+                option.value = artist.toLowerCase();
+                option.textContent = artist;
+                control.appendChild(option);
+            });
+        });
+    };
+
+    const syncControlValues = () => {
+        sortControls.forEach((control) => {
+            control.value = state.sortMode;
+        });
+        artistControls.forEach((control) => {
+            control.value = state.artistFilter;
+        });
+    };
+
+    const clearNoMatchesState = () => {
+        if (!noMatchesAlert) return;
+        noMatchesAlert.remove();
+        noMatchesAlert = null;
+    };
+
+    const showNoMatchesState = () => {
+        if (noMatchesAlert) return;
+        noMatchesAlert = document.createElement('div');
+        noMatchesAlert.className = 'alert alert-light border mb-0';
+        noMatchesAlert.textContent = 'По выбранному фильтру треки не найдены.';
+        root.appendChild(noMatchesAlert);
+    };
+
+    const animateTrackRemoval = (element) => new Promise((resolve) => {
+        if (!element) {
+            resolve();
+            return;
+        }
+
+        if (typeof gsap === 'undefined') {
+            resolve();
+            return;
+        }
+
+        gsap.killTweensOf(element);
+        gsap.fromTo(
+            element,
+            { autoAlpha: 1, y: 0, scale: 1, height: element.offsetHeight },
+            {
+                autoAlpha: 0,
+                y: -8,
+                scale: 0.97,
+                height: 0,
+                marginTop: 0,
+                marginBottom: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                duration: 0.32,
+                ease: 'power2.inOut',
+                onComplete: resolve,
+            }
+        );
+    });
 
     const createLoadMoreButton = () => {
         const container = document.createElement('div');
@@ -92,45 +187,117 @@ document.addEventListener('DOMContentLoaded', () => {
             button.style.transform = 'scale(1.1)';
         });
         button.addEventListener('click', () => {
-            visibleTracksCount += tracksPerPage;
+            visibleTracksCount += pageSize;
             renderTrackPagination();
         });
 
-        const arrowIcon = document.createElement('img');
-        arrowIcon.src = '/static/images/arrow-down.svg';
-        arrowIcon.alt = 'Show More';
-        arrowIcon.style.width = '45px';
-        arrowIcon.style.height = '45px';
+        const arrowIcon = document.createElement('i');
+        arrowIcon.className = 'bi bi-chevron-double-down';
+        arrowIcon.setAttribute('aria-hidden', 'true');
+        arrowIcon.style.fontSize = '2rem';
+        arrowIcon.style.lineHeight = '1';
+        arrowIcon.style.color = 'var(--color-primary)';
 
         button.appendChild(arrowIcon);
         container.appendChild(button);
         return container;
     };
 
-    const renderTrackPagination = () => {
-        if (!trackList) return;
-        const items = getTrackItems();
-        if (!items.length) {
+    const renderTrackPagination = ({ animate = false } = {}) => {
+        if (!trackList || !trackRecords.length) {
             showEmptyStateIfNeeded();
             return;
         }
 
-        const maxVisible = Math.min(visibleTracksCount, items.length);
-        items.forEach((item, idx) => {
-            item.style.display = idx < maxVisible ? '' : 'none';
+        clearNoMatchesState();
+        const { sortMode, artistFilter } = state;
+        const filtered = trackRecords.filter((record) => (
+            artistFilter === 'all' || record.artistKey === artistFilter
+        ));
+
+        const sorted = [...filtered].sort((a, b) => (
+            sortMode === 'old' ? a.index - b.index : b.index - a.index
+        ));
+
+        trackRecords.forEach((record) => {
+            record.element.style.display = 'none';
         });
+
+        if (!sorted.length) {
+            if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+            showNoMatchesState();
+            countDisplays.forEach((block) => { block.textContent = '0'; });
+            filterMetaBlocks.forEach((block) => { block.textContent = 'Найдено: 0 треков'; });
+            return;
+        }
+
+        sorted.forEach((record) => {
+            trackList.appendChild(record.element);
+        });
+
+        const maxVisible = Math.min(visibleTracksCount, sorted.length);
+        sorted.forEach((record, idx) => {
+            record.element.style.display = idx < maxVisible ? '' : 'none';
+            if (idx < maxVisible) {
+                record.element.style.opacity = '1';
+                record.element.style.transform = 'none';
+            }
+        });
+
+        if (animate && typeof gsap !== 'undefined') {
+            const visibleItems = sorted.slice(0, maxVisible).map((record) => record.element);
+            if (visibleItems.length) {
+                gsap.killTweensOf(visibleItems);
+                gsap.fromTo(
+                    visibleItems,
+                    { autoAlpha: 0, y: 14, scale: 0.985 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.32,
+                        stagger: 0.055,
+                        ease: 'power2.out',
+                        overwrite: 'auto',
+                    }
+                );
+            }
+        }
 
         if (!loadMoreContainer) {
             loadMoreContainer = createLoadMoreButton();
             root.appendChild(loadMoreContainer);
         }
 
-        loadMoreContainer.style.display = maxVisible < items.length ? '' : 'none';
+        loadMoreContainer.style.display = maxVisible < sorted.length ? '' : 'none';
+
+        countDisplays.forEach((block) => { block.textContent = `${sorted.length}`; });
+        filterMetaBlocks.forEach((block) => { block.textContent = `Показано: ${maxVisible} из ${sorted.length}`; });
     };
 
     if (trackList) {
-        renderTrackPagination();
+        buildArtistFilterOptions();
+        syncControlValues();
+        renderTrackPagination({ animate: false });
     }
+
+    sortControls.forEach((control) => {
+        control.addEventListener('change', () => {
+            state.sortMode = control.value || 'new';
+            syncControlValues();
+            visibleTracksCount = pageSize;
+            renderTrackPagination({ animate: true });
+        });
+    });
+
+    artistControls.forEach((control) => {
+        control.addEventListener('change', () => {
+            state.artistFilter = control.value || 'all';
+            syncControlValues();
+            visibleTracksCount = pageSize;
+            renderTrackPagination({ animate: true });
+        });
+    });
 
     root.addEventListener('click', async (event) => {
         const button = event.target.closest('.remove-favorite-btn');
@@ -159,8 +326,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Failed with status ${response.status}`);
             }
 
+            await animateTrackRemoval(cardWrapper);
             cardWrapper.remove();
-            renderTrackPagination();
+            const removedIndex = trackRecords.findIndex((record) => record.element === cardWrapper);
+            if (removedIndex > -1) {
+                trackRecords.splice(removedIndex, 1);
+            }
+            renderTrackPagination({ animate: false });
+            showEmptyStateIfNeeded();
             showToast('Трек удалён');
         } catch (error) {
             showToast('Ошибка удаления трека', true);

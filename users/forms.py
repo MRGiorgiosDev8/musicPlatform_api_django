@@ -1,10 +1,19 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 
 User = get_user_model()
+
+
+class LoginForm(AuthenticationForm):
+    remember = forms.BooleanField(
+        required=False,
+        initial=False,
+        label='Запомнить меня',
+    )
 
 
 class SignupForm(forms.ModelForm):

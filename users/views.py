@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout, login, update_session_auth_hash
 from django.contrib.auth.views import LoginView
+from django.conf import settings
 from django.urls import reverse_lazy
 from asgiref.sync import async_to_sync
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -9,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from .serializers import UserSerializer
-from .forms import SignupForm, ProfileUpdateForm
+from .forms import SignupForm, ProfileUpdateForm, LoginForm
 from music_api.models import Playlist
 from music_api.views.tracks_async import _enrich_tracks_list_async
 
@@ -17,6 +18,16 @@ from music_api.views.tracks_async import _enrich_tracks_list_async
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     redirect_authenticated_user = True
+    authentication_form = LoginForm
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        remember = bool(form.cleaned_data.get('remember'))
+        if remember:
+            self.request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+        else:
+            self.request.session.set_expiry(settings.SESSION_SHORT_COOKIE_AGE)
+        return response
 
 
 def signup_view(request):

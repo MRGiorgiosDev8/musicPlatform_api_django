@@ -42,6 +42,12 @@ const setupMusicSearch = () => {
   const navbarCollapse = document.getElementById('navbarNav');
   const navbarToggler = document.querySelector('.hamburger.hamburger--elastic');
 
+  searchForm.addEventListener('submit', (e) => {
+    if (searchInput.value.trim()) return;
+    e.preventDefault();
+    searchInput.focus();
+  });
+
   let resultsContainer = document.getElementById('searchResults');
   if (isSearchPage && !resultsContainer) return;
   if (!isSearchPage) return;
@@ -177,11 +183,12 @@ const setupMusicSearch = () => {
       loadMoreButton.style.transform = 'scale(1.1)';
     });
 
-    const arrowIcon = document.createElement('img');
-    arrowIcon.src = '/static/images/arrow-down.svg';
-    arrowIcon.alt = 'Show More';
-    arrowIcon.style.width = '45px';
-    arrowIcon.style.height = '45px';
+    const arrowIcon = document.createElement('i');
+    arrowIcon.className = 'bi bi-chevron-double-down';
+    arrowIcon.setAttribute('aria-hidden', 'true');
+    arrowIcon.style.fontSize = '2rem';
+    arrowIcon.style.lineHeight = '1';
+    arrowIcon.style.color = 'var(--color-primary)';
 
     loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;
@@ -369,6 +376,11 @@ const setupMusicSearch = () => {
   searchForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const query = searchInput.value.trim();
+    if (!query) {
+      resultsContainer.replaceChildren();
+      showPopular();
+      return;
+    }
     closeMobileNavbar();
     await runSearch(query);
   });

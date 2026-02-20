@@ -25,7 +25,7 @@ main {
 .logo-font img {
     width: 70px;
     height: 70px;
-    filter: brightness(0.93);
+    filter: contrast(1.1);
     margin-right: 0.4vh;
     display: block;
 }

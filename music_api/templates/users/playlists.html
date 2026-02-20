@@ -8,68 +8,153 @@
 {% block content %}
 
 <div class="container mt-md-3">
-    <div id="playlists-root" class="playlist-scroll-wrapper mb-3">
+    <nav aria-label="breadcrumb" class="mb-3 mt-3 ruby-breadcrumb pre-animation">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'home' %}">Главная</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Плейлисты</li>
+        </ol>
+    </nav>
+    <div class="d-lg-none mb-3">
+        <button
+            class="btn btn-outline-danger btn-sm playlist-filter-mobile-trigger pre-animation"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#playlistFilterOffcanvas"
+            aria-controls="playlistFilterOffcanvas"
+        >
+            <i class="bi bi-sliders me-1"></i> Фильтры
+        </button>
+    </div>
 
-        {% if tracks %}
+    <div class="row g-3 g-lg-4 align-items-start playlist-layout">
+        <aside class="col-12 col-lg-4 col-xl-3 d-none d-lg-block">
+            <section class="playlist-filter-card pre-animation" id="playlist-filter-panel">
+                <h3 class="playlist-filter-title mb-3">Фильтр и сортировка</h3>
 
-            <ul class="track-list list-unstyled p-0 m-0">
+                <div class="mb-3">
+                    <label class="form-label mb-1" for="playlist-sort">Сортировка</label>
+                    <select class="form-select form-select-sm" id="playlist-sort" data-playlist-sort>
+                        <option value="new">Сначала новые</option>
+                        <option value="old">Сначала старые</option>
+                    </select>
+                </div>
 
-                {% for track in tracks %}
-                    <li class="track-item-playlist pre-animation mt-3">
+                <div class="mb-3">
+                    <label class="form-label mb-1" for="playlist-artist-filter">Артист</label>
+                    <select class="form-select form-select-sm" id="playlist-artist-filter" data-playlist-artist-filter>
+                        <option value="all">Все артисты</option>
+                    </select>
+                </div>
 
-                        <div class="track-playlist mb-3"
-                             data-track-name="{{ track.name|default:''|escape }}"
-                             data-track-artist="{{ track.artist|default:''|escape }}">
+                <div class="mb-2">
+                    <label class="form-label mb-1">Количество треков</label>
+                    <div class="small text-muted" id="playlist-count-display" data-playlist-count-display>0</div>
+                </div>
 
-                            <img
-                                src="{{ track.image_url|default:'/static/images/default.svg' }}"
-                                alt="{{ track.name|default:'Unknown track' }}"
-                                class="track-image shadow-sm img-fluid"
-                                loading="lazy"
-                            >
+                <div id="playlist-filter-meta" class="small text-muted mt-3" data-playlist-filter-meta></div>
+            </section>
+        </aside>
 
-                            <div class="track-meta">
-                                <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
-                                <p class="track-artist">
-                                    <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+        <section class="col-12 col-lg-8 col-xl-9">
+            <div id="playlists-root" class="playlist-scroll-wrapper mb-3">
+
+                {% if tracks %}
+
+                    <ul class="track-list list-unstyled p-0 m-0">
+
+                        {% for track in tracks %}
+                            <li class="track-item-playlist pre-animation"
+                                data-track-index="{{ forloop.counter0 }}">
+
+                                <div class="track-playlist mb-3"
+                                     data-track-name="{{ track.name|default:''|escape }}"
+                                     data-track-artist="{{ track.artist|default:''|escape }}">
+
+                                    <img
+                                            src="{{ track.image_url|default:'/static/images/default.svg' }}"
+                                            alt="{{ track.name|default:'Unknown track' }}"
+                                            class="track-image shadow-sm img-fluid"
+                                            loading="lazy"
+                                    >
+
+                                    <div class="track-meta">
+                                        <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
+                                        <p class="track-artist">
+                                    <span
+                                            style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
                                         Артист: {{ track.artist|default:"Unknown artist" }}
                                     </span>
-                                </p>
-                            </div>
-
-                            <div class="track-player me-sm-2">
-                                {% if track.url %}
-                                    <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
-                                        <source src="{{ track.url }}">
-                                    </audio>
-                                {% else %}
-                                    <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
-                                        Превью недоступно
+                                        </p>
                                     </div>
-                                {% endif %}
-                            </div>
 
-                            <div class="track-actions">
-                                <button type="button"
-                                        class="btn btn-outline-danger btn-sm remove-favorite-btn ms-sm-2"
-                                        aria-label="Удалить трек">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
+                                    <div class="track-player me-sm-2">
+                                        {% if track.url %}
+                                            <audio controls preload="none"
+                                                   style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
+                                                <source src="{{ track.url }}">
+                                            </audio>
+                                        {% else %}
+                                            <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
+                                                Превью недоступно
+                                            </div>
+                                        {% endif %}
+                                    </div>
 
-                        </div>
+                                    <div class="track-actions">
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm remove-favorite-btn ms-sm-2"
+                                                aria-label="Удалить трек">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
 
-                    </li>
-                {% endfor %}
+                                </div>
 
-            </ul>
+                            </li>
+                        {% endfor %}
 
-        {% else %}
-            <div class="alert alert-secondary mb-0">
-                У вас пока нет избранных треков.
+                    </ul>
+
+                {% else %}
+                    <div class="alert alert-secondary mb-0">
+                        У вас пока нет избранных треков.
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+        </section>
+    </div>
+</div>
 
+<div class="offcanvas offcanvas-bottom playlist-filter-offcanvas d-lg-none" tabindex="-1" id="playlistFilterOffcanvas"
+     aria-labelledby="playlistFilterOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="playlistFilterOffcanvasLabel">Фильтр и сортировка</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="mb-3">
+            <label class="form-label mb-1" for="playlist-sort-mobile">Сортировка</label>
+            <select class="form-select form-select-sm" id="playlist-sort-mobile" data-playlist-sort>
+                <option value="new">Сначала новые</option>
+                <option value="old">Сначала старые</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label mb-1" for="playlist-artist-filter-mobile">Артист</label>
+            <select class="form-select form-select-sm" id="playlist-artist-filter-mobile" data-playlist-artist-filter>
+                <option value="all">Все артисты</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label mb-1">Количество треков</label>
+            <div class="small text-muted" data-playlist-count-display>0</div>
+        </div>
+
+        <div class="small text-muted mt-3" data-playlist-filter-meta></div>
     </div>
 </div>
 

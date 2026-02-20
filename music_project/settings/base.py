@@ -147,6 +147,11 @@ LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", cast=int, default=60 * 60 * 24 * 14)
+SESSION_SHORT_COOKIE_AGE = config("SESSION_SHORT_COOKIE_AGE", cast=int, default=60 * 60 * 12)
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',

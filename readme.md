@@ -3,7 +3,7 @@
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-%23e0115f)
 ![License](https://img.shields.io/github/license/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
 ![Tests](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/tests.yml?label=tests&logo=github&color=%23e0115f)
-![Deploy](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&logo=github&color=%2350c878)
+![Deploy](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&logo=github&color=%23e0115f)
 
 # 🎵 RubySound.fm
 **RubySound.fm** — асинхронная музыкальная платформа на Django + DRF, объединяющая данные из Last.fm, Deezer и iTunes.

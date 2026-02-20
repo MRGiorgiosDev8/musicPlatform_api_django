@@ -13,4 +13,4 @@ ENV USE_DOCKER=true
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && uvicorn music_project.asgi:application --host 0.0.0.0 --port 8000 --workers 1"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && (python manage.py createsuperuser --noinput || true) && uvicorn music_project.asgi:application --host 0.0.0.0 --port 8000 --workers 1"]
