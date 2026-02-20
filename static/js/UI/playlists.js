@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let visibleTracksCount = pageSize;
     let loadMoreContainer = null;
     let noMatchesAlert = null;
+    let activeAudio = null;
     const state = {
         sortMode: sortControls[0]?.value || 'new',
         artistFilter: artistControls[0]?.value || 'all',
@@ -297,6 +298,29 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTrackPagination({ animate: false });
     }
 
+    root.addEventListener('play', (event) => {
+        const audio = event.target;
+        if (!(audio instanceof HTMLAudioElement)) return;
+
+        if (activeAudio && activeAudio !== audio) {
+            activeAudio.pause();
+        }
+
+        activeAudio = audio;
+    }, true);
+
+    root.addEventListener('ended', (event) => {
+        const audio = event.target;
+        if (!(audio instanceof HTMLAudioElement)) return;
+        if (activeAudio === audio) activeAudio = null;
+    }, true);
+
+    root.addEventListener('pause', (event) => {
+        const audio = event.target;
+        if (!(audio instanceof HTMLAudioElement)) return;
+        if (activeAudio === audio) activeAudio = null;
+    }, true);
+
     sortControls.forEach((control) => {
         control.addEventListener('change', () => {
             state.sortMode = control.value || 'new';
@@ -347,6 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             await animateTrackRemoval(cardWrapper);
+            const audio = cardWrapper.querySelector('audio');
+            if (audio && activeAudio === audio) {
+                activeAudio.pause();
+                activeAudio = null;
+            }
             cardWrapper.remove();
             const removedIndex = trackRecords.findIndex((record) => record.element === cardWrapper);
             if (removedIndex > -1) {

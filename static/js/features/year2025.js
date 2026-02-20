@@ -3,14 +3,86 @@ const Year2025App = {
   cache: {},
   activeAudio: null,
   audioControlsInitialized: false,
+  renderVersion: 0,
+  isAuthenticated: false,
 
   init() {
+    this.isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
     Utils.initGenreButtons('year-genre-container', (genre) => this.load(genre), true);
     this.initAudioControls();
     this.load();
   },
 
-  render(list) {
+  async createFavoriteControl(track) {
+    const container = document.createElement('div');
+    container.className = 'd-flex align-items-center';
+
+    if (!this.isAuthenticated) return container;
+    if (typeof window.createFavoriteButtonWithCheck !== 'function') return container;
+    if (!track?.name || !track?.artist) return container;
+
+    try {
+      const favoriteButton = await window.createFavoriteButtonWithCheck(track.name, track.artist);
+      const syncFavoriteVisualState = () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        const icon = favoriteButton.querySelector('i');
+        if (icon) {
+          icon.className = 'bi bi-heart-fill';
+          icon.style.fontSize = isActive ? '1.0rem' : '1.2rem';
+          icon.style.lineHeight = '1';
+        }
+
+        favoriteButton.style.background = isActive ? '#dc3545' : 'transparent';
+        favoriteButton.style.border = 'none';
+        favoriteButton.style.color = isActive ? '#fff' : 'rgba(220, 53, 69, 0.72)';
+        favoriteButton.style.borderRadius = '50%';
+        favoriteButton.style.width = '31px';
+        favoriteButton.style.height = '31px';
+        favoriteButton.style.padding = '0';
+        favoriteButton.style.paddingTop = '3px';
+        favoriteButton.style.display = 'inline-flex';
+        favoriteButton.style.alignItems = 'center';
+        favoriteButton.style.justifyContent = 'center';
+        favoriteButton.style.boxShadow = 'none';
+      };
+
+      favoriteButton.className = 'favorite-icon-btn';
+      favoriteButton.style.minWidth = '31px';
+      favoriteButton.style.flexShrink = '0';
+      favoriteButton.style.transition = 'background-color 0.2s ease, color 0.2s ease';
+
+      syncFavoriteVisualState();
+
+      const styleSyncObserver = new MutationObserver(() => {
+        syncFavoriteVisualState();
+      });
+      styleSyncObserver.observe(favoriteButton, {
+        attributes: true,
+        attributeFilter: ['aria-pressed'],
+        childList: true,
+        subtree: true
+      });
+
+      favoriteButton.addEventListener('mouseenter', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) favoriteButton.style.color = 'rgba(220, 53, 69, 0.95)';
+      });
+
+      favoriteButton.addEventListener('mouseleave', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
+      });
+
+      container.appendChild(favoriteButton);
+    } catch (error) {
+      console.error('Year2025 favorite button init error:', error);
+    }
+
+    return container;
+  },
+
+  async render(list) {
+    const currentRenderVersion = ++this.renderVersion;
     const container = document.getElementById('year2025-container');
     if (!list.length) {
       Utils.renderEmpty('year2025-container');
@@ -21,7 +93,8 @@ const Year2025App = {
 
     const fragment = document.createDocumentFragment();
 
-    list.forEach(t => {
+    for (const t of list) {
+      if (currentRenderVersion !== this.renderVersion) return;
       const col = document.createElement('div');
       col.className = 'col';
 
@@ -46,7 +119,7 @@ const Year2025App = {
       metaWrap.className = 'year-track-meta';
 
       const title = document.createElement('h6');
-      title.className = 'card-title mb-1 text-truncate year-track-title';
+      title.className = 'card-title mb-1 text-truncate year-track-title flex-grow-1';
       title.textContent = t.name;
       title.style.whiteSpace = 'nowrap';
       title.style.overflow = 'hidden';
@@ -57,6 +130,13 @@ const Year2025App = {
       if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(title);
       }
+
+      const favoriteControl = await this.createFavoriteControl(t);
+      if (currentRenderVersion !== this.renderVersion) return;
+
+      const titleRow = document.createElement('div');
+      titleRow.className = 'd-flex align-items-start justify-content-between gap-2 mb-1';
+      titleRow.append(title, favoriteControl);
 
       const artistP = document.createElement('p');
       artistP.className = 'card-text small mb-1 year-track-artist';
@@ -72,7 +152,7 @@ const Year2025App = {
       const count = t.playcount || t.listeners || 0;
       listenersP.textContent = `Прослушиваний: ${count}`;
 
-      metaWrap.appendChild(title);
+      metaWrap.appendChild(titleRow);
       metaWrap.appendChild(artistP);
       metaWrap.appendChild(listenersP);
       cardBody.appendChild(metaWrap);
@@ -101,7 +181,7 @@ const Year2025App = {
       card.appendChild(cardBody);
       col.appendChild(card);
       fragment.appendChild(col);
-    });
+    }
 
     container.appendChild(fragment);
 
@@ -132,7 +212,7 @@ const Year2025App = {
   async load(genre = '') {
     const cached = Utils.getCached(this.cache, genre);
     if (cached) {
-      this.render(cached);
+      await this.render(cached);
       return;
     }
 
@@ -150,18 +230,18 @@ const Year2025App = {
       if (!tracks.length) {
         console.warn('Нет данных для жанра:', genre || 'все');
         Utils.setCache(this.cache, genre, tracks);
-        this.render(tracks);
+        await this.render(tracks);
         return;
       }
 
       Utils.setCache(this.cache, genre, tracks);
-      this.render(tracks);
+      await this.render(tracks);
     } catch (e) {
       console.error('Ошибка загрузки чарта:', e);
       const errorMessage = e.message || 'Не удалось загрузить данные';
       Utils.showError('year2025-container', errorMessage);
 
-      this.render([]);
+      await this.render([]);
     } finally {
       Utils.showYearSpinner(false);
     }
