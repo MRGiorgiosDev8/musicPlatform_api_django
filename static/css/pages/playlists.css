@@ -49,23 +49,23 @@
     height: min(62vh, 500px);
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    background: #fff;
+    background: black;
     border: none;
     box-shadow: var(--shadow-card);
 }
 
 .playlist-filter-offcanvas .offcanvas-title {
-    color: var(--color-text-dark);
+    color: #fff;
     font-weight: 600;
 }
 
 .playlist-filter-offcanvas .offcanvas-header {
-    background: linear-gradient(var(--color-card-bg), var(--color-card-bg));
-    border-bottom: none;
+    background: black;
+    border-bottom: 1px solid var(--color-primary);
 }
 
 .playlist-filter-offcanvas .offcanvas-body {
-    background: linear-gradient(var(--color-card-bg-light), var(--color-card-bg-light));
+    background: black;
 }
 
 .playlist-filter-offcanvas .form-select {
@@ -181,6 +181,10 @@
 @media (max-width: 767.98px) {
     .playlist-filter-card {
         position: static;
+    }
+
+    .playlist-filter-offcanvas .form-label {
+        color: #fff !important;
     }
 
     .playlist-filter-offcanvas {
