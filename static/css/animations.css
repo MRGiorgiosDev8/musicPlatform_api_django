@@ -35,6 +35,10 @@
     animation: breadcrumb-fade-in 0.5s ease-out 0.12s both;
 }
 
+.public-track-view-switch.pre-animation {
+    animation: public-switch-fade-in 0.42s ease-out 0.1s both;
+}
+
 @keyframes breadcrumb-fade-in {
     from {
         opacity: 0;
@@ -46,8 +50,25 @@
     }
 }
 
+@keyframes public-switch-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .ruby-breadcrumb.pre-animation {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .public-track-view-switch.pre-animation {
         animation: none;
         opacity: 1;
         transform: none;

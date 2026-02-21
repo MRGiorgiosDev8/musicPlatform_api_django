@@ -1,7 +1,9 @@
 import pytest
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
-from music_api.models import Playlist
+from music_api.models import Playlist, PlaylistLike, PlaylistLikeNotification
 
 
 pytestmark = pytest.mark.django_db
@@ -65,3 +67,47 @@ def test_playlist_tracks_default_list_is_not_shared_between_instances(user):
 
     assert first.tracks != second.tracks
     assert second.tracks == []
+
+
+def test_playlist_like_unique_constraint(user):
+    playlist = user.playlists.order_by("created_at").first()
+    liker = get_user_model().objects.create_user(
+        username="liker_unique",
+        email="liker_unique@example.com",
+        password="test-pass-123",
+    )
+
+    PlaylistLike.objects.create(playlist=playlist, user=liker)
+
+    with pytest.raises(IntegrityError):
+        PlaylistLike.objects.create(playlist=playlist, user=liker)
+
+
+def test_playlist_like_signal_creates_notification_for_owner(user):
+    playlist = user.playlists.order_by("created_at").first()
+    liker = get_user_model().objects.create_user(
+        username="liker_notify",
+        email="liker_notify@example.com",
+        password="test-pass-123",
+    )
+
+    PlaylistLike.objects.create(playlist=playlist, user=liker)
+
+    notification = PlaylistLikeNotification.objects.filter(
+        recipient=user,
+        actor=liker,
+        playlist=playlist,
+    ).first()
+    assert notification is not None
+
+
+def test_playlist_like_signal_skips_notification_for_self_like(user):
+    playlist = user.playlists.order_by("created_at").first()
+
+    PlaylistLike.objects.create(playlist=playlist, user=user)
+
+    assert PlaylistLikeNotification.objects.filter(
+        recipient=user,
+        actor=user,
+        playlist=playlist,
+    ).count() == 0

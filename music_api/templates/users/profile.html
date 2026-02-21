@@ -26,8 +26,8 @@
     {% endif %}
 
     <div class="row g-4 pre-animation" id="blcok-avatar">
-        <div class="col-lg-4">
-            <section class="profile-widget text-center h-100">
+        <div class="col-lg-4 profile-avatar-column">
+            <section class="profile-widget text-center profile-avatar-card">
 
                 <div class="profile-avatar-shell d-flex flex-column align-items-center">
 
@@ -49,6 +49,16 @@
                             Изменить аватар
                         </span>
                     </label>
+
+                    {% if request.user.is_public_favorites %}
+                        <a href="{% url 'public_user_page' request.user.username %}"
+                           class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-2 text-decoration-none">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span class="profile-avatar-edit-text fw-normal text-dark">
+                                Публичная страница
+                            </span>
+                        </a>
+                    {% endif %}
 
                 </div>
 
@@ -145,7 +155,7 @@
 
                         <div class="col-md-6">
                             <div class="form-check mt-4">
-                                <input class="form-check-input"
+                                <input class="form-check-input ruby-check-input"
                                        type="checkbox"
                                        name="is_public_favorites"
                                        {% if form.is_public_favorites.value %}checked{% endif %}>
@@ -190,6 +200,27 @@
                             {% endif %}
                         </div>
                     </div>
+                </section>
+
+                <section class="profile-widget pre-animation" id="block-like-notifications">
+                    <i class="bi bi-heart fs-4 text-danger"></i>
+                    <div class="profile-widget-title fs-5">Лайки публичного избранного</div>
+
+                    {% if like_notifications %}
+                        <div class="d-flex flex-column gap-2">
+                            {% for note in like_notifications %}
+                                <div class="small">
+                                    <a href="{% url 'public_user_page' note.actor.username %}" class="text-decoration-none">
+                                        <strong>{{ note.actor.username }}</strong>
+                                    </a>
+                                    поставил(а) лайк вашему плейлисту
+                                    <span class="text-muted">({{ note.created_at|date:"d.m.Y H:i" }})</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="small text-muted">Пока нет лайков публичного плейлиста.</div>
+                    {% endif %}
                 </section>
 
                 <div class="text-center pt-3">

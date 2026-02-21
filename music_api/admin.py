@@ -3,7 +3,7 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.html import format_html_join, format_html
 
-from .models import Playlist
+from .models import Playlist, PlaylistLike, PlaylistLikeNotification
 
 admin.site.site_header = "RubySound Control Room"
 admin.site.site_title = "RubySound Admin"
@@ -132,3 +132,17 @@ class PlaylistAdmin(admin.ModelAdmin):
             'query': request.GET.get('q', '').strip(),
         }
         return TemplateResponse(request, 'admin/music_api/playlist/tracks_report.html', context)
+
+
+@admin.register(PlaylistLike)
+class PlaylistLikeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'playlist', 'user', 'created_at')
+    list_select_related = ('playlist', 'user')
+    search_fields = ('playlist__title', 'playlist__user__username', 'user__username')
+
+
+@admin.register(PlaylistLikeNotification)
+class PlaylistLikeNotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'recipient', 'actor', 'playlist', 'created_at')
+    list_select_related = ('recipient', 'actor', 'playlist')
+    search_fields = ('recipient__username', 'actor__username', 'playlist__title')

@@ -51,3 +51,41 @@ async def test_playlist_add_track_and_conflict(authorized_async_api_client, user
     assert second.status_code == 409
     assert len(playlist.tracks) == 1
     assert playlist.tracks[0] == {"name": "Numb", "artist": "Linkin Park"}
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_playlist_me_patch_updates_title(authorized_async_api_client, user):
+    response = await authorized_async_api_client.patch(
+        "/api/playlists/me/",
+        json={"title": "My Daily Mix"},
+    )
+
+    playlist = await sync_to_async(Playlist.objects.filter(user=user).order_by("created_at").first)()
+
+    assert response.status_code == 200
+    assert response.json()["detail"] == "Title updated."
+    assert response.json()["title"] == "My Daily Mix"
+    assert playlist is not None
+    assert playlist.title == "My Daily Mix"
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_playlist_me_patch_rejects_empty_title(authorized_async_api_client):
+    response = await authorized_async_api_client.patch(
+        "/api/playlists/me/",
+        json={"title": "   "},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Title is required."
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_playlist_me_patch_rejects_too_long_title(authorized_async_api_client):
+    response = await authorized_async_api_client.patch(
+        "/api/playlists/me/",
+        json={"title": "a" * 256},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Title is too long."

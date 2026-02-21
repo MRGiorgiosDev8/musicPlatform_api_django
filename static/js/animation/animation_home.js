@@ -26,6 +26,7 @@ const Animations = {
 
 document.addEventListener('trending:rendered', () => Animations.fadeUp('#trending-container .card-custom'));
 document.addEventListener('year2025:rendered', () => Animations.fadeUp('#year2025-container .card-year'));
+document.addEventListener('publicPlaylists:rendered', () => Animations.fadeUp('#public-playlists-dashboard .dashboard-card'));
 
 document.addEventListener('DOMContentLoaded', () => {
   Animations.animateHeader();
@@ -33,5 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     Animations.fadeUp('#trending-container .card-custom');
     Animations.fadeUp('#year2025-container .card-year');
+    Animations.fadeUp('#public-playlists-dashboard .dashboard-card');
   }, 200);
 });

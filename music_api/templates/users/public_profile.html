@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} - Public Playlist{% endblock %}
+
+{% block content %}
+<div class="container mt-md-3">
+    <nav aria-label="breadcrumb" class="mb-3 mt-3 ruby-breadcrumb pre-animation">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ profile_user.username }}</li>
+        </ol>
+    </nav>
+
+    <section class="profile-widget mb-4 pre-animation" id="public-card">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="profile-avatar-wrap flex-shrink-0" style="width: 82px; height: 82px; margin: 0;">
+                    {% if profile_user.avatar %}
+                        <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.username }}" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar-placeholder" style="font-size: 2rem;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="h4 mb-1">{{ profile_user.username }}</h1>
+                    <div class="small text-muted">{{ playlist.title }}</div>
+                    <div class="d-flex flex-wrap gap-2 mt-2 public-profile-stats">
+                        <span class="badge text-bg-light border">
+                            <i class="bi bi-heart-fill text-danger me-1"></i>
+                            <span id="public-profile-likes-stat">{{ likes_count }}</span>
+                        </span>
+                        <span class="badge text-bg-light border">
+                            <i class="bi bi-music-note-list text-danger me-1"></i> {{ tracks_count }}
+                        </span>
+                        <span class="badge text-bg-light border d-none d-md-inline-flex">
+                            <i class="bi bi-clock-history text-danger me-1"></i> Обновлено: {{ playlist.created_at|date:"d.m.Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_public_available %}
+                <div class="d-flex align-items-center gap-2"
+                     data-public-like-root
+                     data-public-username="{{ profile_user.username }}"
+                     data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
+                    {% if user.is_authenticated and user.username != profile_user.username %}
+                        <button type="button"
+                                class="btn btn-sm {% if liked_by_me %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                                id="public-playlist-like-btn"
+                                aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
+                            <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
+                            <span class="ms-1">Лайк</span>
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if not is_public_available %}
+        <div class="alert alert-secondary">Публичное избранное этого пользователя недоступно.</div>
+    {% else %}
+        <section id="public-playlist-root" class="mb-4">
+            <div class="d-none d-md-flex justify-content-end mb-3 pre-animation public-track-view-switch">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Track view mode">
+                    <button type="button" class="btn btn-outline-danger active" data-track-view="list">Список</button>
+                    <button type="button" class="btn btn-outline-danger" data-track-view="grid">Сетка</button>
+                </div>
+            </div>
+            {% if tracks %}
+                <ul class="track-list list-unstyled p-0 m-0">
+                    {% for track in tracks %}
+                        <li class="track-item-playlist pre-animation">
+                            <div class="track-playlist mb-3">
+                                <img
+                                    src="{{ track.image_url|default:'/static/images/default.svg' }}"
+                                    alt="{{ track.name|default:'Unknown track' }}"
+                                    class="track-image shadow-sm img-fluid"
+                                    loading="lazy">
+                                <div class="track-meta">
+                                    <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
+                                    <p class="track-artist">
+                                        <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
+                                            Артист: {{ track.artist|default:"Unknown artist" }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="track-player me-sm-2">
+                                    {% if track.url %}
+                                        <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
+                                            <source src="{{ track.url }}">
+                                        </audio>
+                                    {% else %}
+                                        <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
+                                            Превью недоступно
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-secondary mb-0">В публичном избранном пока нет треков.</div>
+            {% endif %}
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

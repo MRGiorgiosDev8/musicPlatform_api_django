@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const trackList = root.querySelector('.track-list');
     const sortControls = Array.from(document.querySelectorAll('[data-playlist-sort]'));
     const artistControls = Array.from(document.querySelectorAll('[data-playlist-artist-filter]'));
+    const titleInputs = Array.from(document.querySelectorAll('[data-playlist-title-input]'));
+    const titleSaveButtons = Array.from(document.querySelectorAll('[data-playlist-title-save]'));
     const countDisplays = Array.from(document.querySelectorAll('[data-playlist-count-display]'));
     const filterMetaBlocks = Array.from(document.querySelectorAll('[data-playlist-filter-meta]'));
     const pageSize = 6;
@@ -14,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         sortMode: sortControls[0]?.value || 'new',
         artistFilter: artistControls[0]?.value || 'all',
+        title: titleInputs[0]?.value?.trim() || 'Favorites',
     };
 
     const toastContainerId = 'playlist-toast-container';
@@ -120,6 +123,48 @@ document.addEventListener('DOMContentLoaded', () => {
         artistControls.forEach((control) => {
             control.value = state.artistFilter;
         });
+        titleInputs.forEach((input) => {
+            input.value = state.title;
+        });
+    };
+
+    const savePlaylistTitle = async () => {
+        const nextTitle = titleInputs[0]?.value?.trim() || '';
+        if (!nextTitle) {
+            showToast('Название не может быть пустым', true);
+            syncControlValues();
+            return;
+        }
+        if (nextTitle.length > 255) {
+            showToast('Слишком длинное название', true);
+            return;
+        }
+
+        titleSaveButtons.forEach((button) => { button.disabled = true; });
+        try {
+            const response = await fetch('/api/playlists/me/', {
+                method: 'PATCH',
+                credentials: 'same-origin',
+                headers: (typeof window.buildAuthHeaders === 'function')
+                    ? window.buildAuthHeaders(true, true)
+                    : { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: nextTitle }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed with status ${response.status}`);
+            }
+
+            const payload = await response.json().catch(() => ({}));
+            state.title = String(payload.title || nextTitle);
+            syncControlValues();
+            showToast('Название плейлиста обновлено');
+        } catch (error) {
+            showToast('Ошибка обновления названия', true);
+            syncControlValues();
+        } finally {
+            titleSaveButtons.forEach((button) => { button.disabled = false; });
+        }
     };
 
     const clearNoMatchesState = () => {
@@ -341,6 +386,23 @@ document.addEventListener('DOMContentLoaded', () => {
             resetStaggerAnimationState();
             markVisibleItemsAsAnimated();
         });
+    });
+
+    titleInputs.forEach((input) => {
+        input.addEventListener('input', () => {
+            titleInputs.forEach((other) => {
+                if (other !== input) other.value = input.value;
+            });
+        });
+        input.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            savePlaylistTitle();
+        });
+    });
+
+    titleSaveButtons.forEach((button) => {
+        button.addEventListener('click', savePlaylistTitle);
     });
 
     root.addEventListener('click', async (event) => {
