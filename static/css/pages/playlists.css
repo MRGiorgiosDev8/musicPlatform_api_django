@@ -68,14 +68,24 @@
     background: black;
 }
 
+.playlist-filter-offcanvas .form-control,
 .playlist-filter-offcanvas .form-select {
-    border: none;
-    box-shadow: var(--shadow-card);
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(255, 13, 0, 0.85);
+    box-shadow: none;
 }
 
+.playlist-filter-offcanvas .form-control:focus,
 .playlist-filter-offcanvas .form-select:focus {
-    border: none;
-    box-shadow: var(--shadow-card);
+    background: #fff;
+    color: #111;
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0 0 0.12rem rgba(255, 47, 47, 0.35);
+}
+
+.playlist-filter-offcanvas [data-playlist-title-save] {
+    color: #fff;
 }
 
 .playlist-filter-offcanvas .btn-close {
@@ -185,6 +195,12 @@
 }
 
 @media (min-width: 768px) {
+    #public-card {
+        width: min(100%, 920px);
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
     #public-playlist-root .track-list {
         margin-left: auto !important;
         margin-right: auto !important;

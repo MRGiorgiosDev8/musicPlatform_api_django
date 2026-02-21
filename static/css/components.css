@@ -57,6 +57,20 @@
     border: var(--border-light-white);
 }
 
+.dashboard-avatar {
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow-card);
+}
+
+.dashboard-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .track-item {
     padding: 14px;
     cursor: pointer;

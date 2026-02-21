@@ -28,19 +28,13 @@ const PublicPlaylistsDashboard = {
       cardBody.className = 'card-body d-flex gap-3 align-items-center';
 
       const avatar = document.createElement('div');
-      avatar.className = 'rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0';
-      avatar.style.width = '56px';
-      avatar.style.height = '56px';
-      avatar.style.overflow = 'hidden';
-      avatar.style.background = '#fff';
+      avatar.className = 'dashboard-avatar rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0';
 
       if (item.avatar_url) {
         const img = document.createElement('img');
         img.src = item.avatar_url;
         img.alt = item.username;
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
+        img.className = 'dashboard-avatar-img';
         avatar.appendChild(img);
       } else {
         avatar.innerHTML = '<i class="bi bi-person-fill text-danger"></i>';
