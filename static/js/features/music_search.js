@@ -48,7 +48,13 @@ const setupMusicSearch = () => {
   const navbarCollapse = document.getElementById("navbarNav");
   const navbarToggler = document.querySelector(".hamburger.hamburger--elastic");
   const resultsContainer = document.getElementById("searchResults");
+  const searchLoader = document.getElementById("searchLoader");
+  const searchBreadcrumb = document.getElementById("search-breadcrumb");
   if (!resultsContainer) return;
+
+  if (searchLoader && searchBreadcrumb) {
+    searchBreadcrumb.insertAdjacentElement("afterend", searchLoader);
+  }
 
   const listenersSortControls = Array.from(document.querySelectorAll("[data-search-listeners-sort]"));
   const groupByControls = Array.from(document.querySelectorAll("[data-search-group-by]"));
