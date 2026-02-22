@@ -7,6 +7,31 @@ let favoritesKeySet = new Set();
 
 const normalizeTrackValue = (value) => String(value || '').trim().toLowerCase();
 const getTrackKey = (trackName, artistName) => `${normalizeTrackValue(trackName)}::${normalizeTrackValue(artistName)}`;
+const isLikelyMobileTouchDevice = () => {
+    if (typeof navigator === 'undefined') {
+        return false;
+    }
+
+    const touchPoints = Number(navigator.maxTouchPoints || 0);
+    const ua = String(navigator.userAgent || '');
+    const mobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    return touchPoints > 0 || mobileUA;
+};
+
+function triggerHapticFeedback(pattern = 18) {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
+        return false;
+    }
+    if (!isLikelyMobileTouchDevice()) {
+        return false;
+    }
+
+    try {
+        return navigator.vibrate(pattern);
+    } catch {
+        return false;
+    }
+}
 
 function getCSRFToken() {
     const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -158,6 +183,7 @@ function createFavoriteButton(trackName, artistName, isFavorite = false) {
         if (isPending) {
             return;
         }
+        triggerHapticFeedback();
         isPending = true;
         button.disabled = true;
 
@@ -212,6 +238,7 @@ if (typeof window !== 'undefined') {
     window.getJWTToken = getJWTToken;
     window.buildAuthHeaders = buildAuthHeaders;
     window.resetFavoritesCache = resetFavoritesCache;
+    window.triggerHapticFeedback = triggerHapticFeedback;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -223,5 +250,6 @@ if (typeof module !== 'undefined' && module.exports) {
         getJWTToken,
         buildAuthHeaders,
         resetFavoritesCache,
+        triggerHapticFeedback,
     };
 }

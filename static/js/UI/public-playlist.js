@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let pending = false;
     likeButton.addEventListener('click', async () => {
       if (pending) return;
+      if (typeof window.triggerHapticFeedback === 'function') {
+        window.triggerHapticFeedback();
+      }
       pending = true;
       likeButton.disabled = true;
 

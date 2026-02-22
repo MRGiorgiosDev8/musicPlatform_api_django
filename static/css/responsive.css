@@ -57,6 +57,11 @@
     .small-icon {
         font-size: 1.7rem;
     }
+
+    .search-container {
+        max-width: 800px;
+        padding: 0;
+    }
 }
 
 @media (min-width: 576px) and (max-width: 767.98px) {
@@ -70,7 +75,7 @@
 }
 
 @media (max-width: 767.98px) {
-    #year2025-container.row-cols-2 > * {
+    #year2025-container.row-cols-2>* {
         width: 100%;
     }
 

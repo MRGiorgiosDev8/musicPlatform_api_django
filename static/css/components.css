@@ -80,10 +80,6 @@
     margin: 40px 0 4px 0;
 }
 
-.search-container {
-    margin-top: -0.8rem;
-}
-
 .search-results-summary {
     padding: 0.45rem 0.75rem;
     border-radius: 10px;
@@ -372,7 +368,13 @@
 }
 
 .ruby-breadcrumb.search-breadcrumb-center {
-    text-align: center;
+    text-align: left;
+}
+
+@media (max-width: 767.98px) {
+    .ruby-breadcrumb.search-breadcrumb-center {
+        text-align: center;
+    }
 }
 
 @keyframes rubyBreadcrumbSweep {

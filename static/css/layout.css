@@ -56,12 +56,6 @@ main {
     letter-spacing: 1px;
 }
 
-.search-container {
-    max-width: 800px;
-    margin: 80px auto 7px auto;
-    padding: 20px;
-}
-
 .info-project {
     background-color: var(--color-card-bg-light);
     border-radius: var(--border-radius-card);
@@ -90,4 +84,9 @@ main {
 
 .note-icon.right {
     right: 11vh;
+}
+
+.search-container {
+    max-width: 800px;
+    padding: 8px;
 }
