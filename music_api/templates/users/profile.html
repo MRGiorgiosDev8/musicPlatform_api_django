@@ -49,10 +49,13 @@
                             Изменить аватар
                         </span>
                     </label>
+                    {% if form.avatar.errors %}
+                        <div class="text-danger small mt-2">{{ form.avatar.errors|join:", " }}</div>
+                    {% endif %}
 
                     {% if request.user.is_public_favorites %}
                         <a href="{% url 'public_user_page' request.user.username %}"
-                           class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-2 text-decoration-none">
+                           class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-3 text-decoration-none">
                             <i class="bi bi-box-arrow-up-right"></i>
                             <span class="profile-avatar-edit-text fw-normal text-dark">
                                 Публичная страница

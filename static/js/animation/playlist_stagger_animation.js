@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const root = document.getElementById("playlists-root");
-  if (!root) return;
-  const filterPanel = document.getElementById("playlist-filter-panel");
+  const filterPanel = document.querySelector("#playlist-filter-panel, #search-filter-panel");
   const mobileFilterTrigger = document.querySelector(".playlist-filter-mobile-trigger");
 
   const showWithoutAnimation = () => {
@@ -13,10 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
       mobileFilterTrigger.style.opacity = "1";
       mobileFilterTrigger.style.transform = "none";
     }
-    root.querySelectorAll(".track-item-playlist").forEach((item) => {
-      item.style.opacity = "1";
-      item.style.transform = "none";
-    });
+    if (root) {
+      root.querySelectorAll(".track-item-playlist").forEach((item) => {
+        item.style.opacity = "1";
+        item.style.transform = "none";
+      });
+    }
   };
 
   if (typeof gsap === "undefined") {
@@ -24,9 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const getVisibleUnanimatedItems = () =>
-    Array.from(root.querySelectorAll(".track-item-playlist"))
+  const getVisibleUnanimatedItems = () => {
+    if (!root) return [];
+    return Array.from(root.querySelectorAll(".track-item-playlist"))
       .filter((item) => item.style.display !== "none" && !item.dataset.staggerAnimated);
+  };
 
   const animateVisibleItems = () => {
     const items = getVisibleUnanimatedItems();
@@ -85,9 +88,11 @@ document.addEventListener("DOMContentLoaded", () => {
     animateVisibleItems();
   });
 
-  root.addEventListener("click", (event) => {
-    const loadMoreButton = event.target.closest(".btn-show-more");
-    if (!loadMoreButton) return;
-    requestAnimationFrame(animateVisibleItems);
-  });
+  if (root) {
+    root.addEventListener("click", (event) => {
+      const loadMoreButton = event.target.closest(".btn-show-more");
+      if (!loadMoreButton) return;
+      requestAnimationFrame(animateVisibleItems);
+    });
+  }
 });

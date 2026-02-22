@@ -84,6 +84,28 @@
     margin-top: -0.8rem;
 }
 
+.search-results-summary {
+    padding: 0.45rem 0.75rem;
+    border-radius: 10px;
+    background: var(--color-card-bg-light);
+    border: var(--border-light-white);
+    box-shadow: var(--shadow-card);
+}
+
+.search-results-summary-meta {
+    min-width: 0;
+    word-break: break-word;
+}
+
+.search-group-title {
+    list-style: none;
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0.15rem 0 -0.35rem;
+    padding-left: 0.1rem;
+}
+
 .track-image {
     border-radius: 7px;
     width: 88px;
@@ -323,6 +345,23 @@
     color: var(--color-primary-dark);
 }
 
+.ruby-breadcrumb.home-anchor-nav .breadcrumb {
+    --bs-breadcrumb-divider: "|";
+}
+
+.ruby-breadcrumb.home-anchor-nav .breadcrumb-item+.breadcrumb-item::before {
+    content: "|";
+    float: none;
+    display: inline-block;
+    padding: 0;
+    margin: 0 0.55rem;
+    line-height: 1;
+}
+
+.ruby-breadcrumb.home-anchor-nav .breadcrumb-item+.breadcrumb-item {
+    padding-left: 0;
+}
+
 .ruby-breadcrumb .breadcrumb-item a {
     text-decoration: none;
     transition: color 0.2s ease, text-shadow 0.25s ease;
@@ -330,6 +369,10 @@
 
 .ruby-breadcrumb .breadcrumb-item a:hover {
     color: rgb(182, 7, 7);
+}
+
+.ruby-breadcrumb.search-breadcrumb-center {
+    text-align: center;
 }
 
 @keyframes rubyBreadcrumbSweep {

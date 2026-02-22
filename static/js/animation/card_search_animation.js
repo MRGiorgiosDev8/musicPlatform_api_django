@@ -40,7 +40,7 @@
 
         const queue = gsap.timeline({ delay: 0.25 });
 
-        const initialItems = container.querySelectorAll('.track-item');
+        const initialItems = container.querySelectorAll('.track-item, .track-item-playlist');
         if (initialItems.length) {
           this.processItems(initialItems, queue);
         }
@@ -50,9 +50,9 @@
             m.addedNodes.forEach(node => {
               if (node.nodeType !== 1) return;
 
-              const targets = node.classList.contains('track-item')
+              const targets = node.classList.contains('track-item') || node.classList.contains('track-item-playlist')
                 ? [node]
-                : node.querySelectorAll?.('.track-item');
+                : node.querySelectorAll?.('.track-item, .track-item-playlist');
 
               if (targets && targets.length) {
                 this.processItems(targets, queue);

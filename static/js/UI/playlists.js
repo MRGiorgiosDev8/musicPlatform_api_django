@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const artistControls = Array.from(document.querySelectorAll('[data-playlist-artist-filter]'));
     const titleInputs = Array.from(document.querySelectorAll('[data-playlist-title-input]'));
     const titleSaveButtons = Array.from(document.querySelectorAll('[data-playlist-title-save]'));
+    const resetFilterButtons = Array.from(document.querySelectorAll('[data-playlist-reset-filters]'));
     const countDisplays = Array.from(document.querySelectorAll('[data-playlist-count-display]'));
     const filterMetaBlocks = Array.from(document.querySelectorAll('[data-playlist-filter-meta]'));
     const pageSize = 6;
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const showToast = (message, isError = false) => {
         const container = getToastContainer();
         const toastEl = document.createElement('div');
-        toastEl.className = `toast align-items-center text-white border-0 ${isError ? 'bg-danger' : 'bg-success'}`;
+        toastEl.className = `toast align-items-center text-white border-0 ${isError ? 'bg-danger' : 'bg-danger'}`;
         toastEl.setAttribute('role', 'alert');
         toastEl.setAttribute('aria-live', 'assertive');
         toastEl.setAttribute('aria-atomic', 'true');
@@ -385,6 +386,19 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTrackPagination({ animate: false });
             resetStaggerAnimationState();
             markVisibleItemsAsAnimated();
+        });
+    });
+
+    resetFilterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            state.sortMode = 'new';
+            state.artistFilter = 'all';
+            syncControlValues();
+            visibleTracksCount = pageSize;
+            renderTrackPagination({ animate: false });
+            resetStaggerAnimationState();
+            markVisibleItemsAsAnimated();
+            showToast('Фильтры сброшены');
         });
     });
 
