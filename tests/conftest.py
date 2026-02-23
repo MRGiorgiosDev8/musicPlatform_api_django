@@ -46,9 +46,8 @@ def user(db):
     )
     # Создаем плейлист для пользователя
     from music_api.models import Playlist
-    Playlist.objects.create(
-        user=user, title="Test Playlist", tracks=[]
-    )
+
+    Playlist.objects.create(user=user, title="Test Playlist", tracks=[])
     return user
 
 

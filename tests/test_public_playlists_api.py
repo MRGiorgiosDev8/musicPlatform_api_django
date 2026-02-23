@@ -26,9 +26,8 @@ def public_owner(db):
     )
     # Создаем плейлист для владельца
     from music_api.models import Playlist
-    Playlist.objects.create(
-        user=user, title="Public Playlist", tracks=[]
-    )
+
+    Playlist.objects.create(user=user, title="Public Playlist", tracks=[])
     return user
 
 
@@ -61,9 +60,9 @@ async def test_public_playlist_detail_404_for_private_user(
 async def test_public_playlist_detail_returns_liked_by_me(
     async_api_client, public_owner, liker_user
 ):
-    playlist = await sync_to_async(
-        public_owner.playlists.get
-    )(title="Favorites")  # Используем Favorites, который возвращает API
+    playlist = await sync_to_async(public_owner.playlists.get)(
+        title="Favorites"
+    )  # Используем Favorites, который возвращает API
     await sync_to_async(PlaylistLike.objects.create)(playlist=playlist, user=liker_user)
 
     response = await async_api_client.get(
@@ -143,9 +142,7 @@ async def test_public_playlist_trending_orders_by_likes(
         is_public_favorites=True,
     )
 
-    first_playlist = await sync_to_async(
-        public_owner.playlists.first
-    )()
+    first_playlist = await sync_to_async(public_owner.playlists.first)()
     # second_playlist уже создан выше
 
     await sync_to_async(PlaylistLike.objects.create)(

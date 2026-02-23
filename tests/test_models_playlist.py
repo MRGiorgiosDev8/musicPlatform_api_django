@@ -67,9 +67,7 @@ def test_playlist_tracks_default_list_is_not_shared_between_instances(user):
 
 
 def test_playlist_like_unique_constraint(user):
-    playlist = Playlist.objects.create(
-        user=user, title="Test Playlist", tracks=[]
-    )
+    playlist = Playlist.objects.create(user=user, title="Test Playlist", tracks=[])
     liker = get_user_model().objects.create_user(
         username="liker_unique",
         email="liker_unique@example.com",
