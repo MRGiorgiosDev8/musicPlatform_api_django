@@ -58,8 +58,8 @@
         font-size: 1.7rem;
     }
 
-    .search-container {
-        max-width: 800px;
+    .container-small {
+        max-width: 100%;
         padding: 0;
     }
 }

@@ -87,6 +87,5 @@ main {
 }
 
 .search-container {
-    max-width: 800px;
-    padding: 8px;
+    padding: 10px;
 }

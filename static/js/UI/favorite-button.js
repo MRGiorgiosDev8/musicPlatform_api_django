@@ -19,18 +19,36 @@ const isLikelyMobileTouchDevice = () => {
 };
 
 function triggerHapticFeedback(pattern = 18) {
-    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
-        return false;
-    }
     if (!isLikelyMobileTouchDevice()) {
         return false;
     }
 
-    try {
-        return navigator.vibrate(pattern);
-    } catch {
-        return false;
+    if (isIOSDevice()) {
+        try {
+            if (window.TapticEngine) {
+                window.TapticEngine.impact({ style: 'light' });
+                return true;
+            }
+            return false;
+        } catch {
+            return false;
+        }
     }
+
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        try {
+            return navigator.vibrate(pattern);
+        } catch {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 function getCSRFToken() {
@@ -239,6 +257,7 @@ if (typeof window !== 'undefined') {
     window.buildAuthHeaders = buildAuthHeaders;
     window.resetFavoritesCache = resetFavoritesCache;
     window.triggerHapticFeedback = triggerHapticFeedback;
+    window.isIOSDevice = isIOSDevice;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -251,5 +270,6 @@ if (typeof module !== 'undefined' && module.exports) {
         buildAuthHeaders,
         resetFavoritesCache,
         triggerHapticFeedback,
+        isIOSDevice,
     };
 }

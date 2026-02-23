@@ -15,6 +15,7 @@
     border-radius: 14px;
     background: var(--color-card-bg-light);
     box-shadow: var(--shadow-card);
+    border: var(--border-light-white);
 }
 
 .playlist-filter-title {
@@ -50,7 +51,8 @@
 }
 
 .playlist-filter-offcanvas {
-    height: min(78vh, 680px);
+    height: 65vh !important;
+    max-height: 500px !important;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     background: black;
@@ -136,6 +138,7 @@
     background: var(--color-card-bg-light);
     box-shadow: var(--shadow-card);
     overflow: hidden;
+    border: var(--border-light-white);
 }
 
 .track-playlist .track-image {

@@ -183,8 +183,22 @@ const setupMusicSearch = () => {
     const meta = document.createElement("div");
     meta.className = "search-results-summary-meta small text-dark";
     const queryLabel = currentQuery ? `"${escapeHtml(currentQuery)}"` : "—";
-    const totalLabel = allTracks.length !== filteredCount ? ` из ${allTracks.length}` : "";
-    meta.innerHTML = `Найдено: <strong>${filteredCount}${totalLabel}</strong> · Запрос: <strong>${queryLabel}</strong>`;
+    
+    const searchIcon = document.createElement("i");
+    searchIcon.className = "bi bi-search text-danger me-2";
+    searchIcon.style.fontSize = "0.875rem";
+    
+    const labelText = document.createElement("span");
+    labelText.textContent = "Запрос: ";
+    labelText.className = "text-dark";
+    
+    const queryText = document.createElement("strong");
+    queryText.textContent = queryLabel;
+    queryText.className = "text-danger";
+    
+    meta.appendChild(searchIcon);
+    meta.appendChild(labelText);
+    meta.appendChild(queryText);
 
     const clearButton = document.createElement("button");
     clearButton.type = "button";

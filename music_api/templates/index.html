@@ -7,18 +7,9 @@
 
 {% block content %}
 <div class="container mt-md-3">
-    <nav id="search-breadcrumb" aria-label="breadcrumb" class="mb-3 mt-3 ruby-breadcrumb search-breadcrumb-center pre-animation">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-                <a href="{% url 'home' %}">Главная</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">Поиск</li>
-        </ol>
-    </nav>
-
     <div class="d-lg-none mb-3 playlist-mobile-filter-wrap search-mobile-filter-wrap">
         <button
-            class="btn btn-outline-danger btn-sm playlist-filter-mobile-trigger pre-animation"
+            class="btn btn-outline-danger btn-sm playlist-filter-mobile-trigger pre-animation mx-auto mt-2 d-block"
             type="button"
             data-bs-toggle="offcanvas"
             data-bs-target="#searchFilterOffcanvas"
@@ -31,7 +22,9 @@
     <div class="row g-3 g-lg-4 align-items-start playlist-layout">
         <aside class="col-12 col-lg-4 col-xl-3 d-none d-lg-block">
             <section class="playlist-filter-card mt-2 pre-animation" id="search-filter-panel">
-                <h3 class="playlist-filter-title mb-3">Фильтр поиска</h3>
+                <h3 class="playlist-filter-title mb-4">
+    <i class="bi bi-funnel me-2 text-danger"></i>Фильтр поиска
+</h3>
 
                 <div class="mb-3">
                     <label class="form-label mb-1" for="search-listeners-sort">Сортировка прослушиваний</label>
@@ -41,6 +34,8 @@
                         <option value="asc">Меньше прослушиваний</option>
                     </select>
                 </div>
+
+                <hr class="text-muted my-3">
 
                 <div class="mb-3">
                     <label class="form-label mb-1" for="search-group-by">Группировка</label>
@@ -57,8 +52,10 @@
                     </select>
                 </div>
 
+                <hr class="text-muted my-3">
+
                 <div class="d-flex gap-2 mb-2">
-                    <button type="button" class="btn btn-sm btn-outline-danger" data-search-reset-filters>
+                    <button type="button" class="btn btn-sm btn-outline-danger mx-auto d-block" data-search-reset-filters>
                         Очистить фильтры
                     </button>
                 </div>
@@ -66,7 +63,9 @@
         </aside>
 
         <section class="col-12 col-lg-8 col-xl-9"> 
-            <div id="searchResults" class="search-container"></div>
+            <div class="container container-small">
+                <div id="searchResults" class="search-container"></div>
+            </div>
         </section>
     </div>
 </div>
@@ -78,8 +77,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div class="mb-3">
-            <label class="form-label mb-1" for="search-listeners-sort-mobile">Сортировка прослушиваний</label>
+        <div class="mb-5">
+            <label class="form-label mb-1" for="search-listeners-sort-mobile">
+                <i class="bi bi-sort-down me-2 text-danger"></i>Сортировка прослушиваний
+            </label>
             <select class="form-select form-select-sm" id="search-listeners-sort-mobile" data-search-listeners-sort>
                 <option value="default">Без сортировки</option>
                 <option value="desc">Больше прослушиваний</option>
@@ -87,24 +88,28 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label mb-1" for="search-group-by-mobile">Группировка</label>
+        <div class="mb-5">
+            <label class="form-label mb-1" for="search-group-by-mobile">
+                <i class="bi bi-collection me-2 text-danger"></i>Группировка
+            </label>
             <select class="form-select form-select-sm" id="search-group-by-mobile" data-search-group-by>
                 <option value="none">Без группировки</option>
                 <option value="artist">По артисту</option>
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label mb-1" for="search-artist-filter-mobile">Артист</label>
+        <div class="mb-5">
+            <label class="form-label mb-1" for="search-artist-filter-mobile">
+                <i class="bi bi-person me-2 text-danger"></i>Артист
+            </label>
             <select class="form-select form-select-sm" id="search-artist-filter-mobile" data-search-artist-filter>
                 <option value="all">Все артисты</option>
             </select>
         </div>
 
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-outline-danger" data-search-reset-filters>
-                Очистить фильтры
+            <button type="button" class="btn btn-sm btn-outline-danger mx-auto d-block" data-search-reset-filters>
+                <i class="bi bi-arrow-clockwise me-1"></i>Очистить фильтры
             </button>
         </div>
     </div>

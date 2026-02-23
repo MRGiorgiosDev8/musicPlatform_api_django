@@ -312,6 +312,7 @@
     border-radius: 999px;
     background: var(--color-card-bg-light);
     box-shadow: var(--shadow-card);
+    border: var(--border-light-white);
     position: relative;
     overflow: hidden;
 }
