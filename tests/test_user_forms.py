@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 
 from users.forms import SignupForm
 
-
 pytestmark = pytest.mark.django_db
 
 

@@ -12,13 +12,13 @@ from .views import (
 )
 
 urlpatterns = [
-    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('users/me/', UserMeAPIView.as_view(), name='user_me'),
-    path('login/', CustomLoginView.as_view(), name='login'),
-    path('signup/', signup_view, name='signup'),
-    path('logout/', logout_view, name='logout'),
-    path('profile/', profile_view, name='profile'),
-    path('playlists/', playlists_page_view, name='playlists'),
-    path('u/<str:username>/', public_user_page_view, name='public_user_page'),
+    path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("users/me/", UserMeAPIView.as_view(), name="user_me"),
+    path("login/", CustomLoginView.as_view(), name="login"),
+    path("signup/", signup_view, name="signup"),
+    path("logout/", logout_view, name="logout"),
+    path("profile/", profile_view, name="profile"),
+    path("playlists/", playlists_page_view, name="playlists"),
+    path("u/<str:username>/", public_user_page_view, name="public_user_page"),
 ]

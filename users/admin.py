@@ -8,16 +8,16 @@ from .models import User
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         (
-            'Profile',
+            "Profile",
             {
-                'fields': (
-                    'avatar',
-                    'banner',
-                    'bio',
-                    'gender',
-                    'country',
-                    'birth_date',
-                    'is_public_favorites',
+                "fields": (
+                    "avatar",
+                    "banner",
+                    "bio",
+                    "gender",
+                    "country",
+                    "birth_date",
+                    "is_public_favorites",
                 )
             },
         ),
@@ -25,24 +25,24 @@ class CustomUserAdmin(UserAdmin):
 
     add_fieldsets = UserAdmin.add_fieldsets + (
         (
-            'Profile',
+            "Profile",
             {
-                'fields': (
-                    'avatar',
-                    'banner',
-                    'bio',
-                    'gender',
-                    'country',
-                    'birth_date',
-                    'is_public_favorites',
+                "fields": (
+                    "avatar",
+                    "banner",
+                    "bio",
+                    "gender",
+                    "country",
+                    "birth_date",
+                    "is_public_favorites",
                 )
             },
         ),
     )
 
     list_display = UserAdmin.list_display + (
-        'gender',
-        'country',
-        'birth_date',
-        'is_public_favorites',
+        "gender",
+        "country",
+        "birth_date",
+        "is_public_favorites",
     )

@@ -3,7 +3,6 @@ import pytest
 from music_api.views.artists_async import LASTFM_CHART_LIMIT
 from music_api.views.tracks_async import LASTFM_BATCH_LIMIT, YearChartAPIView
 
-
 pytestmark = [pytest.mark.asyncio, pytest.mark.django_db(transaction=True)]
 
 
@@ -15,7 +14,9 @@ async def test_track_search_requires_query(async_api_client):
 
 
 async def test_year_chart_rejects_bad_limit(async_api_client):
-    response = await async_api_client.get(f"/music_api/year-chart/?limit={LASTFM_BATCH_LIMIT + 1}")
+    response = await async_api_client.get(
+        f"/music_api/year-chart/?limit={LASTFM_BATCH_LIMIT + 1}"
+    )
 
     assert response.status_code == 400
     assert "Limit must be" in response.json()["error"]
@@ -52,7 +53,9 @@ async def test_year_chart_uses_cache_on_second_request(async_api_client, monkeyp
 
 
 async def test_trending_rejects_bad_limit(async_api_client):
-    response = await async_api_client.get(f"/music_api/trending/?limit={LASTFM_CHART_LIMIT + 1}")
+    response = await async_api_client.get(
+        f"/music_api/trending/?limit={LASTFM_CHART_LIMIT + 1}"
+    )
 
     assert response.status_code == 400
     assert "Limit must be" in response.json()["error"]

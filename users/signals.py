@@ -12,8 +12,8 @@ def create_favorites_playlist(sender, instance, created, **kwargs):
     if created:
         Playlist.objects.get_or_create(
             user=instance,
-            title='Favorites',
-            defaults={'tracks': []},
+            title="Favorites",
+            defaults={"tracks": []},
         )
 
 

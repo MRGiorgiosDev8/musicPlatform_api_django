@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0004_alter_user_gender'),
+        ("users", "0004_alter_user_gender"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='avatar',
-            field=models.ImageField(blank=True, max_length=255, null=True, upload_to='avatars/'),
+            model_name="user",
+            name="avatar",
+            field=models.ImageField(
+                blank=True, max_length=255, null=True, upload_to="avatars/"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='banner',
-            field=models.ImageField(blank=True, max_length=255, null=True, upload_to='banners/'),
+            model_name="user",
+            name="banner",
+            field=models.ImageField(
+                blank=True, max_length=255, null=True, upload_to="banners/"
+            ),
         ),
     ]

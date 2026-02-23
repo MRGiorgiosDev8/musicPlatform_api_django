@@ -11,9 +11,9 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-if os.environ.get('USE_DOCKER') == 'true':
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_project.settings.prod')
+if os.environ.get("USE_DOCKER") == "true":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "music_project.settings.prod")
 else:
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music_project.settings.dev')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "music_project.settings.dev")
 
 application = get_asgi_application()

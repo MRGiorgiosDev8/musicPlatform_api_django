@@ -3,7 +3,6 @@ import respx
 
 from music_api.views.services_async import _get_itunes_batch_async
 
-
 pytestmark = [pytest.mark.asyncio, pytest.mark.django_db(transaction=True)]
 
 

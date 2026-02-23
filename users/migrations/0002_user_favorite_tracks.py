@@ -6,14 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('music_api', '0002_track'),
-        ('users', '0001_initial'),
+        ("music_api", "0002_track"),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='favorite_tracks',
-            field=models.ManyToManyField(blank=True, related_name='favorited_by', to='music_api.track'),
+            model_name="user",
+            name="favorite_tracks",
+            field=models.ManyToManyField(
+                blank=True, related_name="favorited_by", to="music_api.track"
+            ),
         ),
     ]

@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0003_remove_user_favorite_tracks_alter_user_gender'),
+        ("users", "0003_remove_user_favorite_tracks_alter_user_gender"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='gender',
-            field=models.CharField(blank=True, choices=[('M', 'Мужской'), ('F', 'Женский')], max_length=1),
+            model_name="user",
+            name="gender",
+            field=models.CharField(
+                blank=True, choices=[("M", "Мужской"), ("F", "Женский")], max_length=1
+            ),
         ),
     ]

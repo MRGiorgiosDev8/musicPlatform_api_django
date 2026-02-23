@@ -5,23 +5,20 @@ from django.db import IntegrityError
 
 from music_api.models import Playlist, PlaylistLike, PlaylistLikeNotification
 
-
 pytestmark = pytest.mark.django_db
 
 
 def test_playlist_belongs_to_user_and_available_via_related_name(user):
-    assert user.playlists.count() == 1
-    auto_playlist = user.playlists.first()
-
+    assert user.playlists.count() == 2
+    auto_playlist = user.playlists.get(title="Favorites")
     manual_playlist = Playlist.objects.create(
-        user=user,
-        title="Custom Playlist",
-        tracks=[]
+        user=user, title="Custom Playlist", tracks=[]
     )
 
-    assert user.playlists.count() == 2
+    assert user.playlists.count() == 3
     assert manual_playlist.user_id == user.id
     assert manual_playlist in user.playlists.all()
+    assert auto_playlist in user.playlists.all()
 
 
 def test_playlist_is_deleted_when_user_is_deleted(user):
@@ -70,7 +67,9 @@ def test_playlist_tracks_default_list_is_not_shared_between_instances(user):
 
 
 def test_playlist_like_unique_constraint(user):
-    playlist = user.playlists.order_by("created_at").first()
+    playlist = Playlist.objects.create(
+        user=user, title="Test Playlist", tracks=[]
+    )
     liker = get_user_model().objects.create_user(
         username="liker_unique",
         email="liker_unique@example.com",
@@ -84,30 +83,29 @@ def test_playlist_like_unique_constraint(user):
 
 
 def test_playlist_like_signal_creates_notification_for_owner(user):
-    playlist = user.playlists.order_by("created_at").first()
+    playlist = user.playlists.get(title="Favorites")
     liker = get_user_model().objects.create_user(
-        username="liker_notify",
-        email="liker_notify@example.com",
+        username="liker_signal",
+        email="liker_signal@example.com",
         password="test-pass-123",
     )
 
     PlaylistLike.objects.create(playlist=playlist, user=liker)
 
-    notification = PlaylistLikeNotification.objects.filter(
-        recipient=user,
-        actor=liker,
-        playlist=playlist,
-    ).first()
-    assert notification is not None
+    notification = PlaylistLikeNotification.objects.get()
+    assert notification.playlist == playlist
+    assert notification.actor == liker
+    assert notification.recipient == user
 
 
 def test_playlist_like_signal_skips_notification_for_self_like(user):
-    playlist = user.playlists.order_by("created_at").first()
+    playlist = user.playlists.get(title="Favorites")
 
     PlaylistLike.objects.create(playlist=playlist, user=user)
 
-    assert PlaylistLikeNotification.objects.filter(
-        recipient=user,
-        actor=user,
-        playlist=playlist,
-    ).count() == 0
+    assert (
+        PlaylistLikeNotification.objects.filter(
+            recipient=user,
+        ).count()
+        == 0
+    )

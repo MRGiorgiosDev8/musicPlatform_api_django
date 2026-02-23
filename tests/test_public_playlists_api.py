@@ -7,7 +7,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from music_api.models import Playlist, PlaylistLike
 
-
 pytestmark = [pytest.mark.asyncio, pytest.mark.django_db(transaction=True)]
 
 
@@ -19,12 +18,18 @@ def _bearer(user):
 def public_owner(db):
     User = get_user_model()
     suffix = uuid.uuid4().hex[:8]
-    return User.objects.create_user(
-        username=f"owner_{suffix}",
-        email=f"owner_{suffix}@example.com",
+    user = User.objects.create_user(
+        username=f"public_owner_{suffix}",
+        email=f"public_owner_{suffix}@example.com",
         password="owner-pass-123",
         is_public_favorites=True,
     )
+    # Создаем плейлист для владельца
+    from music_api.models import Playlist
+    Playlist.objects.create(
+        user=user, title="Public Playlist", tracks=[]
+    )
+    return user
 
 
 @pytest.fixture
@@ -39,18 +44,26 @@ def liker_user(db):
     )
 
 
-async def test_public_playlist_detail_404_for_private_user(async_api_client, public_owner):
+async def test_public_playlist_detail_404_for_private_user(
+    async_api_client, public_owner
+):
     public_owner.is_public_favorites = False
     await sync_to_async(public_owner.save)(update_fields=["is_public_favorites"])
 
-    response = await async_api_client.get(f"/api/playlists/public/{public_owner.username}/")
+    response = await async_api_client.get(
+        f"/api/playlists/public/{public_owner.username}/"
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Public playlist not found."
 
 
-async def test_public_playlist_detail_returns_liked_by_me(async_api_client, public_owner, liker_user):
-    playlist = await sync_to_async(Playlist.objects.filter(user=public_owner).order_by("created_at").first)()
+async def test_public_playlist_detail_returns_liked_by_me(
+    async_api_client, public_owner, liker_user
+):
+    playlist = await sync_to_async(
+        public_owner.playlists.get
+    )(title="Favorites")  # Используем Favorites, который возвращает API
     await sync_to_async(PlaylistLike.objects.create)(playlist=playlist, user=liker_user)
 
     response = await async_api_client.get(
@@ -65,8 +78,12 @@ async def test_public_playlist_detail_returns_liked_by_me(async_api_client, publ
     assert payload["playlist"]["liked_by_me"] is True
 
 
-async def test_public_playlist_like_toggle_flow(async_api_client, public_owner, liker_user):
-    unauth_response = await async_api_client.post(f"/api/playlists/public/{public_owner.username}/like/")
+async def test_public_playlist_like_toggle_flow(
+    async_api_client, public_owner, liker_user
+):
+    unauth_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/like/"
+    )
     assert unauth_response.status_code == 401
 
     like_response = await async_api_client.post(
@@ -104,7 +121,9 @@ async def test_public_playlist_trending_rejects_bad_limit(async_api_client):
     assert response.json()["detail"] == "Limit must be 1-30."
 
 
-async def test_public_playlist_trending_orders_by_likes(async_api_client, public_owner, liker_user):
+async def test_public_playlist_trending_orders_by_likes(
+    async_api_client, public_owner, liker_user
+):
     User = get_user_model()
     suffix = uuid.uuid4().hex[:8]
     second_owner = await sync_to_async(User.objects.create_user)(
@@ -113,6 +132,10 @@ async def test_public_playlist_trending_orders_by_likes(async_api_client, public
         password="owner2-pass-123",
         is_public_favorites=True,
     )
+    # Создаем плейлист для второго владельца
+    second_playlist = await sync_to_async(Playlist.objects.create)(
+        user=second_owner, title="Second Playlist", tracks=[]
+    )
     extra_liker = await sync_to_async(User.objects.create_user)(
         username=f"liker2_{suffix}",
         email=f"liker2_{suffix}@example.com",
@@ -120,12 +143,20 @@ async def test_public_playlist_trending_orders_by_likes(async_api_client, public
         is_public_favorites=True,
     )
 
-    first_playlist = await sync_to_async(Playlist.objects.filter(user=public_owner).order_by("created_at").first)()
-    second_playlist = await sync_to_async(Playlist.objects.filter(user=second_owner).order_by("created_at").first)()
+    first_playlist = await sync_to_async(
+        public_owner.playlists.first
+    )()
+    # second_playlist уже создан выше
 
-    await sync_to_async(PlaylistLike.objects.create)(playlist=first_playlist, user=liker_user)
-    await sync_to_async(PlaylistLike.objects.create)(playlist=first_playlist, user=extra_liker)
-    await sync_to_async(PlaylistLike.objects.create)(playlist=second_playlist, user=liker_user)
+    await sync_to_async(PlaylistLike.objects.create)(
+        playlist=first_playlist, user=liker_user
+    )
+    await sync_to_async(PlaylistLike.objects.create)(
+        playlist=first_playlist, user=extra_liker
+    )
+    await sync_to_async(PlaylistLike.objects.create)(
+        playlist=second_playlist, user=liker_user
+    )
 
     response = await async_api_client.get("/api/playlists/public/trending/?limit=2")
     payload = response.json()

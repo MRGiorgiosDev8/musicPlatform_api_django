@@ -3,7 +3,6 @@ from django.test import Client
 from django.middleware.csrf import get_token
 from users.forms import SignupForm
 
-
 pytestmark = [pytest.mark.django_db(transaction=True)]
 
 
@@ -33,6 +32,7 @@ def test_csrf_protection_blocks_session_post_without_csrf(user):
 
     assert response.status_code == 403
 
+
 def test_csrf_protection_allows_session_post_with_csrf(user):
     client = Client(enforce_csrf_checks=True)
     client.force_login(user)
@@ -46,7 +46,7 @@ def test_csrf_protection_allows_session_post_with_csrf(user):
         data='{"name":"Numb","artist":"Linkin Park"}',
         content_type="application/json",
         HTTP_X_CSRFTOKEN=csrf_token,
-        HTTP_REFERER="http://testserver/login/"
+        HTTP_REFERER="http://testserver/login/",
     )
 
     if response.status_code != 201:
@@ -70,7 +70,9 @@ async def test_token_endpoint_rejects_basic_sql_injection(async_api_client):
 
 
 @pytest.mark.asyncio
-async def test_playlist_add_track_validates_required_fields(authorized_async_api_client):
+async def test_playlist_add_track_validates_required_fields(
+    authorized_async_api_client,
+):
     response = await authorized_async_api_client.post(
         "/api/playlists/me/tracks/",
         json={"name": "   ", "artist": ""},

@@ -14,19 +14,25 @@ async def test_playlist_me_requires_auth(async_api_client):
 
 
 @pytest.mark.django_db(transaction=True)
-async def test_playlist_me_creates_favorites_and_enriches(authorized_async_api_client, user, monkeypatch):
+async def test_playlist_me_creates_favorites_and_enriches(
+    authorized_async_api_client, user, monkeypatch
+):
     called = {"tracks": None}
 
     async def fake_enrich(tracks):
         called["tracks"] = tracks
         return [{"name": "Track", "artist": "Artist"}]
 
-    monkeypatch.setattr("music_api.views.playlists_async._enrich_tracks_list_async", fake_enrich)
+    monkeypatch.setattr(
+        "music_api.views.playlists_async._enrich_tracks_list_async", fake_enrich
+    )
 
     response = await authorized_async_api_client.get("/api/playlists/me/")
 
-    exists = await sync_to_async(Playlist.objects.filter(user=user, title="Favorites").exists)()
-    
+    exists = await sync_to_async(
+        Playlist.objects.filter(user=user, title="Favorites").exists
+    )()
+
     assert response.status_code == 200
     assert exists
     assert called["tracks"] == []
@@ -60,7 +66,9 @@ async def test_playlist_me_patch_updates_title(authorized_async_api_client, user
         json={"title": "My Daily Mix"},
     )
 
-    playlist = await sync_to_async(Playlist.objects.filter(user=user).order_by("created_at").first)()
+    playlist = await sync_to_async(
+        Playlist.objects.filter(user=user).order_by("created_at").first
+    )()
 
     assert response.status_code == 200
     assert response.json()["detail"] == "Title updated."

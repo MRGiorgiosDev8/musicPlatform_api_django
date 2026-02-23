@@ -1,8 +1,9 @@
+import io
 import pytest
+from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
-
 
 pytestmark = pytest.mark.django_db
 
@@ -68,25 +69,16 @@ def test_user_me_updates_profile_fields_but_not_read_only(user):
     assert user.email != "new-email@example.com"
 
 
-import io
-from PIL import Image
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-
 def test_user_me_allows_avatar_upload(user):
     client = auth_client_for_user(user)
 
     # Генерируем полноценное изображение в памяти
     file = io.BytesIO()
-    image = Image.new('RGB', size=(10, 10), color=(255, 0, 0))
-    image.save(file, 'png')
+    image = Image.new("RGB", size=(10, 10), color=(255, 0, 0))
+    image.save(file, "png")
     file.seek(0)
 
-    avatar = SimpleUploadedFile(
-        "avatar.png",
-        file.read(),
-        content_type="image/png"
-    )
+    avatar = SimpleUploadedFile("avatar.png", file.read(), content_type="image/png")
 
     response = client.patch(
         "/api/users/me/",

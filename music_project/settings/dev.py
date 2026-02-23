@@ -1,7 +1,9 @@
 """
 Development settings for music_project project.
 """
-from .base import *
+
+# Добавляем noqa, чтобы линтер игнорировал неиспользуемый импорт и импорт со звездочкой
+from .base import *  # noqa: F403, F401
 
 # Включаем режим отладки для разработки
 DEBUG = True
@@ -9,17 +11,17 @@ DEBUG = True
 # База данных берется из DATABASE_URL (PostgreSQL)
 
 # Разрешённые хосты для разработки
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 # Отправка писем в консоль для удобства отладки email
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Отключаем сжатие для удобства отладки статики
 COMPRESS_ENABLED = False
 COMPRESS_OFFLINE = False
 
 # Хранение статических файлов без сжатия
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Настройки CORS для разработки (раскомментировать при необходимости)
 # CORS_ALLOW_ALL_ORIGINS = True

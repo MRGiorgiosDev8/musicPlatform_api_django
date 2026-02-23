@@ -41,7 +41,15 @@ def user(db):
     suffix = uuid.uuid4().hex[:8]
     username = f"tester_{suffix}"
     email = f"tester_{suffix}@example.com"
-    return User.objects.create_user(username=username, email=email, password="test-pass-123")
+    user = User.objects.create_user(
+        username=username, email=email, password="test-pass-123"
+    )
+    # Создаем плейлист для пользователя
+    from music_api.models import Playlist
+    Playlist.objects.create(
+        user=user, title="Test Playlist", tracks=[]
+    )
+    return user
 
 
 @pytest_asyncio.fixture

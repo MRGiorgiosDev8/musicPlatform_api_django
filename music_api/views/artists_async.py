@@ -14,7 +14,7 @@ from .services_async import (
     _get_lastfm_artists_by_genre_async,
     _get_lastfm_artists_chart_async,
     _get_deezer_artists_batch_async,
-    _get_lastfm_releases_batch_async
+    _get_lastfm_releases_batch_async,
 )
 
 LASTFM_KEY = config("LASTFM_KEY")
@@ -42,18 +42,20 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             artists_raw = await _get_lastfm_artists_chart_async(limit)
 
         if not artists_raw:
-            return {'artists': []}, False
+            return {"artists": []}, False
 
         artists_raw = artists_raw[:limit]
-        artist_names = [art['name'] for art in artists_raw]
+        artist_names = [art["name"] for art in artists_raw]
 
-        deezer_photos_task = _get_deezer_artists_batch_async(artist_names[:DEEZER_ARTISTS_BATCH_LIMIT])
-        releases_task = _get_lastfm_releases_batch_async(artists_raw[:LASTFM_RELEASES_BATCH_LIMIT])
+        deezer_photos_task = _get_deezer_artists_batch_async(
+            artist_names[:DEEZER_ARTISTS_BATCH_LIMIT]
+        )
+        releases_task = _get_lastfm_releases_batch_async(
+            artists_raw[:LASTFM_RELEASES_BATCH_LIMIT]
+        )
 
         deezer_photos, releases_data = await asyncio.gather(
-            deezer_photos_task,
-            releases_task,
-            return_exceptions=True
+            deezer_photos_task, releases_task, return_exceptions=True
         )
 
         if isinstance(deezer_photos, Exception):
@@ -66,61 +68,72 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
 
         enriched_artists = []
         for art in artists_raw:
-            name = art['name']
-            enriched_artists.append({
-                'name': name,
-                'photo_url': deezer_photos.get(name) or '/static/images/default.svg',
-                'listeners': art.get('listeners', 0),
-                'playcount': art.get('playcount', 0),
-                'releases': releases_data.get(name, [])
-            })
+            name = art["name"]
+            enriched_artists.append(
+                {
+                    "name": name,
+                    "photo_url": deezer_photos.get(name)
+                    or "/static/images/default.svg",
+                    "listeners": art.get("listeners", 0),
+                    "playcount": art.get("playcount", 0),
+                    "releases": releases_data.get(name, []),
+                }
+            )
 
         # Сортируем по количеству прослушиваний (сначала listeners, потом playcount)
-        enriched_artists.sort(key=lambda artist: (artist['listeners'], artist['playcount']), reverse=True)
+        enriched_artists.sort(
+            key=lambda artist: (artist["listeners"], artist["playcount"]), reverse=True
+        )
 
-        data = {'artists': enriched_artists}
+        data = {"artists": enriched_artists}
         cache.set(cache_key, data, timeout=CACHE_TIMEOUT)
         return data, False
 
     except Exception as e:
         logger.error(f"Critical error in _async_get_artists: {str(e)}", exc_info=True)
-        return {'artists': []}, False
+        return {"artists": []}, False
 
 
 class TrendingArtistsAPIView(APIView):
     """API для получения топа артистов"""
+
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get(self, request):
-        genre = request.query_params.get('genre')
-        limit_str = request.query_params.get('limit', str(DEFAULT_ARTIST_COUNT))
+        genre = request.query_params.get("genre")
+        limit_str = request.query_params.get("limit", str(DEFAULT_ARTIST_COUNT))
 
         try:
             limit = int(limit_str)
             if limit <= 0 or limit > LASTFM_CHART_LIMIT:
                 raise ValueError()
         except ValueError:
-            return Response({'error': f'Limit must be 1-{LASTFM_CHART_LIMIT}'}, status=400)
+            return Response(
+                {"error": f"Limit must be 1-{LASTFM_CHART_LIMIT}"}, status=400
+            )
 
         try:
             data, cached_flag = async_to_sync(_async_get_artists)(genre, limit)
 
             response_data = {
-                'artists': data.get('artists', []),
-                'meta': {
-                    'genre': genre or 'all',
-                    'count': len(data.get('artists', [])),
-                    'limit': limit,
-                    'cached': cached_flag
-                }
+                "artists": data.get("artists", []),
+                "meta": {
+                    "genre": genre or "all",
+                    "count": len(data.get("artists", [])),
+                    "limit": limit,
+                    "cached": cached_flag,
+                },
             }
             return Response(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
             logger.error(f"TrendingArtistsAPIView error: {str(e)}", exc_info=True)
-            return Response({
-                'error': 'Internal server error',
-                'details': 'Failed to fetch artist charts',
-                'artists': []
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {
+                    "error": "Internal server error",
+                    "details": "Failed to fetch artist charts",
+                    "artists": [],
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

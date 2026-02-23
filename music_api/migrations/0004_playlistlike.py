@@ -8,25 +8,49 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('music_api', '0003_delete_track'),
+        ("music_api", "0003_delete_track"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PlaylistLike',
+            name="PlaylistLike",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('playlist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='likes', to='music_api.playlist')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='liked_playlists', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "playlist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="likes",
+                        to="music_api.playlist",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="liked_playlists",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.AddConstraint(
-            model_name='playlistlike',
-            constraint=models.UniqueConstraint(fields=('playlist', 'user'), name='unique_playlist_like'),
+            model_name="playlistlike",
+            constraint=models.UniqueConstraint(
+                fields=("playlist", "user"), name="unique_playlist_like"
+            ),
         ),
     ]

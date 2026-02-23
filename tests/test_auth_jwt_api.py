@@ -4,7 +4,6 @@ import pytest
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 
-
 pytestmark = [pytest.mark.asyncio, pytest.mark.django_db(transaction=True)]
 
 
@@ -35,7 +34,9 @@ async def test_jwt_token_obtain_pair_success(async_api_client, user):
     assert isinstance(payload.get("refresh"), str) and payload["refresh"]
 
 
-async def test_jwt_token_obtain_pair_rejects_invalid_credentials(async_api_client, user):
+async def test_jwt_token_obtain_pair_rejects_invalid_credentials(
+    async_api_client, user
+):
     response = await async_api_client.post(
         "/api/auth/token/",
         json={"username": user.username, "password": "wrong-password"},
@@ -79,15 +80,21 @@ async def test_protected_endpoints_require_valid_access_token(async_api_client, 
     access_token = token_response.json()["access"]
     refresh_token = token_response.json()["refresh"]
 
-    with_access = await async_api_client.get("/api/users/me/", headers=_auth_headers(access_token))
+    with_access = await async_api_client.get(
+        "/api/users/me/", headers=_auth_headers(access_token)
+    )
     assert with_access.status_code == 200
     assert with_access.json()["username"] == user.username
 
-    with_refresh = await async_api_client.get("/api/users/me/", headers=_auth_headers(refresh_token))
+    with_refresh = await async_api_client.get(
+        "/api/users/me/", headers=_auth_headers(refresh_token)
+    )
     assert with_refresh.status_code == 401
 
 
-async def test_user_me_endpoint_only_updates_authenticated_user(async_api_client, user, second_user):
+async def test_user_me_endpoint_only_updates_authenticated_user(
+    async_api_client, user, second_user
+):
     token_response = await async_api_client.post(
         "/api/auth/token/",
         json={"username": user.username, "password": "test-pass-123"},

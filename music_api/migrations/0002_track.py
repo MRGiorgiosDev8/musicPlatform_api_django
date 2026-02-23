@@ -6,26 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('music_api', '0001_initial'),
+        ("music_api", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Track',
+            name="Track",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('artist', models.CharField(max_length=255)),
-                ('image_url', models.URLField(blank=True, null=True)),
-                ('url', models.URLField(blank=True, null=True)),
-                ('mbid', models.CharField(blank=True, max_length=255, null=True)),
-                ('listeners', models.IntegerField(default=0)),
-                ('playcount', models.IntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("artist", models.CharField(max_length=255)),
+                ("image_url", models.URLField(blank=True, null=True)),
+                ("url", models.URLField(blank=True, null=True)),
+                ("mbid", models.CharField(blank=True, max_length=255, null=True)),
+                ("listeners", models.IntegerField(default=0)),
+                ("playcount", models.IntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'ordering': ['-created_at'],
-                'unique_together': {('name', 'artist')},
+                "ordering": ["-created_at"],
+                "unique_together": {("name", "artist")},
             },
         ),
     ]
