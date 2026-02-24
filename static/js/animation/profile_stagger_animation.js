@@ -64,8 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   tl.fromTo(
     avatarBlock,
-    { y: 100, opacity: 0 },
-    { y: 0, opacity: 1, delay: 0.3}
+    { x: -100, opacity: 0 },
+    { x: 0, opacity: 1, delay: 0.3}
   ).fromTo(
     [infoBlock, infoTwoBlock, passwordBlock, likeNotificationsBlock].filter(Boolean),
     { scale: 0.8, opacity: 0, transformOrigin: "center center" },

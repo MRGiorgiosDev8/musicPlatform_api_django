@@ -26,7 +26,49 @@
     {% endif %}
 
     <div class="row g-4 pre-animation" id="blcok-avatar">
-        <div class="col-lg-8 order-lg-1 order-2">
+        <div class="col-lg-4 profile-avatar-column order-lg-1 order-1">
+            <section class="profile-widget text-center profile-avatar-card">
+
+                <div class="profile-avatar-shell d-flex flex-column align-items-center">
+
+                    <div class="profile-avatar-wrap mb-4">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="Avatar" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar-placeholder">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <input type="file" class="visually-hidden" name="avatar" id="avatar" accept="image/*">
+                    <label for="avatar"
+                           class="profile-avatar-edit d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-pencil"></i>
+                        <span class="profile-avatar-edit-text fw-normal text-dark">
+                            Изменить аватар
+                        </span>
+                    </label>
+                    {% if form.avatar.errors %}
+                        <div class="text-danger small mt-2">{{ form.avatar.errors|join:", " }}</div>
+                    {% endif %}
+
+                    {% if request.user.is_public_favorites %}
+                        <a href="{% url 'public_user_page' request.user.username %}"
+                           class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-3 text-decoration-none">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            <span class="profile-avatar-edit-text fw-normal text-dark">
+                                Публичная страница
+                            </span>
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </section>
+        </div>
+
+        <div class="col-lg-8 order-lg-2 order-2">
 
             <div class="vstack gap-4">
 
@@ -196,50 +238,6 @@
             </div>
 
         </div>
-
-        <div class="col-lg-4 profile-avatar-column order-lg-2 order-1">
-            <section class="profile-widget text-center profile-avatar-card">
-
-                <div class="profile-avatar-shell d-flex flex-column align-items-center">
-
-                    <div class="profile-avatar-wrap mb-4">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" alt="Avatar" class="profile-avatar">
-                        {% else %}
-                            <div class="profile-avatar-placeholder">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <input type="file" class="visually-hidden" name="avatar" id="avatar" accept="image/*">
-                    <label for="avatar"
-                           class="profile-avatar-edit d-inline-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-pencil"></i>
-                        <span class="profile-avatar-edit-text fw-normal text-dark">
-                            Изменить аватар
-                        </span>
-                    </label>
-                    {% if form.avatar.errors %}
-                        <div class="text-danger small mt-2">{{ form.avatar.errors|join:", " }}</div>
-                    {% endif %}
-
-                    {% if request.user.is_public_favorites %}
-                        <a href="{% url 'public_user_page' request.user.username %}"
-                           class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-3 text-decoration-none">
-                            <i class="bi bi-box-arrow-up-right"></i>
-                            <span class="profile-avatar-edit-text fw-normal text-dark">
-                                Публичная страница
-                            </span>
-                        </a>
-                    {% endif %}
-
-                </div>
-
-            </section>
-        </div>
-
-    </div>
 </form>
 
 {% endblock %}
