@@ -115,7 +115,7 @@ STATICFILES_FINDERS = [
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
+REDIS_PORT = config("DJANGO_REDIS_PORT", cast=int, default=6379)
 REDIS_DB = config("REDIS_DB", cast=int, default=0)
 
 if USE_DOCKER:

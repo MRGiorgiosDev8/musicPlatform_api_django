@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: django
+        image: music-platform:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: USE_DOCKER
+          value: "true"
+        - name: DATABASE_URL
+          value: postgres://db_user:admin123@postgres:5432/music_db
+        - name: SECRET_KEY
+          value: "your-very-secret-key"
+        - name: DEBUG
+          value: "True"
+        - name: ALLOWED_HOSTS
+          value: "*"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+spec:
+  type: NodePort
+  selector:
+    app: django
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30001

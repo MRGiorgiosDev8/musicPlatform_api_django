@@ -1,0 +1,28 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: music-platform-api
+build:
+  artifacts:
+    - image: music-platform
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.py"
+            dest: .
+          - src: "**/templates/**/*.html"
+            dest: .
+          - src: "static/**/*"
+            dest: .
+manifests:
+  rawYaml:
+    - k8s/*.yml
+deploy:
+  kubectl: {}
+
+portForward:
+  - resourceType: service
+    resourceName: django-service
+    port: 8000
+    localPort: 8000
