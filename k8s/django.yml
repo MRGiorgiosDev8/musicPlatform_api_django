@@ -12,12 +12,34 @@ spec:
       labels:
         app: django
     spec:
+      # Init-контейнер: запускается ПЕРВЫМ и ждет базу
+      initContainers:
+      - name: check-db-ready
+        image: postgres:15-alpine
+        command: ['sh', '-c', 'until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;']
+
+      # Основной контейнер: запустится только после того, как init-контейнер успешно завершится
       containers:
       - name: django
         image: music-platform:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 8000
+
+        readinessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+
         env:
         - name: USE_DOCKER
           value: "true"
