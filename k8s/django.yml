@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: django-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: django
@@ -12,46 +12,63 @@ spec:
       labels:
         app: django
     spec:
-      # Init-контейнер: запускается ПЕРВЫМ и ждет базу
       initContainers:
-      - name: check-db-ready
-        image: postgres:15-alpine
-        command: ['sh', '-c', 'until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;']
+        - name: check-db-ready
+          image: postgres:15-alpine
+          command: [ 'sh', '-c', 'until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;' ]
 
-      # Основной контейнер: запустится только после того, как init-контейнер успешно завершится
       containers:
-      - name: django
-        image: music-platform:latest
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 8000
+        - name: django
+          image: music-platform
+          imagePullPolicy: Never
+          command: [ "uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "1" ]
+          ports:
+            - containerPort: 8000
 
-        readinessProbe:
-          httpGet:
-            path: /health/
-            port: 8000
-          initialDelaySeconds: 10
-          periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
 
-        livenessProbe:
-          httpGet:
-            path: /health/
-            port: 8000
-          initialDelaySeconds: 20
-          periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: django-config
+            - secretRef:
+                name: postgres-secrets
 
-        env:
-        - name: USE_DOCKER
-          value: "true"
-        - name: DATABASE_URL
-          value: postgres://db_user:admin123@postgres:5432/music_db
-        - name: SECRET_KEY
-          value: "your-very-secret-key"
-        - name: DEBUG
-          value: "True"
-        - name: ALLOWED_HOSTS
-          value: "*"
 ---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-migrate
+spec:
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: music-platform
+          command: [ "sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && (python manage.py createsuperuser --noinput || true)" ]
+
+          envFrom:
+            - configMapRef:
+                name: django-config
+            - secretRef:
+                name: postgres-secrets
+
+      restartPolicy: OnFailure
+
+---
+
 apiVersion: v1
 kind: Service
 metadata:
