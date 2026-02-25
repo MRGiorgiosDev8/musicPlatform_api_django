@@ -1,6 +1,11 @@
 FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y gcc build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    gcc \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m appuser
 
 WORKDIR /app
 
@@ -9,8 +14,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+ENV PYTHONUNBUFFERED=1
 ENV USE_DOCKER=true
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && (python manage.py createsuperuser --noinput || true) && uvicorn music_project.asgi:application --host 0.0.0.0 --port 8000 --workers 1"]
+CMD ["uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

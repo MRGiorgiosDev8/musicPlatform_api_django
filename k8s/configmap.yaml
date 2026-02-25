@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: django-config
 data:
-  DEBUG: "True"
+  DEBUG: "False"
   ALLOWED_HOSTS: "*"
   USE_DOCKER: "true"
   REDIS_PORT: "6379"

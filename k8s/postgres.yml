@@ -17,9 +17,9 @@ spec:
         image: postgres:15-alpine
         env:
         - name: POSTGRES_DB
-          value: music_db
+          value: music_platform
         - name: POSTGRES_USER
-          value: db_user
+          value: postgres
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -27,6 +27,32 @@ spec:
               key: postgres-password
         ports:
         - containerPort: 5432
+
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        readinessProbe:
+          exec:
+            command:
+              - pg_isready
+              - -U
+              - postgres
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+        livenessProbe:
+          exec:
+            command:
+              - pg_isready
+              - -U
+              - postgres
+          initialDelaySeconds: 20
+          periodSeconds: 10
         volumeMounts:
         - name: postgrestorage
           mountPath: /var/lib/postgresql/data

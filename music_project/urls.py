@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import HttpResponse
+from .views import health_check
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -11,14 +11,9 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-
-def health_check(request):
-    return HttpResponse("OK")
-
-
 urlpatterns = [
+    path("health/", health_check, name="health_check"),
     path("admin/", admin.site.urls),
-    path("health/", health_check),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

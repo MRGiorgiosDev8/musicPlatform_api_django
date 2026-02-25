@@ -4,6 +4,12 @@ metadata:
   name: django-app
 spec:
   replicas: 2
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: django
@@ -12,10 +18,17 @@ spec:
       labels:
         app: django
     spec:
+      terminationGracePeriodSeconds: 30
       initContainers:
         - name: check-db-ready
           image: postgres:15-alpine
-          command: [ 'sh', '-c', 'until pg_isready -h postgres -p 5432; do echo waiting for database; sleep 2; done;' ]
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-password
+          command: [ 'sh', '-c', 'until pg_isready -h postgres -p 5432 -U postgres; do echo waiting for database; sleep 2; done;' ]
 
       containers:
         - name: django
@@ -24,6 +37,14 @@ spec:
           command: [ "uvicorn", "music_project.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "1" ]
           ports:
             - containerPort: 8000
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
 
           readinessProbe:
             httpGet:
@@ -54,17 +75,26 @@ spec:
   ttlSecondsAfterFinished: 60
   template:
     spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:15-alpine
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-password
+          command: [ 'sh', '-c', 'until pg_isready -h postgres -p 5432 -U postgres; do echo waiting for db; sleep 2; done;' ]
       containers:
         - name: migrate
           image: music-platform
-          command: [ "sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && (python manage.py createsuperuser --noinput || true)" ]
-
+          imagePullPolicy: Never
+          command: [ "sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput" ]
           envFrom:
             - configMapRef:
                 name: django-config
             - secretRef:
                 name: postgres-secrets
-
       restartPolicy: OnFailure
 
 ---
@@ -81,3 +111,15 @@ spec:
     - port: 8000
       targetPort: 8000
       nodePort: 30001
+
+---
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: django-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: django
