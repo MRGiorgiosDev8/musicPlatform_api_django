@@ -289,7 +289,7 @@ kubectl port-forward service/django-service 8000:8000
     * **Валидация и логирование:** Проверка наличия backup файла, детальные логи процесса восстановления и обработка ошибок.
     * **Resource Limits:** Аналогичные ограничения ресурсов для стабильности процесса восстановления.
     * **Гибкость восстановления:** Поддержка восстановления из любого доступного бэкапа в хранилище.
-* **Ingress Controller и Production-ready доступ:**
+* **Ingress Controller:**
     * **Nginx Ingress:** Внедрен `Ingress` с nginx controller для внешнего доступа к приложению.
     * **Множественные домены:** Настроены домены `rubysound.fm`, `rubysound.local`, `api.rubysound.fm`.
     * **ASGI готовность:** Добавлены аннотации для WebSocket поддержки и long polling.
