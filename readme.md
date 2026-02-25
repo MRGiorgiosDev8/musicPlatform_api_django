@@ -109,9 +109,44 @@ skaffold dev -p production
 
 ### 🌐 Шаг 3: Доступ к приложению
 
-После запуска проект будет доступен по адресу:
+#### **(Ingress Controller):**
+Для доступа через домены:
 
-👉 http://127.0.0.1:8000
+**1. Запустите Minikube tunnel:**
+```bash
+# В отдельном терминале (требует sudo)
+sudo minikube tunnel
+```
+
+**2. Добавьте домены в /etc/hosts:**
+```bash
+echo "127.0.0.1 rubysound.fm rubysound.local api.rubysound.fm" | sudo tee -a /etc/hosts
+```
+
+**3. Доступ по доменам:**
+👉 http://rubysound.fm (основной сайт)
+👉 http://rubysound.local (локальная разработка)
+👉 http://api.rubysound.fm (API endpoints)
+
+
+> **⚠️ Важно:** Для production доступа требуется запущенный `minikube tunnel` и правильная настройка `/etc/hosts`.
+
+#### **🔍 Проверка работы Ingress:**
+```bash
+# 1. Проверьте статус Ingress
+kubectl get ingress
+kubectl describe ingress rubysound-ingress
+
+# 2. Проверьте эндпоинты сервиса
+kubectl get endpoints django-service
+
+# 3. Проверьте что поды работают
+kubectl get pods -l app=django
+
+# 4. Быстрая проверка
+curl -v -H "Host: rubysound.local" http://127.0.0.1
+curl -v -H "Host: rubysound.fm" http://127.0.0.1
+```
 
 ---
 
