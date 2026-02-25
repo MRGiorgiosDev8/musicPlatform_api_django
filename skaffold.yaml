@@ -2,6 +2,7 @@ apiVersion: skaffold/v4beta11
 kind: Config
 metadata:
   name: music-platform-api
+
 build:
   artifacts:
     - image: music-platform
@@ -15,15 +16,40 @@ build:
             dest: .
           - src: "static/**/*"
             dest: .
+  local:
+    push: false
+
 manifests:
   rawYaml:
-    - k8s/*.yml
+    # Application manifests (managed by Skaffold)
+    - k8s/configmap.yaml
+    - k8s/django.yml
+    - k8s/postgres.yml
+    - k8s/redis.yml
+    - k8s/restore.yml
 
 deploy:
-  kubectl: {}
+  kubectl:
+    defaultNamespace: default
 
 portForward:
   - resourceType: service
     resourceName: django-service
     port: 8000
     localPort: 8000
+
+profiles:
+  - name: production
+    manifests:
+      rawYaml:
+        - k8s/*.yml
+        - k8s/*.yaml
+
+  - name: development
+    manifests:
+      rawYaml:
+        - k8s/configmap.yaml
+        - k8s/django.yml
+        - k8s/postgres.yml
+        - k8s/redis.yml
+        - k8s/restore.yml

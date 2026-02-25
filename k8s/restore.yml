@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-restore
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: restore
+            image: postgres:15-alpine
+            envFrom:
+              - secretRef:
+                  name: postgres-secrets
+            command: [ "sh", "-c", "echo 'Starting restore from latest backup...' && LATEST_BACKUP=$(ls -t /backup/backup-*.sql.gz | head -1) && if [ -n '$LATEST_BACKUP' ]; then echo 'Restoring from: $LATEST_BACKUP' && gunzip -c '$LATEST_BACKUP' | psql -h postgres -U postgres music_platform && echo 'Restore completed successfully!'; else echo 'No backup files found in /backup/'; ls -la /backup/; exit 1; fi" ]
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+              limits:
+                cpu: "500m"
+                memory: "512Mi"
+            volumeMounts:
+              - name: backup-storage
+                mountPath: /backup
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+          restartPolicy: Never

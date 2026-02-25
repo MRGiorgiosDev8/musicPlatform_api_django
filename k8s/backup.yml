@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: pg-backup
+            image: postgres:15-alpine
+            env:
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-secrets
+                    key: postgres-password
+            command: [ "sh", "-c", "echo 'Starting backup...' && pg_dump -h postgres -U postgres music_platform | gzip > /backup/backup-$(date +%Y%m%d-%H%M%S).sql.gz && echo 'Backup completed!' && ls -la /backup/ && find /backup -name '*.sql.gz' -mtime +7 -delete" ]
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+              limits:
+                cpu: "500m"
+                memory: "512Mi"
+            volumeMounts:
+              - name: backup-storage
+                mountPath: /backup
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
