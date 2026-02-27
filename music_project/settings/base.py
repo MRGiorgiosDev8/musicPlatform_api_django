@@ -22,6 +22,16 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", cast=bool, default=False)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://rubysound.local",
+    "http://rubysound.fm",
+    "http://api.rubysound.fm",
+    "https://rubysound.local",
+    "https://rubysound.fm",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
