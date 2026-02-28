@@ -170,6 +170,65 @@
     font-size: 0.92rem;
 }
 
+.track-artist-label {
+    color: black;
+    border-left: 3px solid rgba(255, 13, 0, 0.73);
+    border-radius: 3px;
+    padding-left: 4px;
+    margin-right: 0;
+}
+
+.artist-bio-trigger {
+    color: var(--color-text-dark);
+    border: none;
+    background: transparent;
+    border-bottom: none;
+    padding: 0;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
+}
+
+.artist-bio-trigger:focus-visible {
+    outline: 2px solid rgba(255, 13, 0, 0.45);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+#artistBioModal .modal-body {
+    background-color: #fff;
+    font-size: 0.96rem;
+    line-height: 1.45;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#artistBioModal .modal-body::-webkit-scrollbar {
+    display: none;
+}
+
+#artistBioModal .modal-header {
+    background-color: whitesmoke;
+}
+
+#artistBioModal .modal-content {
+    font-family: var(--font-main);
+}
+
+#artistBioModal .modal-title {
+    font-family: var(--font-heading);
+    border-left: 3px solid rgba(255, 13, 0, 0.73);
+    border-radius: 3px;
+    padding-left: 8px;
+}
+
+#artistBioImage {
+    object-fit: cover;
+    width: auto;
+    max-width: 100%;
+    box-shadow: var(--shadow-card);
+}
+
 .track-player {
     flex: 1 0 100%;
     min-width: 0;

@@ -181,6 +181,26 @@
         </div>
     </footer>
 
+    <div class="modal fade" id="artistBioModal" tabindex="-1" aria-labelledby="artistBioModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-semibold" id="artistBioModalTitle">Биография артиста</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="artistBioLoading" class="text-center py-4" hidden>
+                        <div class="spinner-border text-danger" role="status" aria-hidden="true"></div>
+                    </div>
+                    <div id="artistBioImageWrap" class="mb-3 text-center" hidden>
+                        <img id="artistBioImage" class="img-fluid rounded shadow-sm" alt="" loading="lazy" style="max-height: 220px;">
+                    </div>
+                    <p id="artistBioContent" class="mb-0"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Библиотеки (vendor) -->
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/vendor/gsap/gsap.min.js"></script>
@@ -206,12 +226,14 @@
     <script src="/static/js/animation/profile_stagger_animation.js"></script>
     <script src="/static/js/animation/playlist_stagger_animation.js"></script>
     <script src="/static/js/animation/public_profile_stagger_animation.js"></script>
+    <script src="/static/js/animation/artist_bio_modal_close_animation.js"></script>
 
     <!-- Фичи сайта (modules/features) -->
     <script src="/static/js/features/trending.js"></script>
     <script src="/static/js/features/year2025.js"></script>
     <script src="/static/js/features/public_playlists_dashboard.js"></script>
     <script src="/static/js/features/music_search.js"></script>
+    <script src="/static/js/features/artist_wikipedia_modal.js"></script>
 
     <!-- Модули поиска и UI-специфичные скрипты -->
     <script src="/static/js/UI/scrollbutton.js"></script>

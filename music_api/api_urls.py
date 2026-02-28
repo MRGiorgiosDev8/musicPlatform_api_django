@@ -7,6 +7,7 @@ from .views.playlists_async import (
     PublicFavoritesLikeAPIView,
     PublicFavoritesTrendingAPIView,
 )
+from .views.wikipedia_async import WikipediaArtistBatchAPIView
 
 urlpatterns = [
     path("playlists/me/", PlaylistMeAPIView.as_view(), name="playlist_me"),
@@ -29,5 +30,10 @@ urlpatterns = [
         "playlists/public/<str:username>/like/",
         PublicFavoritesLikeAPIView.as_view(),
         name="playlist_public_like",
+    ),
+    path(
+        "wikipedia/artists/",
+        WikipediaArtistBatchAPIView.as_view(),
+        name="wikipedia_artists_api",
     ),
 ]

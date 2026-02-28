@@ -50,7 +50,12 @@ const TrendingApp = {
 
       const cardTitle = document.createElement('h5');
       cardTitle.className = 'card-title mb-1 text-dark';
-      cardTitle.textContent = a.name;
+      const artistButton = document.createElement('button');
+      artistButton.type = 'button';
+      artistButton.className = 'artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark';
+      artistButton.dataset.artistName = a.name;
+      artistButton.textContent = a.name;
+      cardTitle.appendChild(artistButton);
 
       cardBody.appendChild(cardTitle);
 

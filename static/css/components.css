@@ -50,11 +50,20 @@
 .track-item,
 .card-custom,
 .card-year,
-.dashboard-card {
+.dashboard-card,
+#artistBioModal .modal-content {
     background-color: var(--color-card-bg-light);
     border-radius: var(--border-radius-card);
     box-shadow: var(--shadow-card);
     border: var(--border-light-white);
+}
+
+.color-dark {
+    color: var(--color-text-dark) !important;
+}
+
+#artistBioModal .modal-content {
+    background-color: rgba(245, 245, 245, 0.946);
 }
 
 .dashboard-avatar {

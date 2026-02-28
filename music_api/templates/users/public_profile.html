@@ -84,9 +84,12 @@
                                 <div class="track-meta">
                                     <h5 class="track-title text-start">{{ track.name|default:"Unknown track" }}</h5>
                                     <p class="track-artist">
-                                        <span style="color: black; border-left: 3px solid rgba(255, 13, 0, 0.73); border-radius: 3px; padding-left: 4px;">
-                                            Артист: {{ track.artist|default:"Unknown artist" }}
-                                        </span>
+                                        <span class="track-artist-label">Артист:</span>
+                                        <button
+                                            type="button"
+                                            class="artist-bio-trigger js-artist-bio-trigger color-dark"
+                                            data-artist-name="{{ track.artist|default:'Unknown artist'|escape }}"
+                                            aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">{{ track.artist|default:"Unknown artist" }}</button>
                                     </p>
                                 </div>
                                 <div class="track-player me-sm-2">
@@ -110,4 +113,5 @@
         </section>
     {% endif %}
 </div>
+
 {% endblock %}

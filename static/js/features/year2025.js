@@ -138,13 +138,21 @@ const Year2025App = {
       titleRow.className = 'd-flex align-items-start justify-content-between gap-2 mb-1';
       titleRow.append(title, favoriteControl);
 
+      const artistName = t.artist || 'Unknown artist';
       const artistP = document.createElement('p');
       artistP.className = 'card-text small mb-1 year-track-artist';
       artistP.style.borderLeft = '3px solid rgba(255, 13, 0, 0.73)';
       artistP.style.borderRadius = '3px';
       artistP.style.paddingLeft = '4px';
-      artistP.innerHTML = 'Артист: <span class="text-dark fw-medium"></span>';
-      artistP.querySelector('span').textContent = t.artist;
+      const artistLabel = document.createElement('span');
+      artistLabel.textContent = 'Артист: ';
+
+      const artistButton = document.createElement('button');
+      artistButton.type = 'button';
+      artistButton.className = 'artist-bio-trigger js-artist-bio-trigger color-dark fw-medium';
+      artistButton.dataset.artistName = artistName;
+      artistButton.textContent = artistName;
+      artistP.append(artistLabel, artistButton);
 
       const listenersP = document.createElement('p');
       listenersP.className = 'card-text small text-muted mb-2 year-track-listeners';

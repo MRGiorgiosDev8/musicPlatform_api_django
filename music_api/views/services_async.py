@@ -16,6 +16,13 @@ def _build_http_client():
     return httpx.AsyncClient(
         limits=httpx.Limits(max_connections=20, max_keepalive_connections=5),
         timeout=httpx.Timeout(7.0, connect=2.0),
+        headers={
+            "User-Agent": (
+                "RubySound.fm/1.0 "
+                "(musicPlatform_api_django; contact: admin@rubysound.fm)"
+            ),
+            "Accept": "application/json",
+        },
     )
 
 
@@ -487,3 +494,119 @@ async def _get_lastfm_artists_chart_async(limit=30):
     except Exception as e:
         logger.warning("Last.fm chart error: %s", str(e), exc_info=True)
         return []
+
+
+def _build_empty_wikipedia_result(artist_name):
+    return {
+        "bio": "",
+        "title": artist_name,
+        "source_url": "",
+        "image_url": "",
+        "lang": "",
+    }
+
+
+async def _fetch_wikipedia_artist_summary_async(http_client, artist_name, lang):
+    empty_result = _build_empty_wikipedia_result(artist_name)
+
+    try:
+        query_response = await http_client.get(
+            f"https://{lang}.wikipedia.org/w/api.php",
+            params={
+                "action": "query",
+                "generator": "search",
+                "gsrsearch": artist_name,
+                "gsrlimit": 1,
+                "prop": "extracts|pageimages|info",
+                "inprop": "url",
+                "exintro": 1,
+                "explaintext": 1,
+                "piprop": "original|thumbnail",
+                "pithumbsize": 640,
+                "format": "json",
+                "formatversion": 2,
+            },
+        )
+        if query_response.status_code != 200:
+            return empty_result
+
+        payload = query_response.json()
+        pages = (payload.get("query") or {}).get("pages") or []
+        if not pages:
+            return empty_result
+
+        page = pages[0] if isinstance(pages[0], dict) else {}
+        extract = str(page.get("extract", "")).strip()
+        if not extract:
+            return empty_result
+
+        image_url = ""
+        if isinstance(page.get("original"), dict):
+            image_url = str(page["original"].get("source") or "").strip()
+        if not image_url and isinstance(page.get("thumbnail"), dict):
+            image_url = str(page["thumbnail"].get("source") or "").strip()
+
+        return {
+            "bio": extract,
+            "title": page.get("title") or artist_name,
+            "source_url": str(page.get("fullurl") or "").strip(),
+            "image_url": image_url,
+            "lang": lang,
+        }
+
+    except Exception as e:
+        logger.warning("Wikipedia summary API error for '%s': %s", artist_name, e)
+        return empty_result
+
+
+async def _get_wikipedia_artist_bios_batch_async(artist_names, lang="en"):
+    results = {}
+    if not artist_names:
+        return results
+
+    unique_names = []
+    seen = set()
+    for raw_name in artist_names[:30]:
+        normalized = str(raw_name or "").strip()
+        if not normalized:
+            continue
+        lowered = normalized.lower()
+        if lowered in seen:
+            continue
+        seen.add(lowered)
+        unique_names.append(normalized)
+
+    wikipedia_sem = asyncio.Semaphore(8)
+
+    async def fetch_artist_bio(name):
+        cache_key = _safe_cache_key("wikipedia_artist_bio_v2", lang, name.lower())
+        cached = cache.get(cache_key)
+        if isinstance(cached, dict):
+            return name, cached
+
+        async with wikipedia_sem:
+            summary = await _fetch_wikipedia_artist_summary_async(
+                http_client, name, lang
+            )
+            if not summary.get("bio") and lang != "en":
+                fallback_summary = await _fetch_wikipedia_artist_summary_async(
+                    http_client, name, "en"
+                )
+                if fallback_summary.get("bio"):
+                    summary = fallback_summary
+            cache_ttl = 60 * 60 * 24 * 3 if summary.get("bio") else 60 * 60 * 2
+            cache.set(cache_key, summary, timeout=cache_ttl)
+            return name, summary
+
+    async with _build_http_client() as http_client:
+        tasks = [fetch_artist_bio(name) for name in unique_names]
+        completed_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    for result in completed_results:
+        if isinstance(result, Exception):
+            logger.error("Wikipedia batch fetch error: %s", result)
+            continue
+        name, summary = result
+        results[name] = summary
+
+    return results

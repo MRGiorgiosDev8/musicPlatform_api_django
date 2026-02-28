@@ -353,13 +353,16 @@ const setupMusicSearch = () => {
     const pArtist = document.createElement("p");
     pArtist.className = "track-artist";
 
-    const spanArtist = document.createElement("span");
-    spanArtist.style.color = "black";
-    spanArtist.style.borderLeft = "3px solid rgba(255, 13, 0, 0.73)";
-    spanArtist.style.borderRadius = "3px";
-    spanArtist.style.paddingLeft = "4px";
-    spanArtist.textContent = `Артист: ${normalizeArtist(track)}`;
-    pArtist.appendChild(spanArtist);
+    const artistLabel = document.createElement("span");
+    artistLabel.className = "track-artist-label";
+    artistLabel.textContent = "Артист:";
+
+    const artistButton = document.createElement("button");
+    artistButton.type = "button";
+    artistButton.className = "artist-bio-trigger js-artist-bio-trigger color-dark";
+    artistButton.dataset.artistName = normalizeArtist(track);
+    artistButton.textContent = normalizeArtist(track);
+    pArtist.append(artistLabel, document.createTextNode(" "), artistButton);
 
     const pListeners = document.createElement("p");
     pListeners.className = "track-listeners text-black mb-0 small";
@@ -452,7 +455,12 @@ const setupMusicSearch = () => {
       if (state.groupBy === "artist" && artist !== lastArtist) {
         const groupHeader = document.createElement("li");
         groupHeader.className = "search-group-title";
-        groupHeader.textContent = artist;
+        const groupArtistButton = document.createElement("button");
+        groupArtistButton.type = "button";
+        groupArtistButton.className = "artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark";
+        groupArtistButton.dataset.artistName = artist;
+        groupArtistButton.textContent = artist;
+        groupHeader.appendChild(groupArtistButton);
         listRoot.appendChild(groupHeader);
         lastArtist = artist;
       }
