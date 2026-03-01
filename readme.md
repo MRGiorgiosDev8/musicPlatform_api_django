@@ -94,7 +94,7 @@ kubectl get pvc,secrets,cronjob
 
 #### **Development режим (рекомендуется для разработки):**
 ```bash
-# Запускает только приложение, сохраняет backup данные
+# Собирает Docker-образ и деплоит приложение в кластер
 skaffold dev
 ```
 
@@ -102,6 +102,9 @@ skaffold dev
 - Быстрый перезапуск приложения
 - Backup данные не теряются
 - Идеально для разработки и тестирования
+
+> **Важно:** `skaffold dev` **сам** собирает образ `music-platform` по `Dockerfile` из корня проекта (см. `skaffold.yaml`, секция `build.artifacts`).  
+> Предварительно вызывать `docker build` не нужно — отсутствие образа не является ошибкой, он будет создан автоматически при первом запуске Skaffold.
 
 #### **Production режим (полная инфраструктура):**
 ```bash
@@ -370,8 +373,14 @@ kubectl port-forward service/django-service 8000:8000
     * **Resource Limits:** Аналогичные ограничения ресурсов для стабильности процесса восстановления.
     * **Гибкость восстановления:** Поддержка восстановления из любого доступного бэкапа в хранилище.
 * **Ingress Controller:**
-    * **Nginx Ingress:** Внедрен `Ingress` с nginx controller для внешнего доступа к приложению.
-    * **Множественные домены:** Настроены домены `rubysound.fm`, `rubysound.local`, `api.rubysound.fm`.
-    * **ASGI готовность:** Добавлены аннотации для WebSocket поддержки и long polling.
-    * **CORS и безопасность:** Настроены CORS headers, rate limiting и security policies.
-    * **Load balancing:** Автоматическая балансировка нагрузки между репликами Django.
+* **Nginx Ingress:** Внедрен `Ingress` с nginx controller для внешнего доступа к приложению.
+* **Множественные домены:** Настроены домены `rubysound.fm`, `rubysound.local`, `api.rubysound.fm`.
+* **ASGI готовность:** Добавлены аннотации для WebSocket поддержки и long polling.
+* **CORS и безопасность:** Настроены CORS headers, rate limiting и security policies.
+* **Load balancing:** Автоматическая балансировка нагрузки между репликами Django.
+
+### [01.03.2026] — Уточнение K8s-конфигурации и безопасности данных
+
+* **Redis-конфигурация:** выровнены переменные окружения между `settings.base` и `k8s/configmap.yaml` — теперь порт Redis берётся из `REDIS_PORT`, что упрощает управление конфигурацией кластера.
+* **Безопасное восстановление БД:** `CronJob postgres-restore` переведён в режим `suspend: true`, чтобы исключить автоматический ночной откат базы; восстановление теперь выполняется только вручную через `kubectl create job --from=cronjob/postgres-restore ...`.
+* **Сетевой слой для Django:** сервис `django-service` переведён на тип `ClusterIP` (Ingress остаётся точкой входа), что лучше соответствует production-практикам и уменьшает поверхность атаки.

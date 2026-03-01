@@ -4,6 +4,7 @@ metadata:
   name: postgres-restore
 spec:
   schedule: "0 3 * * *"
+  suspend: true
   jobTemplate:
     spec:
       template:
@@ -14,7 +15,7 @@ spec:
             envFrom:
               - secretRef:
                   name: postgres-secrets
-            command: [ "sh", "-c", "echo 'Starting restore from latest backup...' && LATEST_BACKUP=$(ls -t /backup/backup-*.sql.gz | head -1) && if [ -n '$LATEST_BACKUP' ]; then echo 'Restoring from: $LATEST_BACKUP' && gunzip -c '$LATEST_BACKUP' | psql -h postgres -U postgres music_platform && echo 'Restore completed successfully!'; else echo 'No backup files found in /backup/'; ls -la /backup/; exit 1; fi" ]
+            command: [ "sh", "-c", "echo 'Starting restore from latest backup...' && LATEST_BACKUP=$(ls -t /backup/backup-*.sql.gz | head -1) && if [ -n \"$LATEST_BACKUP\" ]; then echo \"Restoring from: $LATEST_BACKUP\" && gunzip -c \"$LATEST_BACKUP\" | psql -h postgres -U postgres music_platform && echo 'Restore completed successfully!'; else echo 'No backup files found in /backup/'; ls -la /backup/; exit 1; fi" ]
             resources:
               requests:
                 cpu: "100m"

@@ -104,13 +104,12 @@ kind: Service
 metadata:
   name: django-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: django
   ports:
     - port: 8000
       targetPort: 8000
-      nodePort: 30001
 
 ---
 
