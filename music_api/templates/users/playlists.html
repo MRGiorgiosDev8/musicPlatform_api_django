@@ -101,7 +101,8 @@
 
                                 <div class="track-playlist mb-3"
                                      data-track-name="{{ track.name|default:''|escape }}"
-                                     data-track-artist="{{ track.artist|default:''|escape }}">
+                                     data-track-artist="{{ track.artist|default:''|escape }}"
+                                     {% if track.mbid %}data-track-mbid="{{ track.mbid|escape }}"{% endif %}>
 
                                     <img
                                             src="{{ track.image_url|default:'/static/images/default.svg' }}"

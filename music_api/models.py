@@ -12,6 +12,9 @@ class Playlist(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "created_at"]),
+        ]
 
     def __str__(self):
         return f"{self.user_id}:{self.title}"
@@ -35,6 +38,10 @@ class PlaylistLike(models.Model):
             ),
         ]
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["playlist"]),
+            models.Index(fields=["user"]),
+        ]
 
     def __str__(self):
         return f"{self.user_id}->{self.playlist_id}"

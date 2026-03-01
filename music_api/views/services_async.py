@@ -12,6 +12,13 @@ def _safe_cache_key(prefix, *parts):
     return f"{prefix}:{digest}"
 
 
+def _build_track_cache_key(prefix, mbid, name, artist):
+    """Использует mbid для стабильного ключа кэша, fallback на (artist, name)."""
+    if mbid and str(mbid).strip():
+        return _safe_cache_key(prefix, str(mbid).strip())
+    return _safe_cache_key(prefix, str(artist or "").lower(), str(name or "").lower())
+
+
 def _build_http_client():
     return httpx.AsyncClient(
         limits=httpx.Limits(max_connections=20, max_keepalive_connections=5),
@@ -34,7 +41,8 @@ async def _get_itunes_batch_async(tracks):
     async def fetch_track_data(track):
         name = track["name"]
         artist = track["artist"]
-        cache_key = _safe_cache_key("itunes", artist.lower(), name.lower())
+        mbid = track.get("mbid") or ""
+        cache_key = _build_track_cache_key("itunes", mbid, name, artist)
         cached = cache.get(cache_key)
         if cached is not None:
             return (name, artist), cached
@@ -104,7 +112,8 @@ async def _get_deezer_batch_async(tracks):
     async def fetch_track_data(track):
         name = track["name"]
         artist = track["artist"]
-        cache_key = _safe_cache_key("deezer", artist.lower(), name.lower())
+        mbid = track.get("mbid") or ""
+        cache_key = _build_track_cache_key("deezer", mbid, name, artist)
         cached = cache.get(cache_key)
         if cached is not None:
             return (name, artist), cached
@@ -202,12 +211,16 @@ async def _get_lastfm_tracks_by_genre_async(genre, limit=30):
 
             async def fetch_track_info(track, client):
                 try:
-                    artist_name = (track.get("artist") or {}).get("name")
+                    artist_obj = track.get("artist")
+                    artist_name = (
+                        artist_obj.get("name")
+                        if isinstance(artist_obj, dict)
+                        else artist_obj
+                    )
                     track_name = track.get("name")
-                    cache_key = _safe_cache_key(
-                        "lastfm_track_info",
-                        (artist_name or "").lower(),
-                        (track_name or "").lower(),
+                    mbid = track.get("mbid") or ""
+                    cache_key = _build_track_cache_key(
+                        "lastfm_track_info", mbid, track_name, artist_name
                     )
                     cached = cache.get(cache_key)
                     if isinstance(cached, dict):
@@ -254,12 +267,16 @@ async def _get_lastfm_tracks_by_genre_async(genre, limit=30):
                     track["playcount"] = 0
 
                     try:
-                        artist_name = (track.get("artist") or {}).get("name")
+                        artist_obj = track.get("artist")
+                        artist_name = (
+                            artist_obj.get("name")
+                            if isinstance(artist_obj, dict)
+                            else artist_obj
+                        )
                         track_name = track.get("name")
-                        cache_key = _safe_cache_key(
-                            "lastfm_track_info",
-                            (artist_name or "").lower(),
-                            (track_name or "").lower(),
+                        mbid = track.get("mbid") or ""
+                        cache_key = _build_track_cache_key(
+                            "lastfm_track_info", mbid, track_name, artist_name
                         )
                         cache.set(
                             cache_key, {"listeners": 0, "playcount": 0}, timeout=60 * 10

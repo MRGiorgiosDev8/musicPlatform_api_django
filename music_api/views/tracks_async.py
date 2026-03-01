@@ -53,7 +53,11 @@ async def _enrich_tracks_list_async(tracks_list):
         if not artist_name:
             continue
 
-        tracks_for_batch.append({"name": name, "artist": artist_name})
+        item = {"name": name, "artist": artist_name}
+        mbid_val = tr.get("mbid")
+        if mbid_val and str(mbid_val).strip():
+            item["mbid"] = str(mbid_val).strip()
+        tracks_for_batch.append(item)
 
     itunes_batch = tracks_for_batch[:ITUNES_BATCH_LIMIT]
     deezer_batch = tracks_for_batch[:DEEZER_BATCH_LIMIT]

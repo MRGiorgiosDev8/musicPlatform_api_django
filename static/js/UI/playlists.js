@@ -429,7 +429,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const trackName = (trackItem.dataset.trackName || '').trim();
         const trackArtist = (trackItem.dataset.trackArtist || '').trim();
+        const trackMbid = (trackItem.dataset.trackMbid || '').trim();
         if (!trackName || !trackArtist) return;
+
+        const deletePayload = { name: trackName, artist: trackArtist };
+        if (trackMbid) deletePayload.mbid = trackMbid;
 
         button.disabled = true;
         try {
@@ -439,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: (typeof window.buildAuthHeaders === 'function')
                     ? window.buildAuthHeaders(true, true)
                     : { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: trackName, artist: trackArtist }),
+                body: JSON.stringify(deletePayload),
             });
 
             if (!response.ok) {

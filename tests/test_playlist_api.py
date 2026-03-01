@@ -78,6 +78,53 @@ async def test_playlist_me_patch_updates_title(authorized_async_api_client, user
 
 
 @pytest.mark.django_db(transaction=True)
+async def test_playlist_add_track_stores_mbid_when_provided(
+    authorized_async_api_client, user
+):
+    response = await authorized_async_api_client.post(
+        "/api/playlists/me/tracks/",
+        json={
+            "name": "Numb",
+            "artist": "Linkin Park",
+            "mbid": "abc123-uuid-mbid",
+        },
+    )
+    playlist = await sync_to_async(Playlist.objects.get)(user=user, title="Favorites")
+
+    assert response.status_code == 201
+    assert len(playlist.tracks) == 1
+    assert playlist.tracks[0]["mbid"] == "abc123-uuid-mbid"
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_playlist_add_track_dedup_by_mbid(authorized_async_api_client, user):
+    """Дубликат по mbid отклоняется, даже если name/artist отличаются
+    (ошибочные данные)."""
+    first = await authorized_async_api_client.post(
+        "/api/playlists/me/tracks/",
+        json={
+            "name": "Numb",
+            "artist": "Linkin Park",
+            "mbid": "same-mbid-123",
+        },
+    )
+    second = await authorized_async_api_client.post(
+        "/api/playlists/me/tracks/",
+        json={
+            "name": "Numb (Remix)",
+            "artist": "Linkin Park",
+            "mbid": "same-mbid-123",
+        },
+    )
+
+    playlist = await sync_to_async(Playlist.objects.get)(user=user, title="Favorites")
+
+    assert first.status_code == 201
+    assert second.status_code == 409
+    assert len(playlist.tracks) == 1
+
+
+@pytest.mark.django_db(transaction=True)
 async def test_playlist_me_patch_rejects_empty_title(authorized_async_api_client):
     response = await authorized_async_api_client.patch(
         "/api/playlists/me/",

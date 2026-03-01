@@ -34,6 +34,15 @@ def _update_favorites_title(user, title):
     return playlist
 
 
+def _normalize_track_for_storage(track):
+    """Возвращает dict для хранения в плейлисте с опциональным mbid."""
+    stored = {"name": track["name"], "artist": track["artist"]}
+    mbid = track.get("mbid")
+    if mbid and str(mbid).strip():
+        stored["mbid"] = str(mbid).strip()
+    return stored
+
+
 @sync_to_async
 def _add_track_to_favorites(user, track):
     with transaction.atomic():
@@ -46,19 +55,30 @@ def _add_track_to_favorites(user, track):
         if playlist is None:
             playlist = Playlist.objects.create(user=user, title="Favorites", tracks=[])
         tracks = playlist.tracks or []
-        normalized = {
-            (
+
+        new_mbid = track.get("mbid")
+        if new_mbid:
+            new_mbid = str(new_mbid).strip()
+
+        for item in tracks:
+            if not isinstance(item, dict):
+                continue
+            if new_mbid:
+                existing_mbid = item.get("mbid")
+                if existing_mbid and str(existing_mbid).strip() == new_mbid:
+                    return playlist, False
+            name_key = (
                 str(item.get("name", "")).strip().lower(),
                 str(item.get("artist", "")).strip().lower(),
             )
-            for item in tracks
-            if isinstance(item, dict)
-        }
-        key = (track["name"].strip().lower(), track["artist"].strip().lower())
-        if key in normalized:
-            return playlist, False
+            track_key = (
+                track["name"].strip().lower(),
+                track["artist"].strip().lower(),
+            )
+            if name_key == track_key:
+                return playlist, False
 
-        tracks.append({"name": track["name"], "artist": track["artist"]})
+        tracks.append(_normalize_track_for_storage(track))
         playlist.tracks = tracks
         playlist.save(update_fields=["tracks"])
         return playlist, True
@@ -79,18 +99,27 @@ def _remove_track_from_favorites(user, track):
 
         updated_tracks = []
         removed = False
+        track_mbid = track.get("mbid")
+        if track_mbid:
+            track_mbid = str(track_mbid).strip()
+        track_name_key = track["name"].strip().lower()
+        track_artist_key = track["artist"].strip().lower()
 
         for item in tracks:
-            if isinstance(item, dict):
-                item_name = str(item.get("name", "")).strip().lower()
-                item_artist = str(item.get("artist", "")).strip().lower()
-                track_name = track["name"].strip().lower()
-                track_artist = track["artist"].strip().lower()
-
-                if item_name == track_name and item_artist == track_artist:
+            if not isinstance(item, dict):
+                updated_tracks.append(item)
+                continue
+            if track_mbid:
+                item_mbid = item.get("mbid")
+                if item_mbid and str(item_mbid).strip() == track_mbid:
                     removed = True
-                else:
-                    updated_tracks.append(item)
+                    continue
+            item_name = str(item.get("name", "")).strip().lower()
+            item_artist = str(item.get("artist", "")).strip().lower()
+            if item_name == track_name_key and item_artist == track_artist_key:
+                removed = True
+            else:
+                updated_tracks.append(item)
 
         if removed:
             playlist.tracks = updated_tracks
@@ -159,7 +188,11 @@ class PlaylistTrackAddAPIView(APIView):
                 {"detail": "Both name and artist are required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return {"name": name, "artist": artist}, None
+        track = {"name": name, "artist": artist}
+        mbid = str(request.data.get("mbid", "")).strip()
+        if mbid:
+            track["mbid"] = mbid
+        return track, None
 
     def post(self, request):
         track, error_response = self._validate_track_payload(request)

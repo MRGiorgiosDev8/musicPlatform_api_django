@@ -218,7 +218,11 @@ const setupMusicSearch = () => {
     }
 
     try {
-      const favoriteButton = await window.createFavoriteButtonWithCheck(track.name, track.artist);
+      const favoriteButton = await window.createFavoriteButtonWithCheck(
+        track.name,
+        track.artist,
+        track.mbid || null
+      );
       const syncFavoriteVisualState = () => {
         const isActive = favoriteButton.getAttribute("aria-pressed") === "true";
         const icon = favoriteButton.querySelector("i");

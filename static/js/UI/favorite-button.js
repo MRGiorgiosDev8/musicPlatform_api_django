@@ -154,14 +154,15 @@ async function ensureFavoritesLoaded() {
     return favoritesLoadPromise;
 }
 
-async function updateFavoriteStatus(trackName, artistName, shouldAdd) {
+async function updateFavoriteStatus(trackName, artistName, shouldAdd, mbid = null) {
+    const payload = { name: trackName, artist: artistName };
+    if (mbid && String(mbid).trim()) {
+        payload.mbid = String(mbid).trim();
+    }
     const response = await favoritesRequest(FAVORITES_TRACKS_URL, {
         method: shouldAdd ? 'POST' : 'DELETE',
         headers: buildAuthHeaders(true, true),
-        body: JSON.stringify({
-            name: trackName,
-            artist: artistName,
-        }),
+        body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -185,7 +186,7 @@ function emitFavoriteToggled(trackName, artistName, isFavorite) {
     );
 }
 
-function createFavoriteButton(trackName, artistName, isFavorite = false) {
+function createFavoriteButton(trackName, artistName, isFavorite = false, mbid = null) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'btn btn-outline-danger btn-sm';
@@ -207,7 +208,7 @@ function createFavoriteButton(trackName, artistName, isFavorite = false) {
 
         const shouldAdd = !currentState;
         try {
-            await updateFavoriteStatus(trackName, artistName, shouldAdd);
+            await updateFavoriteStatus(trackName, artistName, shouldAdd, mbid);
             currentState = shouldAdd;
             if (currentState) {
                 favoritesKeySet.add(trackKey);
@@ -237,9 +238,9 @@ async function isTrackFavorite(trackName, artistName) {
     }
 }
 
-async function createFavoriteButtonWithCheck(trackName, artistName) {
+async function createFavoriteButtonWithCheck(trackName, artistName, mbid = null) {
     const isFavorite = await isTrackFavorite(trackName, artistName);
-    return createFavoriteButton(trackName, artistName, isFavorite);
+    return createFavoriteButton(trackName, artistName, isFavorite, mbid);
 }
 
 function resetFavoritesCache() {

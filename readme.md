@@ -297,6 +297,24 @@
 - **test**: Добавлены и успешно пройдены pytest-тесты для Wikipedia API (`/api/wikipedia/artists/`).
 ---
 
+#### 2026-03-01 — Throttling, индексы БД и поддержка mbid
+- **feat**: Глобальный throttling для DRF в `base.py`:
+  - `DEFAULT_THROTTLE_CLASSES`: `AnonRateThrottle`, `UserRateThrottle`
+  - `DEFAULT_THROTTLE_RATES`: анонимы — 100/час, авторизованные — 1000/час
+- **perf**: Индексы для моделей `Playlist` и `PlaylistLike`:
+  - `Playlist`: индекс по полям `(user, created_at)` для ускорения `_get_or_create_favorites`
+  - `PlaylistLike`: индексы по `playlist` и `user` для быстрой фильтрации лайков
+- **feat**: Поддержка **mbid** (MusicBrainz ID) для стабильной идентификации треков:
+  - Хелпер `_build_track_cache_key` — использует mbid при наличии, иначе `(artist, name)`
+  - iTunes, Deezer и Last.fm `track.getInfo` применяют mbid в ключах кэша
+  - API плейлистов: опциональное поле `mbid` в `POST/DELETE /api/playlists/me/tracks/`
+  - Хранение mbid в `Playlist.tracks`, дедупликация по mbid, fallback на name+artist
+  - Фронтенд передаёт mbid при добавлении (Year Chart, поиск) и удалении треков
+**test**: 
+    * Добавлены кейсы: `test_playlist_add_track_stores_mbid_when_provided` и `test_playlist_add_track_dedup_by_mbid`.
+    * **Результат**: 49 тестов пройдены успешно (Full Green).
+---
+
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
 **Использование готового образа:**
