@@ -310,7 +310,8 @@
   - API плейлистов: опциональное поле `mbid` в `POST/DELETE /api/playlists/me/tracks/`
   - Хранение mbid в `Playlist.tracks`, дедупликация по mbid, fallback на name+artist
   - Фронтенд передаёт mbid при добавлении (Year Chart, поиск) и удалении треков
-**test**: 
+
+  **test**: 
     * Добавлены кейсы: `test_playlist_add_track_stores_mbid_when_provided` и `test_playlist_add_track_dedup_by_mbid`.
     * **Результат**: 49 тестов пройдены успешно (Full Green).
 ---
