@@ -327,7 +327,7 @@
     * **Результат**: 49 тестов пройдены успешно (Full Green).
 ---
 
-#### 2026-03-02 — Frontend Unit Testing и CI-разделение пайплайна
+#### 2026-03-02 — Frontend Unit Testing, WebSocket и CI-разделение пайплайна
 - **test**: Добавлена полноценная инфраструктура frontend unit-тестов на **Vitest** (`tests/js`).
   - Покрыты модули: `favorite-button`, `music_search`, `playlists`, `public-playlist`, `artist_wikipedia_modal`, `year2025`, `trending`.
   - Проверены сценарии: фильтры, сортировка, пагинация, cache TTL, batching очередей, fallback-обработка ошибок API.
@@ -337,6 +337,7 @@
   - `frontend-test` (Node setup, `npm ci`, `npm run lint:js`, `npx vitest run`),
   - `test` (backend pytest + миграции) с зависимостью от `lint` и `frontend-test`.
 - **chore**: Добавлены настройки **ESLint + Prettier** и npm-скрипты для frontend (`lint:js`, `lint:js:fix`, `format`, `format:check`).
+- **feat**: Добавлен **WebSocket** через **Django Channels** для realtime-уведомлений без перезагрузки страницы (`ws/notifications/`).
 - **feat**: Реализован WebSocket-канал уведомлений через **Django Channels**:
   - endpoint: `ws/notifications/` для авторизованных пользователей;
   - realtime push-уведомления о новых лайках публичного плейлиста;

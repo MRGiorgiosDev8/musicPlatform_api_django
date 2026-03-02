@@ -21,11 +21,7 @@ async def test_websocket_rejects_anonymous_user():
 @pytest.mark.asyncio
 async def test_websocket_pushes_like_notification_to_recipient(user):
     client = Client()
-    login_ok = await sync_to_async(client.login)(
-        username=user.username,
-        password="test-pass-123",
-    )
-    assert login_ok
+    await sync_to_async(client.force_login)(user)
     session_cookie = client.cookies["sessionid"].value
 
     communicator = WebsocketCommunicator(
