@@ -43,7 +43,7 @@ describe('public-playlist P1', () => {
   it('toggles public like via POST then DELETE and updates UI', async () => {
     document.body.innerHTML = `
       <div data-public-like-root data-public-username="john doe"></div>
-      <button id="public-playlist-like-btn" aria-pressed="false" class="btn btn-sm btn-outline-danger"></button>
+      <button id="public-playlist-like-btn" aria-pressed="false" class="btn btn-sm btn-danger"></button>
       <span id="public-profile-likes-stat">0</span>
       <div id="public-playlist-root"></div>
     `;
@@ -86,7 +86,7 @@ describe('public-playlist P1', () => {
       expect.objectContaining({ method: 'DELETE' })
     );
     expect(button.getAttribute('aria-pressed')).toBe('false');
-    expect(button.className).toContain('btn-outline-danger');
+    expect(button.className).toContain('btn-danger');
     expect(likes.textContent).toBe('10');
   });
 

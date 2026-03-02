@@ -4,8 +4,11 @@ from django.contrib.auth.models import AnonymousUser
 
 from .presence import (
     decrement_user_connections,
+    get_user_last_seen_iso,
+    get_user_last_seen_display,
     increment_user_connections,
     is_user_online,
+    set_user_last_seen_now,
 )
 
 
@@ -64,6 +67,8 @@ class PresenceConsumer(AsyncJsonWebsocketConsumer):
                         "type": "presence.changed",
                         "user_id": self.user_id,
                         "is_online": True,
+                        "last_seen_display": None,
+                        "last_seen_iso": None,
                     },
                 )
 
@@ -81,12 +86,20 @@ class PresenceConsumer(AsyncJsonWebsocketConsumer):
                 self.user_id
             )
             if became_offline:
+                last_seen_iso = await sync_to_async(set_user_last_seen_now)(
+                    self.user_id
+                )
+                last_seen_display = await sync_to_async(get_user_last_seen_display)(
+                    self.user_id
+                )
                 await self.channel_layer.group_send(
                     self.group_name_for_user(self.user_id),
                     {
                         "type": "presence.changed",
                         "user_id": self.user_id,
                         "is_online": False,
+                        "last_seen_display": last_seen_display,
+                        "last_seen_iso": last_seen_iso,
                     },
                 )
 
@@ -111,11 +124,18 @@ class PresenceConsumer(AsyncJsonWebsocketConsumer):
             )
 
         online_now = await sync_to_async(is_user_online)(user_id)
+        last_seen_display = None
+        last_seen_iso = None
+        if not online_now:
+            last_seen_iso = await sync_to_async(get_user_last_seen_iso)(user_id)
+            last_seen_display = await sync_to_async(get_user_last_seen_display)(user_id)
         await self.send_json(
             {
                 "type": "presence_status",
                 "user_id": user_id,
                 "is_online": online_now,
+                "last_seen_display": last_seen_display,
+                "last_seen_iso": last_seen_iso,
             }
         )
 
@@ -133,5 +153,7 @@ class PresenceConsumer(AsyncJsonWebsocketConsumer):
                 "type": "presence_status",
                 "user_id": event.get("user_id"),
                 "is_online": bool(event.get("is_online")),
+                "last_seen_display": event.get("last_seen_display"),
+                "last_seen_iso": event.get("last_seen_iso"),
             }
         )

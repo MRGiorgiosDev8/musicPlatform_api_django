@@ -37,7 +37,7 @@
                      data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
                     {% if user.is_authenticated and user.username != profile_user.username %}
                         <button type="button"
-                                class="btn btn-sm {% if liked_by_me %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                                class="btn btn-sm btn-danger"
                                 id="public-playlist-like-btn"
                                 aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
                             <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
@@ -51,9 +51,11 @@
             <span class="badge text-bg-light border d-inline-flex align-items-center gap-2"
                   data-presence-badge
                   data-presence-user-id="{{ profile_user.id }}"
+                  data-presence-last-seen-iso="{{ profile_user_last_seen_iso|default:'' }}"
+                  data-presence-last-seen="{{ profile_user_last_seen_display }}"
                   data-presence-online="{% if profile_user_is_online %}true{% else %}false{% endif %}">
                 <span class="presence-dot {% if profile_user_is_online %}is-online{% endif %}"></span>
-                <span class="presence-label">{% if profile_user_is_online %}Онлайн{% else %}Оффлайн{% endif %}</span>
+                <span class="presence-label">{% if profile_user_is_online %}Онлайн{% else %}{{ profile_user_last_seen_display }}{% endif %}</span>
             </span>
             <span class="badge text-bg-light border">
                 <i class="bi bi-heart-fill text-danger me-1"></i>

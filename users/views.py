@@ -12,7 +12,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from .serializers import UserSerializer
 from .forms import SignupForm, ProfileUpdateForm, LoginForm
-from .presence import is_user_online
+from .presence import get_user_last_seen_display, get_user_last_seen_iso, is_user_online
 from music_api.models import Playlist, PlaylistLikeNotification
 from music_api.views.tracks_async import _enrich_tracks_list_async
 
@@ -53,6 +53,13 @@ def signup_view(request):
 @login_required
 def profile_view(request):
     if request.method == "POST":
+        if request.POST.get("reset_avatar") == "1":
+            if request.user.avatar:
+                request.user.avatar.delete(save=False)
+                request.user.avatar = None
+                request.user.save(update_fields=["avatar"])
+            return redirect("profile")
+
         form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             user = form.save()
@@ -130,6 +137,10 @@ def public_user_page_view(request, username):
             "liked_by_me": liked_by_me,
             "tracks_count": len(raw_tracks),
             "profile_user_is_online": is_user_online(profile_user.id),
+            "profile_user_last_seen_display": get_user_last_seen_display(
+                profile_user.id
+            ),
+            "profile_user_last_seen_iso": get_user_last_seen_iso(profile_user.id),
         },
     )
 
