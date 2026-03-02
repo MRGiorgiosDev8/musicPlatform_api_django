@@ -13,7 +13,7 @@
     </nav>
 
     <section class="profile-widget mb-4 pre-animation" id="public-card">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 public-header-layout">
             <div class="d-flex align-items-center gap-3">
                 <div class="profile-avatar-wrap flex-shrink-0" style="width: 82px; height: 82px; margin: 0;">
                     {% if profile_user.avatar %}
@@ -23,38 +23,15 @@
                             <i class="bi bi-person-fill"></i>
                         </div>
                     {% endif %}
-                    <span class="presence-avatar-dot {% if profile_user_is_online %}is-online{% endif %}"
-                          data-presence-indicator
-                          data-presence-user-id="{{ profile_user.id }}"
-                          aria-hidden="true"></span>
                 </div>
                 <div>
                     <h1 class="h4 mb-1">{{ profile_user.username }}</h1>
                     <div class="small text-muted">{{ playlist.title }}</div>
-                    <div class="d-flex flex-wrap gap-2 mt-2 public-profile-stats">
-                        <span class="badge text-bg-light border d-inline-flex align-items-center gap-2"
-                              data-presence-badge
-                              data-presence-user-id="{{ profile_user.id }}"
-                              data-presence-online="{% if profile_user_is_online %}true{% else %}false{% endif %}">
-                            <span class="presence-dot {% if profile_user_is_online %}is-online{% endif %}"></span>
-                            <span class="presence-label">{% if profile_user_is_online %}Онлайн{% else %}Оффлайн{% endif %}</span>
-                        </span>
-                        <span class="badge text-bg-light border">
-                            <i class="bi bi-heart-fill text-danger me-1"></i>
-                            <span id="public-profile-likes-stat">{{ likes_count }}</span>
-                        </span>
-                        <span class="badge text-bg-light border">
-                            <i class="bi bi-music-note-list text-danger me-1"></i> {{ tracks_count }}
-                        </span>
-                        <span class="badge text-bg-light border d-none d-md-inline-flex">
-                            <i class="bi bi-clock-history text-danger me-1"></i> Обновлено: {{ playlist.created_at|date:"d.m.Y" }}
-                        </span>
-                    </div>
                 </div>
             </div>
 
             {% if is_public_available %}
-                <div class="d-flex align-items-center gap-2"
+                <div class="d-flex align-items-center gap-2 public-like-wrap"
                      data-public-like-root
                      data-public-username="{{ profile_user.username }}"
                      data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
@@ -69,6 +46,25 @@
                     {% endif %}
                 </div>
             {% endif %}
+        </div>
+        <div class="d-flex mt-2 public-profile-stats-mobile">
+            <span class="badge text-bg-light border d-inline-flex align-items-center gap-2"
+                  data-presence-badge
+                  data-presence-user-id="{{ profile_user.id }}"
+                  data-presence-online="{% if profile_user_is_online %}true{% else %}false{% endif %}">
+                <span class="presence-dot {% if profile_user_is_online %}is-online{% endif %}"></span>
+                <span class="presence-label">{% if profile_user_is_online %}Онлайн{% else %}Оффлайн{% endif %}</span>
+            </span>
+            <span class="badge text-bg-light border">
+                <i class="bi bi-heart-fill text-danger me-1"></i>
+                <span data-public-likes-stat>{{ likes_count }}</span>
+            </span>
+            <span class="badge text-bg-light border">
+                <i class="bi bi-music-note-list text-danger me-1"></i> {{ tracks_count }}
+            </span>
+            <span class="badge text-bg-light border d-none d-md-inline-flex">
+                <i class="bi bi-clock-history text-danger me-1"></i> Обновлено: {{ playlist.created_at|date:"d.m.Y" }}
+            </span>
         </div>
     </section>
 
@@ -146,7 +142,7 @@
                 </form>
             {% else %}
                 <div class="alert alert-light border small mb-3">
-                    Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите в аккаунт</a>.
+                    Чтобы оставить комментарий, <a href="{% url 'login' %}" class="text-danger">войдите в аккаунт</a>.
                 </div>
             {% endif %}
 

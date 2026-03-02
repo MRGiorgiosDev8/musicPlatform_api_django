@@ -35,13 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setBadgeState(badge, isOnline);
       }
     });
-    const indicators = Array.from(document.querySelectorAll('[data-presence-indicator]'));
-    indicators.forEach((indicator) => {
-      const indicatorUserId = Number.parseInt(indicator.dataset.presenceUserId || '', 10);
-      if (indicatorUserId === userId) {
-        indicator.classList.toggle('is-online', Boolean(isOnline));
-      }
-    });
   };
 
   badges.forEach((badge) => {

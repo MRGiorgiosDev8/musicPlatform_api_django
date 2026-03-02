@@ -35,7 +35,9 @@ const computePublicPlaylistPagination = (
 const initPublicPlaylistPage = () => {
   const likeRoot = document.querySelector('[data-public-like-root]');
   const likeButton = document.getElementById('public-playlist-like-btn');
-  const likesCounter = document.getElementById('public-profile-likes-stat');
+  const likesCounters = Array.from(
+    document.querySelectorAll('[data-public-likes-stat], #public-profile-likes-stat')
+  );
   const username = likeRoot ? likeRoot.dataset.publicUsername : '';
 
   const updateLikeButton = (liked) => {
@@ -77,7 +79,9 @@ const initPublicPlaylistPage = () => {
         }
 
         updateLikeButton(Boolean(payload.liked_by_me));
-        if (likesCounter) likesCounter.textContent = String(payload.likes_count || 0);
+        likesCounters.forEach((likesCounter) => {
+          likesCounter.textContent = String(payload.likes_count || 0);
+        });
       } catch (error) {
         console.error('Public like toggle failed:', error);
       } finally {

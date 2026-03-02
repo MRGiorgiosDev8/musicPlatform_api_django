@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const knownIds = new Set();
   let socket = null;
   let reconnectTimer = null;
+  let commentsCount = Number.parseInt(countNode.textContent || '0', 10) || 0;
 
   const escapeHtml = (value) =>
     String(value)
@@ -30,20 +31,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
-    countNode.textContent = String(count);
+    if (count !== commentsCount) {
+      if (
+        window.PublicCommentsAnimation &&
+        typeof window.PublicCommentsAnimation.flipCommentsCount === 'function'
+      ) {
+        window.PublicCommentsAnimation.flipCommentsCount(countNode, count);
+      } else {
+        countNode.textContent = String(count);
+      }
+      commentsCount = count;
+    }
     empty.classList.toggle('d-none', count > 0);
   };
 
   const removeCommentById = (commentId) => {
     const node = list.querySelector(`[data-comment-id="${commentId}"]`);
-    if (node) {
-      node.remove();
+    const finalize = () => {
+      if (node) {
+        node.remove();
+      }
+      knownIds.delete(Number(commentId));
+      updateMeta();
+    };
+
+    if (
+      node &&
+      window.PublicCommentsAnimation &&
+      typeof window.PublicCommentsAnimation.collapseDeleteComment === 'function'
+    ) {
+      window.PublicCommentsAnimation.collapseDeleteComment(node, finalize);
+      return;
     }
-    knownIds.delete(Number(commentId));
-    updateMeta();
+    finalize();
   };
 
-  const renderComment = (comment, appendToBottom = true) => {
+  const renderComment = (comment, appendToBottom = true, shouldPulse = false) => {
     if (!comment || !Number.isInteger(Number(comment.id))) {
       return;
     }
@@ -61,11 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeText = comment.created_at_display || '';
     const author = escapeHtml(comment.author_username || 'Unknown user');
     const text = escapeHtml(comment.text || '');
+    const avatarUrl = comment.author_avatar_url ? String(comment.author_avatar_url) : '';
+    const safeAvatarUrl = escapeHtml(avatarUrl);
+    const authorAvatar = avatarUrl
+      ? `<img src="${safeAvatarUrl}" alt="${author}" class="public-comment-author-avatar" loading="lazy">`
+      : '<span class="public-comment-author-fallback" aria-hidden="true"><i class="bi bi-person-fill"></i></span>';
 
     item.innerHTML = `
       <div class="public-comment-meta">
         <div class="d-flex align-items-center gap-2">
-          <a href="${authorUrl}" class="public-comment-author text-decoration-none">${author}</a>
+          <a href="${authorUrl}" class="public-comment-author-row text-decoration-none">
+            ${authorAvatar}
+            <span class="public-comment-author">${author}</span>
+          </a>
           <span class="public-comment-time">${timeText}</span>
         </div>
         ${
@@ -84,6 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     knownIds.add(id);
     updateMeta();
+
+    if (
+      shouldPulse &&
+      window.PublicCommentsAnimation &&
+      typeof window.PublicCommentsAnimation.pulseNewComment === 'function'
+    ) {
+      window.PublicCommentsAnimation.pulseNewComment(item);
+    }
   };
 
   const loadComments = async () => {
@@ -101,7 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     list.innerHTML = '';
     knownIds.clear();
-    (payload.results || []).forEach((comment) => renderComment(comment, true));
+    (payload.results || []).forEach((comment) => renderComment(comment, true, false));
+    commentsCount = list.querySelectorAll('[data-comment-id]').length;
     updateMeta();
   };
 
@@ -134,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(payload.detail || `HTTP ${response.status}`);
       }
 
-      renderComment(payload, true);
+      renderComment(payload, true, true);
       textInput.value = '';
     } catch (error) {
       console.error('Create comment failed:', error);
@@ -203,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const payload = JSON.parse(event.data);
         if (payload.type === 'playlist_comment_created') {
-          renderComment(payload.comment, true);
+          renderComment(payload.comment, true, true);
         } else if (payload.type === 'playlist_comment_deleted') {
           removeCommentById(payload.comment_id);
         }

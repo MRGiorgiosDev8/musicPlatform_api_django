@@ -356,6 +356,9 @@ def _serialize_comment(comment, current_user, playlist_owner_id):
         "id": comment.id,
         "text": comment.text,
         "author_username": comment.author.username,
+        "author_avatar_url": (
+            comment.author.avatar.url if comment.author.avatar else None
+        ),
         "author_profile_url": reverse(
             "public_user_page", args=[comment.author.username]
         ),
