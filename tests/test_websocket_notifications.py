@@ -7,7 +7,6 @@ from django.test import Client
 from music_api.models import Playlist, PlaylistLike
 from music_project.asgi import application
 
-
 pytestmark = pytest.mark.django_db(transaction=True)
 
 
