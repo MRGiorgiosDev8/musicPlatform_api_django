@@ -49,6 +49,7 @@
 - **PostgreSQL** (Основная БД)
 - **Pytest** (Тесты)
 - **Vitest** (Unit-тесты фронтенда)
+- **WebSocket (Django Channels)** (realtime-обновления)
 - **Docker & Docker Compose**
 - **GitHub Actions** (настроенный CI/CD-пайплайн)
 - **Uvicorn(ASGI)**
@@ -334,7 +335,16 @@
 - **ci**: GitHub Actions разделен на отдельные job:
   - `lint` (Python code style),
   - `frontend-test` (Node setup, `npm ci`, `npm run lint:js`, `npx vitest run`),
+  - `test` (backend pytest + миграции) с зависимостью от `lint` и `frontend-test`.
 - **chore**: Добавлены настройки **ESLint + Prettier** и npm-скрипты для frontend (`lint:js`, `lint:js:fix`, `format`, `format:check`).
+- **feat**: Реализован WebSocket-канал уведомлений через **Django Channels**:
+  - endpoint: `ws/notifications/` для авторизованных пользователей;
+  - realtime push-уведомления о новых лайках публичного плейлиста;
+  - backend: `ProtocolTypeRouter`, `CHANNEL_LAYERS`, `NotificationConsumer`, отправка из `users/signals.py`;
+  - frontend: обновление блока уведомлений профиля без перезагрузки (`realtime_notifications.js`).
+- **test**: Добавлены websocket-тесты backend:
+  - запрет подключения анонимного пользователя;
+  - доставка realtime-события при создании лайка.
 ---
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>

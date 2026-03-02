@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "compressor",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "music_project.wsgi.application"
+ASGI_APPLICATION = "music_project.asgi.application"
 
 DATABASES = {
     "default": dj_database_url.parse(
@@ -142,6 +144,22 @@ else:
             "LOCATION": "musicplatform-local-cache",
             "TIMEOUT": 60 * 60,
             "KEY_PREFIX": "musicplatform",
+        }
+    }
+
+if USE_DOCKER:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(REDIS_HOST, REDIS_PORT)],
+            },
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
         }
     }
 

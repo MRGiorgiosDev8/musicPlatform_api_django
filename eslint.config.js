@@ -30,6 +30,7 @@ module.exports = [
         sessionStorage: "readonly",
         requestAnimationFrame: "readonly",
         getComputedStyle: "readonly",
+        WebSocket: "readonly",
         console: "readonly",
         setTimeout: "readonly",
         clearTimeout: "readonly",

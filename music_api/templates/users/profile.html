@@ -210,21 +210,21 @@
                         <div class="profile-widget-title fs-5 text-nowrap mb-0">Лайки публичного избранного</div>
                     </div>
 
-                    {% if like_notifications %}
-                        <div class="d-flex flex-column gap-2">
-                            {% for note in like_notifications %}
-                                <div class="small">
-                                    <a href="{% url 'public_user_page' note.actor.username %}" class="text-decoration-none">
-                                        <strong>{{ note.actor.username }}</strong>
-                                    </a>
-                                    поставил(а) лайк вашему плейлисту
-                                    <span class="text-muted">({{ note.created_at|date:"d.m.Y H:i" }})</span>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="small text-muted">Пока нет лайков публичного плейлиста.</div>
-                    {% endif %}
+                    <div id="like-notifications-list" class="d-flex flex-column gap-2">
+                        {% for note in like_notifications %}
+                            <div class="small js-like-notification-item">
+                                <a href="{% url 'public_user_page' note.actor.username %}" class="text-decoration-none">
+                                    <strong>{{ note.actor.username }}</strong>
+                                </a>
+                                поставил(а) лайк вашему плейлисту
+                                <span class="text-muted">({{ note.created_at|date:"d.m.Y H:i" }})</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div id="like-notifications-empty"
+                         class="small text-muted {% if like_notifications %}d-none{% endif %}">
+                        Пока нет лайков публичного плейлиста.
+                    </div>
                 </section>
 
                 <div class="text-center pt-3">
