@@ -70,3 +70,26 @@ class PlaylistLikeNotification(models.Model):
 
     def __str__(self):
         return f"{self.actor_id} liked {self.playlist_id} for {self.recipient_id}"
+
+
+class PlaylistComment(models.Model):
+    playlist = models.ForeignKey(
+        Playlist, on_delete=models.CASCADE, related_name="comments"
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="playlist_comments",
+    )
+    text = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["playlist", "created_at"]),
+            models.Index(fields=["author", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"comment:{self.id} playlist:{self.playlist_id} author:{self.author_id}"

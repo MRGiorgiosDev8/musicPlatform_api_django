@@ -4,16 +4,20 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth import get_user_model
 from django.db.models import Count
 from django.db import transaction
+from django.urls import reverse
+from django.utils.timezone import localtime
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .tracks_async import _enrich_tracks_list_async
-from ..models import Playlist, PlaylistLike
+from ..models import Playlist, PlaylistComment, PlaylistLike
+from ..ws import send_public_playlist_comment_event
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+COMMENT_MAX_LENGTH = 1000
 
 
 @sync_to_async
@@ -342,6 +346,126 @@ def _get_public_playlists_top(limit=8):
     return rows
 
 
+def _serialize_comment(comment, current_user, playlist_owner_id):
+    can_delete = False
+    if current_user and current_user.is_authenticated:
+        can_delete = current_user.id in {comment.author_id, playlist_owner_id}
+
+    created_dt = localtime(comment.created_at)
+    return {
+        "id": comment.id,
+        "text": comment.text,
+        "author_username": comment.author.username,
+        "author_profile_url": reverse(
+            "public_user_page", args=[comment.author.username]
+        ),
+        "created_at": created_dt.isoformat(),
+        "created_at_display": created_dt.strftime("%d.%m.%Y %H:%M"),
+        "can_delete": can_delete,
+    }
+
+
+@sync_to_async
+def _list_public_playlist_comments(username, current_user, limit=50):
+    user = (
+        User.objects.filter(username__iexact=username)
+        .only("id", "is_public_favorites")
+        .first()
+    )
+    if not user or not user.is_public_favorites:
+        return None, None
+
+    playlist = Playlist.objects.filter(user=user).order_by("created_at").first()
+    if playlist is None:
+        playlist = Playlist.objects.create(user=user, title="Favorites", tracks=[])
+
+    comments_qs = (
+        PlaylistComment.objects.filter(playlist=playlist)
+        .select_related("author")
+        .order_by("-created_at")[: max(1, min(100, int(limit)))]
+    )
+    comments = list(comments_qs)
+    comments.reverse()
+
+    serialized = [
+        _serialize_comment(
+            comment=comment,
+            current_user=current_user,
+            playlist_owner_id=playlist.user_id,
+        )
+        for comment in comments
+    ]
+    return playlist, serialized
+
+
+@sync_to_async
+def _create_public_playlist_comment(username, acting_user, text):
+    if not acting_user or not acting_user.is_authenticated:
+        return None, None, "unauthorized"
+
+    clean_text = str(text or "").strip()
+    if not clean_text:
+        return None, None, "empty_text"
+    if len(clean_text) > COMMENT_MAX_LENGTH:
+        return None, None, "too_long"
+
+    user = (
+        User.objects.filter(username__iexact=username)
+        .only("id", "is_public_favorites")
+        .first()
+    )
+    if not user or not user.is_public_favorites:
+        return None, None, "not_found"
+
+    playlist = Playlist.objects.filter(user=user).order_by("created_at").first()
+    if playlist is None:
+        playlist = Playlist.objects.create(user=user, title="Favorites", tracks=[])
+
+    comment = PlaylistComment.objects.create(
+        playlist=playlist,
+        author=acting_user,
+        text=clean_text,
+    )
+    return playlist, comment, None
+
+
+@sync_to_async
+def _delete_public_playlist_comment(username, acting_user, comment_id):
+    if not acting_user or not acting_user.is_authenticated:
+        return None, None, "unauthorized"
+
+    user = (
+        User.objects.filter(username__iexact=username)
+        .only("id", "is_public_favorites")
+        .first()
+    )
+    if not user or not user.is_public_favorites:
+        return None, None, "not_found"
+
+    playlist = Playlist.objects.filter(user=user).order_by("created_at").first()
+    if playlist is None:
+        return None, None, "not_found"
+
+    comment = (
+        PlaylistComment.objects.filter(id=comment_id, playlist=playlist)
+        .select_related("author")
+        .first()
+    )
+    if comment is None:
+        return playlist, None, "comment_not_found"
+
+    is_owner = playlist.user_id == acting_user.id
+    is_author = comment.author_id == acting_user.id
+    if not (is_owner or is_author):
+        return playlist, comment, "forbidden"
+
+    comment_data = {
+        "id": comment.id,
+    }
+    comment.delete()
+    return playlist, comment_data, None
+
+
 class PublicFavoritesAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -431,6 +555,124 @@ class PublicFavoritesLikeAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class PublicFavoritesCommentsAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, username):
+        try:
+            playlist, comments = async_to_sync(_list_public_playlist_comments)(
+                username, request.user
+            )
+        except Exception:
+            logger.error("Failed to load public playlist comments", exc_info=True)
+            return Response(
+                {"detail": "Failed to load comments."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if playlist is None:
+            return Response(
+                {"detail": "Public playlist not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(
+            {
+                "results": comments,
+                "meta": {"count": len(comments)},
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request, username):
+        try:
+            playlist, comment, error = async_to_sync(_create_public_playlist_comment)(
+                username, request.user, request.data.get("text", "")
+            )
+        except Exception:
+            logger.error("Failed to create public playlist comment", exc_info=True)
+            return Response(
+                {"detail": "Failed to create comment."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if error == "unauthorized":
+            return Response(
+                {"detail": "Authentication required."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        if error == "not_found":
+            return Response(
+                {"detail": "Public playlist not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if error == "empty_text":
+            return Response(
+                {"detail": "Comment text is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if error == "too_long":
+            return Response(
+                {"detail": f"Comment is too long (max {COMMENT_MAX_LENGTH})."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payload = _serialize_comment(
+            comment=comment,
+            current_user=request.user,
+            playlist_owner_id=playlist.user_id,
+        )
+        send_public_playlist_comment_event(
+            playlist_id=playlist.id,
+            payload={"type": "playlist_comment_created", "comment": payload},
+        )
+
+        return Response(payload, status=status.HTTP_201_CREATED)
+
+
+class PublicFavoritesCommentDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def delete(self, request, username, comment_id):
+        try:
+            playlist, comment, error = async_to_sync(_delete_public_playlist_comment)(
+                username, request.user, comment_id
+            )
+        except Exception:
+            logger.error("Failed to delete public playlist comment", exc_info=True)
+            return Response(
+                {"detail": "Failed to delete comment."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if error == "unauthorized":
+            return Response(
+                {"detail": "Authentication required."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        if error == "not_found":
+            return Response(
+                {"detail": "Public playlist not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if error == "comment_not_found":
+            return Response(
+                {"detail": "Comment not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if error == "forbidden":
+            return Response(
+                {"detail": "You cannot delete this comment."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        send_public_playlist_comment_event(
+            playlist_id=playlist.id,
+            payload={"type": "playlist_comment_deleted", "comment_id": comment["id"]},
+        )
+        return Response({"detail": "Comment deleted."}, status=status.HTTP_200_OK)
 
 
 class PublicFavoritesTrendingAPIView(APIView):

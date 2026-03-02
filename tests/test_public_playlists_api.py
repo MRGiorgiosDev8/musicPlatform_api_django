@@ -5,7 +5,7 @@ from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from music_api.models import Playlist, PlaylistLike
+from music_api.models import Playlist, PlaylistComment, PlaylistLike
 
 pytestmark = [pytest.mark.asyncio, pytest.mark.django_db(transaction=True)]
 
@@ -164,3 +164,79 @@ async def test_public_playlist_trending_orders_by_likes(
     assert payload["results"][0]["likes_count"] == 2
     assert payload["results"][1]["username"] == second_owner.username
     assert payload["results"][1]["likes_count"] == 1
+
+
+async def test_public_playlist_comments_list_and_create(
+    async_api_client, public_owner, liker_user
+):
+    list_response = await async_api_client.get(
+        f"/api/playlists/public/{public_owner.username}/comments/"
+    )
+    assert list_response.status_code == 200
+    assert list_response.json()["results"] == []
+
+    unauth_create = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        json={"text": "first"},
+    )
+    assert unauth_create.status_code == 401
+
+    create_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+        json={"text": "Great playlist"},
+    )
+    payload = create_response.json()
+
+    assert create_response.status_code == 201
+    assert payload["text"] == "Great playlist"
+    assert payload["author_username"] == liker_user.username
+    assert payload["can_delete"] is True
+
+    list_after = await async_api_client.get(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+    )
+    list_payload = list_after.json()
+    assert list_after.status_code == 200
+    assert list_payload["meta"]["count"] == 1
+    assert list_payload["results"][0]["text"] == "Great playlist"
+
+
+async def test_public_playlist_comments_delete_permissions(
+    async_api_client, public_owner, liker_user
+):
+    User = get_user_model()
+    suffix = uuid.uuid4().hex[:8]
+    third_user = await sync_to_async(User.objects.create_user)(
+        username=f"third_{suffix}",
+        email=f"third_{suffix}@example.com",
+        password="third-pass-123",
+        is_public_favorites=True,
+    )
+
+    playlist = await sync_to_async(
+        lambda: Playlist.objects.filter(user=public_owner)
+        .order_by("created_at")
+        .first()
+    )()
+    comment = await sync_to_async(PlaylistComment.objects.create)(
+        playlist=playlist, author=liker_user, text="remove me"
+    )
+
+    forbidden = await async_api_client.delete(
+        f"/api/playlists/public/{public_owner.username}/comments/{comment.id}/",
+        headers=_bearer(third_user),
+    )
+    assert forbidden.status_code == 403
+    assert forbidden.json()["detail"] == "You cannot delete this comment."
+
+    deleted_by_owner = await async_api_client.delete(
+        f"/api/playlists/public/{public_owner.username}/comments/{comment.id}/",
+        headers=_bearer(public_owner),
+    )
+    assert deleted_by_owner.status_code == 200
+    assert deleted_by_owner.json()["detail"] == "Comment deleted."
+
+    exists = await sync_to_async(PlaylistComment.objects.filter(id=comment.id).exists)()
+    assert exists is False

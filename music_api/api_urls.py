@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views.playlists_async import (
+    PublicFavoritesCommentDetailAPIView,
+    PublicFavoritesCommentsAPIView,
     PlaylistMeAPIView,
     PlaylistTrackAddAPIView,
     PublicFavoritesAPIView,
@@ -30,6 +32,16 @@ urlpatterns = [
         "playlists/public/<str:username>/like/",
         PublicFavoritesLikeAPIView.as_view(),
         name="playlist_public_like",
+    ),
+    path(
+        "playlists/public/<str:username>/comments/",
+        PublicFavoritesCommentsAPIView.as_view(),
+        name="playlist_public_comments",
+    ),
+    path(
+        "playlists/public/<str:username>/comments/<int:comment_id>/",
+        PublicFavoritesCommentDetailAPIView.as_view(),
+        name="playlist_public_comment_detail",
     ),
     path(
         "wikipedia/artists/",

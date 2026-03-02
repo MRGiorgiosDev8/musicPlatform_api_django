@@ -3,7 +3,7 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.html import format_html_join, format_html
 
-from .models import Playlist, PlaylistLike, PlaylistLikeNotification
+from .models import Playlist, PlaylistComment, PlaylistLike, PlaylistLikeNotification
 
 admin.site.site_header = "RubySound Control Room"
 admin.site.site_title = "RubySound Admin"
@@ -167,3 +167,10 @@ class PlaylistLikeNotificationAdmin(admin.ModelAdmin):
     list_display = ("id", "recipient", "actor", "playlist", "created_at")
     list_select_related = ("recipient", "actor", "playlist")
     search_fields = ("recipient__username", "actor__username", "playlist__title")
+
+
+@admin.register(PlaylistComment)
+class PlaylistCommentAdmin(admin.ModelAdmin):
+    list_display = ("id", "playlist", "author", "created_at")
+    list_select_related = ("playlist", "author")
+    search_fields = ("playlist__title", "playlist__user__username", "author__username")

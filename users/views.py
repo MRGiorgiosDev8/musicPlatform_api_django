@@ -12,6 +12,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 
 from .serializers import UserSerializer
 from .forms import SignupForm, ProfileUpdateForm, LoginForm
+from .presence import is_user_online
 from music_api.models import Playlist, PlaylistLikeNotification
 from music_api.views.tracks_async import _enrich_tracks_list_async
 
@@ -128,6 +129,7 @@ def public_user_page_view(request, username):
             "likes_count": likes_count,
             "liked_by_me": liked_by_me,
             "tracks_count": len(raw_tracks),
+            "profile_user_is_online": is_user_online(profile_user.id),
         },
     )
 
