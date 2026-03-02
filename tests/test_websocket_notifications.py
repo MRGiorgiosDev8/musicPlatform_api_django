@@ -27,7 +27,11 @@ async def test_websocket_pushes_like_notification_to_recipient(user):
     communicator = WebsocketCommunicator(
         application,
         "/ws/notifications/",
-        headers=[(b"cookie", f"sessionid={session_cookie}".encode("utf-8"))],
+        headers=[
+            (b"host", b"testserver"),
+            (b"origin", b"http://testserver"),
+            (b"cookie", f"sessionid={session_cookie}".encode("utf-8")),
+        ],
     )
     connected, _ = await communicator.connect()
     assert connected is True
