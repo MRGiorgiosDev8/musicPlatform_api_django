@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "test:js": "vitest run tests/js",
+    "lint:js": "eslint \"static/js/**/*.js\" \"tests/js/**/*.js\"",
+    "lint:js:fix": "npm run lint:js -- --fix",
+    "format": "prettier --write \"static/js/**/*.js\" \"tests/js/**/*.js\"",
+    "format:check": "prettier --check \"static/js/**/*.js\" \"tests/js/**/*.js\""
+  },
+  "devDependencies": {
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,12 +1,12 @@
 const TREND_CACHE_TTL = 10 * 60 * 1000;
 
 const escapeHtml = (unsafe) => {
-  return String(unsafe ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return String(unsafe ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 };
 
 const getCachedTrend = (key) => {
@@ -25,42 +25,81 @@ const setCachedTrend = (key, data) => {
 };
 
 const hidePopular = () => {
-  const popular = document.getElementById("popular-block");
-  if (popular) popular.style.display = "none";
+  const popular = document.getElementById('popular-block');
+  if (popular) popular.style.display = 'none';
 };
 
 const showPopular = () => {
-  const popular = document.getElementById("popular-block");
-  if (popular) popular.style.display = "";
+  const popular = document.getElementById('popular-block');
+  if (popular) popular.style.display = '';
+};
+
+const parseListeners = (value) => {
+  if (typeof value === 'number') return value;
+  const cleaned = String(value ?? '').replace(/[^\d]/g, '');
+  return cleaned ? Number(cleaned) : 0;
+};
+
+const getTrackPopularity = (track) => {
+  const listeners = parseListeners(track?.listeners);
+  if (listeners > 0) return listeners;
+  return parseListeners(track?.playcount);
+};
+
+const normalizeArtist = (track) => {
+  const artist = String(track?.artist ?? '').trim();
+  return artist || 'Unknown artist';
+};
+
+const prepareTracks = (tracks, state) => {
+  const safeTracks = Array.isArray(tracks) ? tracks : [];
+  const safeState = state || {};
+  const artistFilter = safeState.artistFilter || 'all';
+  const listenersSort = safeState.listenersSort || 'default';
+
+  const filtered = safeTracks.filter((track) => {
+    if (artistFilter === 'all') return true;
+    return normalizeArtist(track).toLowerCase() === artistFilter;
+  });
+
+  if (listenersSort === 'default') return filtered;
+
+  return [...filtered].sort((a, b) => {
+    const aListeners = getTrackPopularity(a);
+    const bListeners = getTrackPopularity(b);
+    return listenersSort === 'asc' ? aListeners - bListeners : bListeners - aListeners;
+  });
 };
 
 let activeAudio = null;
 
 const setupMusicSearch = () => {
-  const searchForm = document.querySelector(".form-search");
-  const searchInput = document.querySelector(".input-search");
+  const searchForm = document.querySelector('.form-search');
+  const searchInput = document.querySelector('.input-search');
   if (!searchForm || !searchInput) return;
 
-  const isSearchPage = document.body?.dataset?.isSearchPage === "true";
+  const isSearchPage = document.body?.dataset?.isSearchPage === 'true';
   if (!isSearchPage) return;
 
-  const isAuthenticated = document.body?.dataset?.isAuthenticated === "true";
-  const navbarCollapse = document.getElementById("navbarNav");
-  const navbarToggler = document.querySelector(".hamburger.hamburger--elastic");
-  const resultsContainer = document.getElementById("searchResults");
-  const searchLoader = document.getElementById("searchLoader");
-  const searchBreadcrumb = document.getElementById("search-breadcrumb");
+  const isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
+  const navbarCollapse = document.getElementById('navbarNav');
+  const navbarToggler = document.querySelector('.hamburger.hamburger--elastic');
+  const resultsContainer = document.getElementById('searchResults');
+  const searchLoader = document.getElementById('searchLoader');
+  const searchBreadcrumb = document.getElementById('search-breadcrumb');
   if (!resultsContainer) return;
 
   if (searchLoader && searchBreadcrumb) {
-    searchBreadcrumb.insertAdjacentElement("afterend", searchLoader);
+    searchBreadcrumb.insertAdjacentElement('afterend', searchLoader);
   }
 
-  const listenersSortControls = Array.from(document.querySelectorAll("[data-search-listeners-sort]"));
-  const groupByControls = Array.from(document.querySelectorAll("[data-search-group-by]"));
-  const artistFilterControls = Array.from(document.querySelectorAll("[data-search-artist-filter]"));
-  const resetFilterButtons = Array.from(document.querySelectorAll("[data-search-reset-filters]"));
-  const resetSearchButtons = Array.from(document.querySelectorAll("[data-search-reset-query]"));
+  const listenersSortControls = Array.from(
+    document.querySelectorAll('[data-search-listeners-sort]')
+  );
+  const groupByControls = Array.from(document.querySelectorAll('[data-search-group-by]'));
+  const artistFilterControls = Array.from(document.querySelectorAll('[data-search-artist-filter]'));
+  const resetFilterButtons = Array.from(document.querySelectorAll('[data-search-reset-filters]'));
+  const resetSearchButtons = Array.from(document.querySelectorAll('[data-search-reset-query]'));
 
   const showLoader = () => window.Spinners?.search?.show?.();
   const hideLoader = () => window.Spinners?.search?.hide?.();
@@ -71,29 +110,12 @@ const setupMusicSearch = () => {
   let allTracks = [];
   let renderVersion = 0;
   let resultsList = null;
-  let currentQuery = "";
+  let currentQuery = '';
 
   const state = {
-    listenersSort: "default",
-    groupBy: "none",
-    artistFilter: "all",
-  };
-
-  const parseListeners = (value) => {
-    if (typeof value === "number") return value;
-    const cleaned = String(value ?? "").replace(/[^\d]/g, "");
-    return cleaned ? Number(cleaned) : 0;
-  };
-
-  const getTrackPopularity = (track) => {
-    const listeners = parseListeners(track?.listeners);
-    if (listeners > 0) return listeners;
-    return parseListeners(track?.playcount);
-  };
-
-  const normalizeArtist = (track) => {
-    const artist = String(track?.artist ?? "").trim();
-    return artist || "Unknown artist";
+    listenersSort: 'default',
+    groupBy: 'none',
+    artistFilter: 'all',
   };
 
   const syncControlValues = () => {
@@ -109,19 +131,19 @@ const setupMusicSearch = () => {
   };
 
   const populateArtistFilterOptions = () => {
-    const artists = Array.from(
-      new Set(allTracks.map((track) => normalizeArtist(track)))
-    ).sort((a, b) => a.localeCompare(b, "ru"));
+    const artists = Array.from(new Set(allTracks.map((track) => normalizeArtist(track)))).sort(
+      (a, b) => a.localeCompare(b, 'ru')
+    );
 
     artistFilterControls.forEach((control) => {
       control.replaceChildren();
-      const allOption = document.createElement("option");
-      allOption.value = "all";
-      allOption.textContent = "Все артисты";
+      const allOption = document.createElement('option');
+      allOption.value = 'all';
+      allOption.textContent = 'Все артисты';
       control.appendChild(allOption);
 
       artists.forEach((artist) => {
-        const option = document.createElement("option");
+        const option = document.createElement('option');
         option.value = artist.toLowerCase();
         option.textContent = artist;
         control.appendChild(option);
@@ -129,35 +151,20 @@ const setupMusicSearch = () => {
     });
 
     const hasSelectedArtist = artists.some((artist) => artist.toLowerCase() === state.artistFilter);
-    if (state.artistFilter !== "all" && !hasSelectedArtist) {
-      state.artistFilter = "all";
+    if (state.artistFilter !== 'all' && !hasSelectedArtist) {
+      state.artistFilter = 'all';
     }
     syncControlValues();
   };
 
   const getPreparedTracks = () => {
-    const filtered = allTracks.filter((track) => {
-      if (state.artistFilter === "all") return true;
-      return normalizeArtist(track).toLowerCase() === state.artistFilter;
-    });
-
-    if (state.listenersSort === "default") return filtered;
-
-    const sorted = [...filtered].sort((a, b) => {
-      const aListeners = getTrackPopularity(a);
-      const bListeners = getTrackPopularity(b);
-      return state.listenersSort === "asc"
-        ? aListeners - bListeners
-        : bListeners - aListeners;
-    });
-
-    return sorted;
+    return prepareTracks(allTracks, state);
   };
 
   const ensureResultsList = () => {
     if (resultsList && resultsContainer.contains(resultsList)) return resultsList;
-    resultsList = document.createElement("ul");
-    resultsList.className = "track-list list-unstyled p-0 m-0 mt-4";
+    resultsList = document.createElement('ul');
+    resultsList.className = 'track-list list-unstyled p-0 m-0 mt-4';
     resultsContainer.appendChild(resultsList);
     return resultsList;
   };
@@ -167,53 +174,54 @@ const setupMusicSearch = () => {
     currentPage = 1;
     totalPages = 1;
     resultsList = null;
-    currentQuery = "";
+    currentQuery = '';
     resultsContainer.replaceChildren();
   };
 
   const clearSearch = () => {
-    const searchPageUrl = searchForm.getAttribute("action") || "/";
+    const searchPageUrl = searchForm.getAttribute('action') || '/';
     window.location.assign(searchPageUrl);
   };
 
   const buildResultsSummary = (filteredCount) => {
-    const summary = document.createElement("div");
-    summary.className = "search-results-summary d-flex flex-wrap align-items-center justify-content-between gap-2";
+    const summary = document.createElement('div');
+    summary.className =
+      'search-results-summary d-flex flex-wrap align-items-center justify-content-between gap-2';
 
-    const meta = document.createElement("div");
-    meta.className = "search-results-summary-meta small text-dark";
-    const queryLabel = currentQuery ? `"${escapeHtml(currentQuery)}"` : "—";
-    
-    const searchIcon = document.createElement("i");
-    searchIcon.className = "bi bi-search text-danger me-2";
-    searchIcon.style.fontSize = "0.875rem";
-    
-    const labelText = document.createElement("span");
-    labelText.textContent = "Запрос: ";
-    labelText.className = "text-dark";
-    
-    const queryText = document.createElement("strong");
+    const meta = document.createElement('div');
+    meta.className = 'search-results-summary-meta small text-dark';
+    const queryLabel = currentQuery ? `"${escapeHtml(currentQuery)}"` : '—';
+
+    const searchIcon = document.createElement('i');
+    searchIcon.className = 'bi bi-search text-danger me-2';
+    searchIcon.style.fontSize = '0.875rem';
+
+    const labelText = document.createElement('span');
+    labelText.textContent = 'Запрос: ';
+    labelText.className = 'text-dark';
+
+    const queryText = document.createElement('strong');
     queryText.textContent = queryLabel;
-    queryText.className = "text-danger";
-    
+    queryText.className = 'text-danger';
+
     meta.appendChild(searchIcon);
     meta.appendChild(labelText);
     meta.appendChild(queryText);
 
-    const clearButton = document.createElement("button");
-    clearButton.type = "button";
-    clearButton.className = "btn btn-sm btn-outline-danger";
-    clearButton.textContent = "Очистить поиск";
-    clearButton.addEventListener("click", clearSearch);
+    const clearButton = document.createElement('button');
+    clearButton.type = 'button';
+    clearButton.className = 'btn btn-sm btn-outline-danger';
+    clearButton.textContent = 'Очистить поиск';
+    clearButton.addEventListener('click', clearSearch);
 
     summary.append(meta, clearButton);
     return summary;
   };
 
   const createFavoriteControl = async (track) => {
-    const container = document.createElement("div");
-    container.className = "d-flex align-items-center";
-    if (!isAuthenticated || typeof window.createFavoriteButtonWithCheck !== "function") {
+    const container = document.createElement('div');
+    container.className = 'd-flex align-items-center';
+    if (!isAuthenticated || typeof window.createFavoriteButtonWithCheck !== 'function') {
       return container;
     }
 
@@ -224,48 +232,48 @@ const setupMusicSearch = () => {
         track.mbid || null
       );
       const syncFavoriteVisualState = () => {
-        const isActive = favoriteButton.getAttribute("aria-pressed") === "true";
-        const icon = favoriteButton.querySelector("i");
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        const icon = favoriteButton.querySelector('i');
         if (icon) {
-          icon.className = "bi bi-heart-fill";
-          icon.style.fontSize = isActive ? "1.1rem" : "1.4rem";
-          icon.style.lineHeight = "34px";
-          icon.style.display = "inline-block";
-          icon.style.verticalAlign = "middle";
-          icon.style.margin = "0";
+          icon.className = 'bi bi-heart-fill';
+          icon.style.fontSize = isActive ? '1.1rem' : '1.4rem';
+          icon.style.lineHeight = '34px';
+          icon.style.display = 'inline-block';
+          icon.style.verticalAlign = 'middle';
+          icon.style.margin = '0';
         }
 
         if (isActive) {
-          favoriteButton.style.background = "#dc3545";
-          favoriteButton.style.color = "#ffffff";
+          favoriteButton.style.background = '#dc3545';
+          favoriteButton.style.color = '#ffffff';
         } else {
-          favoriteButton.style.background = "transparent";
-          favoriteButton.style.color = "rgba(220, 53, 69, 0.72)";
+          favoriteButton.style.background = 'transparent';
+          favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
         }
 
-        favoriteButton.style.border = "none";
-        favoriteButton.style.borderRadius = "50%";
-        favoriteButton.style.width = "33px";
-        favoriteButton.style.height = "33px";
-        favoriteButton.style.padding = "0";
-        favoriteButton.style.textAlign = "center";
-        favoriteButton.style.paddingTop = "3px";
+        favoriteButton.style.border = 'none';
+        favoriteButton.style.borderRadius = '50%';
+        favoriteButton.style.width = '33px';
+        favoriteButton.style.height = '33px';
+        favoriteButton.style.padding = '0';
+        favoriteButton.style.textAlign = 'center';
+        favoriteButton.style.paddingTop = '3px';
       };
 
       const applyIconOnlyStyle = () => {
-        favoriteButton.className = "favorite-icon-btn";
-        favoriteButton.style.boxShadow = "none";
-        favoriteButton.style.minWidth = "34px";
-        favoriteButton.style.lineHeight = "1";
-        favoriteButton.style.display = "inline-flex";
-        favoriteButton.style.alignItems = "center";
-        favoriteButton.style.justifyContent = "center";
-        favoriteButton.style.boxSizing = "border-box";
-        favoriteButton.style.flexShrink = "0";
-        favoriteButton.style.aspectRatio = "1 / 1";
-        favoriteButton.style.cursor = "pointer";
-        favoriteButton.style.outline = "none";
-        favoriteButton.style.transition = "background-color 0.2s ease, color 0.2s ease";
+        favoriteButton.className = 'favorite-icon-btn';
+        favoriteButton.style.boxShadow = 'none';
+        favoriteButton.style.minWidth = '34px';
+        favoriteButton.style.lineHeight = '1';
+        favoriteButton.style.display = 'inline-flex';
+        favoriteButton.style.alignItems = 'center';
+        favoriteButton.style.justifyContent = 'center';
+        favoriteButton.style.boxSizing = 'border-box';
+        favoriteButton.style.flexShrink = '0';
+        favoriteButton.style.aspectRatio = '1 / 1';
+        favoriteButton.style.cursor = 'pointer';
+        favoriteButton.style.outline = 'none';
+        favoriteButton.style.transition = 'background-color 0.2s ease, color 0.2s ease';
         syncFavoriteVisualState();
       };
 
@@ -273,60 +281,60 @@ const setupMusicSearch = () => {
       const styleSyncObserver = new MutationObserver(() => applyIconOnlyStyle());
       styleSyncObserver.observe(favoriteButton, {
         attributes: true,
-        attributeFilter: ["aria-pressed"],
+        attributeFilter: ['aria-pressed'],
         childList: true,
         subtree: true,
       });
 
-      favoriteButton.addEventListener("mouseenter", () => {
-        const isActive = favoriteButton.getAttribute("aria-pressed") === "true";
-        if (!isActive) favoriteButton.style.color = "rgba(220, 53, 69, 0.95)";
+      favoriteButton.addEventListener('mouseenter', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) favoriteButton.style.color = 'rgba(220, 53, 69, 0.95)';
       });
-      favoriteButton.addEventListener("mouseleave", () => {
-        const isActive = favoriteButton.getAttribute("aria-pressed") === "true";
-        if (!isActive) favoriteButton.style.color = "rgba(220, 53, 69, 0.72)";
+      favoriteButton.addEventListener('mouseleave', () => {
+        const isActive = favoriteButton.getAttribute('aria-pressed') === 'true';
+        if (!isActive) favoriteButton.style.color = 'rgba(220, 53, 69, 0.72)';
       });
 
       container.appendChild(favoriteButton);
     } catch (error) {
-      console.error("Favorite button init error:", error);
+      console.error('Favorite button init error:', error);
     }
 
     return container;
   };
 
   const createLoadMoreButton = () => {
-    const loadMoreContainer = document.createElement("div");
-    loadMoreContainer.className = "load-more-container";
-    loadMoreContainer.style.textAlign = "center";
-    loadMoreContainer.style.margin = "20px 0";
+    const loadMoreContainer = document.createElement('div');
+    loadMoreContainer.className = 'load-more-container';
+    loadMoreContainer.style.textAlign = 'center';
+    loadMoreContainer.style.margin = '20px 0';
 
-    const loadMoreButton = document.createElement("button");
-    loadMoreButton.className = "btn btn-sm btn-show-more mt-3";
-    loadMoreButton.style.transform = "scale(1.1)";
-    loadMoreButton.style.transition = "transform 0.3s ease, background-color 0.3s ease";
-    loadMoreButton.style.backgroundColor = "transparent";
-    loadMoreButton.style.border = "none";
-    loadMoreButton.style.outline = "none";
-    loadMoreButton.style.opacity = "0.90";
+    const loadMoreButton = document.createElement('button');
+    loadMoreButton.className = 'btn btn-sm btn-show-more mt-3';
+    loadMoreButton.style.transform = 'scale(1.1)';
+    loadMoreButton.style.transition = 'transform 0.3s ease, background-color 0.3s ease';
+    loadMoreButton.style.backgroundColor = 'transparent';
+    loadMoreButton.style.border = 'none';
+    loadMoreButton.style.outline = 'none';
+    loadMoreButton.style.opacity = '0.90';
 
-    loadMoreButton.addEventListener("mouseenter", () => {
-      loadMoreButton.style.transform = "scale(0.95)";
+    loadMoreButton.addEventListener('mouseenter', () => {
+      loadMoreButton.style.transform = 'scale(0.95)';
     });
-    loadMoreButton.addEventListener("mouseleave", () => {
-      loadMoreButton.style.transform = "scale(1.1)";
+    loadMoreButton.addEventListener('mouseleave', () => {
+      loadMoreButton.style.transform = 'scale(1.1)';
     });
-    loadMoreButton.addEventListener("click", async () => {
+    loadMoreButton.addEventListener('click', async () => {
       currentPage += 1;
       await displayResults();
     });
 
-    const arrowIcon = document.createElement("i");
-    arrowIcon.className = "bi bi-chevron-double-down";
-    arrowIcon.setAttribute("aria-hidden", "true");
-    arrowIcon.style.fontSize = "2rem";
-    arrowIcon.style.lineHeight = "1";
-    arrowIcon.style.color = "var(--color-primary)";
+    const arrowIcon = document.createElement('i');
+    arrowIcon.className = 'bi bi-chevron-double-down';
+    arrowIcon.setAttribute('aria-hidden', 'true');
+    arrowIcon.style.fontSize = '2rem';
+    arrowIcon.style.lineHeight = '1';
+    arrowIcon.style.color = 'var(--color-primary)';
 
     loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;
@@ -335,81 +343,81 @@ const setupMusicSearch = () => {
   };
 
   const renderTrackCard = async (track, currentRenderVersion) => {
-    const trackItemWrapper = document.createElement("li");
-    trackItemWrapper.className = "track-item-playlist";
+    const trackItemWrapper = document.createElement('li');
+    trackItemWrapper.className = 'track-item-playlist';
 
-    const trackItem = document.createElement("div");
-    trackItem.className = "track-playlist mb-3";
+    const trackItem = document.createElement('div');
+    trackItem.className = 'track-playlist mb-3';
 
-    const img = document.createElement("img");
+    const img = document.createElement('img');
     img.src = track.image_url;
     img.alt = escapeHtml(track.name);
-    img.className = "track-image shadow-sm img-fluid";
-    img.loading = "lazy";
+    img.className = 'track-image shadow-sm img-fluid';
+    img.loading = 'lazy';
 
-    const trackMeta = document.createElement("div");
-    trackMeta.className = "track-meta";
+    const trackMeta = document.createElement('div');
+    trackMeta.className = 'track-meta';
 
-    const h5 = document.createElement("h5");
-    h5.className = "track-title text-start";
+    const h5 = document.createElement('h5');
+    h5.className = 'track-title text-start';
     h5.textContent = track.name;
 
-    const pArtist = document.createElement("p");
-    pArtist.className = "track-artist";
+    const pArtist = document.createElement('p');
+    pArtist.className = 'track-artist';
 
-    const artistLabel = document.createElement("span");
-    artistLabel.className = "track-artist-label";
-    artistLabel.textContent = "Артист:";
+    const artistLabel = document.createElement('span');
+    artistLabel.className = 'track-artist-label';
+    artistLabel.textContent = 'Артист:';
 
-    const artistButton = document.createElement("button");
-    artistButton.type = "button";
-    artistButton.className = "artist-bio-trigger js-artist-bio-trigger color-dark";
+    const artistButton = document.createElement('button');
+    artistButton.type = 'button';
+    artistButton.className = 'artist-bio-trigger js-artist-bio-trigger color-dark';
     artistButton.dataset.artistName = normalizeArtist(track);
     artistButton.textContent = normalizeArtist(track);
-    pArtist.append(artistLabel, document.createTextNode(" "), artistButton);
+    pArtist.append(artistLabel, document.createTextNode(' '), artistButton);
 
-    const pListeners = document.createElement("p");
-    pListeners.className = "track-listeners text-black mb-0 small";
+    const pListeners = document.createElement('p');
+    pListeners.className = 'track-listeners text-black mb-0 small';
     pListeners.textContent = `Прослушиваний: ${getTrackPopularity(track)}`;
 
     const favoriteControl = await createFavoriteControl(track);
     if (currentRenderVersion !== renderVersion) return null;
 
-    const titleRow = document.createElement("div");
-    titleRow.className = "d-flex align-items-center justify-content-between gap-2";
+    const titleRow = document.createElement('div');
+    titleRow.className = 'd-flex align-items-center justify-content-between gap-2';
     titleRow.append(h5, favoriteControl);
     trackMeta.append(titleRow, pArtist, pListeners);
 
-    const trackPlayer = document.createElement("div");
-    trackPlayer.className = "track-player me-sm-2";
+    const trackPlayer = document.createElement('div');
+    trackPlayer.className = 'track-player me-sm-2';
     const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
 
     if (hasAudio) {
-      const audio = document.createElement("audio");
+      const audio = document.createElement('audio');
       audio.controls = true;
-      audio.preload = "none";
-      audio.style.filter = "sepia(1) saturate(2) hue-rotate(320deg)";
+      audio.preload = 'none';
+      audio.style.filter = 'sepia(1) saturate(2) hue-rotate(320deg)';
 
-      const source = document.createElement("source");
+      const source = document.createElement('source');
       source.src = track.url;
       audio.appendChild(source);
 
-      audio.addEventListener("play", () => {
+      audio.addEventListener('play', () => {
         if (activeAudio && activeAudio !== audio) {
           activeAudio.pause();
           activeAudio.currentTime = 0;
         }
         activeAudio = audio;
       });
-      audio.addEventListener("ended", () => {
+      audio.addEventListener('ended', () => {
         if (activeAudio === audio) activeAudio = null;
       });
 
       trackPlayer.appendChild(audio);
     } else {
-      const noPreview = document.createElement("div");
-      noPreview.className = "fs-6 text-muted d-inline-block border-bottom border-danger";
-      noPreview.textContent = "Превью недоступно";
+      const noPreview = document.createElement('div');
+      noPreview.className = 'fs-6 text-muted d-inline-block border-bottom border-danger';
+      noPreview.textContent = 'Превью недоступно';
       trackPlayer.appendChild(noPreview);
     }
 
@@ -436,7 +444,7 @@ const setupMusicSearch = () => {
 
     if (!preparedTracks.length) {
       resultsContainer.insertAdjacentHTML(
-        "beforeend",
+        'beforeend',
         `
         <div class="text-center">
           <div class="alert alert-dark mt-5 alert-log d-inline-block">
@@ -453,15 +461,16 @@ const setupMusicSearch = () => {
     const startIndex = (currentPage - 1) * tracksPerPage;
     const pageTracks = preparedTracks.slice(startIndex, startIndex + tracksPerPage);
 
-    let lastArtist = "";
+    let lastArtist = '';
     for (const track of pageTracks) {
       const artist = normalizeArtist(track);
-      if (state.groupBy === "artist" && artist !== lastArtist) {
-        const groupHeader = document.createElement("li");
-        groupHeader.className = "search-group-title";
-        const groupArtistButton = document.createElement("button");
-        groupArtistButton.type = "button";
-        groupArtistButton.className = "artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark";
+      if (state.groupBy === 'artist' && artist !== lastArtist) {
+        const groupHeader = document.createElement('li');
+        groupHeader.className = 'search-group-title';
+        const groupArtistButton = document.createElement('button');
+        groupArtistButton.type = 'button';
+        groupArtistButton.className =
+          'artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark';
         groupArtistButton.dataset.artistName = artist;
         groupArtistButton.textContent = artist;
         groupHeader.appendChild(groupArtistButton);
@@ -474,7 +483,7 @@ const setupMusicSearch = () => {
       listRoot.appendChild(trackCard);
     }
 
-    const oldButton = resultsContainer.querySelector(".load-more-container");
+    const oldButton = resultsContainer.querySelector('.load-more-container');
     if (oldButton) oldButton.remove();
     if (currentPage < totalPages) {
       resultsContainer.appendChild(createLoadMoreButton());
@@ -483,16 +492,16 @@ const setupMusicSearch = () => {
 
   const closeMobileNavbar = () => {
     if (!navbarCollapse) return;
-    if (typeof bootstrap !== "undefined" && bootstrap.Collapse) {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
       const collapseInstance = bootstrap.Collapse.getOrCreateInstance(navbarCollapse);
       collapseInstance.hide();
     } else {
-      navbarCollapse.classList.remove("show");
+      navbarCollapse.classList.remove('show');
     }
 
     if (navbarToggler) {
-      navbarToggler.classList.remove("is-active");
-      navbarToggler.setAttribute("aria-expanded", "false");
+      navbarToggler.classList.remove('is-active');
+      navbarToggler.setAttribute('aria-expanded', 'false');
     }
   };
 
@@ -516,16 +525,16 @@ const setupMusicSearch = () => {
 
     try {
       const response = await fetch(`/music_api/search/?q=${encodeURIComponent(query)}`);
-      if (!response.ok) throw new Error("Server error");
+      if (!response.ok) throw new Error('Server error');
       const data = await response.json();
       allTracks = Array.isArray(data.results) ? data.results : Array.isArray(data) ? data : [];
       setCachedTrend(cacheKey, allTracks);
       populateArtistFilterOptions();
       await displayResults();
     } catch (error) {
-      console.error("Search Error:", error);
+      console.error('Search Error:', error);
       resultsContainer.insertAdjacentHTML(
-        "beforeend",
+        'beforeend',
         `
         <div class="text-center">
           <div class="alert alert-danger alert-log mt-4 d-inline-block">
@@ -540,11 +549,11 @@ const setupMusicSearch = () => {
     }
   };
 
-  searchForm.addEventListener("submit", async (event) => {
+  searchForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const query = searchInput.value.trim();
     if (!query) {
-      const searchPageUrl = searchForm.getAttribute("action") || "/";
+      const searchPageUrl = searchForm.getAttribute('action') || '/';
       window.location.assign(searchPageUrl);
       return;
     }
@@ -552,16 +561,16 @@ const setupMusicSearch = () => {
     await runSearch(query);
   });
 
-  searchInput.addEventListener("input", () => {
+  searchInput.addEventListener('input', () => {
     if (!searchInput.value.trim()) {
-      const searchPageUrl = searchForm.getAttribute("action") || "/";
+      const searchPageUrl = searchForm.getAttribute('action') || '/';
       window.location.assign(searchPageUrl);
     }
   });
 
   listenersSortControls.forEach((control) => {
-    control.addEventListener("change", async () => {
-      state.listenersSort = control.value || "default";
+    control.addEventListener('change', async () => {
+      state.listenersSort = control.value || 'default';
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
@@ -569,8 +578,8 @@ const setupMusicSearch = () => {
   });
 
   groupByControls.forEach((control) => {
-    control.addEventListener("change", async () => {
-      state.groupBy = control.value || "none";
+    control.addEventListener('change', async () => {
+      state.groupBy = control.value || 'none';
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
@@ -578,8 +587,8 @@ const setupMusicSearch = () => {
   });
 
   artistFilterControls.forEach((control) => {
-    control.addEventListener("change", async () => {
-      state.artistFilter = control.value || "all";
+    control.addEventListener('change', async () => {
+      state.artistFilter = control.value || 'all';
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
@@ -587,10 +596,10 @@ const setupMusicSearch = () => {
   });
 
   resetFilterButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      state.listenersSort = "default";
-      state.groupBy = "none";
-      state.artistFilter = "all";
+    button.addEventListener('click', async () => {
+      state.listenersSort = 'default';
+      state.groupBy = 'none';
+      state.artistFilter = 'all';
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
@@ -598,16 +607,29 @@ const setupMusicSearch = () => {
   });
 
   resetSearchButtons.forEach((button) => {
-    button.addEventListener("click", clearSearch);
+    button.addEventListener('click', clearSearch);
   });
 
   syncControlValues();
 
-  const initialQuery = new URLSearchParams(window.location.search).get("q");
+  const initialQuery = new URLSearchParams(window.location.search).get('q');
   if (initialQuery) {
     searchInput.value = initialQuery;
     runSearch(initialQuery);
   }
 };
 
-document.addEventListener("DOMContentLoaded", setupMusicSearch);
+document.addEventListener('DOMContentLoaded', setupMusicSearch);
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    TREND_CACHE_TTL,
+    escapeHtml,
+    getCachedTrend,
+    setCachedTrend,
+    parseListeners,
+    getTrackPopularity,
+    normalizeArtist,
+    prepareTracks,
+  };
+}

@@ -53,14 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const animateTracks = () => {
-    const items = Array.from(playlistRoot.querySelectorAll('.track-item-playlist'))
-      .filter((item) => item.style.display !== 'none');
+    const items = Array.from(playlistRoot.querySelectorAll('.track-item-playlist')).filter(
+      (item) => item.style.display !== 'none'
+    );
     animateTrackItems(items);
   };
 
   animateTracks();
   document.addEventListener('publicPlaylist:rendered', () => requestAnimationFrame(animateTracks));
-  document.addEventListener('publicPlaylist:viewChanged', () => requestAnimationFrame(animateTracks));
+  document.addEventListener('publicPlaylist:viewChanged', () =>
+    requestAnimationFrame(animateTracks)
+  );
   document.addEventListener('publicPlaylist:showMore', (event) => {
     const items = Array.isArray(event.detail?.items) ? event.detail.items : [];
     if (!items.length) return;

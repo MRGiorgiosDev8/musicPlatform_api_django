@@ -78,7 +78,11 @@ gsap.registerPlugin(DrawSVGPlugin);
       );
     });
 
-    const scaleTl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: 'sine.inOut', duration: 0.6 } });
+    const scaleTl = gsap.timeline({
+      repeat: -1,
+      yoyo: true,
+      defaults: { ease: 'sine.inOut', duration: 0.6 },
+    });
     scaleTl.to(svg, { scale: 1.1 });
 
     gsap.to(svg, {

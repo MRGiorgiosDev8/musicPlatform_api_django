@@ -1,4 +1,38 @@
-document.addEventListener('DOMContentLoaded', () => {
+const resolvePublicPlaylistViewMode = (mode) => (mode === 'grid' ? 'grid' : 'list');
+
+const getPublicPlaylistViewStorageKey = (username = '') =>
+  `publicPlaylistView:${username || 'default'}`;
+
+const computePublicPlaylistPagination = (
+  totalItems,
+  visibleTracksCount,
+  previousVisibleCount = 0
+) => {
+  const safeTotal = Math.max(0, Number(totalItems) || 0);
+  const maxVisible = Math.min(Math.max(0, Number(visibleTracksCount) || 0), safeTotal);
+  const prevVisible = Math.min(Math.max(0, Number(previousVisibleCount) || 0), safeTotal);
+
+  const visibleIndexes = [];
+  const newlyVisibleIndexes = [];
+
+  for (let idx = 0; idx < safeTotal; idx += 1) {
+    if (idx < maxVisible) {
+      visibleIndexes.push(idx);
+      if (idx >= prevVisible) {
+        newlyVisibleIndexes.push(idx);
+      }
+    }
+  }
+
+  return {
+    maxVisible,
+    visibleIndexes,
+    newlyVisibleIndexes,
+    hasMore: maxVisible < safeTotal,
+  };
+};
+
+const initPublicPlaylistPage = () => {
   const likeRoot = document.querySelector('[data-public-like-root]');
   const likeButton = document.getElementById('public-playlist-like-btn');
   const likesCounter = document.getElementById('public-profile-likes-stat');
@@ -24,14 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const isLiked = likeButton.getAttribute('aria-pressed') === 'true';
       const method = isLiked ? 'DELETE' : 'POST';
       try {
-        const response = await fetch(`/api/playlists/public/${encodeURIComponent(username)}/like/`, {
-          method,
-          credentials: 'same-origin',
-          headers: (typeof window.buildAuthHeaders === 'function')
-            ? window.buildAuthHeaders(true, true)
-            : { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
+        const response = await fetch(
+          `/api/playlists/public/${encodeURIComponent(username)}/like/`,
+          {
+            method,
+            credentials: 'same-origin',
+            headers:
+              typeof window.buildAuthHeaders === 'function'
+                ? window.buildAuthHeaders(true, true)
+                : { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+          }
+        );
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -81,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const previousVisible = visibleTracksCount;
       visibleTracksCount += pageSize;
       const newlyVisibleItems = renderTrackPagination(previousVisible);
-      document.dispatchEvent(new CustomEvent('publicPlaylist:showMore', { detail: { items: newlyVisibleItems } }));
+      document.dispatchEvent(
+        new CustomEvent('publicPlaylist:showMore', { detail: { items: newlyVisibleItems } })
+      );
     });
 
     const arrowIcon = document.createElement('i');
@@ -100,13 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const items = getTrackItems();
     if (!items.length) return [];
 
-    const maxVisible = Math.min(visibleTracksCount, items.length);
+    const page = computePublicPlaylistPagination(
+      items.length,
+      visibleTracksCount,
+      previousVisibleCount
+    );
     const newlyVisible = [];
 
     items.forEach((item, idx) => {
-      const shouldShow = idx < maxVisible;
+      const shouldShow = idx < page.maxVisible;
       item.style.display = shouldShow ? '' : 'none';
-      if (shouldShow && idx >= previousVisibleCount) {
+      if (shouldShow && page.newlyVisibleIndexes.includes(idx)) {
         item.style.opacity = '1';
         item.style.transform = 'none';
         newlyVisible.push(item);
@@ -117,22 +161,24 @@ document.addEventListener('DOMContentLoaded', () => {
       loadMoreContainer = createLoadMoreButton();
       playlistRoot.appendChild(loadMoreContainer);
     }
-    loadMoreContainer.style.display = maxVisible < items.length ? '' : 'none';
+    loadMoreContainer.style.display = page.hasMore ? '' : 'none';
 
     return newlyVisible;
   };
 
   const viewButtons = Array.from(document.querySelectorAll('[data-track-view]'));
-  const viewStorageKey = `publicPlaylistView:${username || 'default'}`;
+  const viewStorageKey = getPublicPlaylistViewStorageKey(username);
   const setViewMode = (mode) => {
-    const nextMode = mode === 'grid' ? 'grid' : 'list';
+    const nextMode = resolvePublicPlaylistViewMode(mode);
     playlistRoot.classList.toggle('public-view-grid', nextMode === 'grid');
     viewButtons.forEach((button) => {
       const isActive = button.dataset.trackView === nextMode;
       button.classList.toggle('active', isActive);
     });
     localStorage.setItem(viewStorageKey, nextMode);
-    document.dispatchEvent(new CustomEvent('publicPlaylist:viewChanged', { detail: { mode: nextMode } }));
+    document.dispatchEvent(
+      new CustomEvent('publicPlaylist:viewChanged', { detail: { mode: nextMode } })
+    );
   };
 
   if (viewButtons.length) {
@@ -149,17 +195,36 @@ document.addEventListener('DOMContentLoaded', () => {
   document.dispatchEvent(new Event('publicPlaylist:rendered'));
 
   let activeAudio = null;
-  playlistRoot.addEventListener('play', (event) => {
-    const audio = event.target;
-    if (!(audio instanceof HTMLAudioElement)) return;
-    if (activeAudio && activeAudio !== audio) {
-      activeAudio.pause();
-    }
-    activeAudio = audio;
-  }, true);
-  playlistRoot.addEventListener('ended', (event) => {
-    const audio = event.target;
-    if (!(audio instanceof HTMLAudioElement)) return;
-    if (activeAudio === audio) activeAudio = null;
-  }, true);
-});
+  playlistRoot.addEventListener(
+    'play',
+    (event) => {
+      const audio = event.target;
+      if (!(audio instanceof HTMLAudioElement)) return;
+      if (activeAudio && activeAudio !== audio) {
+        activeAudio.pause();
+      }
+      activeAudio = audio;
+    },
+    true
+  );
+  playlistRoot.addEventListener(
+    'ended',
+    (event) => {
+      const audio = event.target;
+      if (!(audio instanceof HTMLAudioElement)) return;
+      if (activeAudio === audio) activeAudio = null;
+    },
+    true
+  );
+};
+
+document.addEventListener('DOMContentLoaded', initPublicPlaylistPage);
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    initPublicPlaylistPage,
+    resolvePublicPlaylistViewMode,
+    getPublicPlaylistViewStorageKey,
+    computePublicPlaylistPagination,
+  };
+}

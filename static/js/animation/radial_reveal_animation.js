@@ -106,12 +106,12 @@
     setupButton(btn);
   };
 
-  window.showActiveReveal = function(btn) {
+  window.showActiveReveal = function (btn) {
     if (!btn || !isTouchDevice()) return;
     revealAtCenter(btn);
   };
 
-  window.hideActiveReveal = function(btn) {
+  window.hideActiveReveal = function (btn) {
     if (!btn || !isTouchDevice()) return;
     hideReveal(btn);
   };

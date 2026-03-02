@@ -1,3 +1,13 @@
+const buildTrendingUrl = (baseUrl, genre = '') =>
+  genre ? `${baseUrl}?genre=${encodeURIComponent(genre)}` : baseUrl;
+
+const extractTrendingArtists = (data) => {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Неверный формат ответа сервера');
+  }
+  return Array.isArray(data.artists) ? data.artists : [];
+};
+
 const TrendingApp = {
   URL: '/music_api/trending/',
   cache: {},
@@ -18,9 +28,9 @@ const TrendingApp = {
 
     const fragment = document.createDocumentFragment();
 
-    list.forEach(a => {
+    list.forEach((a) => {
       if (!a || !a.name) return;
-      
+
       const col = document.createElement('div');
       col.className = 'col';
 
@@ -38,7 +48,9 @@ const TrendingApp = {
       img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
       img.alt = a.name;
       img.loading = 'lazy';
-      img.onerror = () => { img.src = '/static/images/default.svg'; };
+      img.onerror = () => {
+        img.src = '/static/images/default.svg';
+      };
 
       colImg.appendChild(img);
 
@@ -71,9 +83,9 @@ const TrendingApp = {
 
       // Защита от отсутствия releases
       const releases = a.releases || [];
-      releases.forEach(r => {
+      releases.forEach((r) => {
         if (!r || !r.title) return;
-        
+
         const li = document.createElement('li');
         li.className = 'd-flex align-items-center mb-1';
 
@@ -83,7 +95,9 @@ const TrendingApp = {
         coverImg.height = 32;
         coverImg.className = 'rounded me-2 shadow';
         coverImg.loading = 'lazy';
-        coverImg.onerror = () => { coverImg.src = '/static/images/default.svg'; };
+        coverImg.onerror = () => {
+          coverImg.src = '/static/images/default.svg';
+        };
 
         const divInfo = document.createElement('div');
 
@@ -133,14 +147,9 @@ const TrendingApp = {
 
     Utils.showTrendingSpinner(true);
     try {
-      const url = genre ? `${this.URL}?genre=${encodeURIComponent(genre)}` : this.URL;
+      const url = buildTrendingUrl(this.URL, genre);
       const data = await Utils.fetchData(url);
-
-      if (!data || typeof data !== 'object') {
-        throw new Error('Неверный формат ответа сервера');
-      }
-
-      const artists = data.artists || [];
+      const artists = extractTrendingArtists(data);
 
       if (!artists.length) {
         console.warn('Нет артистов для жанра:', genre || 'все');
@@ -160,7 +169,15 @@ const TrendingApp = {
     } finally {
       Utils.showTrendingSpinner(false);
     }
-  }
+  },
 };
 
 document.addEventListener('DOMContentLoaded', () => TrendingApp.init());
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    TrendingApp,
+    buildTrendingUrl,
+    extractTrendingArtists,
+  };
+}

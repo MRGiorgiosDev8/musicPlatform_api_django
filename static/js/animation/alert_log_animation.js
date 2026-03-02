@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   const animateAlertLog = (element) => {
     gsap.fromTo(element, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3 });
-    
+
     setTimeout(() => {
-      gsap.to(element, { 
-        opacity: 0, 
-        scale: 0, 
+      gsap.to(element, {
+        opacity: 0,
+        scale: 0,
         duration: 0.3,
         onComplete: () => {
           element.remove();
-        }
+        },
       });
     }, 1500);
   };

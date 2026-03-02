@@ -28,7 +28,8 @@ const PublicPlaylistsDashboard = {
       cardBody.className = 'card-body d-flex gap-3 align-items-center';
 
       const avatar = document.createElement('div');
-      avatar.className = 'dashboard-avatar rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0';
+      avatar.className =
+        'dashboard-avatar rounded-circle border d-flex align-items-center justify-content-center flex-shrink-0';
 
       if (item.avatar_url) {
         const img = document.createElement('img');
@@ -80,7 +81,7 @@ const PublicPlaylistsDashboard = {
   init() {
     if (!document.getElementById('public-playlists-dashboard')) return;
     this.load();
-  }
+  },
 };
 
 document.addEventListener('DOMContentLoaded', () => PublicPlaylistsDashboard.init());

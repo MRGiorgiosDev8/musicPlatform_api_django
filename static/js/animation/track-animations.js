@@ -12,17 +12,13 @@
   function markLogoAnimatedInSession() {
     try {
       sessionStorage.setItem(LOGO_ANIM_SESSION_KEY, 'true');
-    } catch {
-
-    }
+    } catch {}
   }
 
   function clearLogoAnimatedInSession() {
     try {
       sessionStorage.removeItem(LOGO_ANIM_SESSION_KEY);
-    } catch {
-
-    }
+    } catch {}
   }
 
   function initLogoHeader() {
@@ -47,7 +43,7 @@
       return;
     }
 
-    const splitLast = new SplitText(lastPart, { type: "chars" });
+    const splitLast = new SplitText(lastPart, { type: 'chars' });
 
     const mainTl = gsap.timeline({ delay: 0.4 });
 
@@ -55,30 +51,30 @@
       duration: 1.5,
       scrambleText: {
         text: firstPartText,
-        chars: "♬♪",
+        chars: '♬♪',
         speed: 0.5,
-        revealDelay: 0.2
+        revealDelay: 0.2,
       },
-      ease: "power3.out"
+      ease: 'power3.out',
     });
 
     gsap.set(splitLast.chars, { opacity: 0, y: 30 });
 
-    mainTl.to(splitLast.chars, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "back.out(1.7)",
-      stagger: 0.1
-    }, "-=0.8");
+    mainTl.to(
+      splitLast.chars,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'back.out(1.7)',
+        stagger: 0.1,
+      },
+      '-=0.8'
+    );
 
     const header = document.querySelector('#searchResults h2');
     if (header) {
-      mainTl.fromTo(header,
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-        "-=0.3"
-      );
+      mainTl.fromTo(header, { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 }, '-=0.3');
     }
 
     markLogoAnimatedInSession();

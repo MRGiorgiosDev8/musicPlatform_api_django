@@ -109,11 +109,12 @@ const Utils = {
 
       const allBtns = container.querySelectorAll('.genre-btn');
 
-      allBtns.forEach(b => {
+      allBtns.forEach((b) => {
         if (b !== btn) {
           b.classList.remove('active');
           const f = b.querySelector('.btn-fill');
-          if (f && typeof gsap !== 'undefined') gsap.set(f, { height: '0%', borderRadius: '50% 50% 0 0' });
+          if (f && typeof gsap !== 'undefined')
+            gsap.set(f, { height: '0%', borderRadius: '50% 50% 0 0' });
           const rev = b.querySelector('.genre-btn-reveal');
           if (rev && typeof gsap !== 'undefined') gsap.set(rev, { scale: 0 });
 
@@ -124,16 +125,14 @@ const Utils = {
       btn.classList.add('active');
 
       if (typeof showActiveReveal === 'function') showActiveReveal(btn);
-      
+
       onSelect(btn.dataset.genre);
     });
   },
 
   getCached(cacheObj, key) {
     const cached = cacheObj[key];
-    return cached && Date.now() - cached.ts < this.CACHE_TTL
-      ? cached.data
-      : null;
+    return cached && Date.now() - cached.ts < this.CACHE_TTL ? cached.data : null;
   },
 
   setCache(cacheObj, key, data) {
@@ -158,7 +157,7 @@ const Utils = {
   showError(containerId, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
     if (!container) return;
-    container.querySelectorAll('.alert-log').forEach(el => el.remove());
+    container.querySelectorAll('.alert-log').forEach((el) => el.remove());
     const alert = document.createElement('div');
     alert.className = 'alert alert-danger mt-4 alert-log';
     const icon = document.createElement('i');
@@ -179,5 +178,5 @@ const Utils = {
       throw new Error(errorMessage);
     }
     return res.json();
-  }
+  },
 };
