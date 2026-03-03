@@ -38,7 +38,9 @@ const PublicPlaylistsDashboard = {
         img.className = 'dashboard-avatar-img';
         avatar.appendChild(img);
       } else {
-        avatar.innerHTML = '<i class="bi bi-person-fill text-danger"></i>';
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-person-fill text-danger';
+        avatar.appendChild(icon);
       }
 
       const info = document.createElement('div');
@@ -64,6 +66,7 @@ const PublicPlaylistsDashboard = {
     });
 
     root.appendChild(fragment);
+    
     document.dispatchEvent(new Event('publicPlaylists:rendered'));
   },
 

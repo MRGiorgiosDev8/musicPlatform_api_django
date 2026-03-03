@@ -22,7 +22,7 @@
     margin: 0;
     font-size: 1.05rem;
     font-weight: 600;
-    color:var(--color-text-dark);
+    color: var(--color-text-dark);
 }
 
 .playlist-filter-card .form-label {
@@ -226,7 +226,7 @@
     object-fit: cover;
     width: auto;
     max-width: 100%;
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-card) !important;
 }
 
 .track-player {

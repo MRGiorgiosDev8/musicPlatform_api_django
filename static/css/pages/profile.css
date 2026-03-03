@@ -290,7 +290,6 @@
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: var(--shadow-card);
 }
 
 .public-comment-author-fallback {
@@ -331,13 +330,10 @@
 
 .public-profile-stats-mobile {
     flex-wrap: nowrap !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     gap: 0.4rem;
     width: 100%;
-    padding-bottom: 2px;
+    font-size: 1.1rem;
 }
 
 .public-profile-stats-mobile::-webkit-scrollbar {
@@ -348,6 +344,7 @@
     white-space: nowrap;
     min-width: max-content;
     flex: 0 0 auto;
+    font-weight: 500;
 }
 
 @media (max-width: 991.98px) {
@@ -363,7 +360,7 @@
 
 @media (max-width: 575.98px) {
     .public-profile-stats-mobile .badge {
-        font-size: 0.76rem;
+        font-size: 0.88rem;
     }
 
     .public-header-layout {

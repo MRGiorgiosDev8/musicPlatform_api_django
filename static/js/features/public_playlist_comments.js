@@ -21,14 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let reconnectTimer = null;
   let commentsCount = Number.parseInt(countNode.textContent || '0', 10) || 0;
 
-  const escapeHtml = (value) =>
-    String(value)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
     if (count !== commentsCount) {
@@ -66,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     finalize();
   };
 
-  const renderComment = (comment, appendToBottom = true, shouldPulse = false) => {
+  const renderComment = (comment, appendToBottom = true, shouldPulse = false, container = list) => {
     if (!comment || !Number.isInteger(Number(comment.id))) {
       return;
     }
@@ -79,42 +71,73 @@ document.addEventListener('DOMContentLoaded', () => {
     item.className = 'public-comment-item';
     item.dataset.commentId = String(id);
 
-    const authorUrl = comment.author_profile_url || '#';
-    const canDelete = Boolean(comment.can_delete);
-    const timeText = comment.created_at_display || '';
-    const author = escapeHtml(comment.author_username || 'Unknown user');
-    const text = escapeHtml(comment.text || '');
-    const avatarUrl = comment.author_avatar_url ? String(comment.author_avatar_url) : '';
-    const safeAvatarUrl = escapeHtml(avatarUrl);
-    const authorAvatar = avatarUrl
-      ? `<img src="${safeAvatarUrl}" alt="${author}" class="public-comment-author-avatar" loading="lazy">`
-      : '<span class="public-comment-author-fallback" aria-hidden="true"><i class="bi bi-person-fill"></i></span>';
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'public-comment-meta';
 
-    item.innerHTML = `
-      <div class="public-comment-meta">
-        <div class="d-flex align-items-center gap-2">
-          <a href="${authorUrl}" class="public-comment-author-row text-decoration-none">
-            ${authorAvatar}
-            <span class="public-comment-author">${author}</span>
-          </a>
-          <span class="public-comment-time">${timeText}</span>
-        </div>
-        ${
-          canDelete
-            ? '<button type="button" class="btn btn-sm btn-link text-danger text-decoration-none p-0" data-comment-delete>Удалить</button>'
-            : ''
-        }
-      </div>
-      <p class="public-comment-text">${text}</p>
-    `;
+    const headerRow = document.createElement('div');
+    headerRow.className = 'd-flex align-items-center gap-2 mb-1';
+
+    const authorLink = document.createElement('a');
+    authorLink.href = comment.author_profile_url || '#';
+    authorLink.className = 'public-comment-author-row text-decoration-none';
+
+    if (comment.author_avatar_url) {
+      const img = document.createElement('img');
+      img.src = String(comment.author_avatar_url);
+      img.alt = comment.author_username || 'User';
+      img.className = 'public-comment-author-avatar';
+      img.setAttribute('loading', 'lazy');
+      authorLink.appendChild(img);
+    } else {
+      const fallback = document.createElement('span');
+      fallback.className = 'public-comment-author-fallback shadow-sm';
+      fallback.setAttribute('aria-hidden', 'true');
+      const icon = document.createElement('i');
+      icon.className = 'bi bi-person-fill';
+      fallback.appendChild(icon);
+      authorLink.appendChild(fallback);
+    }
+
+    const authorSpan = document.createElement('span');
+    authorSpan.className = 'public-comment-author';
+    authorSpan.textContent = comment.author_username || 'Unknown user';
+    authorLink.appendChild(authorSpan);
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'public-comment-time';
+    timeSpan.textContent = comment.created_at_display || '';
+
+    headerRow.appendChild(authorLink);
+    headerRow.appendChild(timeSpan);
+    metaDiv.appendChild(headerRow);
+
+    if (Boolean(comment.can_delete)) {
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn btn-sm btn-link text-danger text-decoration-none p-0';
+      delBtn.dataset.commentDelete = '';
+      delBtn.textContent = 'Удалить';
+      metaDiv.appendChild(delBtn);
+    }
+
+    const textP = document.createElement('p');
+    textP.className = 'public-comment-text';
+    textP.textContent = comment.text || ''; 
+
+    item.appendChild(metaDiv);
+    item.appendChild(textP);
 
     if (appendToBottom) {
-      list.appendChild(item);
+      container.appendChild(item);
     } else {
-      list.prepend(item);
+      container.prepend(item);
     }
+
     knownIds.add(id);
-    updateMeta();
+    
+    if (container === list) {
+        updateMeta();
+    }
 
     if (
       shouldPulse &&
@@ -138,10 +161,19 @@ document.addEventListener('DOMContentLoaded', () => {
       throw new Error(payload.detail || `HTTP ${response.status}`);
     }
 
-    list.innerHTML = '';
+    while (list.firstChild) {
+      list.removeChild(list.firstChild);
+    }
     knownIds.clear();
-    (payload.results || []).forEach((comment) => renderComment(comment, true, false));
-    commentsCount = list.querySelectorAll('[data-comment-id]').length;
+
+    const fragment = document.createDocumentFragment();
+
+    (payload.results || []).forEach((comment) => {
+        renderComment(comment, true, false, fragment);
+    });
+
+    list.appendChild(fragment);
+    
     updateMeta();
   };
 
@@ -195,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
             : { 'Content-Type': 'application/json' },
       }
     );
-    const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
       throw new Error(payload.detail || `HTTP ${response.status}`);
     }
     removeCommentById(commentId);
@@ -204,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   list.addEventListener('click', async (event) => {
     const target = event.target;
-    if (!target || target.nodeType !== 1 || !target.hasAttribute('data-comment-delete')) {
+    if (!target || !target.hasAttribute('data-comment-delete')) {
       return;
     }
     const item = target.closest('[data-comment-id]');
@@ -238,6 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const wsUrl = `${wsProtocol}://${window.location.host}/ws/comments/public/${encodeURIComponent(username)}/`;
     clearReconnect();
     socket = new WebSocket(wsUrl);
+
+    socket.addEventListener('open', () => {
+      clearReconnect();
+    });
 
     socket.addEventListener('message', (event) => {
       try {

@@ -25,7 +25,7 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h1 class="h4 mb-1">{{ profile_user.username }}</h1>
+                    <h1 class="h4 mb-2">{{ profile_user.username }}</h1>
                     <div class="small text-muted">{{ playlist.title }}</div>
                 </div>
             </div>
@@ -47,7 +47,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="d-flex mt-2 public-profile-stats-mobile">
+        <div class="d-flex mt-3 public-profile-stats-mobile">
             <span class="badge text-bg-light border d-inline-flex align-items-center gap-2"
                   data-presence-badge
                   data-presence-user-id="{{ profile_user.id }}"
@@ -139,7 +139,7 @@
                               placeholder="Напишите комментарий..."
                               required></textarea>
                     <div class="d-flex justify-content-end mt-2">
-                        <button type="submit" class="btn btn-sm btn-danger" id="public-comment-submit">Отправить</button>
+                        <button type="submit" class="btn btn-sm btn-danger mt-1" id="public-comment-submit">Отправить</button>
                     </div>
                 </form>
             {% else %}
