@@ -4,7 +4,7 @@
 {% block title %}{{ profile_user.username }} - Public Playlist{% endblock %}
 
 {% block content %}
-<div class="container mt-md-3">
+<div class="container mt-md-3 d-flex flex-column gap-3">
     <nav aria-label="breadcrumb" class="mb-3 mt-3 ruby-breadcrumb pre-animation">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
@@ -15,11 +15,11 @@
     <section class="profile-widget mb-4 pre-animation" id="public-card">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 public-header-layout">
             <div class="d-flex align-items-center gap-3">
-                <div class="profile-avatar-wrap flex-shrink-0" style="width: 82px; height: 82px; margin: 0;">
+                <div class="profile-avatar-wrap flex-shrink-0 public-profile-avatar-wrap">
                     {% if profile_user.avatar %}
                         <img src="{{ profile_user.avatar.url }}" alt="{{ profile_user.username }}" class="profile-avatar">
                     {% else %}
-                        <div class="profile-avatar-placeholder" style="font-size: 2rem;">
+                        <div class="profile-avatar-placeholder public-profile-avatar-placeholder">
                             <i class="bi bi-person-fill"></i>
                         </div>
                     {% endif %}
@@ -73,54 +73,108 @@
     {% if not is_public_available %}
         <div class="alert alert-secondary">Публичное избранное этого пользователя недоступно.</div>
     {% else %}
-        <section id="public-playlist-root" class="mb-4">
-            <div class="d-none d-md-flex justify-content-center mb-3 pre-animation public-track-view-switch">
-                <div class="btn-group btn-group-sm" role="group" aria-label="Track view mode">
-                    <button type="button" class="btn btn-outline-danger active" data-track-view="list">Список</button>
-                    <button type="button" class="btn btn-outline-danger" data-track-view="grid">Сетка</button>
+        <div class="d-lg-none mb-3 public-mobile-filter-wrap">
+            <button
+                class="btn btn-outline-danger btn-sm public-filter-mobile-trigger pre-animation"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#publicFilterOffcanvas"
+                aria-controls="publicFilterOffcanvas"
+            >
+                <i class="bi bi-sliders me-1"></i> Фильтры
+            </button>
+        </div>
+
+        <div class="row g-3 g-lg-4 align-items-start public-layout">
+            <aside class="col-12 col-lg-4 col-xl-3 d-none d-lg-block">
+                <section class="public-filter-card pre-animation mb-5 mt-5" id="public-filter-panel">
+                    <h3 class="public-filter-title mb-4">
+                        <i class="bi bi-funnel me-2 text-danger"></i>Фильтр
+                    </h3>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-1" for="public-artist-filter">Артист</label>
+                        <select class="form-select form-select-sm" id="public-artist-filter" data-public-artist-filter>
+                            <option value="all">Все артисты</option>
+                        </select>
+                    </div>
+
+                    <hr class="text-muted my-3">
+
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger mx-auto d-block" data-public-reset-filters>
+                            Очистить
+                        </button>
+                    </div>
+
+                    <hr class="text-muted my-3">
+
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Количество треков</label>
+                        <div class="small text-muted" id="public-count-display" data-public-count-display>{{ tracks_count }}</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label mb-1">Показано:</label>
+                        <div class="small text-muted" id="public-shown-display" data-public-shown-display>{{ tracks_count }}</div>
+                    </div>
+
+                    <div id="public-filter-meta" class="small text-muted mt-3" data-public-filter-meta></div>
+                </section>
+            </aside>
+
+            <section class="col-12 col-lg-8 col-xl-9">
+                <div id="public-playlist-root" class="mb-4">
+                    <div class="d-none d-md-flex justify-content-center mb-3 pre-animation public-track-view-switch">
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Track view mode">
+                            <button type="button" class="btn btn-outline-danger active" data-track-view="list">Список</button>
+                            <button type="button" class="btn btn-outline-danger" data-track-view="grid">Сетка</button>
+                        </div>
+                    </div>
+                {% if tracks %}
+                    <ul class="track-list list-unstyled p-0 m-0">
+                        {% for track in tracks %}
+                            <li class="track-item-playlist pre-animation">
+                                <div class="track-playlist mb-3">
+                                    <img
+                                        src="{{ track.image_url|default:'/static/images/default.svg' }}"
+                                        alt="{{ track.name|default:'Unknown track' }}"
+                                        class="track-image shadow-sm img-fluid"
+                                        loading="lazy">
+                                    <div class="track-meta">
+                                        <h5 class="track-title text-start mb-1">{{ track.name|default:"Unknown track" }}</h5>
+                                        <p class="track-artist">
+                                            <span class="track-artist-label">Артист:</span>
+                                            <button
+                                                type="button"
+                                                class="artist-bio-trigger js-artist-bio-trigger color-dark"
+                                                data-artist-name="{{ track.artist|default:'Unknown artist'|escape }}"
+                                                aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">{{ track.artist|default:"Unknown artist" }}</button>
+                                        </p>
+                                    </div>
+                                    <div class="track-player me-sm-2">
+                                        {% if track.url %}
+                                            <audio controls preload="none" class="public-track-audio">
+                                                <source src="{{ track.url }}">
+                                            </audio>
+                                        {% else %}
+                                            <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
+                                                Превью недоступно
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-secondary mb-0">В публичном избранном пока нет треков.</div>
+                {% endif %}
                 </div>
-            </div>
-            {% if tracks %}
-                <ul class="track-list list-unstyled p-0 m-0">
-                    {% for track in tracks %}
-                        <li class="track-item-playlist pre-animation">
-                            <div class="track-playlist mb-3">
-                                <img
-                                    src="{{ track.image_url|default:'/static/images/default.svg' }}"
-                                    alt="{{ track.name|default:'Unknown track' }}"
-                                    class="track-image shadow-sm img-fluid"
-                                    loading="lazy">
-                                <div class="track-meta">
-                                    <h5 class="track-title text-start mb-1">{{ track.name|default:"Unknown track" }}</h5>
-                                    <p class="track-artist">
-                                        <span class="track-artist-label">Артист:</span>
-                                        <button
-                                            type="button"
-                                            class="artist-bio-trigger js-artist-bio-trigger color-dark"
-                                            data-artist-name="{{ track.artist|default:'Unknown artist'|escape }}"
-                                            aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">{{ track.artist|default:"Unknown artist" }}</button>
-                                    </p>
-                                </div>
-                                <div class="track-player me-sm-2">
-                                    {% if track.url %}
-                                        <audio controls preload="none" style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
-                                            <source src="{{ track.url }}">
-                                        </audio>
-                                    {% else %}
-                                        <div class="fs-6 text-muted d-inline-block border-bottom border-danger">
-                                            Превью недоступно
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="alert alert-secondary mb-0">В публичном избранном пока нет треков.</div>
-            {% endif %}
-        </section>
-        <section class="profile-widget mb-4"
+            </section>
+        </div>
+
+        <section class="profile-widget mb-5 mt-5"
                  id="public-comments-root"
                  data-public-comments-root
                  data-public-username="{{ profile_user.username }}">
@@ -149,9 +203,52 @@
             {% endif %}
 
             <div id="public-comments-empty" class="small text-muted">Комментариев пока нет.</div>
-            <div id="public-comments-list" class="d-flex flex-column gap-2" aria-live="polite"></div>
+            <div id="public-comments-list" class="d-flex flex-column gap-2 mt-4" aria-live="polite"></div>
         </section>
     {% endif %}
+</div>
+
+<div class="offcanvas offcanvas-bottom public-filter-offcanvas d-lg-none" tabindex="-1" id="publicFilterOffcanvas"
+     aria-labelledby="publicFilterOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="publicFilterOffcanvasLabel">Фильтр</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="mb-4">
+            <label class="form-label mb-1" for="public-artist-filter-mobile">
+                <i class="bi bi-person me-2 text-danger"></i>Артист
+            </label>
+            <select class="form-select form-select-sm" id="public-artist-filter-mobile" data-public-artist-filter>
+                <option value="all">Все артисты</option>
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <button type="button" class="btn btn-sm btn-outline-danger mx-auto d-block" data-public-reset-filters>
+                <i class="bi bi-arrow-clockwise me-1"></i>Очистить
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label mb-1">
+                Количество треков
+            </label>
+            <div class="small text-white d-md-none" data-public-count-display>{{ tracks_count }}</div>
+            <div class="small text-muted d-none d-md-block" data-public-count-display>{{ tracks_count }}</div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label mb-1">
+                Показано:
+            </label>
+            <div class="small text-white d-md-none" data-public-shown-display>{{ tracks_count }}</div>
+            <div class="small text-muted d-none d-md-block" data-public-shown-display>{{ tracks_count }}</div>
+        </div>
+
+        <div class="small text-white mt-3 d-md-none text-center" data-public-filter-meta></div>
+        <div class="small text-muted mt-3 d-none d-md-block text-center" data-public-filter-meta></div>
+    </div>
 </div>
 
 {% endblock %}

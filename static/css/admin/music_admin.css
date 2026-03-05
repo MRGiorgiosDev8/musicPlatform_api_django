@@ -15,6 +15,14 @@ body {
     color: var(--admin-text);
 }
 
+.admin-search-form {
+    margin: 12px 0 18px;
+}
+
+.admin-search-input {
+    min-width: 340px;
+}
+
 #header {
     background: linear-gradient(90deg, var(--admin-accent-strong), var(--admin-accent));
     color: #fff;

@@ -18,6 +18,158 @@
     border: var(--border-light-white);
 }
 
+.public-filter-card {
+    position: sticky;
+    top: 92px;
+    padding: 0.95rem 0.9rem;
+    border-radius: 14px;
+    background: var(--color-card-bg-light);
+    box-shadow: var(--shadow-card);
+    border: var(--border-light-white);
+}
+
+.public-filter-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+.public-filter-card .form-label {
+    font-size: 0.88rem;
+    color: var(--color-text-dark);
+    font-weight: 500;
+}
+
+.public-filter-card .form-select {
+    border: 1px solid rgba(184, 95, 108, 0.35);
+}
+
+.public-filter-card .form-select:focus,
+.public-filter-card .form-select:active {
+    outline: none;
+    box-shadow: none;
+    border-color: rgba(184, 95, 108, 0.35);
+}
+
+.public-filter-mobile-trigger {
+    box-shadow: var(--shadow-card);
+    border: none;
+    background: var(--color-card-bg-light);
+}
+
+.playlist-track-audio {
+    filter: sepia(1) saturate(2) hue-rotate(320deg);
+}
+
+.public-mobile-filter-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.public-filter-offcanvas {
+    height: 65vh !important;
+    max-height: 500px !important;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: black;
+    border: none;
+    box-shadow: var(--shadow-card);
+}
+
+.public-filter-offcanvas .offcanvas-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+.public-filter-offcanvas .offcanvas-header {
+    background: black;
+    border-bottom: 1px solid var(--color-primary);
+}
+
+.public-filter-offcanvas .offcanvas-body {
+    background: black;
+}
+
+.public-filter-offcanvas .form-control,
+.public-filter-offcanvas .form-select {
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(255, 13, 0, 0.85);
+    box-shadow: none;
+}
+
+.public-filter-offcanvas .form-control:focus,
+.public-filter-offcanvas .form-select:focus {
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(255, 13, 0, 0.85);
+    box-shadow: none;
+    outline: none;
+}
+
+.public-filter-offcanvas .form-select:active {
+    background: #fff;
+    color: #111;
+    border: 1px solid rgba(255, 13, 0, 0.85);
+    box-shadow: none;
+    outline: none;
+}
+
+.public-filter-offcanvas [data-public-reset-filters] {
+    color: #fff;
+}
+
+.public-filter-offcanvas .btn-close {
+    --bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23d5d7db'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+.public-filter-card.pre-animation {
+    animation: public-filter-fade-in 0.42s ease-out 0.15s both;
+}
+
+.public-filter-mobile-trigger.pre-animation {
+    animation: public-filter-trigger-fade-in 0.42s ease-out 0.1s both;
+}
+
+@keyframes public-filter-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes public-filter-trigger-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .public-filter-card.pre-animation {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    .public-filter-mobile-trigger.pre-animation {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
 .playlist-filter-title {
     margin: 0;
     font-size: 1.05rem;
@@ -273,8 +425,6 @@
 @media (min-width: 768px) {
     #public-card {
         width: min(100%, 920px);
-        margin-left: auto !important;
-        margin-right: auto !important;
     }
 
     #public-playlist-root .track-list {
@@ -288,6 +438,12 @@
         margin-right: auto !important;
         text-align: center;
     }
+}
+
+#public-card {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    width: min(100%, 1276px) !important;
 }
 
 #public-playlist-root.public-view-grid .track-item-playlist {
@@ -310,11 +466,23 @@
         position: static;
     }
 
+    .public-filter-card {
+        position: static;
+    }
+
     .playlist-filter-offcanvas .form-label {
         color: #fff !important;
     }
 
+    .public-filter-offcanvas .form-label {
+        color: #fff !important;
+    }
+
     .playlist-filter-offcanvas {
+        height: min(82vh, 760px);
+    }
+
+    .public-filter-offcanvas {
         height: min(82vh, 760px);
     }
 

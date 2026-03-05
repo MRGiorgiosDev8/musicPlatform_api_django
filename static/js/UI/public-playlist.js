@@ -1,3 +1,34 @@
+const normalizePublicArtist = (value) => String(value || '').trim();
+
+const buildPublicTrackRecords = (items = []) =>
+  Array.from(items).map((item, idx) => {
+    const card = item.querySelector('.track-playlist');
+    const artistButton = card?.querySelector('.artist-bio-trigger');
+    const artistName = artistButton ? artistButton.textContent.trim() : '';
+    return {
+      element: item,
+      artist: artistName,
+      artistKey: artistName.toLowerCase(),
+      index: idx,
+    };
+  });
+
+const computePublicPlaylistView = (trackRecords = [], state = {}) => {
+  const artistFilter = state.artistFilter || 'all';
+
+  const filtered = trackRecords.filter(
+    (record) => artistFilter === 'all' || record.artistKey === artistFilter
+  );
+
+  const sorted = [...filtered].sort((a, b) => a.index - b.index);
+
+  return {
+    filtered,
+    sorted,
+    hasMatches: sorted.length > 0,
+  };
+};
+
 const resolvePublicPlaylistViewMode = (mode) => (mode === 'grid' ? 'grid' : 'list');
 
 const getPublicPlaylistViewStorageKey = (username = '') =>
@@ -93,11 +124,64 @@ const initPublicPlaylistPage = () => {
 
   const playlistRoot = document.getElementById('public-playlist-root');
   if (!playlistRoot) return;
+  
+  const trackList = playlistRoot.querySelector('.track-list');
   const pageSize = 6;
   let visibleTracksCount = pageSize;
   let loadMoreContainer = null;
+  let activeAudio = null;
 
-  const getTrackItems = () => Array.from(playlistRoot.querySelectorAll('.track-item-playlist'));
+  // Filter controls
+  const artistControls = Array.from(document.querySelectorAll('[data-public-artist-filter]'));
+  const resetFilterButtons = Array.from(document.querySelectorAll('[data-public-reset-filters]'));
+  const countDisplays = Array.from(document.querySelectorAll('[data-public-count-display]'));
+  const shownDisplays = Array.from(document.querySelectorAll('[data-public-shown-display]'));
+  const filterMetaBlocks = Array.from(document.querySelectorAll('[data-public-filter-meta]'));
+
+  const state = {
+    artistFilter: artistControls[0]?.value || 'all',
+  };
+
+  const getTrackItems = () => 
+    trackList ? Array.from(trackList.querySelectorAll('.track-item-playlist')) : [];
+
+  const trackRecords = buildPublicTrackRecords(getTrackItems());
+
+  const buildArtistFilterOptions = () => {
+    if (!artistControls.length) return;
+    const artists = Array.from(
+      new Set(trackRecords.map((record) => record.artist).filter((artist) => artist.length > 0))
+    ).sort((a, b) => a.localeCompare(b, 'ru'));
+
+    artistControls.forEach((control) => {
+      artists.forEach((artist) => {
+        const option = document.createElement('option');
+        option.value = artist.toLowerCase();
+        option.textContent = artist;
+        control.appendChild(option);
+      });
+    });
+  };
+
+  const syncControlValues = () => {
+    artistControls.forEach((control) => {
+      control.value = state.artistFilter;
+    });
+  };
+
+  const clearNoMatchesState = () => {
+    const existingAlert = playlistRoot.querySelector('.alert.alert-light.border.mb-0');
+    if (existingAlert) existingAlert.remove();
+  };
+
+  const showNoMatchesState = () => {
+    const existingAlert = playlistRoot.querySelector('.alert.alert-light.border.mb-0');
+    if (existingAlert) return;
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-light border mb-0';
+    alert.textContent = 'По выбранному фильтру треки не найдены.';
+    playlistRoot.appendChild(alert);
+  };
 
   const createLoadMoreButton = () => {
     const container = document.createElement('div');
@@ -144,20 +228,46 @@ const initPublicPlaylistPage = () => {
     const items = getTrackItems();
     if (!items.length) return [];
 
+    const view = computePublicPlaylistView(trackRecords, state);
+    const sorted = view.sorted;
+
+    // Hide all items first
+    items.forEach((item) => {
+      item.style.display = 'none';
+    });
+
+    if (!sorted.length) {
+      if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+      showNoMatchesState();
+      countDisplays.forEach((block) => {
+        block.textContent = '0';
+      });
+      shownDisplays.forEach((block) => {
+        block.textContent = '0';
+      });
+      filterMetaBlocks.forEach((block) => {
+        block.textContent = 'Найдено: 0 треков';
+      });
+      return [];
+    }
+
+    clearNoMatchesState();
+
+    // Show filtered items
     const page = computePublicPlaylistPagination(
-      items.length,
+      sorted.length,
       visibleTracksCount,
       previousVisibleCount
     );
     const newlyVisible = [];
 
-    items.forEach((item, idx) => {
+    sorted.forEach((record, idx) => {
       const shouldShow = idx < page.maxVisible;
-      item.style.display = shouldShow ? '' : 'none';
+      record.element.style.display = shouldShow ? '' : 'none';
       if (shouldShow && page.newlyVisibleIndexes.includes(idx)) {
-        item.style.opacity = '1';
-        item.style.transform = 'none';
-        newlyVisible.push(item);
+        record.element.style.opacity = '1';
+        record.element.style.transform = 'none';
+        newlyVisible.push(record.element);
       }
     });
 
@@ -166,6 +276,17 @@ const initPublicPlaylistPage = () => {
       playlistRoot.appendChild(loadMoreContainer);
     }
     loadMoreContainer.style.display = page.hasMore ? '' : 'none';
+
+    // Update counters
+    countDisplays.forEach((block) => {
+      block.textContent = `${sorted.length}`;
+    });
+    shownDisplays.forEach((block) => {
+      block.textContent = `${page.maxVisible}`;
+    });
+    filterMetaBlocks.forEach((block) => {
+      block.textContent = `Показано: ${page.maxVisible} из ${sorted.length}`;
+    });
 
     return newlyVisible;
   };
@@ -195,10 +316,34 @@ const initPublicPlaylistPage = () => {
     });
   }
 
+  // Initialize filter controls
+  if (trackList) {
+    buildArtistFilterOptions();
+    syncControlValues();
+  }
+
+  // Filter event listeners
+  artistControls.forEach((control) => {
+    control.addEventListener('change', () => {
+      state.artistFilter = control.value || 'all';
+      syncControlValues();
+      visibleTracksCount = pageSize;
+      renderTrackPagination(0);
+    });
+  });
+
+  resetFilterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      state.artistFilter = 'all';
+      syncControlValues();
+      visibleTracksCount = pageSize;
+      renderTrackPagination(0);
+    });
+  });
+
   renderTrackPagination(0);
   document.dispatchEvent(new Event('publicPlaylist:rendered'));
 
-  let activeAudio = null;
   playlistRoot.addEventListener(
     'play',
     (event) => {

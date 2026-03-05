@@ -125,8 +125,7 @@
 
                                     <div class="track-player me-sm-2">
                                         {% if track.url %}
-                                            <audio controls preload="none"
-                                                   style="filter: sepia(1) saturate(2) hue-rotate(320deg);">
+                                            <audio controls preload="none" class="playlist-track-audio">
                                                 <source src="{{ track.url }}">
                                             </audio>
                                         {% else %}

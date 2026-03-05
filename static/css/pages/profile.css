@@ -182,6 +182,10 @@
     text-align: left;
 }
 
+.avatar-actions-item[for="avatar"] {
+    cursor: pointer;
+}
+
 .avatar-actions-item:hover {
     background: rgba(0, 0, 0, 0.04);
 }
@@ -347,6 +351,20 @@
     font-weight: 500;
 }
 
+.public-profile-avatar-wrap {
+    width: 82px;
+    height: 82px;
+    margin: 0;
+}
+
+.public-profile-avatar-placeholder {
+    font-size: 2rem;
+}
+
+.public-track-audio {
+    filter: sepia(1) saturate(2) hue-rotate(320deg);
+}
+
 @media (max-width: 991.98px) {
     .profile-grid {
         grid-template-columns: 1fr;
@@ -359,6 +377,15 @@
 }
 
 @media (max-width: 575.98px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 1.4rem;
+    }
+
+    .profile-right-stack {
+        gap: 1.4rem;
+    }
+
     .public-profile-stats-mobile .badge {
         font-size: 0.88rem;
     }

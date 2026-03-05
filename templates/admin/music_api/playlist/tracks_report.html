@@ -4,13 +4,13 @@
     <div id="content-main">
         <h1>Треки и пользователи</h1>
 
-        <form method="get" style="margin: 12px 0 18px;">
+        <form method="get" class="admin-search-form">
             <input
                 type="text"
                 name="q"
                 value="{{ query }}"
+                class="admin-search-input"
                 placeholder="Поиск: трек, артист, username, email"
-                style="min-width: 340px;"
             >
             <button type="submit" class="button">Найти</button>
             {% if query %}

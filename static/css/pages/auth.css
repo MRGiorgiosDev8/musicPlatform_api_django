@@ -27,6 +27,10 @@
     margin-bottom: 1.25rem;
 }
 
+.auth-link {
+    color: #ff6373 !important;
+}
+
 .auth-icon {
     color: var(--color-primary);
     line-height: 1;

@@ -37,3 +37,16 @@ body {
 .small-icon {
     font-size: 1.5rem;
 }
+
+.input-search {
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.btn-clear-search {
+    display: none;
+}
+
+#artistBioImage {
+    max-height: 220px;
+}
