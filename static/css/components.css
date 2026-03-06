@@ -313,6 +313,10 @@
     background-color: #fff;
 }
 
+.hamburger:hover {
+    opacity: 1 !important;
+}
+
 .ruby-breadcrumb .breadcrumb {
     display: inline-flex;
     align-items: center;
