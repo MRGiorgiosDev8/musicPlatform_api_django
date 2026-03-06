@@ -45,7 +45,7 @@
                         <details class="avatar-actions mt-1">
                             <summary
                                 class="profile-avatar-edit d-inline-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-pencil"></i>
+                                <i class="bi bi-pencil-fill"></i>
                                 <span class="profile-avatar-edit-text fw-normal text-dark">
                                     Изменить аватар
                                 </span>
@@ -73,7 +73,7 @@
                         {% if request.user.is_public_favorites %}
                         <a href="{% url 'public_user_page' request.user.username %}"
                             class="profile-public-link d-inline-flex align-items-center justify-content-center gap-2 mt-3 text-decoration-none">
-                            <i class="bi bi-box-arrow-up-right"></i>
+                            <i class="bi bi-arrow-up-right-square-fill"></i>
                             <span class="profile-avatar-edit-text fw-normal text-dark">
                                 Публичная страница
                             </span>

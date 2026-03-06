@@ -73,7 +73,7 @@
     {% if not is_public_available %}
         <div class="alert alert-secondary">Публичное избранное этого пользователя недоступно.</div>
     {% else %}
-        <div class="d-lg-none mb-3 public-mobile-filter-wrap">
+        <div class="d-lg-none mb-1 public-mobile-filter-wrap">
             <button
                 class="btn btn-outline-danger btn-sm public-filter-mobile-trigger pre-animation"
                 type="button"
@@ -81,15 +81,15 @@
                 data-bs-target="#publicFilterOffcanvas"
                 aria-controls="publicFilterOffcanvas"
             >
-                <i class="bi bi-sliders me-1"></i> Фильтры
+                <i class="bi bi-sliders me-1"></i> Фильтр
             </button>
         </div>
 
         <div class="row g-3 g-lg-4 align-items-start public-layout">
             <aside class="col-12 col-lg-4 col-xl-3 d-none d-lg-block">
                 <section class="public-filter-card pre-animation mb-5 mt-5" id="public-filter-panel">
-                    <h3 class="public-filter-title mb-4">
-                        <i class="bi bi-funnel me-2 text-danger"></i>Фильтр
+                    <h3 class="public-filter-title mb-4 bg-danger bg-opacity-10 p-2 rounded border border-white">
+                        <i class="bi bi-funnel-fill me-2 text-danger"></i>Фильтр
                     </h3>
 
                     <div class="mb-3">
@@ -179,13 +179,12 @@
                  data-public-comments-root
                  data-public-username="{{ profile_user.username }}">
             <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-                <h2 class="h5 mb-0">Комментарии</h2>
+                <h2 class="h5 mb-0 fw-medium"><i class="bi bi-chat-fill me-2 text-danger"></i>Комментарии</h2>
                 <span class="small text-muted" id="public-comments-count">0</span>
             </div>
 
             {% if user.is_authenticated %}
                 <form id="public-comment-form" class="mb-3">
-                    <label for="public-comment-text" class="form-label small text-muted mb-1">Оставить комментарий</label>
                     <textarea id="public-comment-text"
                               class="form-control"
                               rows="3"
@@ -193,7 +192,7 @@
                               placeholder="Напишите комментарий..."
                               required></textarea>
                     <div class="d-flex justify-content-end mt-2">
-                        <button type="submit" class="btn btn-sm btn-danger mt-1" id="public-comment-submit">Отправить</button>
+                        <button type="submit" class="btn btn-sm btn-danger mt-1 border border-white" id="public-comment-submit">Отправить</button>
                     </div>
                 </form>
             {% else %}

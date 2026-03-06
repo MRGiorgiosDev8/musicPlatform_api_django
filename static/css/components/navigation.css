@@ -1,7 +1,7 @@
 .premium-nav-link {
     position: relative;
     color: #d8d8d8;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.01em;
     transition: color 0.2s ease;
     display: block;
@@ -55,7 +55,7 @@
 
 .premium-nav-auth {
     transition: color 0.25s ease, font-size 0.25s ease, text-shadow 0.25s ease;
-    color: #ffffff;
+    color: #d8d8d8;
 }
 
 .premium-nav-auth.is-active {
@@ -68,6 +68,7 @@
         font-size: 1.1em;
         opacity: 0.7;
     }
+
     to {
         font-size: 1.3em;
         opacity: 1;
@@ -98,7 +99,7 @@
     .premium-nav-auth:hover,
     .premium-nav-auth:focus {
         background: none;
-        color: #ffffff !important;
+        color: #d8d8d8 !important;
         border-radius: 0;
     }
 }
