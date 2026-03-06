@@ -309,32 +309,13 @@ const setupMusicSearch = () => {
     loadMoreContainer.style.textAlign = 'center';
     loadMoreContainer.style.margin = '20px 0';
 
-    const loadMoreButton = document.createElement('button');
-    loadMoreButton.className = 'btn btn-sm btn-show-more mt-3';
-    loadMoreButton.style.transform = 'scale(1.1)';
-    loadMoreButton.style.transition = 'transform 0.3s ease, background-color 0.3s ease';
-    loadMoreButton.style.backgroundColor = 'transparent';
-    loadMoreButton.style.border = 'none';
-    loadMoreButton.style.outline = 'none';
-    loadMoreButton.style.opacity = '0.90';
-
-    loadMoreButton.addEventListener('mouseenter', () => {
-      loadMoreButton.style.transform = 'scale(0.95)';
-    });
-    loadMoreButton.addEventListener('mouseleave', () => {
-      loadMoreButton.style.transform = 'scale(1.1)';
-    });
+    const loadMoreButton = Utils.createShowMoreButton();
     loadMoreButton.addEventListener('click', async () => {
       currentPage += 1;
       await displayResults();
     });
 
-    const arrowIcon = document.createElement('i');
-    arrowIcon.className = 'bi bi-chevron-double-down';
-    arrowIcon.setAttribute('aria-hidden', 'true');
-    arrowIcon.style.fontSize = '2rem';
-    arrowIcon.style.lineHeight = '1';
-    arrowIcon.style.color = 'var(--color-primary)';
+    const arrowIcon = Utils.createChevronDownIcon();
 
     loadMoreButton.appendChild(arrowIcon);
     loadMoreButton.disabled = currentPage >= totalPages;

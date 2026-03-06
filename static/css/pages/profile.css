@@ -351,6 +351,38 @@
     font-weight: 500;
 }
 
+#block-like-notifications {
+    max-height: 300px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#like-notifications-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 320px;
+    padding-right: 8px;
+}
+
+#like-notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+#like-notifications-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+#like-notifications-list::-webkit-scrollbar-thumb {
+    background: rgba(220, 53, 69, 0.3);
+    border-radius: 3px;
+}
+
+#like-notifications-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 53, 69, 0.5);
+}
+
 .public-profile-avatar-wrap {
     width: 82px;
     height: 82px;

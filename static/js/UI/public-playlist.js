@@ -188,21 +188,7 @@ const initPublicPlaylistPage = () => {
     container.className = 'load-more-container text-center';
     container.style.margin = '12px 0 8px';
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'btn btn-sm btn-show-more mt-2';
-    button.style.transform = 'scale(1.1)';
-    button.style.transition = 'transform 0.3s ease';
-    button.style.backgroundColor = 'transparent';
-    button.style.border = 'none';
-    button.style.outline = 'none';
-
-    button.addEventListener('mouseenter', () => {
-      button.style.transform = 'scale(0.95)';
-    });
-    button.addEventListener('mouseleave', () => {
-      button.style.transform = 'scale(1.1)';
-    });
+    const button = Utils.createShowMoreButton();
     button.addEventListener('click', () => {
       const previousVisible = visibleTracksCount;
       visibleTracksCount += pageSize;
@@ -212,12 +198,7 @@ const initPublicPlaylistPage = () => {
       );
     });
 
-    const arrowIcon = document.createElement('i');
-    arrowIcon.className = 'bi bi-chevron-double-down';
-    arrowIcon.setAttribute('aria-hidden', 'true');
-    arrowIcon.style.fontSize = '2rem';
-    arrowIcon.style.lineHeight = '1';
-    arrowIcon.style.color = 'var(--color-primary)';
+    const arrowIcon = Utils.createChevronDownIcon();
 
     button.appendChild(arrowIcon);
     container.appendChild(button);

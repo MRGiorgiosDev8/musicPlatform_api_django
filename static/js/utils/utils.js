@@ -179,4 +179,35 @@ const Utils = {
     }
     return res.json();
   },
+
+  createChevronDownIcon(fontSize = '1.8rem') {
+    const arrowIcon = document.createElement('i');
+    arrowIcon.className = 'bi bi-chevron-double-down';
+    arrowIcon.setAttribute('aria-hidden', 'true');
+    arrowIcon.style.fontSize = fontSize;
+    arrowIcon.style.lineHeight = '1';
+    arrowIcon.style.color = 'var(--color-primary)';
+    return arrowIcon;
+  },
+
+  createShowMoreButton(marginTop = 'mt-2') {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `btn btn-sm btn-show-more ${marginTop}`;
+    button.style.transform = 'scale(1.1)';
+    button.style.transition = 'transform 0.3s ease';
+    button.style.backgroundColor = 'transparent';
+    button.style.border = 'none';
+    button.style.outline = 'none';
+    button.style.opacity = '0.90';
+
+    button.addEventListener('mouseenter', () => {
+      button.style.transform = 'scale(0.95)';
+    });
+    button.addEventListener('mouseleave', () => {
+      button.style.transform = 'scale(1.1)';
+    });
+
+    return button;
+  },
 };
