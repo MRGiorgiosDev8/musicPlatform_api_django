@@ -235,8 +235,113 @@ async def test_public_playlist_comments_delete_permissions(
         f"/api/playlists/public/{public_owner.username}/comments/{comment.id}/",
         headers=_bearer(public_owner),
     )
-    assert deleted_by_owner.status_code == 200
-    assert deleted_by_owner.json()["detail"] == "Comment deleted."
+    assert deleted_by_owner.status_code == 403
+    assert deleted_by_owner.json()["detail"] == "You cannot delete this comment."
+
+    deleted_by_author = await async_api_client.delete(
+        f"/api/playlists/public/{public_owner.username}/comments/{comment.id}/",
+        headers=_bearer(liker_user),
+    )
+    assert deleted_by_author.status_code == 200
+    assert deleted_by_author.json()["detail"] == "Comment deleted."
 
     exists = await sync_to_async(PlaylistComment.objects.filter(id=comment.id).exists)()
     assert exists is False
+
+
+async def test_public_playlist_comments_support_single_level_replies(
+    async_api_client, public_owner, liker_user
+):
+    root_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+        json={"text": "Root comment"},
+    )
+    assert root_response.status_code == 201
+    root_payload = root_response.json()
+    assert root_payload["parent_id"] is None
+
+    reply_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(public_owner),
+        json={"text": "Reply comment", "parent_id": root_payload["id"]},
+    )
+    assert reply_response.status_code == 201
+    reply_payload = reply_response.json()
+    assert reply_payload["parent_id"] == root_payload["id"]
+
+    list_response = await async_api_client.get(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+    )
+    assert list_response.status_code == 200
+    list_payload = list_response.json()
+    assert list_payload["meta"]["count"] == 2
+    assert len(list_payload["results"]) == 1
+    assert list_payload["results"][0]["id"] == root_payload["id"]
+    assert len(list_payload["results"][0]["replies"]) == 1
+    assert list_payload["results"][0]["replies"][0]["id"] == reply_payload["id"]
+
+
+async def test_public_playlist_comments_reject_reply_to_reply(
+    async_api_client, public_owner, liker_user
+):
+    root_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+        json={"text": "Root"},
+    )
+    assert root_response.status_code == 201
+    root_id = root_response.json()["id"]
+
+    reply_response = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(public_owner),
+        json={"text": "Reply", "parent_id": root_id},
+    )
+    assert reply_response.status_code == 201
+    reply_id = reply_response.json()["id"]
+
+    nested_reply = await async_api_client.post(
+        f"/api/playlists/public/{public_owner.username}/comments/",
+        headers=_bearer(liker_user),
+        json={"text": "Nested reply should fail", "parent_id": reply_id},
+    )
+    assert nested_reply.status_code == 400
+    assert nested_reply.json()["detail"] == "Only one nesting level is allowed."
+
+
+async def test_public_playlist_comments_delete_root_also_deletes_replies(
+    async_api_client, public_owner, liker_user
+):
+    playlist = await sync_to_async(
+        lambda: Playlist.objects.filter(user=public_owner)
+        .order_by("created_at")
+        .first()
+    )()
+    root = await sync_to_async(PlaylistComment.objects.create)(
+        playlist=playlist,
+        author=liker_user,
+        text="root to delete",
+    )
+    reply = await sync_to_async(PlaylistComment.objects.create)(
+        playlist=playlist,
+        parent=root,
+        author=public_owner,
+        text="reply to delete",
+    )
+
+    delete_response = await async_api_client.delete(
+        f"/api/playlists/public/{public_owner.username}/comments/{root.id}/",
+        headers=_bearer(liker_user),
+    )
+    assert delete_response.status_code == 200
+
+    root_exists = await sync_to_async(
+        PlaylistComment.objects.filter(id=root.id).exists
+    )()
+    reply_exists = await sync_to_async(
+        PlaylistComment.objects.filter(id=reply.id).exists
+    )()
+    assert root_exists is False
+    assert reply_exists is False

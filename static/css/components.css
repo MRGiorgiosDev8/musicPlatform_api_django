@@ -1,6 +1,6 @@
 .custom-button {
     background-color: var(--color-primary-dark);
-    color: rgba(245, 245, 245, 0.906);
+    color: #fff;
     padding: 3px 8px;
 }
 

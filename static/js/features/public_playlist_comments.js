@@ -16,10 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  const canCompose = Boolean(form && textInput && submitButton);
+  const defaultPlaceholder = textInput?.getAttribute('placeholder') || 'Напишите комментарий...';
+
   const knownIds = new Set();
   let socket = null;
   let reconnectTimer = null;
   let commentsCount = Number.parseInt(countNode.textContent || '0', 10) || 0;
+
+  let replyParentId = null;
+  let replyAuthorName = '';
+  let replyMeta = null;
 
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
@@ -37,45 +44,71 @@ document.addEventListener('DOMContentLoaded', () => {
     empty.classList.toggle('d-none', count > 0);
   };
 
-  const removeCommentById = (commentId) => {
-    const node = list.querySelector(`[data-comment-id="${commentId}"]`);
-    const finalize = () => {
-      if (node) {
-        node.remove();
+  const clearReplyTarget = ({ focus = false } = {}) => {
+    replyParentId = null;
+    replyAuthorName = '';
+    if (replyMeta) {
+      replyMeta.classList.add('d-none');
+      const authorNode = replyMeta.querySelector('[data-reply-author]');
+      if (authorNode) {
+        authorNode.textContent = '';
       }
-      knownIds.delete(Number(commentId));
-      updateMeta();
-    };
-
-    if (
-      node &&
-      window.PublicCommentsAnimation &&
-      typeof window.PublicCommentsAnimation.collapseDeleteComment === 'function'
-    ) {
-      window.PublicCommentsAnimation.collapseDeleteComment(node, finalize);
-      return;
     }
-    finalize();
+    if (textInput) {
+      textInput.placeholder = defaultPlaceholder;
+      if (focus) {
+        textInput.focus();
+      }
+    }
   };
 
-  const renderComment = (comment, appendToBottom = true, shouldPulse = false, container = list) => {
-    if (!comment || !Number.isInteger(Number(comment.id))) {
+  const setReplyTarget = (commentId, authorName) => {
+    if (!canCompose) {
       return;
     }
-    const id = Number(comment.id);
-    if (knownIds.has(id)) {
+    if (!Number.isInteger(Number(commentId))) {
       return;
     }
 
+    replyParentId = Number(commentId);
+    replyAuthorName = String(authorName || '').trim();
+
+    if (replyMeta) {
+      const authorNode = replyMeta.querySelector('[data-reply-author]');
+      if (authorNode) {
+        authorNode.textContent = replyAuthorName || 'пользователю';
+      }
+      replyMeta.classList.remove('d-none');
+    }
+
+    textInput.placeholder = replyAuthorName
+      ? `Ответ для ${replyAuthorName}...`
+      : 'Напишите ответ...';
+    textInput.focus();
+  };
+
+  if (canCompose) {
+    replyMeta = document.createElement('div');
+    replyMeta.className = 'public-comment-reply-meta d-none';
+    replyMeta.innerHTML =
+      '<span class="small">Ответ для <strong data-reply-author></strong></span>' +
+      '<button type="button" class="btn btn-body btn-sm text-decoration-none p-0" data-comment-reply-cancel>Отмена</button>';
+    form.insertBefore(replyMeta, textInput);
+  }
+
+  const buildCommentNode = (comment, isReply = false) => {
     const item = document.createElement('article');
-    item.className = 'public-comment-item';
-    item.dataset.commentId = String(id);
+    item.className = `public-comment-item${isReply ? ' is-reply' : ''}`;
+    item.dataset.commentId = String(comment.id);
+    if (Number.isInteger(Number(comment.parent_id))) {
+      item.dataset.parentId = String(comment.parent_id);
+    }
 
     const metaDiv = document.createElement('div');
     metaDiv.className = 'public-comment-meta';
 
-    const headerRow = document.createElement('div');
-    headerRow.className = 'd-flex align-items-center gap-2 mb-1';
+    const left = document.createElement('div');
+    left.className = 'd-flex align-items-center gap-2 mb-1';
 
     const authorLink = document.createElement('a');
     authorLink.href = comment.author_profile_url || '#';
@@ -107,37 +140,98 @@ document.addEventListener('DOMContentLoaded', () => {
     timeSpan.className = 'public-comment-time';
     timeSpan.textContent = comment.created_at_display || '';
 
-    headerRow.appendChild(authorLink);
-    headerRow.appendChild(timeSpan);
-    metaDiv.appendChild(headerRow);
+    left.appendChild(authorLink);
+    left.appendChild(timeSpan);
+
+    const actions = document.createElement('div');
+    actions.className = 'public-comment-actions d-flex align-items-center gap-2';
+
+    if (canCompose && !isReply) {
+      const replyBtn = document.createElement('button');
+      replyBtn.type = 'button';
+      replyBtn.className = 'btn btn-sm btn-link text-body bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
+      replyBtn.dataset.commentReply = '';
+      replyBtn.textContent = 'Ответить';
+      actions.appendChild(replyBtn);
+    }
 
     if (Boolean(comment.can_delete)) {
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'btn btn-sm btn-link text-danger text-decoration-none p-0';
+      delBtn.className = 'btn btn-sm btn-link text-danger bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
       delBtn.dataset.commentDelete = '';
       delBtn.textContent = 'Удалить';
-      metaDiv.appendChild(delBtn);
+      actions.appendChild(delBtn);
+    }
+
+    metaDiv.appendChild(left);
+    if (actions.childElementCount > 0) {
+      metaDiv.appendChild(actions);
     }
 
     const textP = document.createElement('p');
     textP.className = 'public-comment-text';
-    textP.textContent = comment.text || ''; 
+    textP.textContent = comment.text || '';
 
     item.appendChild(metaDiv);
     item.appendChild(textP);
 
+    if (!isReply) {
+      const repliesWrap = document.createElement('div');
+      repliesWrap.className = 'public-comment-replies';
+      repliesWrap.dataset.commentReplies = '';
+      item.appendChild(repliesWrap);
+    }
+
+    return item;
+  };
+
+  const renderComment = (comment, appendToBottom = true, shouldPulse = false, container = list) => {
+    if (!comment || !Number.isInteger(Number(comment.id))) {
+      return null;
+    }
+
+    const id = Number(comment.id);
+    if (knownIds.has(id)) {
+      return null;
+    }
+
+    const parentId = Number(comment.parent_id);
+    const isReply = Number.isInteger(parentId);
+
+    let targetContainer = container;
+    let effectiveIsReply = isReply;
+
+    if (isReply) {
+      const containerIsReplies = Boolean(
+        targetContainer &&
+        typeof targetContainer.hasAttribute === 'function' &&
+        targetContainer.hasAttribute('data-comment-replies')
+      );
+
+      if (containerIsReplies) {
+        effectiveIsReply = true;
+      } else {
+        const parentNode = list.querySelector(`[data-comment-id="${parentId}"]`);
+        const repliesContainer = parentNode?.querySelector('[data-comment-replies]');
+        if (repliesContainer) {
+          targetContainer = repliesContainer;
+        } else {
+          effectiveIsReply = false;
+        }
+      }
+    }
+
+    const item = buildCommentNode(comment, effectiveIsReply);
+
     if (appendToBottom) {
-      container.appendChild(item);
+      targetContainer.appendChild(item);
     } else {
-      container.prepend(item);
+      targetContainer.prepend(item);
     }
 
     knownIds.add(id);
-    
-    if (container === list) {
-        updateMeta();
-    }
+    updateMeta();
 
     if (
       shouldPulse &&
@@ -146,6 +240,73 @@ document.addEventListener('DOMContentLoaded', () => {
     ) {
       window.PublicCommentsAnimation.pulseNewComment(item);
     }
+
+    return item;
+  };
+
+  const renderCommentThread = (comment, appendToBottom = true, shouldPulse = false, container = list) => {
+    const rootNode = renderComment(comment, appendToBottom, shouldPulse, container);
+    if (!rootNode) {
+      return;
+    }
+
+    const repliesContainer = rootNode.querySelector('[data-comment-replies]');
+    const replies = Array.isArray(comment.replies) ? comment.replies : [];
+
+    replies.forEach((reply) => {
+      if (!reply || !Number.isInteger(Number(reply.id))) {
+        return;
+      }
+      const normalizedReply = {
+        ...reply,
+        parent_id: Number.isInteger(Number(reply.parent_id)) ? Number(reply.parent_id) : Number(comment.id),
+      };
+      renderComment(normalizedReply, true, false, repliesContainer || list);
+    });
+  };
+
+  const removeCommentById = (commentId) => {
+    const id = Number(commentId);
+    if (!Number.isInteger(id)) {
+      return;
+    }
+
+    const node = list.querySelector(`[data-comment-id="${id}"]`);
+
+    if (!node) {
+      knownIds.delete(id);
+      if (replyParentId === id) {
+        clearReplyTarget();
+      }
+      updateMeta();
+      return;
+    }
+
+    const nestedIds = Array.from(node.querySelectorAll('[data-comment-id]'))
+      .map((child) => Number(child.dataset.commentId))
+      .filter((value) => Number.isInteger(value));
+    nestedIds.unshift(id);
+
+    const finalize = () => {
+      node.remove();
+      nestedIds.forEach((nestedId) => {
+        knownIds.delete(nestedId);
+      });
+      if (replyParentId !== null && nestedIds.includes(replyParentId)) {
+        clearReplyTarget();
+      }
+      updateMeta();
+    };
+
+    if (
+      window.PublicCommentsAnimation &&
+      typeof window.PublicCommentsAnimation.collapseDeleteComment === 'function'
+    ) {
+      window.PublicCommentsAnimation.collapseDeleteComment(node, finalize);
+      return;
+    }
+
+    finalize();
   };
 
   const loadComments = async () => {
@@ -165,23 +326,24 @@ document.addEventListener('DOMContentLoaded', () => {
       list.removeChild(list.firstChild);
     }
     knownIds.clear();
+    clearReplyTarget();
 
     const fragment = document.createDocumentFragment();
 
     (payload.results || []).forEach((comment) => {
-        renderComment(comment, true, false, fragment);
+      renderCommentThread(comment, true, false, fragment);
     });
 
     list.appendChild(fragment);
-    
     updateMeta();
   };
 
   const submitComment = async (event) => {
     event.preventDefault();
-    if (!form || !textInput || !submitButton) {
+    if (!canCompose) {
       return;
     }
+
     const text = textInput.value.trim();
     if (!text) {
       return;
@@ -189,6 +351,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitButton.disabled = true;
     try {
+      const requestBody = { text };
+      if (Number.isInteger(replyParentId)) {
+        requestBody.parent_id = replyParentId;
+      }
+
       const response = await fetch(
         `/api/playlists/public/${encodeURIComponent(username)}/comments/`,
         {
@@ -198,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
             typeof window.buildAuthHeaders === 'function'
               ? window.buildAuthHeaders(true, true)
               : { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify(requestBody),
         }
       );
       const payload = await response.json().catch(() => ({}));
@@ -208,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       renderComment(payload, true, true);
       textInput.value = '';
+      clearReplyTarget();
     } catch (error) {
       console.error('Create comment failed:', error);
     } finally {
@@ -231,30 +399,54 @@ document.addEventListener('DOMContentLoaded', () => {
       const payload = await response.json().catch(() => ({}));
       throw new Error(payload.detail || `HTTP ${response.status}`);
     }
+
     removeCommentById(commentId);
   };
 
   list.addEventListener('click', async (event) => {
     const target = event.target;
-    if (!target || !target.hasAttribute('data-comment-delete')) {
+    if (!target) {
       return;
     }
-    const item = target.closest('[data-comment-id]');
-    if (!item) {
+
+    if (target.hasAttribute('data-comment-delete')) {
+      const item = target.closest('[data-comment-id]');
+      if (!item) {
+        return;
+      }
+      const commentId = Number(item.getAttribute('data-comment-id'));
+      if (!Number.isInteger(commentId)) {
+        return;
+      }
+      try {
+        await deleteComment(commentId);
+      } catch (error) {
+        console.error('Delete comment failed:', error);
+      }
       return;
     }
-    const commentId = Number(item.getAttribute('data-comment-id'));
-    if (!Number.isInteger(commentId)) {
-      return;
-    }
-    try {
-      await deleteComment(commentId);
-    } catch (error) {
-      console.error('Delete comment failed:', error);
+
+    if (target.hasAttribute('data-comment-reply')) {
+      const item = target.closest('[data-comment-id]');
+      if (!item) {
+        return;
+      }
+      const commentId = Number(item.getAttribute('data-comment-id'));
+      if (!Number.isInteger(commentId)) {
+        return;
+      }
+      const authorNode = item.querySelector('.public-comment-author');
+      setReplyTarget(commentId, authorNode ? authorNode.textContent : '');
     }
   });
 
   if (form) {
+    form.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target && target.hasAttribute('data-comment-reply-cancel')) {
+        clearReplyTarget({ focus: true });
+      }
+    });
     form.addEventListener('submit', submitComment);
   }
 
@@ -281,6 +473,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (payload.type === 'playlist_comment_created') {
           renderComment(payload.comment, true, true);
         } else if (payload.type === 'playlist_comment_deleted') {
+          const deletedIds = Array.isArray(payload.deleted_ids)
+            ? payload.deleted_ids.map((value) => Number(value)).filter((value) => Number.isInteger(value))
+            : [];
+          if (deletedIds.length > 0) {
+            deletedIds.forEach((deletedId) => {
+              knownIds.delete(deletedId);
+            });
+          }
           removeCommentById(payload.comment_id);
         }
       } catch (error) {

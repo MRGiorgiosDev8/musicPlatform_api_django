@@ -365,6 +365,8 @@ def _serialize_comment(comment, current_user, playlist_owner_id):
         "created_at": created_dt.isoformat(),
         "created_at_display": created_dt.strftime("%d.%m.%Y %H:%M"),
         "can_delete": can_delete,
+        "parent_id": comment.parent_id,
+        "replies": [],
     }
 
 
@@ -376,33 +378,55 @@ def _list_public_playlist_comments(username, current_user, limit=50):
         .first()
     )
     if not user or not user.is_public_favorites:
-        return None, None
+        return None, None, 0
 
     playlist = Playlist.objects.filter(user=user).order_by("created_at").first()
     if playlist is None:
         playlist = Playlist.objects.create(user=user, title="Favorites", tracks=[])
 
-    comments_qs = (
-        PlaylistComment.objects.filter(playlist=playlist)
+    roots_qs = (
+        PlaylistComment.objects.filter(playlist=playlist, parent__isnull=True)
         .select_related("author")
         .order_by("-created_at")[: max(1, min(100, int(limit)))]
     )
-    comments = list(comments_qs)
-    comments.reverse()
+    root_comments = list(roots_qs)
+    root_comments.reverse()
 
-    serialized = [
+    serialized_roots = [
         _serialize_comment(
             comment=comment,
             current_user=current_user,
             playlist_owner_id=playlist.user_id,
         )
-        for comment in comments
+        for comment in root_comments
     ]
-    return playlist, serialized
+    roots_map = {row["id"]: row for row in serialized_roots}
+
+    root_ids = [comment.id for comment in root_comments]
+    if root_ids:
+        replies_qs = (
+            PlaylistComment.objects.filter(playlist=playlist, parent_id__in=root_ids)
+            .select_related("author")
+            .order_by("created_at")
+        )
+        for reply in replies_qs:
+            parent_row = roots_map.get(reply.parent_id)
+            if not parent_row:
+                continue
+            parent_row["replies"].append(
+                _serialize_comment(
+                    comment=reply,
+                    current_user=current_user,
+                    playlist_owner_id=playlist.user_id,
+                )
+            )
+
+    total_count = PlaylistComment.objects.filter(playlist=playlist).count()
+    return playlist, serialized_roots, total_count
 
 
 @sync_to_async
-def _create_public_playlist_comment(username, acting_user, text):
+def _create_public_playlist_comment(username, acting_user, text, parent_id=None):
     if not acting_user or not acting_user.is_authenticated:
         return None, None, "unauthorized"
 
@@ -424,10 +448,30 @@ def _create_public_playlist_comment(username, acting_user, text):
     if playlist is None:
         playlist = Playlist.objects.create(user=user, title="Favorites", tracks=[])
 
+    parent_comment = None
+    if parent_id is not None:
+        try:
+            parent_id = int(parent_id)
+        except (TypeError, ValueError):
+            return playlist, None, "invalid_parent"
+        if parent_id <= 0:
+            return playlist, None, "invalid_parent"
+
+        parent_comment = (
+            PlaylistComment.objects.filter(id=parent_id, playlist=playlist)
+            .select_related("parent")
+            .first()
+        )
+        if parent_comment is None:
+            return playlist, None, "parent_not_found"
+        if parent_comment.parent_id is not None:
+            return playlist, None, "parent_not_root"
+
     comment = PlaylistComment.objects.create(
         playlist=playlist,
         author=acting_user,
         text=clean_text,
+        parent=parent_comment,
     )
     return playlist, comment, None
 
@@ -457,13 +501,21 @@ def _delete_public_playlist_comment(username, acting_user, comment_id):
     if comment is None:
         return playlist, None, "comment_not_found"
 
-    is_owner = playlist.user_id == acting_user.id
     is_author = comment.author_id == acting_user.id
-    if not (is_owner or is_author):
+    if not is_author:
         return playlist, comment, "forbidden"
+
+    reply_ids = []
+    if comment.parent_id is None:
+        reply_ids = list(
+            PlaylistComment.objects.filter(parent_id=comment.id).values_list(
+                "id", flat=True
+            )
+        )
 
     comment_data = {
         "id": comment.id,
+        "deleted_ids": [comment.id, *reply_ids],
     }
     comment.delete()
     return playlist, comment_data, None
@@ -565,9 +617,9 @@ class PublicFavoritesCommentsAPIView(APIView):
 
     def get(self, request, username):
         try:
-            playlist, comments = async_to_sync(_list_public_playlist_comments)(
-                username, request.user
-            )
+            playlist, comments, total_count = async_to_sync(
+                _list_public_playlist_comments
+            )(username, request.user)
         except Exception:
             logger.error("Failed to load public playlist comments", exc_info=True)
             return Response(
@@ -584,7 +636,7 @@ class PublicFavoritesCommentsAPIView(APIView):
         return Response(
             {
                 "results": comments,
-                "meta": {"count": len(comments)},
+                "meta": {"count": total_count},
             },
             status=status.HTTP_200_OK,
         )
@@ -592,7 +644,10 @@ class PublicFavoritesCommentsAPIView(APIView):
     def post(self, request, username):
         try:
             playlist, comment, error = async_to_sync(_create_public_playlist_comment)(
-                username, request.user, request.data.get("text", "")
+                username,
+                request.user,
+                request.data.get("text", ""),
+                request.data.get("parent_id", None),
             )
         except Exception:
             logger.error("Failed to create public playlist comment", exc_info=True)
@@ -619,6 +674,21 @@ class PublicFavoritesCommentsAPIView(APIView):
         if error == "too_long":
             return Response(
                 {"detail": f"Comment is too long (max {COMMENT_MAX_LENGTH})."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if error == "invalid_parent":
+            return Response(
+                {"detail": "Invalid parent comment id."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if error == "parent_not_found":
+            return Response(
+                {"detail": "Parent comment not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if error == "parent_not_root":
+            return Response(
+                {"detail": "Only one nesting level is allowed."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -673,7 +743,11 @@ class PublicFavoritesCommentDetailAPIView(APIView):
 
         send_public_playlist_comment_event(
             playlist_id=playlist.id,
-            payload={"type": "playlist_comment_deleted", "comment_id": comment["id"]},
+            payload={
+                "type": "playlist_comment_deleted",
+                "comment_id": comment["id"],
+                "deleted_ids": comment.get("deleted_ids", [comment["id"]]),
+            },
         )
         return Response({"detail": "Comment deleted."}, status=status.HTTP_200_OK)
 

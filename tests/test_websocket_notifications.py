@@ -61,3 +61,53 @@ async def test_websocket_pushes_like_notification_to_recipient(user):
     assert payload["message"]
 
     await communicator.disconnect()
+
+
+@pytest.mark.asyncio
+async def test_websocket_pushes_like_removed_notification_to_recipient(user):
+    client = Client()
+    await sync_to_async(client.force_login)(user)
+    session_cookie = client.cookies["sessionid"].value
+
+    communicator = WebsocketCommunicator(
+        application,
+        "/ws/notifications/",
+        headers=[
+            (b"host", b"testserver"),
+            (b"origin", b"http://testserver"),
+            (b"cookie", f"sessionid={session_cookie}".encode("utf-8")),
+        ],
+    )
+    connected, _ = await communicator.connect()
+    assert connected is True
+
+    User = get_user_model()
+    actor = await sync_to_async(User.objects.create_user)(
+        username="ws_actor_unlike_user",
+        email="ws_actor_unlike_user@example.com",
+        password="test-pass-123",
+    )
+
+    recipient_playlist = await sync_to_async(
+        lambda: Playlist.objects.filter(user=user).order_by("-created_at").first()
+    )()
+    assert recipient_playlist is not None
+
+    like = await sync_to_async(PlaylistLike.objects.create)(
+        playlist=recipient_playlist,
+        user=actor,
+    )
+
+    created_payload = await communicator.receive_json_from(timeout=2)
+    assert created_payload["type"] == "playlist_like"
+    assert isinstance(created_payload.get("notification_id"), int)
+
+    await sync_to_async(like.delete)()
+
+    removed_payload = await communicator.receive_json_from(timeout=2)
+    assert removed_payload["type"] == "playlist_like_removed"
+    assert removed_payload["notification_id"] == created_payload["notification_id"]
+    assert removed_payload["actor_id"] == actor.id
+    assert removed_payload["playlist_id"] == recipient_playlist.id
+
+    await communicator.disconnect()

@@ -38,22 +38,61 @@
       return;
     }
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
+      return;
+    }
+
+    const fullHeight = node.offsetHeight;
+    if (!fullHeight) {
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
+      return;
+    }
+
     gsap.killTweensOf(node);
-    gsap.to(node, {
-      height: 0,
-      opacity: 0,
-      marginTop: 0,
-      marginBottom: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      duration: 0.28,
-      ease: 'power2.inOut',
+    gsap.set(node, {
+      height: fullHeight,
+      overflow: 'hidden',
+      transformOrigin: '50% 0%',
+      willChange: 'height,opacity,transform,filter',
+    });
+
+    const timeline = gsap.timeline({
       onComplete: () => {
+        gsap.set(node, { clearProps: 'all' });
         if (typeof onComplete === 'function') {
           onComplete();
         }
       },
     });
+
+    timeline.to(node, {
+      opacity: 0,
+      x: 11,
+      scaleY: 0.97,
+      filter: 'blur(1.5px)',
+      duration: 0.18,
+      ease: 'power2.in',
+    });
+
+    timeline.to(
+      node,
+      {
+        height: 0,
+        marginTop: 0,
+        marginBottom: 0,
+        paddingTop: 0,
+        paddingBottom: 0,
+        duration: 0.2,
+        ease: 'power2.inOut',
+      },
+      '-=0.02'
+    );
   };
 
   const flipCommentsCount = (node, nextValue) => {

@@ -76,6 +76,13 @@ class PlaylistComment(models.Model):
     playlist = models.ForeignKey(
         Playlist, on_delete=models.CASCADE, related_name="comments"
     )
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        related_name="replies",
+        null=True,
+        blank=True,
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -88,8 +95,12 @@ class PlaylistComment(models.Model):
         ordering = ["created_at"]
         indexes = [
             models.Index(fields=["playlist", "created_at"]),
+            models.Index(fields=["parent", "created_at"]),
             models.Index(fields=["author", "created_at"]),
         ]
 
     def __str__(self):
-        return f"comment:{self.id} playlist:{self.playlist_id} author:{self.author_id}"
+        return (
+            f"comment:{self.id} playlist:{self.playlist_id} "
+            f"author:{self.author_id} parent:{self.parent_id}"
+        )

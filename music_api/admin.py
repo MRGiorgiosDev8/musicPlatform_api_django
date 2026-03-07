@@ -171,6 +171,6 @@ class PlaylistLikeNotificationAdmin(admin.ModelAdmin):
 
 @admin.register(PlaylistComment)
 class PlaylistCommentAdmin(admin.ModelAdmin):
-    list_display = ("id", "playlist", "author", "created_at")
-    list_select_related = ("playlist", "author")
+    list_display = ("id", "playlist", "parent", "author", "created_at")
+    list_select_related = ("playlist", "parent", "author")
     search_fields = ("playlist__title", "playlist__user__username", "author__username")

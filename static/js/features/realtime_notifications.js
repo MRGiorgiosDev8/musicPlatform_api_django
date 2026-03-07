@@ -22,6 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const syncEmptyState = () => {
+    if (!notificationsEmpty) {
+      return;
+    }
+    const hasItems = Boolean(notificationsList.querySelector('.js-like-notification-item'));
+    notificationsEmpty.classList.toggle('d-none', hasItems);
+  };
+
   const renderPlaylistLike = (payload) => {
     if (!payload || payload.type !== 'playlist_like') {
       return;
@@ -29,6 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const item = document.createElement('div');
     item.className = 'small js-like-notification-item';
+    if (Number.isInteger(Number(payload.notification_id))) {
+      item.dataset.notificationId = String(payload.notification_id);
+    }
+    if (Number.isInteger(Number(payload.actor_id))) {
+      item.dataset.actorId = String(payload.actor_id);
+    }
+    if (Number.isInteger(Number(payload.playlist_id))) {
+      item.dataset.playlistId = String(payload.playlist_id);
+    }
 
     const profileLink = document.createElement('a');
     profileLink.href = payload.actor_profile_url || '#';
@@ -46,8 +63,35 @@ document.addEventListener('DOMContentLoaded', () => {
     item.appendChild(timestamp);
 
     notificationsList.prepend(item);
-    if (notificationsEmpty) {
-      notificationsEmpty.classList.add('d-none');
+    syncEmptyState();
+  };
+
+  const removePlaylistLike = (payload) => {
+    if (!payload || payload.type !== 'playlist_like_removed') {
+      return;
+    }
+
+    let item = null;
+    const notificationId = Number(payload.notification_id);
+    if (Number.isInteger(notificationId)) {
+      item = notificationsList.querySelector(
+        `.js-like-notification-item[data-notification-id="${notificationId}"]`
+      );
+    }
+
+    if (!item) {
+      const actorId = Number(payload.actor_id);
+      const playlistId = Number(payload.playlist_id);
+      if (Number.isInteger(actorId) && Number.isInteger(playlistId)) {
+        item = notificationsList.querySelector(
+          `.js-like-notification-item[data-actor-id="${actorId}"][data-playlist-id="${playlistId}"]`
+        );
+      }
+    }
+
+    if (item) {
+      item.remove();
+      syncEmptyState();
     }
   };
 
@@ -58,7 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.addEventListener('message', (event) => {
       try {
         const payload = JSON.parse(event.data);
-        renderPlaylistLike(payload);
+        if (payload.type === 'playlist_like') {
+          renderPlaylistLike(payload);
+        } else if (payload.type === 'playlist_like_removed') {
+          removePlaylistLike(payload);
+        }
       } catch (error) {
         console.error('WS notification parse error:', error);
       }

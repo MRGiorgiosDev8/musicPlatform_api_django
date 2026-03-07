@@ -267,12 +267,16 @@
     border-radius: 10px;
     padding: 0.65rem 0.75rem;
     background: #fff;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .public-comment-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 0.8rem;
     margin-bottom: 0.25rem;
 }
@@ -286,6 +290,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .public-comment-author-avatar {
@@ -320,6 +326,44 @@
     font-size: 0.92rem;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+.public-comment-actions .btn {
+    font-size: 0.82rem;
+}
+
+.public-comment-actions {
+    flex-wrap: wrap;
+    row-gap: 0.1rem;
+}
+
+.public-comment-replies {
+    margin-top: 0.6rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(217, 30, 24, 0.22);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.public-comment-item.is-reply {
+    background: #fffdfd;
+    border-color: rgba(0, 0, 0, 0.06);
+    padding: 0.52rem 0.62rem;
+}
+
+.public-comment-reply-meta {
+    margin-bottom: 0.45rem;
+    padding: 0.42rem 0.58rem;
+    border-radius: 8px;
+    border: 1px dashed rgba(217, 30, 24, 0.4);
+    background: rgba(217, 30, 24, 0.06);
+    color: #3d3d3d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    flex-wrap: wrap;
 }
 
 #public-playlist-like-btn,
@@ -434,5 +478,69 @@
     .public-like-wrap {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    #public-comments-root {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    #public-comments-list {
+        width: 100%;
+        align-items: stretch !important;
+    }
+
+    #public-comments-list > .public-comment-item,
+    .public-comment-replies > .public-comment-item {
+        width: 100% !important;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    .public-comment-item {
+        padding: 0.58rem 0.62rem;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        align-self: stretch;
+        display: block;
+    }
+
+    .public-comment-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+
+    .public-comment-meta > .d-flex:first-child {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .public-comment-author-row {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .public-comment-author {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .public-comment-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .public-comment-time {
+        font-size: 0.74rem;
+    }
+
+    .public-comment-replies {
+        margin-top: 0.5rem;
+        padding-left: 0.72rem;
     }
 }
