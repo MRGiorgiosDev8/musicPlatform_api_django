@@ -385,10 +385,17 @@
   - Добавлен серверный websocket payload `playlist_like_removed`.
   - Расширен payload `playlist_like` (`notification_id`, `actor_id`, `playlist_id`) для точного матчирования и удаления на фронте.
   - Добавлены `data-*` атрибуты в шаблон профиля для существующих уведомлений.
-- **animation**: Обновлена анимация удаления комментария (сдвиг + fade/blur + схлопывание) с учётом `prefers-reduced-motion`.
-- **tests**:
-  - Добавлены backend-тесты для replies: создание ответа, запрет вложенности > 1 уровня, каскадное удаление root+replies.
-  - Добавлен websocket-тест на событие удаления лайк-уведомления (`playlist_like_removed`).
+  * **Результат**: 61 тестов пройдены успешно (Full Green).
+----
+
+#### 2026-03-09 — Frontend тесты системы комментариев
+- **test**: Добавлены frontend тесты на Vitest для системы комментариев (`tests/js/public-playlist-comments.test.js`):
+  - jsdom-сценарии: инициализация, загрузка и рендер комментариев, обновление счетчика/empty-state
+  - форма: создание комментария, валидация пустого ввода, ответы (`parent_id`)
+  - удаление: DELETE-флоу через UI и синхронизация DOM
+  - realtime: обработка WebSocket-событий `playlist_comment_created` и `playlist_comment_deleted`
+  - устойчивость: мок анимаций (`PublicCommentsAnimation`) и проверка интеграции
+- **Результат**: `npx vitest run` — **47 тестов пройдены успешно** (8 test files, Full Green).
 
 ---
 

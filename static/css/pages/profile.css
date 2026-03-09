@@ -553,6 +553,9 @@
     }
 
     .public-comment-actions {
+        display: flex;
+        flex-basis: 100%;
+        margin-top: 0.15rem;
         width: 100%;
         justify-content: flex-end;
     }

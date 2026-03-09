@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const defaultPlaceholder = textInput?.getAttribute('placeholder') || 'Напишите комментарий...';
 
   const knownIds = new Set();
+  const pendingLocalDeleteIds = new Set();
   let socket = null;
   let reconnectTimer = null;
   let commentsCount = Number.parseInt(countNode.textContent || '0', 10) || 0;
@@ -384,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const deleteComment = async (commentId) => {
+    pendingLocalDeleteIds.add(Number(commentId));
     const response = await fetch(
       `/api/playlists/public/${encodeURIComponent(username)}/comments/${commentId}/`,
       {
@@ -396,11 +398,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
     if (!response.ok) {
+      pendingLocalDeleteIds.delete(Number(commentId));
       const payload = await response.json().catch(() => ({}));
       throw new Error(payload.detail || `HTTP ${response.status}`);
     }
 
     removeCommentById(commentId);
+    pendingLocalDeleteIds.delete(Number(commentId));
   };
 
   list.addEventListener('click', async (event) => {
@@ -473,6 +477,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (payload.type === 'playlist_comment_created') {
           renderComment(payload.comment, true, true);
         } else if (payload.type === 'playlist_comment_deleted') {
+          const deletedCommentId = Number(payload.comment_id);
+          if (pendingLocalDeleteIds.has(deletedCommentId)) {
+            pendingLocalDeleteIds.delete(deletedCommentId);
+            return;
+          }
+
           const deletedIds = Array.isArray(payload.deleted_ids)
             ? payload.deleted_ids.map((value) => Number(value)).filter((value) => Number.isInteger(value))
             : [];
