@@ -417,6 +417,55 @@
     font-weight: 500;
 }
 
+.public-profile-stats-mobile .bi-heart-fill {
+    display: inline-block;
+    transform-origin: center;
+    animation: publicStatsHeartBeat 1.9s ease-in-out infinite;
+}
+
+.public-profile-stats-mobile .bi-music-note-list {
+    display: inline-block;
+    transform-origin: center;
+    animation: publicStatsMusicFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes publicStatsHeartBeat {
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(220, 53, 69, 0));
+    }
+    20% {
+        transform: scale(1.11);
+        filter: drop-shadow(0 0 4px rgba(220, 53, 69, 0.35));
+    }
+    34% {
+        transform: scale(0.95);
+        filter: drop-shadow(0 0 2px rgba(220, 53, 69, 0.2));
+    }
+    50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 6px rgba(220, 53, 69, 0.4));
+    }
+}
+
+@keyframes publicStatsMusicFloat {
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+        filter: drop-shadow(0 0 0 rgba(220, 53, 69, 0));
+    }
+    30% {
+        transform: translateY(-0.8px) rotate(-6deg);
+        filter: drop-shadow(0 1px 3px rgba(220, 53, 69, 0.2));
+    }
+    60% {
+        transform: translateY(-1px) rotate(6deg);
+        filter: drop-shadow(0 2px 4px rgba(220, 53, 69, 0.25));
+    }
+}
+
+
 #block-like-notifications {
     max-height: 300px;
     overflow: hidden;

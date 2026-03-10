@@ -2,8 +2,6 @@
 Production settings for music_project project.
 """
 
-import os
-
 # Добавляем noqa, чтобы линтер не ругался на неиспользуемый импорт *
 from .base import *  # noqa: F403, F401
 
@@ -37,28 +35,19 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 # Хранение и сжатие статических файлов
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-COMPRESS_ENABLED = False
-COMPRESS_OFFLINE = False
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
 
-# Логирование (Исправленный синтаксис)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": (
-                "{levelname} {asctime} {module} " "{process:d} {thread:d} {message}"
-            ),
+            "format": "{levelname} {asctime} {module} {message}",
             "style": "{",
         },
     },
     "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
-            "formatter": "verbose",
-        },
         "console": {
             "level": "INFO",
             "class": "logging.StreamHandler",
@@ -66,24 +55,60 @@ LOGGING = {
         },
     },
     "root": {
-        "handlers": ["console", "file"],
+        "handlers": ["console"],
         "level": "INFO",
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
         "music_api": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
     },
 }
 
-# Создание директории для логов
-logs_dir = BASE_DIR / "logs"
-if not os.path.exists(logs_dir):
-    os.makedirs(logs_dir)
+# Переопределяем кэш для продакшена (Render Redis)
+REDIS_URL = config("REDIS_URL", default=None)
+
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+            },
+            "TIMEOUT": 3600,
+            "KEY_PREFIX": "rubysound_prod",
+        }
+    }
+
+    # Настройка для Django Channels через Redis
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_URL],
+            },
+        }
+    }
+
+# Проверка Redis при запуске. Используем прямой импорт из django_redis,
+# чтобы не дожидаться инициализации всей экосистемы кэша Django.
+if REDIS_URL:
+    try:
+        from redis import Redis
+
+        # Парсим URL вручную для быстрой проверки соединения
+        client = Redis.from_url(REDIS_URL, socket_connect_timeout=2)
+        if client.ping():
+            print("🚀 REDIS CHECK: Connection Successful!")
+        client.close()
+    except Exception as e:
+        print(f"❌ REDIS ERROR: {e}")
