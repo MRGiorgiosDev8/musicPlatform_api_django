@@ -2,8 +2,8 @@ import logging
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth import get_user_model
-from django.db.models import Count
-from django.db import transaction
+from django.db.models import Count, F, Func, IntegerField
+from django.db import transaction, connection
 from django.urls import reverse
 from django.utils.timezone import localtime
 from rest_framework import status
@@ -36,6 +36,20 @@ def _update_favorites_title(user, title):
     playlist.title = title
     playlist.save(update_fields=["title"])
     return playlist
+
+
+def _normalize_text(value):
+    """Нормализует текст для сравнения: trim, collapse spaces, lower, NFKD."""
+    raw = str(value or "")
+    collapsed = " ".join(raw.split())
+    try:
+        import unicodedata
+
+        normalized = unicodedata.normalize("NFKD", collapsed)
+        normalized = "".join(ch for ch in normalized if not unicodedata.combining(ch))
+    except Exception:
+        normalized = collapsed
+    return normalized.lower()
 
 
 def _normalize_track_for_storage(track):
@@ -72,12 +86,12 @@ def _add_track_to_favorites(user, track):
                 if existing_mbid and str(existing_mbid).strip() == new_mbid:
                     return playlist, False
             name_key = (
-                str(item.get("name", "")).strip().lower(),
-                str(item.get("artist", "")).strip().lower(),
+                _normalize_text(item.get("name", "")),
+                _normalize_text(item.get("artist", "")),
             )
             track_key = (
-                track["name"].strip().lower(),
-                track["artist"].strip().lower(),
+                _normalize_text(track["name"]),
+                _normalize_text(track["artist"]),
             )
             if name_key == track_key:
                 return playlist, False
@@ -106,8 +120,8 @@ def _remove_track_from_favorites(user, track):
         track_mbid = track.get("mbid")
         if track_mbid:
             track_mbid = str(track_mbid).strip()
-        track_name_key = track["name"].strip().lower()
-        track_artist_key = track["artist"].strip().lower()
+        track_name_key = _normalize_text(track["name"])
+        track_artist_key = _normalize_text(track["artist"])
 
         for item in tracks:
             if not isinstance(item, dict):
@@ -118,8 +132,8 @@ def _remove_track_from_favorites(user, track):
                 if item_mbid and str(item_mbid).strip() == track_mbid:
                     removed = True
                     continue
-            item_name = str(item.get("name", "")).strip().lower()
-            item_artist = str(item.get("artist", "")).strip().lower()
+            item_name = _normalize_text(item.get("name", ""))
+            item_artist = _normalize_text(item.get("artist", ""))
             if item_name == track_name_key and item_artist == track_artist_key:
                 removed = True
             else:
@@ -320,16 +334,34 @@ def _toggle_public_like(username, acting_user, should_like):
 
 @sync_to_async
 def _get_public_playlists_top(limit=8):
-    playlists = (
+    json_length_fn = None
+    if connection.vendor == "postgresql":
+        json_length_fn = "jsonb_array_length"
+    elif connection.vendor == "sqlite":
+        json_length_fn = "json_array_length"
+
+    base_qs = (
         Playlist.objects.filter(user__is_public_favorites=True)
         .select_related("user")
         .annotate(likes_count=Count("likes"))
-        .order_by("-likes_count", "-created_at")[:limit]
     )
+    if json_length_fn:
+        base_qs = base_qs.annotate(
+            tracks_count=Func(
+                F("tracks"),
+                function=json_length_fn,
+                output_field=IntegerField(),
+            )
+        )
+
+    playlists = base_qs.order_by("-likes_count", "-created_at")[:limit]
 
     rows = []
     for playlist in playlists:
-        tracks = playlist.tracks if isinstance(playlist.tracks, list) else []
+        tracks_count = getattr(playlist, "tracks_count", None)
+        if tracks_count is None:
+            tracks = playlist.tracks if isinstance(playlist.tracks, list) else []
+            tracks_count = len(tracks)
         rows.append(
             {
                 "username": playlist.user.username,
@@ -340,7 +372,7 @@ def _get_public_playlists_top(limit=8):
                 ),
                 "playlist_title": playlist.title,
                 "likes_count": getattr(playlist, "likes_count", 0),
-                "tracks_count": len(tracks),
+                "tracks_count": tracks_count,
             }
         )
     return rows

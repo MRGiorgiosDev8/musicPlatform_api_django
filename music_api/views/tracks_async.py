@@ -212,7 +212,13 @@ class TrackSearchAPIView(APIView):
             return Response({"error": "Query required"}, status=400)
 
         try:
-            cache_key_raw = f"search_raw:{query}"
+            normalized_query = " ".join(query.split()).lower()
+            locale = (request.META.get("HTTP_ACCEPT_LANGUAGE") or "").split(",")[
+                0
+            ].strip().lower() or "default"
+            cache_key_raw = (
+                f"search_raw:{normalized_query}:{LASTFM_BATCH_LIMIT}:{locale}"
+            )
             tracks_raw = cache.get(cache_key_raw)
             if not tracks_raw:
                 tracks_raw = async_to_sync(_search_lastfm_tracks_async)(

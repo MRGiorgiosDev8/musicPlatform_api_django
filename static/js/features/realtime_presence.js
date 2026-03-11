@@ -45,9 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dot.classList.toggle('is-online', Boolean(isOnline));
     }
     if (label) {
-      label.textContent = isOnline
-        ? 'Онлайн'
-        : formatLocalLastSeen(lastSeenIso, lastSeenDisplay);
+      label.textContent = isOnline ? 'Онлайн' : formatLocalLastSeen(lastSeenIso, lastSeenDisplay);
     }
     badge.dataset.presenceOnline = isOnline ? 'true' : 'false';
     badge.dataset.presenceLastSeen = lastSeenDisplay || '';

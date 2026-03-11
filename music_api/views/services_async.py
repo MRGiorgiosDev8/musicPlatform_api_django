@@ -335,6 +335,40 @@ async def _search_lastfm_tracks_async(query, limit=50):
         return []
 
 
+async def _search_lastfm_artists_async(query, limit=20):
+    try:
+        start_time = time.time()
+        async with _build_http_client() as http_client:
+            r = await http_client.get(
+                "https://ws.audioscrobbler.com/2.0/",
+                params={
+                    "method": "artist.search",
+                    "artist": query,
+                    "api_key": LASTFM_KEY,
+                    "format": "json",
+                    "limit": limit,
+                },
+            )
+        elapsed = (time.time() - start_time) * 1000
+        logger.info(
+            "Last.fm artist search API request took %.2f ms for query='%s'",
+            elapsed,
+            query,
+        )
+
+        r.raise_for_status()
+        return r.json().get("results", {}).get("artistmatches", {}).get("artist", [])
+
+    except Exception as e:
+        logger.warning(
+            "Last.fm artist search error for query='%s': %s",
+            query,
+            str(e),
+            exc_info=True,
+        )
+        return []
+
+
 async def _get_deezer_artists_batch_async(artist_names):
     results = {}
     artist_names = artist_names[:40]

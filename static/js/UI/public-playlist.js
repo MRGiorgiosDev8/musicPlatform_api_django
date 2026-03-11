@@ -78,6 +78,18 @@ const initPublicPlaylistPage = () => {
     likeButton.innerHTML = `<i class="bi bi-heart${liked ? '-fill' : ''}"></i><span class="ms-1">Лайк</span>`;
   };
 
+  if (likesCounters.length) {
+    likesCounters.forEach((likesCounter) => {
+      const currentValue = Number(likesCounter.textContent) || 0;
+      if (
+        window.PublicCommentsAnimation &&
+        typeof window.PublicCommentsAnimation.animateStatCount === 'function'
+      ) {
+        window.PublicCommentsAnimation.animateStatCount(likesCounter, currentValue);
+      }
+    });
+  }
+
   if (likeButton && username) {
     let pending = false;
     likeButton.addEventListener('click', async () => {
@@ -111,7 +123,14 @@ const initPublicPlaylistPage = () => {
 
         updateLikeButton(Boolean(payload.liked_by_me));
         likesCounters.forEach((likesCounter) => {
-          likesCounter.textContent = String(payload.likes_count || 0);
+          if (
+            window.PublicCommentsAnimation &&
+            typeof window.PublicCommentsAnimation.animateStatCount === 'function'
+          ) {
+            window.PublicCommentsAnimation.animateStatCount(likesCounter, payload.likes_count || 0);
+          } else {
+            likesCounter.textContent = String(payload.likes_count || 0);
+          }
         });
       } catch (error) {
         console.error('Public like toggle failed:', error);
@@ -124,7 +143,7 @@ const initPublicPlaylistPage = () => {
 
   const playlistRoot = document.getElementById('public-playlist-root');
   if (!playlistRoot) return;
-  
+
   const trackList = playlistRoot.querySelector('.track-list');
   const pageSize = 6;
   let visibleTracksCount = pageSize;
@@ -142,7 +161,7 @@ const initPublicPlaylistPage = () => {
     artistFilter: artistControls[0]?.value || 'all',
   };
 
-  const getTrackItems = () => 
+  const getTrackItems = () =>
     trackList ? Array.from(trackList.querySelectorAll('.track-item-playlist')) : [];
 
   const trackRecords = buildPublicTrackRecords(getTrackItems());

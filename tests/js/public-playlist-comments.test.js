@@ -136,7 +136,9 @@ describe('public-playlist-comments P1', () => {
     expect(item.querySelector('.public-comment-text').textContent).toBe('Loaded comment');
     expect(item.querySelector('[data-comment-reply]')).toBeTruthy();
     expect(item.querySelector('[data-comment-delete]')).toBeTruthy();
-    expect(document.getElementById('public-comments-empty').classList.contains('d-none')).toBe(true);
+    expect(document.getElementById('public-comments-empty').classList.contains('d-none')).toBe(
+      true
+    );
     expect(document.getElementById('public-comments-count').textContent).toBe('1');
   });
 

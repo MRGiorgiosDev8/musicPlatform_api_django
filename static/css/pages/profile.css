@@ -259,7 +259,7 @@
 }
 
 .presence-dot.is-online {
-    background: #2fbe5f;
+    background: #2fbe5f !important;
     animation: presenceOnlinePulse 1.7s ease-in-out infinite;
 }
 

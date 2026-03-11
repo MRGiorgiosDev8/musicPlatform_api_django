@@ -150,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canCompose && !isReply) {
       const replyBtn = document.createElement('button');
       replyBtn.type = 'button';
-      replyBtn.className = 'btn btn-sm btn-link text-body bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
+      replyBtn.className =
+        'btn btn-sm btn-link text-body bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
       replyBtn.dataset.commentReply = '';
       replyBtn.textContent = 'Ответить';
       actions.appendChild(replyBtn);
@@ -159,7 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (Boolean(comment.can_delete)) {
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'btn btn-sm btn-link text-danger bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
+      delBtn.className =
+        'btn btn-sm btn-link text-danger bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
       delBtn.dataset.commentDelete = '';
       delBtn.textContent = 'Удалить';
       actions.appendChild(delBtn);
@@ -245,7 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return item;
   };
 
-  const renderCommentThread = (comment, appendToBottom = true, shouldPulse = false, container = list) => {
+  const renderCommentThread = (
+    comment,
+    appendToBottom = true,
+    shouldPulse = false,
+    container = list
+  ) => {
     const rootNode = renderComment(comment, appendToBottom, shouldPulse, container);
     if (!rootNode) {
       return;
@@ -260,7 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const normalizedReply = {
         ...reply,
-        parent_id: Number.isInteger(Number(reply.parent_id)) ? Number(reply.parent_id) : Number(comment.id),
+        parent_id: Number.isInteger(Number(reply.parent_id))
+          ? Number(reply.parent_id)
+          : Number(comment.id),
       };
       renderComment(normalizedReply, true, false, repliesContainer || list);
     });
@@ -484,7 +493,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           const deletedIds = Array.isArray(payload.deleted_ids)
-            ? payload.deleted_ids.map((value) => Number(value)).filter((value) => Number.isInteger(value))
+            ? payload.deleted_ids
+                .map((value) => Number(value))
+                .filter((value) => Number.isInteger(value))
             : [];
           if (deletedIds.length > 0) {
             deletedIds.forEach((deletedId) => {

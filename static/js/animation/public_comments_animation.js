@@ -127,5 +127,37 @@
     pulseNewComment,
     collapseDeleteComment,
     flipCommentsCount,
+    animateStatCount: (node, nextValue) => {
+      if (!node) return;
+      const nextNumber = Number(nextValue) || 0;
+      const currentNumber = Number(node.dataset.countValue || node.textContent) || 0;
+      if (!hasGsap) {
+        node.textContent = String(nextNumber);
+        node.dataset.countValue = String(nextNumber);
+        return;
+      }
+
+      gsap.killTweensOf(node);
+      const tweenState = { value: currentNumber };
+
+      gsap.fromTo(
+        node,
+        { y: 6, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.28, ease: 'power2.out' }
+      );
+
+      gsap.to(tweenState, {
+        value: nextNumber,
+        duration: 0.6,
+        ease: 'power1.out',
+        onUpdate: () => {
+          node.textContent = String(Math.round(tweenState.value));
+        },
+        onComplete: () => {
+          node.textContent = String(nextNumber);
+          node.dataset.countValue = String(nextNumber);
+        },
+      });
+    },
   };
 })();

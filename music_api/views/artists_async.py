@@ -15,6 +15,7 @@ from .services_async import (
     _get_lastfm_artists_chart_async,
     _get_deezer_artists_batch_async,
     _get_lastfm_releases_batch_async,
+    _search_lastfm_artists_async,
 )
 
 LASTFM_KEY = config("LASTFM_KEY")
@@ -136,4 +137,49 @@ class TrendingArtistsAPIView(APIView):
                     "artists": [],
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class ArtistSearchAPIView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def get(self, request):
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response({"error": "Query required", "results": []}, status=400)
+
+        normalized_query = " ".join(query.split()).lower()
+        locale = (request.META.get("HTTP_ACCEPT_LANGUAGE") or "").split(",")[
+            0
+        ].strip().lower() or "default"
+        cache_key = f"artist_search:{normalized_query}:{locale}"
+
+        cached = cache.get(cache_key)
+        if isinstance(cached, list):
+            return Response({"results": cached, "meta": {"cached": True}}, status=200)
+
+        try:
+            raw = async_to_sync(_search_lastfm_artists_async)(
+                query, limit=LASTFM_CHART_LIMIT
+            )
+            results = []
+            for artist in raw or []:
+                name = str(artist.get("name") or "").strip()
+                if not name:
+                    continue
+                results.append(
+                    {
+                        "name": name,
+                        "url": artist.get("url") or "",
+                        "listeners": int(artist.get("listeners") or 0),
+                        "mbid": artist.get("mbid") or "",
+                    }
+                )
+            cache.set(cache_key, results, timeout=CACHE_TIMEOUT)
+            return Response({"results": results, "meta": {"cached": False}}, status=200)
+        except Exception as e:
+            logger.error("ArtistSearchAPIView error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Internal server error", "results": []}, status=500
             )

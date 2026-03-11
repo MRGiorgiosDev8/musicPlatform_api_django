@@ -66,7 +66,7 @@ const PublicPlaylistsDashboard = {
     });
 
     root.appendChild(fragment);
-    
+
     document.dispatchEvent(new Event('publicPlaylists:rendered'));
   },
 
