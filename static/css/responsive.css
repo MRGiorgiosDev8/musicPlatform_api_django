@@ -164,6 +164,13 @@
     }
 }
 
+@media (max-width: 991.98px) {
+    .premium-nav-link,
+    .premium-nav-auth {
+        color: #fff !important;
+    }
+}
+
 @media (min-width: 1024px) and (max-width: 1366px),
 (width: 1180px) and (height: 820px),
 (width: 820px) and (height: 1180px),

@@ -136,7 +136,6 @@
       li.setAttribute('role', 'option');
       li.dataset.index = String(idx);
       li.innerHTML = `
-        <span class="search-autocomplete-type">${item.type === 'artist' ? 'Артист' : 'Трек'}</span>
         <span class="search-autocomplete-label">${escapeHtml(item.label)}</span>
       `;
       li.addEventListener('mousedown', (event) => {
