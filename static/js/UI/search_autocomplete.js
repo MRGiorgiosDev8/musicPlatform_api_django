@@ -26,6 +26,8 @@
   const normalizeQuery = (value) => value.trim();
   const normalizeText = (value) =>
     String(value ?? '')
+      .trim()
+      .replace(/\s+/g, ' ')
       .normalize('NFKD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
@@ -236,4 +238,11 @@
   document.addEventListener('click', (event) => {
     if (!wrapper.contains(event.target)) hideDropdown();
   });
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      buildItems,
+      normalizeText,
+    };
+  }
 })();

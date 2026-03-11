@@ -419,6 +419,8 @@
 - **perf**: Оптимизирован `tracks_count` в публичных плейлистах через SQL-функции JSON.
 - **fix**: Нормализация запроса поиска в кэше (`lower`, collapse spaces, `Accept-Language`).
 - **fix**: Нормализация названий/артистов для дедупликации треков в плейлисте (NFKD, trim, lower, удаление диакритики).
+- **tests**: Добавлены pytest-тесты для `/music_api/search/artists/` и vitest-тесты для автокомплита.
+- * **Результат**: 64 pytest и vitest 50 (9 test files) тестов пройдены успешно (Full Green).
 ---
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
