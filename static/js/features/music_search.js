@@ -113,7 +113,7 @@ const setupMusicSearch = () => {
   let currentQuery = '';
 
   const state = {
-    listenersSort: 'default',
+    listenersSort: 'desc',
     groupBy: 'none',
     artistFilter: 'all',
   };
@@ -578,7 +578,7 @@ const setupMusicSearch = () => {
 
   resetFilterButtons.forEach((button) => {
     button.addEventListener('click', async () => {
-      state.listenersSort = 'default';
+      state.listenersSort = 'desc';
       state.groupBy = 'none';
       state.artistFilter = 'all';
       syncControlValues();

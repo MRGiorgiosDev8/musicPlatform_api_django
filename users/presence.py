@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
@@ -19,11 +19,7 @@ def _last_seen_key(user_id: int) -> str:
 
 
 def _format_last_seen(dt):
-    if not dt:
-        return "Был(а) давно"
-    local_dt = timezone.localtime(dt)
-    if timezone.now() - dt >= timedelta(days=1):
-        return "Был(а) давно"
+    local_dt = timezone.localtime(dt) if dt else timezone.localtime(timezone.now())
     return f"Был(а): {local_dt.strftime('%d.%m %H:%M')}"
 
 
@@ -97,8 +93,8 @@ def get_user_last_seen_iso(user_id: int):
 def get_user_last_seen_display(user_id: int) -> str:
     last_seen_iso = get_user_last_seen_iso(user_id)
     if not last_seen_iso:
-        return "Был(а) давно"
+        return _format_last_seen(None)
     try:
         return _format_last_seen(datetime.fromisoformat(str(last_seen_iso)))
     except (TypeError, ValueError):
-        return "Был(а) давно"
+        return _format_last_seen(None)

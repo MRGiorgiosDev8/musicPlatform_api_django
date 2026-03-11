@@ -456,6 +456,14 @@
 }
 
 @media (max-width: 767.98px) {
+    #public-card {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+
     #public-playlist-root.public-view-grid .track-list {
         grid-template-columns: 1fr;
     }
@@ -528,6 +536,8 @@
 
     .track-list {
         width: min(100%, 760px);
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
     }
 
     .public-profile-stats {

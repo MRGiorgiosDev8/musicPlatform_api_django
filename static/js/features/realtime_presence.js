@@ -17,17 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const formatLocalLastSeen = (lastSeenIso, fallbackDisplay = '') => {
-    if (!lastSeenIso) {
-      return fallbackDisplay || 'Был(а) давно';
-    }
-    const parsed = new Date(lastSeenIso);
-    if (Number.isNaN(parsed.getTime())) {
-      return fallbackDisplay || 'Был(а) давно';
-    }
-    const diffMs = Date.now() - parsed.getTime();
-    if (diffMs >= 24 * 60 * 60 * 1000) {
-      return 'Был(а) давно';
-    }
     const formatter = new Intl.DateTimeFormat('ru-RU', {
       day: '2-digit',
       month: '2-digit',
@@ -35,6 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
       minute: '2-digit',
       hour12: false,
     });
+
+    if (!lastSeenIso) {
+      const value = fallbackDisplay || formatter.format(new Date()).replace(',', '');
+      return value.startsWith('Был') ? value : `Был(а): ${value}`;
+    }
+    const parsed = new Date(lastSeenIso);
+    if (Number.isNaN(parsed.getTime())) {
+      const value = fallbackDisplay || formatter.format(new Date()).replace(',', '');
+      return value.startsWith('Был') ? value : `Был(а): ${value}`;
+    }
     return `Был(а): ${formatter.format(parsed).replace(',', '')}`;
   };
 
