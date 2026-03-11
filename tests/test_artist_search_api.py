@@ -30,7 +30,9 @@ async def test_artist_search_returns_results(async_api_client, monkeypatch):
     assert payload["results"][0]["listeners"] == 1000
 
 
-async def test_artist_search_uses_cache_on_second_request(async_api_client, monkeypatch):
+async def test_artist_search_uses_cache_on_second_request(
+    async_api_client, monkeypatch
+):
     calls = {"count": 0}
 
     async def fake_search(query, limit=20):

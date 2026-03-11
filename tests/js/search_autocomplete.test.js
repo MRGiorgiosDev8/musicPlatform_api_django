@@ -1,4 +1,5 @@
 /* @vitest-environment jsdom */
+/* global window */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
 
@@ -61,7 +62,7 @@ describe('search_autocomplete', () => {
 
     const input = document.getElementById('search-query');
     input.value = 'pos';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
 
     await vi.runAllTimersAsync();
 
@@ -70,7 +71,7 @@ describe('search_autocomplete', () => {
     const items = dropdown.querySelectorAll('.search-autocomplete-item');
     expect(items.length).toBeGreaterThan(0);
 
-    items[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    items[0].dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
     const form = document.querySelector('.form-search');
     expect(form.requestSubmit).toHaveBeenCalled();
     expect(input.value.length).toBeGreaterThan(0);
