@@ -1,6 +1,6 @@
 from django.urls import path
 from django.views.generic import TemplateView
-from .views.tracks_async import TrackSearchAPIView, YearChartAPIView
+from .views.tracks_async import TrackSearchAPIView, YearChartAPIView, DeezerChartAPIView
 from .views.artists_async import TrendingArtistsAPIView, ArtistSearchAPIView
 from .views.base import search_page_view
 
@@ -11,5 +11,6 @@ urlpatterns = [
     path("search/api/", TrackSearchAPIView.as_view(), name="track_search_api"),
     path("search/artists/", ArtistSearchAPIView.as_view(), name="artist_search_api"),
     path("trending/", TrendingArtistsAPIView.as_view(), name="trending_artists"),
+    path("deezer-chart/", DeezerChartAPIView.as_view(), name="deezer_chart"),
     path("year-chart/", YearChartAPIView.as_view(), name="year-chart"),
 ]

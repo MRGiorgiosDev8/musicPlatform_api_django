@@ -10,10 +10,20 @@ const extractYearTracks = (data) => {
 
 const hasAudioPreview = (url) => Boolean(url && /\.(mp3|m4a)(\?.*)?$/i.test(url));
 
-const resolveTrackPlaycount = (track) => track?.playcount || track?.listeners || 0;
+const resolveTrackPlaycount = (track) => {
+  const playcount = track?.playcount;
+  if (playcount !== undefined && playcount !== null && playcount !== '') {
+    return String(playcount);
+  }
+  const listeners = track?.listeners;
+  if (listeners !== undefined && listeners !== null && listeners !== '') {
+    return String(listeners);
+  }
+  return 0;
+};
 
 const Year2025App = {
-  URL: '/music_api/year-chart/',
+  URL: '/music_api/deezer-chart/',
   cache: {},
   activeAudio: null,
   audioControlsInitialized: false,
@@ -248,7 +258,9 @@ const Year2025App = {
   },
 
   async load(genre = '') {
-    const cached = Utils.getCached(this.cache, genre);
+    const isGenre = Boolean(genre);
+    const cacheKey = genre || 'all';
+    const cached = Utils.getCached(this.cache, cacheKey);
     if (cached) {
       await this.render(cached);
       return;
@@ -256,18 +268,21 @@ const Year2025App = {
 
     Utils.showYearSpinner(true);
     try {
-      const url = buildYearChartUrl(this.URL, genre);
+      const url = isGenre
+        ? buildYearChartUrl('/music_api/year-chart/', genre)
+        : buildYearChartUrl(this.URL);
       const data = await Utils.fetchData(url);
       const tracks = extractYearTracks(data);
+      tracks.sort((a, b) => resolveTrackPlaycount(b) - resolveTrackPlaycount(a));
 
       if (!tracks.length) {
         console.warn('Нет данных для жанра:', genre || 'все');
-        Utils.setCache(this.cache, genre, tracks);
+        Utils.setCache(this.cache, cacheKey, tracks);
         await this.render(tracks);
         return;
       }
 
-      Utils.setCache(this.cache, genre, tracks);
+      Utils.setCache(this.cache, cacheKey, tracks);
       await this.render(tracks);
     } catch (e) {
       console.error('Ошибка загрузки чарта:', e);

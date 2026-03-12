@@ -13,6 +13,7 @@ from .services_async import (
     _get_lastfm_tracks_chart_async,
     _get_lastfm_tracks_by_genre_async,
     _search_lastfm_tracks_async,
+    _get_deezer_chart_tracks_async,
     _get_itunes_batch_async,
     _get_deezer_batch_async,
 )
@@ -247,3 +248,34 @@ class TrackSearchAPIView(APIView):
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, self.request)
         return paginator.get_paginated_response(page)
+
+
+class DeezerChartAPIView(APIView):
+    """API для получения чарта треков из Deezer"""
+
+    permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+    def get(self, request):
+        limit_str = request.query_params.get("limit", "30")
+        country_str = request.query_params.get("country", "0")
+        try:
+            limit = int(limit_str)
+            if limit < 1 or limit > 100:
+                raise ValueError()
+        except ValueError:
+            return Response({"error": "Limit must be 1-100"}, status=400)
+
+        try:
+            country_id = int(country_str)
+        except ValueError:
+            country_id = 0
+
+        try:
+            tracks = async_to_sync(_get_deezer_chart_tracks_async)(limit, country_id)
+            return Response({"tracks": tracks}, status=200)
+        except Exception as e:
+            logger.error("DeezerChartAPIView error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Internal server error", "tracks": []}, status=500
+            )

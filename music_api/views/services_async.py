@@ -482,6 +482,49 @@ async def _get_lastfm_releases_batch_async(artists):
     return results
 
 
+async def _get_deezer_chart_tracks_async(limit=30, country_id=0):
+    cache_key = _safe_cache_key("deezer_chart_tracks", country_id, limit)
+    cached = cache.get(cache_key)
+    if isinstance(cached, list):
+        return cached
+
+    try:
+        async with _build_http_client() as http_client:
+            r = await http_client.get(
+                f"https://api.deezer.com/chart/{country_id}",
+                params={"limit": limit},
+            )
+            r.raise_for_status()
+            payload = r.json() or {}
+            tracks = payload.get("tracks", {}).get("data", []) or []
+
+        results = []
+        for tr in tracks[:limit]:
+            artist = tr.get("artist", {}) or {}
+            album = tr.get("album", {}) or {}
+            results.append(
+                {
+                    "name": tr.get("title") or "",
+                    "artist": artist.get("name") or "",
+                    "listeners": 0,
+                    "playcount": int(tr.get("rank") or 0),
+                    "url": tr.get("preview") or tr.get("link") or "",
+                    "image_url": album.get("cover_xl")
+                    or album.get("cover_big")
+                    or album.get("cover_medium")
+                    or "/static/images/default.svg",
+                    "mbid": "",
+                }
+            )
+
+        results.sort(key=lambda tr: int(tr.get("playcount", 0) or 0), reverse=True)
+        cache.set(cache_key, results, timeout=60 * 60 * 2)
+        return results
+    except Exception as e:
+        logger.warning("Deezer chart error: %s", str(e), exc_info=True)
+        return []
+
+
 async def _get_lastfm_artists_by_genre_async(genre, limit=30):
     try:
         start_time = time.time()

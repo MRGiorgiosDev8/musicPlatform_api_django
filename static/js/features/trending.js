@@ -44,12 +44,12 @@ const TrendingApp = {
       colImg.className = 'col-md-4 shadow';
 
       const img = document.createElement('img');
-      img.src = a.photo_url || '/static/images/default.svg';
+      img.src = a.photo_url || '';
       img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
       img.alt = a.name;
       img.loading = 'lazy';
       img.onerror = () => {
-        img.src = '/static/images/default.svg';
+        img.removeAttribute('src');
       };
 
       colImg.appendChild(img);
@@ -90,13 +90,13 @@ const TrendingApp = {
         li.className = 'd-flex align-items-center mb-1';
 
         const coverImg = document.createElement('img');
-        coverImg.src = r.cover || '/static/images/default.svg';
+        coverImg.src = r.cover || '';
         coverImg.width = 32;
         coverImg.height = 32;
         coverImg.className = 'rounded me-2 shadow';
         coverImg.loading = 'lazy';
         coverImg.onerror = () => {
-          coverImg.src = '/static/images/default.svg';
+          coverImg.removeAttribute('src');
         };
 
         const divInfo = document.createElement('div');
