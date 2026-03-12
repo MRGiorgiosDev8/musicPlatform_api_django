@@ -83,6 +83,15 @@
         padding-left: 0.35rem !important;
         padding-right: 0.35rem !important;
     }
+
+    .search-results-summary-meta strong.text-danger {
+        display: inline-block;
+        max-width: 30vw;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+    }
 }
 
 @media (min-width: 576px) and (max-width: 767.98px) {
