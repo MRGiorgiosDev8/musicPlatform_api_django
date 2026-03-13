@@ -518,6 +518,7 @@ const setupMusicSearch = () => {
     }
   };
 
+
   const runSearch = async (query) => {
     if (!query) return;
     currentQuery = query;
@@ -587,6 +588,7 @@ const setupMusicSearch = () => {
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -596,6 +598,7 @@ const setupMusicSearch = () => {
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -605,6 +608,7 @@ const setupMusicSearch = () => {
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -616,6 +620,7 @@ const setupMusicSearch = () => {
       syncControlValues();
       currentPage = 1;
       if (currentQuery) await displayResults();
+      Utils?.closeParentOffcanvas?.(button);
     });
   });
 

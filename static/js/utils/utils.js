@@ -210,4 +210,17 @@ const Utils = {
 
     return button;
   },
+
+  closeParentOffcanvas(element) {
+    if (!element?.closest) return;
+    const offcanvasEl = element.closest('.offcanvas');
+    if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
+    if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+      const instance = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+      instance.hide();
+    } else {
+      offcanvasEl.classList.remove('show');
+      offcanvasEl.setAttribute('aria-hidden', 'true');
+    }
+  },
 };

@@ -306,6 +306,7 @@ const initPublicPlaylistPage = () => {
     );
   };
 
+
   if (viewButtons.length) {
     const savedMode = localStorage.getItem(viewStorageKey) || 'list';
     setViewMode(savedMode);
@@ -316,19 +317,18 @@ const initPublicPlaylistPage = () => {
     });
   }
 
-  // Initialize filter controls
   if (trackList) {
     buildArtistFilterOptions();
     syncControlValues();
   }
-
-  // Filter event listeners
+  
   artistControls.forEach((control) => {
     control.addEventListener('change', () => {
       state.artistFilter = control.value || 'all';
       syncControlValues();
       visibleTracksCount = pageSize;
       renderTrackPagination(0);
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -338,6 +338,7 @@ const initPublicPlaylistPage = () => {
       syncControlValues();
       visibleTracksCount = pageSize;
       renderTrackPagination(0);
+      Utils?.closeParentOffcanvas?.(button);
     });
   });
 

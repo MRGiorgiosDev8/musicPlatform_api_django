@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+
   const showNoMatchesState = () => {
     if (noMatchesAlert) return;
     noMatchesAlert = document.createElement('div');
@@ -402,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTrackPagination({ animate: false });
       resetStaggerAnimationState();
       markVisibleItemsAsAnimated();
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -413,6 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTrackPagination({ animate: false });
       resetStaggerAnimationState();
       markVisibleItemsAsAnimated();
+      Utils?.closeParentOffcanvas?.(control);
     });
   });
 
@@ -426,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resetStaggerAnimationState();
       markVisibleItemsAsAnimated();
       showToast('Фильтры сброшены');
+      Utils?.closeParentOffcanvas?.(button);
     });
   });
 
