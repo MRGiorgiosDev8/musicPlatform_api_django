@@ -18,6 +18,11 @@
     border: var(--border-light-white);
 }
 
+.playlist-filter-card.is-search-hidden,
+.playlist-filter-mobile-trigger.is-search-hidden {
+    display: none;
+}
+
 .public-filter-card {
     position: sticky;
     top: 92px;

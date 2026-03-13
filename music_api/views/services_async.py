@@ -446,7 +446,7 @@ async def _get_lastfm_releases_batch_async(artists):
 
                 result = []
                 for a in albums:
-                    cover_url = "/static/images/default.svg"
+                    cover_url = ""
                     images = a.get("image", [])
                     if images and isinstance(images, list) and len(images) > 0:
                         last_image = images[-1]

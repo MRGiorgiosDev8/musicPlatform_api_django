@@ -67,14 +67,21 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             logger.error(f"Last.fm releases fail: {releases_data}")
             releases_data = {}
 
+        def _extract_lastfm_image(artist_data):
+            images = artist_data.get("image") or []
+            if isinstance(images, list) and images:
+                last_image = images[-1]
+                if isinstance(last_image, dict):
+                    return last_image.get("#text") or ""
+            return ""
+
         enriched_artists = []
         for art in artists_raw:
             name = art["name"]
             enriched_artists.append(
                 {
                     "name": name,
-                    "photo_url": deezer_photos.get(name)
-                    or "/static/images/default.svg",
+                    "photo_url": deezer_photos.get(name) or _extract_lastfm_image(art),
                     "listeners": art.get("listeners", 0),
                     "playcount": art.get("playcount", 0),
                     "releases": releases_data.get(name, []),

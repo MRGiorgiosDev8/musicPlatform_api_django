@@ -87,6 +87,8 @@ const setupMusicSearch = () => {
   const resultsContainer = document.getElementById('searchResults');
   const searchLoader = document.getElementById('searchLoader');
   const searchBreadcrumb = document.getElementById('search-breadcrumb');
+  const searchFilterPanel = document.getElementById('search-filter-panel');
+  const searchFilterTrigger = document.querySelector('.playlist-filter-mobile-trigger');
   if (!resultsContainer) return;
 
   if (searchLoader && searchBreadcrumb) {
@@ -111,6 +113,31 @@ const setupMusicSearch = () => {
   let renderVersion = 0;
   let resultsList = null;
   let currentQuery = '';
+
+  const prepareSearchFilters = () => {
+    [searchFilterPanel, searchFilterTrigger].forEach((el) => {
+      if (!el) return;
+      el.classList.remove('pre-animation');
+      el.classList.add('is-search-hidden');
+    });
+  };
+
+  const showSearchFilters = () => {
+    [searchFilterPanel, searchFilterTrigger].forEach((el) => {
+      if (!el) return;
+      el.classList.remove('is-search-hidden');
+      el.classList.remove('pre-animation');
+      void el.offsetWidth;
+      el.classList.add('pre-animation');
+    });
+  };
+
+  const hideSearchFilters = () => {
+    [searchFilterPanel, searchFilterTrigger].forEach((el) => {
+      if (!el) return;
+      el.classList.add('is-search-hidden');
+    });
+  };
 
   const state = {
     listenersSort: 'desc',
@@ -210,7 +237,7 @@ const setupMusicSearch = () => {
 
     const clearButton = document.createElement('button');
     clearButton.type = 'button';
-    clearButton.className = 'btn btn-sm btn-outline-danger';
+    clearButton.className = 'btn btn-sm btn-danger';
     clearButton.textContent = 'Очистить поиск';
     clearButton.addEventListener('click', clearSearch);
 
@@ -424,6 +451,7 @@ const setupMusicSearch = () => {
     }
 
     if (!preparedTracks.length) {
+      hideSearchFilters();
       resultsContainer.insertAdjacentHTML(
         'beforeend',
         `
@@ -436,6 +464,10 @@ const setupMusicSearch = () => {
         `
       );
       return;
+    }
+
+    if (currentPage === 1) {
+      showSearchFilters();
     }
 
     const listRoot = ensureResultsList();
@@ -592,6 +624,7 @@ const setupMusicSearch = () => {
   });
 
   syncControlValues();
+  prepareSearchFilters();
 
   const initialQuery = new URLSearchParams(window.location.search).get('q');
   if (initialQuery) {
