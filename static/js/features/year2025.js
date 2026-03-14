@@ -8,7 +8,12 @@ const extractYearTracks = (data) => {
   return Array.isArray(data.tracks) ? data.tracks : [];
 };
 
-const hasAudioPreview = (url) => Boolean(url && /\.(mp3|m4a)(\?.*)?$/i.test(url));
+const hasAudioPreview = (url) => {
+  if (typeof Utils !== 'undefined' && typeof Utils.hasAudioPreview === 'function') {
+    return Utils.hasAudioPreview(url);
+  }
+  return Boolean(url && /\.(mp3|m4a)(\?.*)?$/i.test(url));
+};
 
 const resolveTrackPlaycount = (track) => {
   const playcount = track?.playcount;
@@ -224,8 +229,11 @@ const Year2025App = {
         cardBody.appendChild(audio);
       } else {
         const noPreview = document.createElement('div');
-        noPreview.className =
-          'fs-6 text-body d-inline-block border-bottom border-danger year-track-no-preview bg-danger rounded bg-opacity-10 p-1 border border-white';
+        const noPreviewClasses =
+          typeof Utils !== 'undefined' && typeof Utils.getNoPreviewBadgeClasses === 'function'
+            ? Utils.getNoPreviewBadgeClasses('year-track-no-preview border border-white')
+            : 'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 year-track-no-preview border border-white';
+        noPreview.className = noPreviewClasses;
         noPreview.textContent = 'Превью недоступно';
         cardBody.appendChild(noPreview);
       }

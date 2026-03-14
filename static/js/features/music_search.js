@@ -245,9 +245,10 @@ const setupMusicSearch = () => {
     return summary;
   };
 
-  const createFavoriteControl = async (track) => {
+  const createFavoriteControl = async (track, hasAudioPreviewAvailable = true) => {
     const container = document.createElement('div');
     container.className = 'd-flex align-items-center';
+    if (!hasAudioPreviewAvailable) return container;
     if (!isAuthenticated || typeof window.createFavoriteButtonWithCheck !== 'function') {
       return container;
     }
@@ -388,7 +389,8 @@ const setupMusicSearch = () => {
     pListeners.className = 'track-listeners text-black mb-0 small';
     pListeners.textContent = `Прослушиваний: ${getTrackPopularity(track)}`;
 
-    const favoriteControl = await createFavoriteControl(track);
+    const hasAudio = Utils.hasAudioPreview(track.url);
+    const favoriteControl = await createFavoriteControl(track, hasAudio);
     if (currentRenderVersion !== renderVersion) return null;
 
     const titleRow = document.createElement('div');
@@ -398,8 +400,6 @@ const setupMusicSearch = () => {
 
     const trackPlayer = document.createElement('div');
     trackPlayer.className = 'track-player me-sm-2';
-    const hasAudio = track.url && /\.(mp3|m4a)(\?.*)?$/i.test(track.url);
-
     if (hasAudio) {
       const audio = document.createElement('audio');
       audio.controls = true;
@@ -424,7 +424,7 @@ const setupMusicSearch = () => {
       trackPlayer.appendChild(audio);
     } else {
       const noPreview = document.createElement('div');
-      noPreview.className = 'fs-6 text-muted d-inline-block border-bottom border-danger';
+      noPreview.className = Utils.getNoPreviewBadgeClasses('border border-white');
       noPreview.textContent = 'Превью недоступно';
       trackPlayer.appendChild(noPreview);
     }

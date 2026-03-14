@@ -16,6 +16,11 @@ describe('year2025 P1', () => {
       showError: vi.fn(),
       renderEmpty: vi.fn(),
       initGenreButtons: vi.fn(),
+      getNoPreviewBadgeClasses: vi.fn((extraClasses = '') => {
+        const base =
+          'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1';
+        return extraClasses ? `${base} ${extraClasses}` : base;
+      }),
     };
     vi.restoreAllMocks();
   });
@@ -112,5 +117,8 @@ describe('year2025 P1', () => {
     expect(root.querySelectorAll('audio').length).toBe(1);
     expect(root.querySelectorAll('.year-track-no-preview').length).toBe(1);
     expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(2);
+    expect(Utils.getNoPreviewBadgeClasses).toHaveBeenCalledWith(
+      'year-track-no-preview border border-white'
+    );
   });
 });

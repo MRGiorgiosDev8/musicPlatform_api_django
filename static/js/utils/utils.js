@@ -180,6 +180,16 @@ const Utils = {
     return res.json();
   },
 
+  hasAudioPreview(url) {
+    return Boolean(url && /\.(mp3|m4a)(\?.*)?$/i.test(url));
+  },
+
+  getNoPreviewBadgeClasses(extraClasses = '') {
+    const base =
+      'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 border border-white';
+    return extraClasses ? `${base} ${extraClasses}` : base;
+  },
+
   createChevronDownIcon(fontSize = '1.8rem') {
     const arrowIcon = document.createElement('i');
     arrowIcon.className = 'bi bi-chevron-double-down';
