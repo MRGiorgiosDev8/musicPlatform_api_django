@@ -61,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
     title: titleInputs[0]?.value?.trim() || 'Favorites',
   };
 
+  if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
+    Utils.initAudioPreviews(root);
+  }
+
   const toastContainerId = 'playlist-toast-container';
   const getToastContainer = () => {
     let container = document.getElementById(toastContainerId);

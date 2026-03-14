@@ -12,5 +12,8 @@
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
     "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "wavesurfer.js": "^7.12.2"
   }
 }

@@ -351,12 +351,6 @@
     line-height: inherit;
     font-weight: 500;
     cursor: pointer;
-    max-width: min(30vw, 28ch);
-    display: inline-block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: bottom;
 }
 
 .artist-bio-trigger:focus-visible {

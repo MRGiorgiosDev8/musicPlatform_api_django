@@ -114,7 +114,7 @@ describe('year2025 P1', () => {
     ]);
 
     const root = document.getElementById('year2025-container');
-    expect(root.querySelectorAll('audio').length).toBe(1);
+    expect(root.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
     expect(root.querySelectorAll('.year-track-no-preview').length).toBe(1);
     expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(2);
     expect(Utils.getNoPreviewBadgeClasses).toHaveBeenCalledWith(

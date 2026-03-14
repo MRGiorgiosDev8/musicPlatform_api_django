@@ -190,6 +190,128 @@ const Utils = {
     return extraClasses ? `${base} ${extraClasses}` : base;
   },
 
+  formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  },
+
+  initAudioPreviews(root = document) {
+    const mounts = root.querySelectorAll('[data-audio-preview-url]');
+    if (!mounts.length) return;
+
+    mounts.forEach((mount) => {
+      if (mount.dataset.audioPreviewInitialized === 'true') return;
+      const url = mount.dataset.audioPreviewUrl;
+      if (!url) return;
+
+      mount.dataset.audioPreviewInitialized = 'true';
+
+      if (typeof window.WaveSurfer === 'undefined') {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.preload = 'none';
+        audio.src = url;
+        audio.className = 'audio-preview-fallback';
+        mount.replaceChildren(audio);
+        return;
+      }
+
+      this._createWaveSurferPlayer(mount, url);
+    });
+  },
+
+  _createWaveSurferPlayer(mount, url) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'audio-preview-player';
+
+    const playButton = document.createElement('button');
+    playButton.type = 'button';
+    playButton.className = 'audio-preview-toggle';
+    playButton.setAttribute('aria-label', 'Воспроизвести превью');
+
+    const icon = document.createElement('i');
+    icon.className = 'bi bi-play-fill';
+    playButton.appendChild(icon);
+
+    const wave = document.createElement('div');
+    wave.className = 'audio-preview-wave';
+
+    const time = document.createElement('span');
+    time.className = 'audio-preview-time';
+    time.textContent = '0:00';
+
+    wrapper.append(playButton, wave, time);
+    mount.replaceChildren(wrapper);
+
+    const ws = window.WaveSurfer.create({
+      container: wave,
+      waveColor: '#d33f3f',
+      progressColor: '#a51212',
+      cursorColor: 'transparent',
+      height: 42,
+      barWidth: 2,
+      barGap: 2,
+      barRadius: 2,
+      responsive: true,
+      normalize: true,
+    });
+
+    if (!this._audioPreviewInstances) this._audioPreviewInstances = new Set();
+    this._audioPreviewInstances.add(ws);
+
+    const updateButtonState = (isPlaying) => {
+      icon.className = isPlaying ? 'bi bi-pause-fill' : 'bi bi-play-fill';
+      playButton.setAttribute(
+        'aria-label',
+        isPlaying ? 'Поставить превью на паузу' : 'Воспроизвести превью'
+      );
+    };
+
+    ws.on('ready', () => {
+      time.textContent = `0:00 / ${this.formatTime(ws.getDuration())}`;
+    });
+
+    ws.on('audioprocess', () => {
+      if (!ws.isPlaying()) return;
+      time.textContent = `${this.formatTime(ws.getCurrentTime())} / ${this.formatTime(
+        ws.getDuration()
+      )}`;
+    });
+
+    ws.on('play', () => {
+      this._audioPreviewInstances.forEach((instance) => {
+        if (instance !== ws) instance.pause();
+      });
+      updateButtonState(true);
+    });
+
+    ws.on('pause', () => {
+      updateButtonState(false);
+    });
+
+    ws.on('finish', () => {
+      updateButtonState(false);
+      ws.seekTo(0);
+    });
+
+    ws.on('error', () => {
+      mount.dataset.audioPreviewInitialized = 'false';
+      mount.replaceChildren();
+    });
+
+    playButton.addEventListener('click', () => {
+      if (ws.isPlaying()) {
+        ws.pause();
+      } else {
+        ws.play();
+      }
+    });
+
+    ws.load(url);
+  },
+
   createChevronDownIcon(fontSize = '1.8rem') {
     const arrowIcon = document.createElement('i');
     arrowIcon.className = 'bi bi-chevron-double-down';

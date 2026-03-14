@@ -154,9 +154,7 @@
                                     </div>
                                     <div class="track-player me-sm-2">
                                         {% if track.url %}
-                                            <audio controls preload="none" class="public-track-audio">
-                                                <source src="{{ track.url }}">
-                                            </audio>
+                                            <div class="audio-preview-mount" data-audio-preview-url="{{ track.url }}"></div>
                                         {% else %}
                                             <div class="fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 border border-white">
                                                 Превью недоступно

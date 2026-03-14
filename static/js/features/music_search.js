@@ -71,7 +71,6 @@ const prepareTracks = (tracks, state) => {
   });
 };
 
-let activeAudio = null;
 
 const setupMusicSearch = () => {
   const searchForm = document.querySelector('.form-search');
@@ -401,27 +400,10 @@ const setupMusicSearch = () => {
     const trackPlayer = document.createElement('div');
     trackPlayer.className = 'track-player me-sm-2';
     if (hasAudio) {
-      const audio = document.createElement('audio');
-      audio.controls = true;
-      audio.preload = 'none';
-      audio.style.filter = 'sepia(1) saturate(2) hue-rotate(320deg)';
-
-      const source = document.createElement('source');
-      source.src = track.url;
-      audio.appendChild(source);
-
-      audio.addEventListener('play', () => {
-        if (activeAudio && activeAudio !== audio) {
-          activeAudio.pause();
-          activeAudio.currentTime = 0;
-        }
-        activeAudio = audio;
-      });
-      audio.addEventListener('ended', () => {
-        if (activeAudio === audio) activeAudio = null;
-      });
-
-      trackPlayer.appendChild(audio);
+      const previewMount = document.createElement('div');
+      previewMount.className = 'audio-preview-mount';
+      previewMount.dataset.audioPreviewUrl = track.url;
+      trackPlayer.appendChild(previewMount);
     } else {
       const noPreview = document.createElement('div');
       noPreview.className = Utils.getNoPreviewBadgeClasses('border border-white');
@@ -500,6 +482,10 @@ const setupMusicSearch = () => {
     if (oldButton) oldButton.remove();
     if (currentPage < totalPages) {
       resultsContainer.appendChild(createLoadMoreButton());
+    }
+
+    if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
+      Utils.initAudioPreviews(resultsContainer);
     }
   };
 

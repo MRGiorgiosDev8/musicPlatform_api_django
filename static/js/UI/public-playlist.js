@@ -71,6 +71,11 @@ const initPublicPlaylistPage = () => {
   );
   const username = likeRoot ? likeRoot.dataset.publicUsername : '';
 
+  if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
+    const root = document.getElementById('public-playlist-root');
+    if (root) Utils.initAudioPreviews(root);
+  }
+
   const updateLikeButton = (liked) => {
     if (!likeButton) return;
     likeButton.className = 'btn btn-sm btn-danger';

@@ -158,10 +158,6 @@ const Year2025App = {
       const title = document.createElement('h6');
       title.className = 'card-title mb-1 text-truncate year-track-title flex-grow-1';
       title.textContent = t.name;
-      title.style.whiteSpace = 'nowrap';
-      title.style.overflow = 'hidden';
-      title.style.textOverflow = 'ellipsis';
-      title.style.cursor = 'pointer';
       title.setAttribute('title', t.name);
 
       if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
@@ -193,12 +189,6 @@ const Year2025App = {
       artistButton.setAttribute('data-bs-toggle', 'tooltip');
       artistButton.setAttribute('data-bs-placement', 'top');
       artistButton.setAttribute('data-bs-title', artistName);
-      artistButton.style.maxWidth = '21ch';
-      artistButton.style.display = 'inline-block';
-      artistButton.style.overflow = 'hidden';
-      artistButton.style.textOverflow = 'ellipsis';
-      artistButton.style.whiteSpace = 'nowrap';
-      artistButton.style.verticalAlign = 'bottom';
       artistP.append(artistLabel, artistButton);
       if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(artistButton);
@@ -216,17 +206,10 @@ const Year2025App = {
       cardBody.appendChild(metaWrap);
 
       if (hasAudio) {
-        const audio = document.createElement('audio');
-        audio.controls = true;
-        audio.preload = 'none';
-        audio.className = 'year-track-audio';
-        audio.style.cssText = 'width:100%; filter: sepia(1) saturate(2) hue-rotate(320deg);';
-
-        const source = document.createElement('source');
-        source.src = t.url;
-        audio.appendChild(source);
-
-        cardBody.appendChild(audio);
+        const previewMount = document.createElement('div');
+        previewMount.className = 'audio-preview-mount year-track-audio';
+        previewMount.dataset.audioPreviewUrl = t.url;
+        cardBody.appendChild(previewMount);
       } else {
         const noPreview = document.createElement('div');
         const noPreviewClasses =
@@ -246,37 +229,14 @@ const Year2025App = {
 
     container.appendChild(fragment);
 
+    if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
+      Utils.initAudioPreviews(container);
+    }
+
     document.dispatchEvent(new Event('year2025:rendered'));
   },
 
-  initAudioControls() {
-    const container = document.getElementById('year2025-container');
-    if (!container || this.audioControlsInitialized) return;
-    this.audioControlsInitialized = true;
-
-    container.addEventListener(
-      'play',
-      (event) => {
-        const audio = event.target;
-        if (audio.tagName !== 'AUDIO') return;
-        if (this.activeAudio && this.activeAudio !== audio) {
-          this.activeAudio.pause();
-          this.activeAudio.currentTime = 0;
-        }
-        this.activeAudio = audio;
-      },
-      true
-    );
-    container.addEventListener(
-      'ended',
-      (event) => {
-        const audio = event.target;
-        if (audio.tagName !== 'AUDIO') return;
-        if (this.activeAudio === audio) this.activeAudio = null;
-      },
-      true
-    );
-  },
+  initAudioControls() {},
 
   async load(genre = '') {
     const isGenre = Boolean(genre);
