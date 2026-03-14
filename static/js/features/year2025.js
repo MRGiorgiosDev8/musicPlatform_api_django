@@ -37,10 +37,11 @@ const Year2025App = {
     this.load();
   },
 
-  async createFavoriteControl(track) {
+  async createFavoriteControl(track, hasAudioPreviewAvailable = true) {
     const container = document.createElement('div');
     container.className = 'd-flex align-items-center';
 
+    if (!hasAudioPreviewAvailable) return container;
     if (!this.isAuthenticated) return container;
     if (typeof window.createFavoriteButtonWithCheck !== 'function') return container;
     if (!track?.name || !track?.artist) return container;
@@ -162,7 +163,8 @@ const Year2025App = {
         new bootstrap.Tooltip(title);
       }
 
-      const favoriteControl = await this.createFavoriteControl(t);
+      const hasAudio = hasAudioPreview(t.url);
+      const favoriteControl = await this.createFavoriteControl(t, hasAudio);
       if (currentRenderVersion !== this.renderVersion) return;
 
       const titleRow = document.createElement('div');
@@ -208,7 +210,6 @@ const Year2025App = {
       metaWrap.appendChild(listenersP);
       cardBody.appendChild(metaWrap);
 
-      const hasAudio = hasAudioPreview(t.url);
       if (hasAudio) {
         const audio = document.createElement('audio');
         audio.controls = true;
@@ -224,7 +225,7 @@ const Year2025App = {
       } else {
         const noPreview = document.createElement('div');
         noPreview.className =
-          'fs-6 text-body d-inline-block border-bottom border-danger year-track-no-preview';
+          'fs-6 text-body d-inline-block border-bottom border-danger year-track-no-preview bg-danger rounded bg-opacity-10 p-1 border border-white';
         noPreview.textContent = 'Превью недоступно';
         cardBody.appendChild(noPreview);
       }
