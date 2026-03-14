@@ -301,6 +301,60 @@ async def _get_lastfm_tracks_by_genre_async(genre, limit=30):
         return []
 
 
+async def _get_apple_music_chart_async(country="us", count=50, chart_type="songs"):
+    try:
+        country = str(country or "us").lower()
+        chart_type = str(chart_type or "songs").lower()
+        count = int(count)
+        if count < 1:
+            count = 10
+        if count > 100:
+            count = 100
+        if chart_type not in {"songs", "albums", "playlists"}:
+            chart_type = "songs"
+
+        url = (
+            f"https://rss.marketingtools.apple.com/api/v2/"
+            f"{country}/music/most-played/{count}/{chart_type}.json"
+        )
+
+        async with _build_http_client() as http_client:
+            r = await http_client.get(url)
+            r.raise_for_status()
+            payload = r.json() or {}
+
+        results = (payload.get("feed") or {}).get("results") or []
+        if not isinstance(results, list):
+            return []
+
+        tracks = []
+        for item in results:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "").strip()
+            artist = str(item.get("artistName") or "").strip()
+            if not name or not artist:
+                continue
+            artwork = item.get("artworkUrl100") or ""
+            if artwork:
+                artwork = artwork.replace("100x100bb", "600x600bb")
+            tracks.append(
+                {
+                    "name": name,
+                    "artist": artist,
+                    "image_url": artwork,
+                    "url": "",
+                    "mbid": "",
+                }
+            )
+
+        return tracks
+
+    except Exception as e:
+        logger.warning("Apple Music chart error: %s", str(e), exc_info=True)
+        return []
+
+
 async def _search_lastfm_tracks_async(query, limit=50):
     try:
         start_time = time.time()
@@ -333,6 +387,88 @@ async def _search_lastfm_tracks_async(query, limit=50):
             exc_info=True,
         )
         return []
+
+
+async def _get_lastfm_track_stats_batch_async(tracks, limit=50):
+    if not tracks:
+        return {}
+
+    results = {}
+    lastfm_sem = asyncio.Semaphore(5)
+    safe_tracks = [
+        tr
+        for tr in tracks
+        if isinstance(tr, dict) and tr.get("name") and tr.get("artist")
+    ][:limit]
+
+    async def fetch_stats(track, client):
+        try:
+            track_name = str(track.get("name") or "").strip()
+            artist_name = str(track.get("artist") or "").strip()
+            if not track_name or not artist_name:
+                return
+
+            mbid = str(track.get("mbid") or "").strip()
+            cache_key = _build_track_cache_key(
+                "lastfm_track_info", mbid, track_name, artist_name
+            )
+            cached = cache.get(cache_key)
+            if isinstance(cached, dict):
+                results[(track_name, artist_name)] = {
+                    "listeners": int(cached.get("listeners", 0)),
+                    "playcount": int(cached.get("playcount", 0)),
+                }
+                return
+
+            async with lastfm_sem:
+                info_response = await client.get(
+                    "https://ws.audioscrobbler.com/2.0/",
+                    params={
+                        "method": "track.getInfo",
+                        "api_key": LASTFM_KEY,
+                        "format": "json",
+                        "track": track_name,
+                        "artist": artist_name,
+                        "autocorrect": 1,
+                    },
+                )
+                info_response.raise_for_status()
+                track_info = info_response.json().get("track", {})
+                listeners = int(track_info.get("listeners", 0))
+                playcount = int(track_info.get("playcount", 0))
+
+                results[(track_name, artist_name)] = {
+                    "listeners": listeners,
+                    "playcount": playcount,
+                }
+                cache.set(
+                    cache_key,
+                    {"listeners": listeners, "playcount": playcount},
+                    timeout=60 * 60 * 24 * 7,
+                )
+        except Exception as e:
+            logger.warning(
+                "Last.fm track info error for track='%s', artist='%s': %s",
+                track.get("name"),
+                track.get("artist"),
+                e,
+            )
+            try:
+                track_name = str(track.get("name") or "").strip()
+                artist_name = str(track.get("artist") or "").strip()
+                if track_name and artist_name:
+                    results[(track_name, artist_name)] = {
+                        "listeners": 0,
+                        "playcount": 0,
+                    }
+            except Exception:
+                pass
+
+    async with _build_http_client() as http_client:
+        tasks = [fetch_stats(track, http_client) for track in safe_tracks]
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    return results
 
 
 async def _search_lastfm_artists_async(query, limit=20):
@@ -480,49 +616,6 @@ async def _get_lastfm_releases_batch_async(artists):
         results[name] = releases
 
     return results
-
-
-async def _get_deezer_chart_tracks_async(limit=30, country_id=0):
-    cache_key = _safe_cache_key("deezer_chart_tracks", country_id, limit)
-    cached = cache.get(cache_key)
-    if isinstance(cached, list):
-        return cached
-
-    try:
-        async with _build_http_client() as http_client:
-            r = await http_client.get(
-                f"https://api.deezer.com/chart/{country_id}",
-                params={"limit": limit},
-            )
-            r.raise_for_status()
-            payload = r.json() or {}
-            tracks = payload.get("tracks", {}).get("data", []) or []
-
-        results = []
-        for tr in tracks[:limit]:
-            artist = tr.get("artist", {}) or {}
-            album = tr.get("album", {}) or {}
-            results.append(
-                {
-                    "name": tr.get("title") or "",
-                    "artist": artist.get("name") or "",
-                    "listeners": 0,
-                    "playcount": int(tr.get("rank") or 0),
-                    "url": tr.get("preview") or tr.get("link") or "",
-                    "image_url": album.get("cover_xl")
-                    or album.get("cover_big")
-                    or album.get("cover_medium")
-                    or "/static/images/default.svg",
-                    "mbid": "",
-                }
-            )
-
-        results.sort(key=lambda tr: int(tr.get("playcount", 0) or 0), reverse=True)
-        cache.set(cache_key, results, timeout=60 * 60 * 2)
-        return results
-    except Exception as e:
-        logger.warning("Deezer chart error: %s", str(e), exc_info=True)
-        return []
 
 
 async def _get_lastfm_artists_by_genre_async(genre, limit=30):

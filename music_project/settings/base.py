@@ -3,6 +3,7 @@
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 import dj_database_url
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "compressor",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "channels",
 ]
@@ -78,6 +80,8 @@ DATABASES = {
         )
     )
 }
+
+DATABASES["default"]["CONN_MAX_AGE"] = config("CONN_MAX_AGE", cast=int, default=120)
 DATABASES["default"]["CONN_MAX_AGE"] = 600
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -190,6 +194,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "EXCEPTION_HANDLER": "music_api.exception_handler.api_exception_handler",
     # "DEFAULT_THROTTLE_CLASSES": [
     #     "rest_framework.throttling.AnonRateThrottle",
     #     "rest_framework.throttling.UserRateThrottle",
@@ -198,6 +203,14 @@ REST_FRAMEWORK = {
     #     "anon": "100/hour",
     #     "user": "1000/hour",
     # },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 # Настройки Swagger/OpenAPI документации

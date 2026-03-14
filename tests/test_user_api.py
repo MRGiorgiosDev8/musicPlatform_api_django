@@ -86,9 +86,6 @@ def test_user_me_allows_avatar_upload(user):
         format="multipart",
     )
 
-    if response.status_code == 400:
-        print(f"Ошибки валидации: {response.json()}")
-
     user.refresh_from_db()
 
     assert response.status_code == 200

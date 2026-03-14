@@ -23,7 +23,7 @@ const resolveTrackPlaycount = (track) => {
 };
 
 const Year2025App = {
-  URL: '/music_api/deezer-chart/',
+  URL: '/music_api/apple-chart/',
   cache: {},
   activeAudio: null,
   audioControlsInitialized: false,
@@ -183,7 +183,19 @@ const Year2025App = {
       artistButton.className = 'artist-bio-trigger js-artist-bio-trigger color-dark fw-medium';
       artistButton.dataset.artistName = artistName;
       artistButton.textContent = artistName;
+      artistButton.setAttribute('data-bs-toggle', 'tooltip');
+      artistButton.setAttribute('data-bs-placement', 'top');
+      artistButton.setAttribute('data-bs-title', artistName);
+      artistButton.style.maxWidth = '21ch';
+      artistButton.style.display = 'inline-block';
+      artistButton.style.overflow = 'hidden';
+      artistButton.style.textOverflow = 'ellipsis';
+      artistButton.style.whiteSpace = 'nowrap';
+      artistButton.style.verticalAlign = 'bottom';
       artistP.append(artistLabel, artistButton);
+      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        new bootstrap.Tooltip(artistButton);
+      }
 
       const listenersP = document.createElement('p');
       listenersP.className = 'card-text small text-muted mb-2 year-track-listeners';

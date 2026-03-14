@@ -49,9 +49,6 @@ def test_csrf_protection_allows_session_post_with_csrf(user):
         HTTP_REFERER="http://testserver/login/",
     )
 
-    if response.status_code != 201:
-        print(f"Debug CSRF failure: {response.content}")
-
     assert response.status_code == 201
     assert response.json()["detail"] == "Track added."
 

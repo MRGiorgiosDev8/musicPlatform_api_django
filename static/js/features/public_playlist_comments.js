@@ -168,9 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     metaDiv.appendChild(left);
-    if (actions.childElementCount > 0) {
-      metaDiv.appendChild(actions);
-    }
 
     const textP = document.createElement('p');
     textP.className = 'public-comment-text';
@@ -178,6 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     item.appendChild(metaDiv);
     item.appendChild(textP);
+    if (actions.childElementCount > 0) {
+      item.appendChild(actions);
+    }
 
     if (!isReply) {
       const repliesWrap = document.createElement('div');

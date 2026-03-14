@@ -13,7 +13,8 @@ from .services_async import (
     _get_lastfm_tracks_chart_async,
     _get_lastfm_tracks_by_genre_async,
     _search_lastfm_tracks_async,
-    _get_deezer_chart_tracks_async,
+    _get_apple_music_chart_async,
+    _get_lastfm_track_stats_batch_async,
     _get_itunes_batch_async,
     _get_deezer_batch_async,
 )
@@ -70,10 +71,11 @@ async def _enrich_tracks_list_async(tracks_list):
     itunes_data, deezer_data = await asyncio.gather(
         itunes_task, deezer_task, return_exceptions=True
     )
+    itunes_data = itunes_data if not isinstance(itunes_data, Exception) else {}
+    deezer_data = deezer_data if not isinstance(deezer_data, Exception) else {}
 
     # Обработка исключений
     itunes_data = itunes_data if not isinstance(itunes_data, Exception) else {}
-    deezer_data = deezer_data if not isinstance(deezer_data, Exception) else {}
 
     # Собираем финальные данные
     enriched = []
@@ -93,19 +95,13 @@ async def _enrich_tracks_list_async(tracks_list):
             continue
         track_key = (name, artist)
 
-        lastfm_cover = None
-        try:
-            images = tr.get("image")
-            if isinstance(images, list) and images:
-                lastfm_cover = images[-1].get("#text") or None
-        except Exception:
-            lastfm_cover = None
+        # Last.fm cover is intentionally ignored (only iTunes/Deezer covers)
 
         it_res = itunes_data.get(track_key, {})
         dz_res = deezer_data.get(track_key, {})
 
-        cover = it_res.get("cover") or dz_res.get("cover") or lastfm_cover
-        preview = it_res.get("preview") or dz_res.get("preview")
+        cover = it_res.get("cover") or dz_res.get("cover")
+        preview = it_res.get("preview")
 
         enriched.append(
             {
@@ -113,7 +109,7 @@ async def _enrich_tracks_list_async(tracks_list):
                 "artist": artist,
                 "listeners": tr.get("listeners", 0),
                 "playcount": tr.get("playcount", 0),
-                "url": preview or tr.get("url"),
+                "url": preview or "",
                 "image_url": cover or "/static/images/default.svg",
                 "mbid": tr.get("mbid", ""),
             }
@@ -234,7 +230,17 @@ class TrackSearchAPIView(APIView):
             paginator = self.pagination_class()
             page = paginator.paginate_queryset(tracks_raw, request)
 
+            page_number = request.query_params.get(paginator.page_query_param, "1")
+            cache_key_enriched = (
+                "search_enriched:"
+                f"{normalized_query}:{locale}:{page_number}:{paginator.page_size}"
+            )
+            cached_enriched = cache.get(cache_key_enriched)
+            if cached_enriched is not None:
+                return paginator.get_paginated_response(cached_enriched)
+
             enriched_page = async_to_sync(self._search_and_enrich_async)(query, page)
+            cache.set(cache_key_enriched, enriched_page, timeout=CACHE_TIMEOUT)
 
             return paginator.get_paginated_response(enriched_page)
 
@@ -251,31 +257,77 @@ class TrackSearchAPIView(APIView):
 
 
 class DeezerChartAPIView(APIView):
-    """API для получения чарта треков из Deezer"""
+    """API для получения чарта треков (Apple Music RSS)"""
 
     permission_classes = [AllowAny]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get(self, request):
-        limit_str = request.query_params.get("limit", "30")
-        country_str = request.query_params.get("country", "0")
+        country = request.query_params.get("country", "us").strip().lower()
+        count_str = request.query_params.get("count", "50")
+        chart_type = request.query_params.get("type", "songs").strip().lower()
+
         try:
-            limit = int(limit_str)
-            if limit < 1 or limit > 100:
+            count = int(count_str)
+            if count < 1 or count > 100:
                 raise ValueError()
         except ValueError:
-            return Response({"error": "Limit must be 1-100"}, status=400)
+            return Response({"error": "Count must be 1-100"}, status=400)
 
         try:
-            country_id = int(country_str)
-        except ValueError:
-            country_id = 0
+            cache_key = f"apple_chart:{country}:{count}:{chart_type}"
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(
+                    {"tracks": cached, "meta": {"source": "apple", "cached": True}},
+                    status=200,
+                )
 
-        try:
-            tracks = async_to_sync(_get_deezer_chart_tracks_async)(limit, country_id)
-            return Response({"tracks": tracks}, status=200)
+            tracks_raw = async_to_sync(_get_apple_music_chart_async)(
+                country, count, chart_type
+            )
+            if not tracks_raw:
+                return Response({"tracks": [], "meta": {"source": "apple"}}, status=200)
+
+            # Enrich with iTunes previews + Last.fm stats
+            itunes_data = async_to_sync(_get_itunes_batch_async)(tracks_raw[:25])
+            itunes_data = itunes_data if not isinstance(itunes_data, Exception) else {}
+            lastfm_stats = async_to_sync(_get_lastfm_track_stats_batch_async)(
+                tracks_raw
+            )
+            lastfm_stats = lastfm_stats if isinstance(lastfm_stats, dict) else {}
+
+            enriched = []
+            for tr in tracks_raw:
+                track_key = (tr.get("name"), tr.get("artist"))
+                it_res = itunes_data.get(track_key, {})
+                cover = (
+                    it_res.get("cover")
+                    or tr.get("image_url")
+                    or "/static/images/default.svg"
+                )
+                preview = it_res.get("preview") or ""
+                stats = lastfm_stats.get((tr.get("name"), tr.get("artist")), {})
+                enriched.append(
+                    {
+                        "name": tr.get("name") or "",
+                        "artist": tr.get("artist") or "",
+                        "listeners": int(stats.get("listeners", 0)),
+                        "playcount": int(stats.get("playcount", 0)),
+                        "url": preview,
+                        "image_url": cover,
+                        "mbid": "",
+                    }
+                )
+
+            cache.set(cache_key, enriched, timeout=CACHE_TIMEOUT)
+            return Response(
+                {"tracks": enriched, "meta": {"source": "apple", "cached": False}},
+                status=200,
+            )
+
         except Exception as e:
-            logger.error("DeezerChartAPIView error: %s", str(e), exc_info=True)
+            logger.error("AppleChartAPIView error: %s", str(e), exc_info=True)
             return Response(
                 {"error": "Internal server error", "tracks": []}, status=500
             )
