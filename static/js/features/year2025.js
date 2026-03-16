@@ -165,6 +165,8 @@ const Year2025App = {
       }
 
       const hasAudio = hasAudioPreview(t.url);
+      if (!hasAudio) continue;
+
       const favoriteControl = await this.createFavoriteControl(t, hasAudio);
       if (currentRenderVersion !== this.renderVersion) return;
 
@@ -205,21 +207,10 @@ const Year2025App = {
       metaWrap.appendChild(listenersP);
       cardBody.appendChild(metaWrap);
 
-      if (hasAudio) {
-        const previewMount = document.createElement('div');
-        previewMount.className = 'audio-preview-mount year-track-audio';
-        previewMount.dataset.audioPreviewUrl = t.url;
-        cardBody.appendChild(previewMount);
-      } else {
-        const noPreview = document.createElement('div');
-        const noPreviewClasses =
-          typeof Utils !== 'undefined' && typeof Utils.getNoPreviewBadgeClasses === 'function'
-            ? Utils.getNoPreviewBadgeClasses('year-track-no-preview border border-white')
-            : 'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 year-track-no-preview border border-white';
-        noPreview.className = noPreviewClasses;
-        noPreview.textContent = 'Превью недоступно';
-        cardBody.appendChild(noPreview);
-      }
+      const previewMount = document.createElement('div');
+      previewMount.className = 'audio-preview-mount year-track-audio';
+      previewMount.dataset.audioPreviewUrl = t.url;
+      cardBody.appendChild(previewMount);
 
       card.appendChild(img);
       card.appendChild(cardBody);

@@ -289,8 +289,10 @@ class DeezerChartAPIView(APIView):
             if not tracks_raw:
                 return Response({"tracks": [], "meta": {"source": "apple"}}, status=200)
 
-            # Enrich with iTunes previews + Last.fm stats
-            itunes_data = async_to_sync(_get_itunes_batch_async)(tracks_raw[:25])
+            itunes_limit = min(count, 50)
+            itunes_data = async_to_sync(_get_itunes_batch_async)(
+                tracks_raw[:itunes_limit], limit=itunes_limit
+            )
             itunes_data = itunes_data if not isinstance(itunes_data, Exception) else {}
             lastfm_stats = async_to_sync(_get_lastfm_track_stats_batch_async)(
                 tracks_raw

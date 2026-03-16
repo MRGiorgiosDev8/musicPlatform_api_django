@@ -97,7 +97,7 @@ describe('year2025 P1', () => {
     expect(Utils.showYearSpinner).toHaveBeenLastCalledWith(false);
   });
 
-  it('render shows audio preview block and fallback no-preview block', async () => {
+  it('render skips tracks without preview and shows audio preview block', async () => {
     const app = yearModule.Year2025App;
     app.renderVersion = 0;
     app.createFavoriteControl = vi.fn().mockResolvedValue(document.createElement('div'));
@@ -115,10 +115,7 @@ describe('year2025 P1', () => {
 
     const root = document.getElementById('year2025-container');
     expect(root.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
-    expect(root.querySelectorAll('.year-track-no-preview').length).toBe(1);
-    expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(2);
-    expect(Utils.getNoPreviewBadgeClasses).toHaveBeenCalledWith(
-      'year-track-no-preview border border-white'
-    );
+    expect(root.querySelectorAll('.year-track-no-preview').length).toBe(0);
+    expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
   });
 });

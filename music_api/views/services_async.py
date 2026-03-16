@@ -2,6 +2,7 @@ import time
 import asyncio
 import httpx
 import hashlib
+import re
 from django.core.cache import cache
 from .base import logger, LASTFM_KEY
 
@@ -33,9 +34,52 @@ def _build_http_client():
     )
 
 
-async def _get_itunes_batch_async(tracks):
+def _normalize_track_text(value: str) -> str:
+    if not value:
+        return ""
+    text = value.casefold()
+    text = re.sub(r"[\(\[\{].*?[\)\]\}]", " ", text)
+    text = re.sub(r"\b(feat\.|ft\.|featuring|with)\b.*", " ", text)
+    text = re.sub(
+        r"\b(remaster(ed)?|deluxe|explicit|clean|live|radio edit)\b", " ", text
+    )
+    text = re.sub(r"[^\w\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _tokenize_artist(value: str) -> list[str]:
+    text = _normalize_track_text(value)
+    if not text:
+        return []
+    return [token for token in text.split(" ") if token]
+
+
+def _artist_tokens_match(target: str, candidate: str) -> bool:
+    target_tokens = set(_tokenize_artist(target))
+    candidate_tokens = set(_tokenize_artist(candidate))
+    if not target_tokens or not candidate_tokens:
+        return False
+    return target_tokens.issubset(candidate_tokens) or candidate_tokens.issubset(
+        target_tokens
+    )
+
+
+def _track_names_match(target: str, candidate: str) -> bool:
+    target_norm = _normalize_track_text(target)
+    candidate_norm = _normalize_track_text(candidate)
+    if not target_norm or not candidate_norm:
+        return False
+    if target_norm == candidate_norm:
+        return True
+    if len(target_norm) < 4 or len(candidate_norm) < 4:
+        return False
+    return target_norm in candidate_norm or candidate_norm in target_norm
+
+
+async def _get_itunes_batch_async(tracks, limit=25):
     results = {}
-    tracks = tracks[:25]
+    tracks = tracks[:limit]
     itunes_sem = asyncio.Semaphore(3)
 
     async def fetch_track_data(track):
@@ -63,9 +107,10 @@ async def _get_itunes_batch_async(tracks):
                 data = r.json()
 
                 for item in data.get("results", []):
-                    if (
-                        item.get("trackName", "").lower() == name.lower()
-                        and item.get("artistName", "").lower() == artist.lower()
+                    item_name_raw = item.get("trackName", "")
+                    item_artist_raw = item.get("artistName", "")
+                    if _track_names_match(name, item_name_raw) and _artist_tokens_match(
+                        artist, item_artist_raw
                     ):
                         artwork_url = item.get("artworkUrl100")
                         if artwork_url:
