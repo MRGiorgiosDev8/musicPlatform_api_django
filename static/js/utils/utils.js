@@ -231,9 +231,24 @@ const Utils = {
     playButton.className = 'audio-preview-toggle';
     playButton.setAttribute('aria-label', 'Воспроизвести превью');
 
-    const icon = document.createElement('i');
-    icon.className = 'bi bi-play-fill';
-    playButton.appendChild(icon);
+    const iconWrap = document.createElement('span');
+    iconWrap.className = 'audio-preview-icon';
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('audio-preview-svg');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const playPath = 'M6 4 L18 12 L6 20 Z';
+    const pausePath = 'M6 4 H10 V20 H6 Z M14 4 H18 V20 H14 Z';
+    path.setAttribute('d', playPath);
+    path.dataset.playPath = playPath;
+    path.dataset.pausePath = pausePath;
+
+    svg.appendChild(path);
+    iconWrap.appendChild(svg);
+    playButton.appendChild(iconWrap);
 
     const wave = document.createElement('div');
     wave.className = 'audio-preview-wave';
@@ -262,11 +277,11 @@ const Utils = {
     this._audioPreviewInstances.add(ws);
 
     const updateButtonState = (isPlaying) => {
-      icon.className = isPlaying ? 'bi bi-pause-fill' : 'bi bi-play-fill';
       playButton.setAttribute(
         'aria-label',
         isPlaying ? 'Поставить превью на паузу' : 'Воспроизвести превью'
       );
+      playButton.classList.toggle('is-playing', isPlaying);
     };
 
     ws.on('ready', () => {
