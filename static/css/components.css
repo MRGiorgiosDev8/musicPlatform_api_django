@@ -576,6 +576,15 @@
     font-variant-numeric: tabular-nums;
 }
 
+#public-comments-count {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9 !important;
+}
+
 .audio-preview-fallback {
     width: 100%;
 }

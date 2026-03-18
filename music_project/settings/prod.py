@@ -72,6 +72,54 @@ LOGGING = {
     },
 }
 
+# S3 storage (django-storages, Supabase-compatible)
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "avatars")
+AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
+
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+    AWS_S3_REGION_NAME = "us-east-1"
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_QUERYSTRING_AUTH = False
+    AWS_DEFAULT_ACL = None
+
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
+    }
+
+    if AWS_S3_ENDPOINT_URL:
+        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
+    else:
+        MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+
+    # Проверка S3 при запуске (Supabase/S3 совместимый)
+    try:
+        import boto3
+        from botocore.exceptions import BotoCoreError, ClientError
+
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            region_name=AWS_S3_REGION_NAME,
+            endpoint_url=AWS_S3_ENDPOINT_URL or None,
+        )
+        s3_client.head_bucket(Bucket=AWS_STORAGE_BUCKET_NAME)
+        print("🚀 S3 CHECK: Connection Successful!")
+    except (BotoCoreError, ClientError, Exception) as e:
+        print(f"❌ S3 ERROR: {e}")
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+
 # Переопределяем кэш для продакшена (Render Redis)
 REDIS_URL = config("REDIS_URL", default=None)
 
