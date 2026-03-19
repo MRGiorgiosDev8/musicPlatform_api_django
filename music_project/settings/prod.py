@@ -110,6 +110,9 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
     AWS_QUERYSTRING_AUTH = False
     AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = (
+        "ajsnpdocgmnyzvkddxcd.supabase.co/storage/v1/object/public/avatars"
+    )
 
     STORAGES = {
         "default": {
@@ -119,11 +122,12 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
                 "secret_key": AWS_SECRET_ACCESS_KEY,
                 "bucket_name": AWS_STORAGE_BUCKET_NAME,
                 "endpoint_url": AWS_S3_ENDPOINT_URL,
-                "region_name": AWS_S3_REGION_NAME,
+                "region_name": "eu-west-1",
                 "signature_version": "s3v4",
                 "addressing_style": "path",
                 "file_overwrite": True,
-                "gzip": True,
+                "default_acl": None,
+                "querystring_auth": False,
             },
         },
         "staticfiles": {
@@ -131,7 +135,9 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
         },
     }
 
-    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
+    MEDIA_URL = (
+        "https://ajsnpdocgmnyzvkddxcd.supabase.co/storage/v1/object/public/avatars/"
+    )
 
 else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
