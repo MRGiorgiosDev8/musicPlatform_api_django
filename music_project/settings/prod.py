@@ -122,6 +122,8 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
                 "region_name": AWS_S3_REGION_NAME,
                 "signature_version": "s3v4",
                 "addressing_style": "path",
+                "file_overwrite": True,
+                "gzip": True,
             },
         },
         "staticfiles": {
@@ -131,24 +133,6 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
 
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
 
-    # Проверка S3 при запуске (Supabase/S3 совместимый)
-    try:
-        import boto3
-        from botocore.config import Config
-        from botocore.exceptions import BotoCoreError, ClientError
-
-        s3_client = boto3.client(
-            "s3",
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            region_name=AWS_S3_REGION_NAME,
-            endpoint_url=AWS_S3_ENDPOINT_URL or None,
-            config=Config(s3={"addressing_style": "path"}),
-        )
-        s3_client.head_bucket(Bucket=AWS_STORAGE_BUCKET_NAME)
-        print("🚀 S3 CHECK: Connection Successful!")
-    except (BotoCoreError, ClientError, Exception) as e:
-        print(f"❌ S3 CHECK SKIPPED/FAILED: {e}")
 else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     MEDIA_URL = "/media/"
