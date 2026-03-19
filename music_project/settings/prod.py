@@ -23,6 +23,9 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 X_FRAME_OPTIONS = "DENY"
+CSRF_TRUSTED_ORIGINS = [
+    "https://georgios8-rubysoundfm.onrender.com",
+]
 
 # Настройки почтового сервера
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
