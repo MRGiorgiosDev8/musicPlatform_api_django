@@ -82,26 +82,36 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
     AWS_S3_REGION_NAME = "us-east-1"
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_VERIFY = True
+    AWS_S3_ADDRESSING_STYLE = "path"
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
     AWS_QUERYSTRING_AUTH = False
     AWS_DEFAULT_ACL = None
 
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
     STORAGES = {
-        "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": AWS_ACCESS_KEY_ID,
+                "secret_key": AWS_SECRET_ACCESS_KEY,
+                "bucket_name": AWS_STORAGE_BUCKET_NAME,
+                "endpoint_url": AWS_S3_ENDPOINT_URL,
+                "region_name": AWS_S3_REGION_NAME,
+                "signature_version": "s3v4",
+                "addressing_style": "path",
+            },
+        },
         "staticfiles": {
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         },
     }
 
-    if AWS_S3_ENDPOINT_URL:
-        MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
-    else:
-        MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL.rstrip('/')}/{AWS_STORAGE_BUCKET_NAME}/"
 
     # Проверка S3 при запуске (Supabase/S3 совместимый)
     try:
         import boto3
+        from botocore.config import Config
         from botocore.exceptions import BotoCoreError, ClientError
 
         s3_client = boto3.client(
@@ -110,11 +120,12 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
             region_name=AWS_S3_REGION_NAME,
             endpoint_url=AWS_S3_ENDPOINT_URL or None,
+            config=Config(s3={"addressing_style": "path"}),
         )
         s3_client.head_bucket(Bucket=AWS_STORAGE_BUCKET_NAME)
         print("🚀 S3 CHECK: Connection Successful!")
     except (BotoCoreError, ClientError, Exception) as e:
-        print(f"❌ S3 ERROR: {e}")
+        print(f"❌ S3 CHECK SKIPPED/FAILED: {e}")
 else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     MEDIA_URL = "/media/"
