@@ -105,54 +105,8 @@ LOGGING = {
     },
 }
 
-# S3 storage (django-storages, Supabase-compatible)
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "avatars")
-AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL")
-
-if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
-    AWS_S3_REGION_NAME = "eu-west-1"
-    AWS_S3_SIGNATURE_VERSION = "s3v4"
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_S3_VERIFY = True
-    AWS_S3_ADDRESSING_STYLE = "path"
-    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
-    AWS_QUERYSTRING_AUTH = False
-    AWS_DEFAULT_ACL = None
-    AWS_S3_CUSTOM_DOMAIN = (
-        "ajsnpdocgmnyzvkddxcd.supabase.co/storage/v1/object/public/avatars"
-    )
-
-    STORAGES = {
-        "default": {
-            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-            "OPTIONS": {
-                "access_key": AWS_ACCESS_KEY_ID,
-                "secret_key": AWS_SECRET_ACCESS_KEY,
-                "bucket_name": AWS_STORAGE_BUCKET_NAME,
-                "endpoint_url": AWS_S3_ENDPOINT_URL,
-                "region_name": "eu-west-1",
-                "signature_version": "s3v4",
-                "addressing_style": "path",
-                "file_overwrite": True,
-                "default_acl": None,
-                "querystring_auth": False,
-            },
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        },
-    }
-
-    MEDIA_URL = (
-        "https://ajsnpdocgmnyzvkddxcd.supabase.co/storage/v1/object/public/avatars/"
-    )
-
-else:
-    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = BASE_DIR / "media"
+# Media storage: local filesystem (Render free / ephemeral).
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 # Переопределяем кэш для продакшена (Render Redis)
 REDIS_URL = config("REDIS_URL", default=None)
