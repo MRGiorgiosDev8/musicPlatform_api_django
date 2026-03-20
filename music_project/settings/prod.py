@@ -38,6 +38,16 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 # Хранение и сжатие статических файлов
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/tmp/media"
+SERVE_MEDIA = True
+
 COMPRESS_ENABLED = False
 COMPRESS_OFFLINE = False
 
