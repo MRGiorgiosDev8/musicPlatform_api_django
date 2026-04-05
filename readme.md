@@ -431,6 +431,20 @@
 - Добавлен централизованный обработчик ошибок DRF.
 - Установлен `CONN_MAX_AGE` для re-use соединений БД.
 
+---
+
+#### 2026-04-03 — Reply-to-user для комментариев (без углубления дерева)
+- **feat (comments API)**: Добавлена адресная логика ответов.
+  - В `PlaylistComment` добавлено поле `reply_to_user` (`FK -> users.User`, nullable).
+  - `POST /api/playlists/public/<username>/comments/` теперь поддерживает `reply_to_comment_id`.
+  - Валидация: цель ответа должна быть в том же треде (root или reply этого root).
+  - Ограничение глубины сохранено: вложенность остается только `root -> reply`.
+- **feat (comments payload)**: В ответах API и websocket payload комментариев добавлены поля:
+  - `reply_to_user_id`
+  - `reply_to_username`
+- **ui (comments)**: Кнопка `Ответить` доступна и у reply-комментариев.
+  - При ответе на reply фронтенд отправляет `parent_id=<root>` и `reply_to_comment_id=<target_comment>`.
+  - В рендере reply показывается маркер `Ответ @username`.
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 

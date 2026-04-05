@@ -26,8 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let commentsCount = Number.parseInt(countNode.textContent || '0', 10) || 0;
 
   let replyParentId = null;
+  let replyTargetCommentId = null;
   let replyAuthorName = '';
   let replyMeta = null;
+  const commentLikersCache = new Map();
+  let likersPopover = null;
+  let hideLikersTimer = null;
+  let activeLikersCommentId = null;
+  let likersModal = null;
+  let likersModalCloseTimer = null;
 
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
@@ -45,8 +52,61 @@ document.addEventListener('DOMContentLoaded', () => {
     empty.classList.toggle('d-none', count > 0);
   };
 
+  const updateCommentLikeState = (commentId, { likesCount, likedByMe } = {}) => {
+    const id = Number(commentId);
+    if (!Number.isInteger(id)) {
+      return;
+    }
+    commentLikersCache.delete(id);
+
+    const node = list.querySelector(`[data-comment-id="${id}"]`);
+    if (!node) {
+      return;
+    }
+
+    const likeCountNode = node.querySelector('[data-comment-like-count]');
+    const normalizedCount = Number(likesCount);
+    const safeCount = Number.isInteger(normalizedCount) && normalizedCount >= 0 ? normalizedCount : 0;
+    if (likeCountNode) {
+      const previousCount = Number.parseInt(likeCountNode.textContent || '0', 10) || 0;
+      likeCountNode.textContent = String(safeCount);
+      if (previousCount !== safeCount) {
+        likeCountNode.classList.remove('is-like-count-changing', 'is-like-count-up', 'is-like-count-down');
+        likeCountNode.offsetWidth;
+        likeCountNode.classList.add('is-like-count-changing');
+        likeCountNode.classList.add(safeCount > previousCount ? 'is-like-count-up' : 'is-like-count-down');
+      }
+    }
+
+    const likeBtn = node.querySelector('[data-comment-like]');
+    if (!likeBtn) {
+      return;
+    }
+    const likeIcon = likeBtn.querySelector('[data-comment-like-icon]');
+    if (!likeIcon) {
+      return;
+    }
+
+    if (typeof likedByMe === 'boolean') {
+      likeBtn.dataset.liked = likedByMe ? '1' : '0';
+    }
+    const isLiked = likeBtn.dataset.liked === '1';
+    const showFilledByCount = !canCompose && safeCount > 0;
+    const shouldShowFilled = isLiked || showFilledByCount;
+    likeBtn.classList.add('text-danger');
+    likeIcon.className = shouldShowFilled ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
+    if (isLiked) {
+      likeBtn.classList.remove('is-like-burst');
+      likeBtn.offsetWidth;
+      likeBtn.classList.add('is-like-burst');
+    } else {
+      likeBtn.classList.remove('is-like-burst');
+    }
+  };
+
   const clearReplyTarget = ({ focus = false } = {}) => {
     replyParentId = null;
+    replyTargetCommentId = null;
     replyAuthorName = '';
     if (replyMeta) {
       replyMeta.classList.add('d-none');
@@ -63,15 +123,322 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const setReplyTarget = (commentId, authorName) => {
-    if (!canCompose) {
+  const clearChildren = (node) => {
+    if (!node) {
       return;
     }
-    if (!Number.isInteger(Number(commentId))) {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+  };
+
+  const renderStateNode = (container, text) => {
+    if (!container) {
+      return;
+    }
+    clearChildren(container);
+    const state = document.createElement('div');
+    state.className = 'public-comment-likers-state';
+    state.textContent = text;
+    container.appendChild(state);
+  };
+
+  const ensureLikersPopover = () => {
+    if (likersPopover) {
+      return likersPopover;
+    }
+    likersPopover = document.createElement('div');
+    likersPopover.className = 'public-comment-likers-popover d-none';
+
+    const head = document.createElement('div');
+    head.className = 'public-comment-likers-popover-head';
+    head.textContent = 'Лайкнули';
+
+    const body = document.createElement('div');
+    body.className = 'public-comment-likers-popover-body';
+    body.dataset.commentLikersBody = '';
+
+    const foot = document.createElement('div');
+    foot.className = 'public-comment-likers-popover-foot';
+    const openModalBtn = document.createElement('button');
+    openModalBtn.type = 'button';
+    openModalBtn.className = 'btn btn-sm btn-link text-decoration-none p-0';
+    openModalBtn.dataset.commentLikersOpenModal = '';
+    openModalBtn.textContent = 'Показать всех';
+    foot.appendChild(openModalBtn);
+
+    likersPopover.appendChild(head);
+    likersPopover.appendChild(body);
+    likersPopover.appendChild(foot);
+    likersPopover.addEventListener('mouseenter', () => {
+      if (hideLikersTimer) {
+        window.clearTimeout(hideLikersTimer);
+        hideLikersTimer = null;
+      }
+    });
+    likersPopover.addEventListener('mouseleave', () => {
+      hideLikersTimer = window.setTimeout(() => {
+        activeLikersCommentId = null;
+        likersPopover.classList.add('d-none');
+      }, 120);
+    });
+    document.body.appendChild(likersPopover);
+    return likersPopover;
+  };
+
+  const renderLikersRows = (container, users) => {
+    if (!container) {
+      return;
+    }
+    clearChildren(container);
+    const fragment = document.createDocumentFragment();
+    users.forEach((row) => {
+      const item = document.createElement('a');
+      item.className = 'public-comment-liker-row';
+      item.href = row.profile_url || '#';
+      const avatarWrap = document.createElement('span');
+      avatarWrap.className = 'public-comment-liker-avatar-wrap';
+      if (row.avatar_url) {
+        const img = document.createElement('img');
+        img.src = String(row.avatar_url);
+        img.alt = row.username || 'User';
+        img.className = 'public-comment-liker-avatar';
+        img.setAttribute('loading', 'lazy');
+        avatarWrap.appendChild(img);
+      } else {
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-person-fill';
+        icon.setAttribute('aria-hidden', 'true');
+        avatarWrap.appendChild(icon);
+      }
+
+      const usernameNode = document.createElement('span');
+      usernameNode.className = 'public-comment-liker-name';
+      usernameNode.textContent = row.username || 'unknown';
+
+      item.appendChild(avatarWrap);
+      item.appendChild(usernameNode);
+      fragment.appendChild(item);
+    });
+    container.appendChild(fragment);
+  };
+
+  const renderLikersPopover = ({ loading = false, error = false, users = [] } = {}) => {
+    const popover = ensureLikersPopover();
+    const body = popover.querySelector('[data-comment-likers-body]');
+    const openModalBtn = popover.querySelector('[data-comment-likers-open-modal]');
+    if (!body || !openModalBtn) {
       return;
     }
 
-    replyParentId = Number(commentId);
+    openModalBtn.disabled = true;
+    if (loading) {
+      renderStateNode(body, 'Загрузка...');
+      return;
+    }
+    if (error) {
+      renderStateNode(body, 'Не удалось загрузить');
+      return;
+    }
+    if (!Array.isArray(users) || users.length === 0) {
+      renderStateNode(body, 'Пока нет лайков');
+      return;
+    }
+
+    openModalBtn.disabled = false;
+    renderLikersRows(body, users);
+  };
+
+  const positionLikersPopover = (anchor) => {
+    const popover = ensureLikersPopover();
+    const rect = anchor.getBoundingClientRect();
+    const popoverWidth = popover.offsetWidth || 260;
+    const popoverHeight = popover.offsetHeight || 180;
+    const viewportLeft = window.scrollX + 8;
+    const viewportRight = window.scrollX + window.innerWidth - 8;
+    const viewportTop = window.scrollY + 8;
+    const viewportBottom = window.scrollY + window.innerHeight - 8;
+
+    const preferredLeft = window.scrollX + rect.left - popoverWidth - 10;
+    const preferredTop = window.scrollY + rect.top + rect.height / 2 - popoverHeight / 2;
+
+    const left = Math.min(Math.max(preferredLeft, viewportLeft), viewportRight - popoverWidth);
+    const top = Math.min(Math.max(preferredTop, viewportTop), viewportBottom - popoverHeight);
+    popover.style.left = `${left}px`;
+    popover.style.top = `${top}px`;
+  };
+
+  const loadCommentLikers = async (commentId) => {
+    if (commentLikersCache.has(commentId)) {
+      return commentLikersCache.get(commentId);
+    }
+    const response = await fetch(
+      `/api/playlists/public/${encodeURIComponent(username)}/comments/${commentId}/likes/`,
+      {
+        method: 'GET',
+        credentials: 'same-origin',
+      }
+    );
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.detail || `HTTP ${response.status}`);
+    }
+    const users = Array.isArray(payload.results) ? payload.results : [];
+    commentLikersCache.set(commentId, users);
+    return users;
+  };
+
+  const showCommentLikersPopover = async (button, commentId) => {
+    if (hideLikersTimer) {
+      window.clearTimeout(hideLikersTimer);
+      hideLikersTimer = null;
+    }
+    activeLikersCommentId = commentId;
+    const popover = ensureLikersPopover();
+    popover.dataset.commentId = String(commentId);
+    popover.classList.remove('d-none');
+    renderLikersPopover({ loading: true });
+    positionLikersPopover(button);
+    try {
+      const users = await loadCommentLikers(commentId);
+      if (activeLikersCommentId !== commentId) {
+        return;
+      }
+      renderLikersPopover({ users });
+      positionLikersPopover(button);
+    } catch (error) {
+      if (activeLikersCommentId !== commentId) {
+        return;
+      }
+      renderLikersPopover({ error: true });
+    }
+  };
+
+  const ensureLikersModal = () => {
+    if (likersModal) {
+      return likersModal;
+    }
+
+    likersModal = document.createElement('div');
+    likersModal.className = 'public-comment-likers-modal d-none';
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'public-comment-likers-modal-backdrop';
+    backdrop.dataset.commentLikersModalClose = '';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'public-comment-likers-modal-dialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-label', 'Все лайки комментария');
+
+    const head = document.createElement('div');
+    head.className = 'public-comment-likers-modal-head';
+
+    const title = document.createElement('strong');
+    title.textContent = 'Все лайки';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn btn-sm btn-danger';
+    closeBtn.dataset.commentLikersModalClose = '';
+    closeBtn.textContent = 'Закрыть';
+
+    head.appendChild(title);
+    head.appendChild(closeBtn);
+
+    const body = document.createElement('div');
+    body.className = 'public-comment-likers-modal-body';
+    body.dataset.commentLikersModalBody = '';
+
+    dialog.appendChild(head);
+    dialog.appendChild(body);
+    likersModal.appendChild(backdrop);
+    likersModal.appendChild(dialog);
+
+    document.body.appendChild(likersModal);
+    return likersModal;
+  };
+
+  const hideLikersModal = () => {
+    if (!likersModal) {
+      return;
+    }
+    if (likersModal.classList.contains('d-none')) {
+      return;
+    }
+    if (likersModalCloseTimer) {
+      window.clearTimeout(likersModalCloseTimer);
+      likersModalCloseTimer = null;
+    }
+    likersModal.classList.remove('is-open');
+    likersModal.classList.add('is-closing');
+    likersModalCloseTimer = window.setTimeout(() => {
+      if (!likersModal) {
+        return;
+      }
+      likersModal.classList.add('d-none');
+      likersModal.classList.remove('is-closing');
+      document.body.classList.remove('public-comment-modal-open');
+      likersModalCloseTimer = null;
+    }, 220);
+  };
+
+  const renderLikersModal = ({ loading = false, error = false, users = [] } = {}) => {
+    const modal = ensureLikersModal();
+    const body = modal.querySelector('[data-comment-likers-modal-body]');
+    if (!body) {
+      return;
+    }
+
+    if (loading) {
+      renderStateNode(body, 'Загрузка...');
+      return;
+    }
+    if (error) {
+      renderStateNode(body, 'Не удалось загрузить');
+      return;
+    }
+    if (!Array.isArray(users) || users.length === 0) {
+      renderStateNode(body, 'Пока нет лайков');
+      return;
+    }
+    renderLikersRows(body, users);
+  };
+
+  const showLikersModal = async (commentId) => {
+    const modal = ensureLikersModal();
+    if (likersModalCloseTimer) {
+      window.clearTimeout(likersModalCloseTimer);
+      likersModalCloseTimer = null;
+    }
+    modal.classList.remove('d-none');
+    modal.classList.remove('is-closing');
+    window.requestAnimationFrame(() => {
+      modal.classList.add('is-open');
+    });
+    document.body.classList.add('public-comment-modal-open');
+    renderLikersModal({ loading: true });
+    try {
+      const users = await loadCommentLikers(commentId);
+      renderLikersModal({ users });
+    } catch (error) {
+      renderLikersModal({ error: true });
+    }
+  };
+
+  const setReplyTarget = (parentCommentId, targetCommentId, authorName) => {
+    if (!canCompose) {
+      return;
+    }
+    const normalizedParentId = Number(parentCommentId);
+    const normalizedTargetId = Number(targetCommentId);
+    if (!Number.isInteger(normalizedParentId) || !Number.isInteger(normalizedTargetId)) {
+      return;
+    }
+
+    replyParentId = normalizedParentId;
+    replyTargetCommentId = normalizedTargetId;
     replyAuthorName = String(authorName || '').trim();
 
     if (replyMeta) {
@@ -91,9 +458,23 @@ document.addEventListener('DOMContentLoaded', () => {
   if (canCompose) {
     replyMeta = document.createElement('div');
     replyMeta.className = 'public-comment-reply-meta d-none';
-    replyMeta.innerHTML =
-      '<span class="small">Ответ для <strong data-reply-author></strong></span>' +
-      '<button type="button" class="btn btn-body btn-sm text-decoration-none p-0" data-comment-reply-cancel>Отмена</button>';
+
+    const replyText = document.createElement('span');
+    replyText.className = 'small';
+    replyText.append('Ответ для ');
+
+    const replyAuthor = document.createElement('strong');
+    replyAuthor.dataset.replyAuthor = '';
+    replyText.appendChild(replyAuthor);
+
+    const cancelReplyBtn = document.createElement('button');
+    cancelReplyBtn.type = 'button';
+    cancelReplyBtn.className = 'btn btn-body btn-sm text-decoration-none p-0';
+    cancelReplyBtn.dataset.commentReplyCancel = '';
+    cancelReplyBtn.textContent = 'Отмена';
+
+    replyMeta.appendChild(replyText);
+    replyMeta.appendChild(cancelReplyBtn);
     form.insertBefore(replyMeta, textInput);
   }
 
@@ -147,7 +528,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const actions = document.createElement('div');
     actions.className = 'public-comment-actions d-flex align-items-center gap-2';
 
-    if (canCompose && !isReply) {
+    const likeBtn = document.createElement('button');
+    likeBtn.type = 'button';
+    likeBtn.className =
+      'btn btn-sm btn-link text-danger bg-danger bg-opacity-10 p-1 rounded text-decoration-none p-0';
+    likeBtn.dataset.commentLike = '';
+    likeBtn.dataset.liked = Boolean(comment.liked_by_me) ? '1' : '0';
+    if (!canCompose) {
+      likeBtn.disabled = true;
+      likeBtn.title = 'Войдите в аккаунт, чтобы поставить лайк';
+    }
+    const initialLikesCount = Number(comment.likes_count);
+    const safeInitialLikesCount =
+      Number.isInteger(initialLikesCount) && initialLikesCount >= 0 ? initialLikesCount : 0;
+    const likedInitially = Boolean(comment.liked_by_me);
+    const showFilledInitially = likedInitially || (!canCompose && safeInitialLikesCount > 0);
+    const initialIconClass = showFilledInitially ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
+    const likeIcon = document.createElement('i');
+    likeIcon.className = initialIconClass;
+    likeIcon.dataset.commentLikeIcon = '';
+    const likeCount = document.createElement('span');
+    likeCount.dataset.commentLikeCount = '';
+    likeCount.textContent = String(safeInitialLikesCount);
+    likeBtn.appendChild(likeIcon);
+    likeBtn.appendChild(likeCount);
+    actions.appendChild(likeBtn);
+
+    if (canCompose) {
       const replyBtn = document.createElement('button');
       replyBtn.type = 'button';
       replyBtn.className =
@@ -169,16 +576,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     metaDiv.appendChild(left);
 
+    let replyTo = null;
+    if (isReply && comment.reply_to_username) {
+      replyTo = document.createElement('div');
+      replyTo.className = 'small text-muted';
+      replyTo.textContent = `Ответ @${comment.reply_to_username}`;
+    }
+
     const textP = document.createElement('p');
     textP.className = 'public-comment-text';
     textP.textContent = comment.text || '';
 
     item.appendChild(metaDiv);
+    if (replyTo) {
+      item.appendChild(replyTo);
+    }
     item.appendChild(textP);
     if (actions.childElementCount > 0) {
       item.appendChild(actions);
     }
-
     if (!isReply) {
       const repliesWrap = document.createElement('div');
       repliesWrap.className = 'public-comment-replies';
@@ -285,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!node) {
       knownIds.delete(id);
-      if (replyParentId === id) {
+      if (replyParentId === id || replyTargetCommentId === id) {
         clearReplyTarget();
       }
       updateMeta();
@@ -302,7 +718,10 @@ document.addEventListener('DOMContentLoaded', () => {
       nestedIds.forEach((nestedId) => {
         knownIds.delete(nestedId);
       });
-      if (replyParentId !== null && nestedIds.includes(replyParentId)) {
+      if (
+        (replyParentId !== null && nestedIds.includes(replyParentId)) ||
+        (replyTargetCommentId !== null && nestedIds.includes(replyTargetCommentId))
+      ) {
         clearReplyTarget();
       }
       updateMeta();
@@ -364,6 +783,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const requestBody = { text };
       if (Number.isInteger(replyParentId)) {
         requestBody.parent_id = replyParentId;
+        requestBody.reply_to_comment_id = Number.isInteger(replyTargetCommentId)
+          ? replyTargetCommentId
+          : replyParentId;
       }
 
       const response = await fetch(
@@ -416,9 +838,50 @@ document.addEventListener('DOMContentLoaded', () => {
     pendingLocalDeleteIds.delete(Number(commentId));
   };
 
+  const toggleCommentLike = async (commentId, isLikedNow) => {
+    const method = isLikedNow ? 'DELETE' : 'POST';
+    const response = await fetch(
+      `/api/playlists/public/${encodeURIComponent(username)}/comments/${commentId}/like/`,
+      {
+        method,
+        credentials: 'same-origin',
+        headers:
+          typeof window.buildAuthHeaders === 'function'
+            ? window.buildAuthHeaders(true, true)
+            : { 'Content-Type': 'application/json' },
+      }
+    );
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.detail || `HTTP ${response.status}`);
+    }
+    updateCommentLikeState(commentId, {
+      likesCount: payload.likes_count,
+      likedByMe: payload.liked_by_me,
+    });
+  };
+
   list.addEventListener('click', async (event) => {
     const target = event.target;
     if (!target) {
+      return;
+    }
+    const likeButton = target.closest?.('[data-comment-like]');
+    if (likeButton) {
+      const item = likeButton.closest('[data-comment-id]');
+      if (!item) {
+        return;
+      }
+      const commentId = Number(item.getAttribute('data-comment-id'));
+      if (!Number.isInteger(commentId)) {
+        return;
+      }
+      const isLikedNow = likeButton.dataset.liked === '1';
+      try {
+        await toggleCommentLike(commentId, isLikedNow);
+      } catch (error) {
+        console.error('Toggle comment like failed:', error);
+      }
       return;
     }
 
@@ -448,8 +911,81 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!Number.isInteger(commentId)) {
         return;
       }
+      const parentIdRaw = item.getAttribute('data-parent-id');
+      const parentId = parentIdRaw === null ? null : Number(parentIdRaw);
+      const threadRootId = Number.isInteger(parentId) ? parentId : commentId;
       const authorNode = item.querySelector('.public-comment-author');
-      setReplyTarget(commentId, authorNode ? authorNode.textContent : '');
+      setReplyTarget(threadRootId, commentId, authorNode ? authorNode.textContent : '');
+    }
+  });
+
+  list.addEventListener('mouseover', (event) => {
+    const target = event.target;
+    if (!target) {
+      return;
+    }
+    const likeButton = target.closest?.('[data-comment-like]');
+    if (!likeButton || !list.contains(likeButton)) {
+      return;
+    }
+    const item = likeButton.closest('[data-comment-id]');
+    if (!item) {
+      return;
+    }
+    const commentId = Number(item.getAttribute('data-comment-id'));
+    if (!Number.isInteger(commentId)) {
+      return;
+    }
+    showCommentLikersPopover(likeButton, commentId);
+  });
+
+  list.addEventListener('mouseout', (event) => {
+    const target = event.target;
+    if (!target) {
+      return;
+    }
+    const likeButton = target.closest?.('[data-comment-like]');
+    if (!likeButton || !list.contains(likeButton)) {
+      return;
+    }
+    const next = event.relatedTarget;
+    if (likersPopover && next && likersPopover.contains(next)) {
+      return;
+    }
+    hideLikersTimer = window.setTimeout(() => {
+      activeLikersCommentId = null;
+      if (likersPopover) {
+        likersPopover.classList.add('d-none');
+      }
+    }, 120);
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!target) {
+      return;
+    }
+
+    if (target.hasAttribute('data-comment-likers-open-modal')) {
+      const popover = ensureLikersPopover();
+      const commentId = Number(popover.dataset.commentId);
+      if (Number.isInteger(commentId)) {
+        showLikersModal(commentId);
+      }
+      return;
+    }
+
+    if (
+      target.hasAttribute('data-comment-likers-modal-close') ||
+      target.closest?.('[data-comment-likers-modal-close]')
+    ) {
+      hideLikersModal();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      hideLikersModal();
     }
   });
 
@@ -503,6 +1039,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           }
           removeCommentById(payload.comment_id);
+        } else if (payload.type === 'playlist_comment_like_changed') {
+          updateCommentLikeState(payload.comment_id, { likesCount: payload.likes_count });
         }
       } catch (error) {
         console.error('WS comments parse error:', error);

@@ -122,6 +122,8 @@ describe('public-playlist-comments P1', () => {
             author_username: 'alice',
             author_profile_url: '/profile/alice/',
             created_at_display: 'now',
+            likes_count: 3,
+            liked_by_me: true,
             can_delete: true,
           },
         ],
@@ -136,6 +138,8 @@ describe('public-playlist-comments P1', () => {
     expect(item.querySelector('.public-comment-text').textContent).toBe('Loaded comment');
     expect(item.querySelector('[data-comment-reply]')).toBeTruthy();
     expect(item.querySelector('[data-comment-delete]')).toBeTruthy();
+    expect(item.querySelector('[data-comment-like-count]').textContent).toBe('3');
+    expect(item.querySelector('[data-comment-like]').dataset.liked).toBe('1');
     expect(document.getElementById('public-comments-empty').classList.contains('d-none')).toBe(
       true
     );
@@ -212,6 +216,7 @@ describe('public-playlist-comments P1', () => {
           author_username: 'test user',
           author_profile_url: '/profile/test/',
           created_at_display: 'just now',
+          reply_to_username: 'alice',
           can_delete: true,
         }),
       });
@@ -233,8 +238,86 @@ describe('public-playlist-comments P1', () => {
       '/api/playlists/public/test%20user/comments/',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ text: 'Reply', parent_id: 1 }),
+        body: JSON.stringify({ text: 'Reply', parent_id: 1, reply_to_comment_id: 1 }),
       })
+    );
+  });
+
+  it('replies to nested comment without adding a new depth level', async () => {
+    createCommentDOM();
+    createSocketMock();
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [
+            {
+              id: 1,
+              text: 'Root',
+              author_username: 'alice',
+              author_profile_url: '/profile/alice/',
+              created_at_display: 'now',
+              can_delete: false,
+              replies: [
+                {
+                  id: 2,
+                  parent_id: 1,
+                  text: 'First reply',
+                  author_username: 'bob',
+                  author_profile_url: '/profile/bob/',
+                  created_at_display: 'now',
+                  reply_to_username: 'alice',
+                  can_delete: false,
+                },
+              ],
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          id: 3,
+          parent_id: 1,
+          text: 'Directed reply',
+          author_username: 'test user',
+          author_profile_url: '/profile/test/',
+          created_at_display: 'just now',
+          reply_to_username: 'bob',
+          can_delete: true,
+        }),
+      });
+
+    await initCommentsModule();
+
+    const replyButtons = document.querySelectorAll('[data-comment-reply]');
+    expect(replyButtons.length).toBeGreaterThan(1);
+    replyButtons[1].click();
+
+    const textInput = document.getElementById('public-comment-text');
+    expect(textInput.placeholder).toContain('bob');
+
+    textInput.value = 'Directed reply';
+    document
+      .getElementById('public-comment-form')
+      .dispatchEvent(new globalThis.Event('submit', { bubbles: true, cancelable: true }));
+    await flushPromises();
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      '/api/playlists/public/test%20user/comments/',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          text: 'Directed reply',
+          parent_id: 1,
+          reply_to_comment_id: 2,
+        }),
+      })
+    );
+    expect(document.querySelector('[data-comment-id="3"] .small.text-muted')?.textContent).toContain(
+      'Ответ @bob'
     );
   });
 
@@ -271,6 +354,118 @@ describe('public-playlist-comments P1', () => {
       expect.objectContaining({ method: 'DELETE' })
     );
     expect(document.querySelector('[data-comment-id="1"]')).toBeNull();
+  });
+
+  it('toggles comment like by button click', async () => {
+    createCommentDOM();
+    createSocketMock();
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [
+            {
+              id: 1,
+              text: 'Like me',
+              author_username: 'alice',
+              author_profile_url: '/profile/alice/',
+              created_at_display: 'now',
+              likes_count: 1,
+              liked_by_me: false,
+              can_delete: false,
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          comment_id: 1,
+          likes_count: 2,
+          liked_by_me: true,
+        }),
+      });
+
+    await initCommentsModule();
+
+    const likeButton = document.querySelector('[data-comment-like]');
+    likeButton.click();
+    await flushPromises();
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      '/api/playlists/public/test%20user/comments/1/like/',
+      expect.objectContaining({ method: 'POST' })
+    );
+    expect(document.querySelector('[data-comment-like-count]').textContent).toBe('2');
+    expect(likeButton.dataset.liked).toBe('1');
+  });
+
+  it('shows hover popup with users who liked comment', async () => {
+    createCommentDOM();
+    createSocketMock();
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [
+            {
+              id: 9,
+              text: 'Hover me',
+              author_username: 'alice',
+              author_profile_url: '/profile/alice/',
+              created_at_display: 'now',
+              likes_count: 2,
+              liked_by_me: false,
+              can_delete: false,
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          comment_id: 9,
+          results: [
+            {
+              user_id: 10,
+              username: 'john',
+              profile_url: '/profile/john/',
+              avatar_url: null,
+            },
+          ],
+          meta: { count: 1 },
+        }),
+      });
+
+    await initCommentsModule();
+
+    const likeButton = document.querySelector('[data-comment-id="9"] [data-comment-like]');
+    likeButton.dispatchEvent(new globalThis.MouseEvent('mouseover', { bubbles: true }));
+    await flushPromises();
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      '/api/playlists/public/test%20user/comments/9/likes/',
+      expect.objectContaining({ method: 'GET' })
+    );
+    const popover = document.querySelector('.public-comment-likers-popover');
+    expect(popover).toBeTruthy();
+    expect(popover.classList.contains('d-none')).toBe(false);
+    await vi.waitFor(() => {
+      expect(popover.textContent).toContain('john');
+    });
+
+    const openModalBtn = popover.querySelector('[data-comment-likers-open-modal]');
+    openModalBtn.click();
+    await flushPromises();
+
+    const modal = document.querySelector('.public-comment-likers-modal');
+    expect(modal).toBeTruthy();
+    expect(modal.classList.contains('d-none')).toBe(false);
+    expect(modal.textContent).toContain('john');
   });
 
   it('handles websocket create and delete messages', async () => {
@@ -312,6 +507,82 @@ describe('public-playlist-comments P1', () => {
     });
 
     expect(document.querySelector('[data-comment-id="3"]')).toBeNull();
+
+    sockets[0].emit('message', {
+      data: JSON.stringify({
+        type: 'playlist_comment_created',
+        comment: {
+          id: 4,
+          text: 'Like target',
+          author_username: 'ws-user',
+          author_profile_url: '/profile/ws/',
+          created_at_display: 'now',
+          likes_count: 0,
+          liked_by_me: false,
+          can_delete: false,
+        },
+      }),
+    });
+    sockets[0].emit('message', {
+      data: JSON.stringify({
+        type: 'playlist_comment_like_changed',
+        comment_id: 4,
+        likes_count: 7,
+      }),
+    });
+    expect(
+      document.querySelector('[data-comment-id="4"] [data-comment-like-count]').textContent
+    ).toBe('7');
+  });
+
+  it('shows filled like icon for guest when likes exist', async () => {
+    document.body.innerHTML = `
+      <div data-public-comments-root data-public-username="test user">
+        <span id="public-comments-count">0</span>
+        <div id="public-comments-empty">Комментариев пока нет.</div>
+        <div id="public-comments-list" aria-live="polite"></div>
+      </div>
+    `;
+    const sockets = createSocketMock();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        results: [
+          {
+            id: 12,
+            text: 'Guest visible like',
+            author_username: 'alice',
+            author_profile_url: '/profile/alice/',
+            created_at_display: 'now',
+            likes_count: 5,
+            liked_by_me: false,
+            can_delete: false,
+          },
+        ],
+      }),
+    });
+
+    await initCommentsModule();
+    await vi.waitFor(() => {
+      expect(global.WebSocket).toHaveBeenCalledTimes(1);
+    });
+
+    const likeButton = document.querySelector('[data-comment-id="12"] [data-comment-like]');
+    const likeIcon = likeButton.querySelector('[data-comment-like-icon]');
+
+    expect(likeButton.disabled).toBe(true);
+    expect(likeButton.dataset.liked).toBe('0');
+    expect(likeIcon.className).toContain('bi-heart-fill');
+
+    sockets[0].emit('message', {
+      data: JSON.stringify({
+        type: 'playlist_comment_like_changed',
+        comment_id: 12,
+        likes_count: 0,
+      }),
+    });
+
+    expect(likeButton.querySelector('[data-comment-like-icon]').className).toContain('bi-heart me-1');
   });
 
   it('ignores empty form submission', async () => {

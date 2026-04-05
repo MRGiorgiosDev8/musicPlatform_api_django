@@ -88,6 +88,13 @@ class PlaylistComment(models.Model):
         on_delete=models.CASCADE,
         related_name="playlist_comments",
     )
+    reply_to_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="playlist_comment_replies_to_me",
+        null=True,
+        blank=True,
+    )
     text = models.TextField(max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -104,3 +111,30 @@ class PlaylistComment(models.Model):
             f"comment:{self.id} playlist:{self.playlist_id} "
             f"author:{self.author_id} parent:{self.parent_id}"
         )
+
+
+class PlaylistCommentLike(models.Model):
+    comment = models.ForeignKey(
+        PlaylistComment, on_delete=models.CASCADE, related_name="likes"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="liked_playlist_comments",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["comment", "user"], name="unique_playlist_comment_like"
+            ),
+        ]
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["comment"]),
+            models.Index(fields=["user"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user_id}->{self.comment_id}"
