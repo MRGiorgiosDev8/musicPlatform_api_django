@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const canCompose = Boolean(form && textInput && submitButton);
+  const supportsHoverPopover =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      : true;
   const defaultPlaceholder = textInput?.getAttribute('placeholder') || 'Напишите комментарий...';
 
   const knownIds = new Set();
@@ -919,46 +923,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  list.addEventListener('mouseover', (event) => {
-    const target = event.target;
-    if (!target) {
-      return;
-    }
-    const likeButton = target.closest?.('[data-comment-like]');
-    if (!likeButton || !list.contains(likeButton)) {
-      return;
-    }
-    const item = likeButton.closest('[data-comment-id]');
-    if (!item) {
-      return;
-    }
-    const commentId = Number(item.getAttribute('data-comment-id'));
-    if (!Number.isInteger(commentId)) {
-      return;
-    }
-    showCommentLikersPopover(likeButton, commentId);
-  });
-
-  list.addEventListener('mouseout', (event) => {
-    const target = event.target;
-    if (!target) {
-      return;
-    }
-    const likeButton = target.closest?.('[data-comment-like]');
-    if (!likeButton || !list.contains(likeButton)) {
-      return;
-    }
-    const next = event.relatedTarget;
-    if (likersPopover && next && likersPopover.contains(next)) {
-      return;
-    }
-    hideLikersTimer = window.setTimeout(() => {
-      activeLikersCommentId = null;
-      if (likersPopover) {
-        likersPopover.classList.add('d-none');
+  if (supportsHoverPopover) {
+    list.addEventListener('mouseover', (event) => {
+      const target = event.target;
+      if (!target) {
+        return;
       }
-    }, 120);
-  });
+      const likeButton = target.closest?.('[data-comment-like]');
+      if (!likeButton || !list.contains(likeButton)) {
+        return;
+      }
+      const item = likeButton.closest('[data-comment-id]');
+      if (!item) {
+        return;
+      }
+      const commentId = Number(item.getAttribute('data-comment-id'));
+      if (!Number.isInteger(commentId)) {
+        return;
+      }
+      showCommentLikersPopover(likeButton, commentId);
+    });
+
+    list.addEventListener('mouseout', (event) => {
+      const target = event.target;
+      if (!target) {
+        return;
+      }
+      const likeButton = target.closest?.('[data-comment-like]');
+      if (!likeButton || !list.contains(likeButton)) {
+        return;
+      }
+      const next = event.relatedTarget;
+      if (likersPopover && next && likersPopover.contains(next)) {
+        return;
+      }
+      hideLikersTimer = window.setTimeout(() => {
+        activeLikersCommentId = null;
+        if (likersPopover) {
+          likersPopover.classList.add('d-none');
+        }
+      }, 120);
+    });
+  }
 
   document.addEventListener('click', (event) => {
     const target = event.target;
@@ -966,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (target.hasAttribute('data-comment-likers-open-modal')) {
+    if (supportsHoverPopover && target.hasAttribute('data-comment-likers-open-modal')) {
       const popover = ensureLikersPopover();
       const commentId = Number(popover.dataset.commentId);
       if (Number.isInteger(commentId)) {

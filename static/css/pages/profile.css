@@ -547,6 +547,10 @@
     position: fixed;
     inset: 0;
     z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
@@ -571,7 +575,7 @@
     position: relative;
     width: min(460px, calc(100vw - 24px));
     max-height: calc(100vh - 40px);
-    margin: 20px auto;
+    margin: 0;
     border-radius: 12px;
     overflow: hidden;
     background: #fff;

@@ -355,6 +355,7 @@
     background: linear-gradient(110deg, rgba(220, 53, 69, 0), rgba(220, 53, 69, 0.24), rgba(220, 53, 69, 0));
     transform: translateX(-100%);
     animation: rubyBreadcrumbSweep 3.2s ease-in-out infinite;
+    pointer-events: none;
 }
 
 .ruby-breadcrumb .breadcrumb-item,
@@ -395,8 +396,10 @@
     transition: color 0.2s ease, text-shadow 0.25s ease;
 }
 
-.ruby-breadcrumb .breadcrumb-item a:hover {
-    color: rgb(182, 7, 7);
+@media (hover: hover) and (pointer: fine) {
+    .ruby-breadcrumb .breadcrumb-item a:hover {
+        color: rgb(182, 7, 7);
+    }
 }
 
 .ruby-breadcrumb.search-breadcrumb-center {
