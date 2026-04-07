@@ -21,6 +21,11 @@
     --shadow-card:
         0 1px 3px rgba(23, 23, 23, 0.095),
         0 4px 10px rgba(0, 0, 0, 0.077);
+    --shadow-ruby-glow:
+        0 0 0 1px rgba(254, 254, 254, 0.3),
+        0 0 14px rgb(255, 255, 255),
+        0 0 24px rgba(229, 47, 47, 0.268),
+        0 10px 26px rgba(0, 0, 0, 0.18);
 }
 
 body {

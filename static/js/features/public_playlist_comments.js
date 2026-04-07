@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeLikersCommentId = null;
   let likersModal = null;
   let likersModalCloseTimer = null;
+  let mobileLikeLongPressTimer = null;
+  let mobileLongPressTriggered = false;
+  const MOBILE_LIKERS_LONG_PRESS_MS = 420;
 
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
@@ -880,6 +883,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!Number.isInteger(commentId)) {
         return;
       }
+
+      if (!supportsHoverPopover && mobileLongPressTriggered) {
+        mobileLongPressTriggered = false;
+        return;
+      }
+
       const isLikedNow = likeButton.dataset.liked === '1';
       try {
         await toggleCommentLike(commentId, isLikedNow);
@@ -922,6 +931,52 @@ document.addEventListener('DOMContentLoaded', () => {
       setReplyTarget(threadRootId, commentId, authorNode ? authorNode.textContent : '');
     }
   });
+
+  if (!supportsHoverPopover) {
+    list.addEventListener('touchstart', (event) => {
+      const target = event.target;
+      if (!target) {
+        return;
+      }
+      const likeButton = target.closest?.('[data-comment-like]');
+      if (!likeButton || !list.contains(likeButton)) {
+        return;
+      }
+      const item = likeButton.closest('[data-comment-id]');
+      if (!item) {
+        return;
+      }
+      const commentId = Number(item.getAttribute('data-comment-id'));
+      if (!Number.isInteger(commentId)) {
+        return;
+      }
+      const likeCountNode = likeButton.querySelector('[data-comment-like-count]');
+      const likesCount = Number.parseInt(likeCountNode?.textContent || '0', 10) || 0;
+      if (likesCount <= 0) {
+        return;
+      }
+
+      if (mobileLikeLongPressTimer) {
+        window.clearTimeout(mobileLikeLongPressTimer);
+      }
+      mobileLongPressTriggered = false;
+      mobileLikeLongPressTimer = window.setTimeout(async () => {
+        mobileLongPressTriggered = true;
+        await showLikersModal(commentId);
+      }, MOBILE_LIKERS_LONG_PRESS_MS);
+    });
+
+    const clearMobileLongPress = () => {
+      if (mobileLikeLongPressTimer) {
+        window.clearTimeout(mobileLikeLongPressTimer);
+        mobileLikeLongPressTimer = null;
+      }
+    };
+
+    list.addEventListener('touchend', clearMobileLongPress);
+    list.addEventListener('touchcancel', clearMobileLongPress);
+    list.addEventListener('touchmove', clearMobileLongPress);
+  }
 
   if (supportsHoverPopover) {
     list.addEventListener('mouseover', (event) => {

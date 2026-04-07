@@ -440,11 +440,7 @@
     background: rgba(255, 255, 255, 0.918);
     border: 1px solid rgba(220, 53, 69, 0.25);
     border-radius: 7px;
-    box-shadow:
-        0 0 0 1px rgba(254, 254, 254, 0.3),
-        0 0 14px rgb(255, 255, 255),
-        0 0 24px rgba(229, 47, 47, 0.268),
-        0 10px 26px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--shadow-ruby-glow);
     z-index: 20;
     overflow: hidden;
     backdrop-filter: blur(8px);
