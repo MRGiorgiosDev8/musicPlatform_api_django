@@ -34,12 +34,95 @@ const Year2025App = {
   audioControlsInitialized: false,
   renderVersion: 0,
   isAuthenticated: false,
+  marqueeResizeRafId: null,
+  marqueeResizeBound: false,
 
   init() {
     this.isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
     Utils.initGenreButtons('year-genre-container', (genre) => this.load(genre), true);
     this.initAudioControls();
+    if (!this.marqueeResizeBound) {
+      window.addEventListener('resize', () => this.scheduleTitleMarqueeSync());
+      this.marqueeResizeBound = true;
+    }
     this.load();
+  },
+
+  scheduleTitleMarqueeSync() {
+    if (this.marqueeResizeRafId) {
+      window.cancelAnimationFrame(this.marqueeResizeRafId);
+    }
+    this.marqueeResizeRafId = window.requestAnimationFrame(() => {
+      this.marqueeResizeRafId = null;
+      this.syncTitleMarquee();
+      this.syncArtistBioMarquee();
+    });
+  },
+
+  syncTitleMarquee(container = document.getElementById('year2025-container')) {
+    if (!container) {
+      return;
+    }
+
+    const titles = container.querySelectorAll('.year-track-title');
+    titles.forEach((title) => {
+      const trackNode = title.querySelector('.year-track-title-track');
+      const textNode = title.querySelector('.year-track-title-text');
+      if (!trackNode || !textNode) {
+        return;
+      }
+
+      title.classList.remove('is-marquee');
+      title.style.removeProperty('--year-title-marquee-distance');
+      title.style.removeProperty('--year-title-marquee-duration');
+      title.style.removeProperty('--year-title-marquee-gap');
+
+      const overflow = Math.ceil(textNode.scrollWidth - title.clientWidth);
+      if (overflow <= 8) {
+        return;
+      }
+
+      const gap = 18;
+      const distance = Math.ceil(textNode.scrollWidth + gap);
+      const duration = Math.max(4, Math.min(12, distance / 40));
+      title.classList.add('is-marquee');
+      title.style.setProperty('--year-title-marquee-distance', `${distance}px`);
+      title.style.setProperty('--year-title-marquee-duration', `${duration}s`);
+      title.style.setProperty('--year-title-marquee-gap', `${gap}px`);
+    });
+  },
+
+  syncArtistBioMarquee(container = document.getElementById('year2025-container')) {
+    if (!container) {
+      return;
+    }
+
+    const triggers = container.querySelectorAll('.js-artist-bio-trigger');
+    triggers.forEach((trigger) => {
+      const trackNode = trigger.querySelector('.artist-bio-trigger-track');
+      const textNode = trigger.querySelector('.artist-bio-trigger-text');
+      if (!trackNode || !textNode) {
+        return;
+      }
+
+      trigger.classList.remove('is-marquee');
+      trigger.style.removeProperty('--artist-bio-marquee-distance');
+      trigger.style.removeProperty('--artist-bio-marquee-duration');
+      trigger.style.removeProperty('--artist-bio-marquee-gap');
+
+      const overflow = Math.ceil(textNode.scrollWidth - trigger.clientWidth);
+      if (overflow <= 8) {
+        return;
+      }
+
+      const gap = 16;
+      const distance = Math.ceil(textNode.scrollWidth + gap);
+      const duration = Math.max(4, Math.min(12, distance / 40));
+      trigger.classList.add('is-marquee');
+      trigger.style.setProperty('--artist-bio-marquee-distance', `${distance}px`);
+      trigger.style.setProperty('--artist-bio-marquee-duration', `${duration}s`);
+      trigger.style.setProperty('--artist-bio-marquee-gap', `${gap}px`);
+    });
   },
 
   async createFavoriteControl(track, hasAudioPreviewAvailable = true) {
@@ -156,9 +239,23 @@ const Year2025App = {
       metaWrap.className = 'year-track-meta';
 
       const title = document.createElement('h6');
-      title.className = 'card-title mb-1 text-truncate year-track-title flex-grow-1';
-      title.textContent = t.name;
+      title.className = 'card-title mb-1 year-track-title flex-grow-1';
       title.setAttribute('title', t.name);
+
+      const titleTrack = document.createElement('span');
+      titleTrack.className = 'year-track-title-track';
+
+      const titleText = document.createElement('span');
+      titleText.className = 'year-track-title-text';
+      titleText.textContent = t.name;
+
+      const titleTextClone = document.createElement('span');
+      titleTextClone.className = 'year-track-title-text year-track-title-text-clone';
+      titleTextClone.textContent = t.name;
+      titleTextClone.setAttribute('aria-hidden', 'true');
+
+      titleTrack.append(titleText, titleTextClone);
+      title.appendChild(titleTrack);
 
       if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(title);
@@ -187,10 +284,24 @@ const Year2025App = {
       artistButton.type = 'button';
       artistButton.className = 'artist-bio-trigger js-artist-bio-trigger color-dark fw-medium';
       artistButton.dataset.artistName = artistName;
-      artistButton.textContent = artistName;
       artistButton.setAttribute('data-bs-toggle', 'tooltip');
       artistButton.setAttribute('data-bs-placement', 'top');
       artistButton.setAttribute('data-bs-title', artistName);
+
+      const artistTrack = document.createElement('span');
+      artistTrack.className = 'artist-bio-trigger-track';
+
+      const artistText = document.createElement('span');
+      artistText.className = 'artist-bio-trigger-text';
+      artistText.textContent = artistName;
+
+      const artistTextClone = document.createElement('span');
+      artistTextClone.className = 'artist-bio-trigger-text artist-bio-trigger-text-clone';
+      artistTextClone.textContent = artistName;
+      artistTextClone.setAttribute('aria-hidden', 'true');
+
+      artistTrack.append(artistText, artistTextClone);
+      artistButton.appendChild(artistTrack);
       artistP.append(artistLabel, artistButton);
       if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(artistButton);
@@ -223,6 +334,10 @@ const Year2025App = {
     if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
       Utils.initAudioPreviews(container);
     }
+    this.syncTitleMarquee(container);
+    this.syncArtistBioMarquee(container);
+    window.setTimeout(() => this.syncTitleMarquee(container), 120);
+    window.setTimeout(() => this.syncArtistBioMarquee(container), 120);
 
     document.dispatchEvent(new Event('year2025:rendered'));
   },

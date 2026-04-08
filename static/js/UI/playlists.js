@@ -115,13 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const showEmptyStateIfNeeded = () => {
     if (trackList && trackList.querySelector('.track-item-playlist')) return;
-    if (root.querySelector('.alert.alert-secondary.mb-0')) return;
+    if (root.querySelector('.alert.alert-danger.mb-0.mt-1.opacity-75')) return;
     if (loadMoreContainer) {
       loadMoreContainer.remove();
       loadMoreContainer = null;
     }
     const alert = document.createElement('div');
-    alert.className = 'alert alert-secondary mb-0';
+    alert.className = 'alert alert-danger mb-0 mt-1 opacity-75';
     alert.textContent = 'У вас пока нет избранных треков.';
     root.appendChild(alert);
   };

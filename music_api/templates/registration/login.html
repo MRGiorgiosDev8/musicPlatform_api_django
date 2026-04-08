@@ -15,7 +15,7 @@
             <h1 class="login-title fs-2 mt-2">Войти</h1>
         </div>
         {% if form.errors %}
-            <div class="alert alert-danger alert-login">
+            <div class="alert alert-danger alert-login opacity-75">
                 {% for field, errors in form.errors.items %}
                     {% for error in errors %}
                         <p class="mb-1">{{ error }}</p>
@@ -26,12 +26,12 @@
 
         {% if next %}
             {% if user.is_authenticated %}
-                <div class="alert alert-danger alert-login">
+                <div class="alert alert-danger alert-login opacity-75">
                     У вашей учётной записи нет доступа к этой странице. Чтобы продолжить, войдите в аккаунт, у которого есть соответствующие
                     права доступа.
                 </div>
             {% else %}
-                <div class="alert alert-danger alert-login">
+                <div class="alert alert-danger alert-login opacity-75">
                     Пожалуйста, войдите в систему, чтобы увидеть эту страницу.
                 </div>
             {% endif %}

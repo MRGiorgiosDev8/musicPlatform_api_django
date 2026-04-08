@@ -152,6 +152,10 @@
         text-overflow: ellipsis;
     }
 
+    #year2025-container .year-track-title.is-marquee {
+        text-overflow: clip;
+    }
+
     #year2025-container .year-track-title {
         margin-bottom: 0.2rem;
     }
@@ -199,4 +203,10 @@
         padding-left: 11rem !important;
         padding-right: 11rem !important;
     }
+
+    .link-footer {
+        
+    }
+
+
 }
