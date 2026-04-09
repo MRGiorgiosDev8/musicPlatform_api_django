@@ -66,6 +66,7 @@
 
 #artistBioModal .modal-content {
     background-color: rgba(245, 245, 245, 0.946);
+    box-shadow: var(--shadow-ruby-glow);
 }
 
 .dashboard-avatar {
