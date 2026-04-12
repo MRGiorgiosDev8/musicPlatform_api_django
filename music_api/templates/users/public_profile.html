@@ -176,7 +176,15 @@
         <form id="public-comment-form" class="mb-3 bg-white p-2 rounded-3 border border-muted">
             <textarea id="public-comment-text" class="form-control" rows="3" maxlength="1000"
                 placeholder="Напишите комментарий..." required></textarea>
-            <div class="d-flex justify-content-end mt-2">
+            <div class="d-flex justify-content-between align-items-start gap-2 mt-2">
+                <div class="position-relative">
+                    <button type="button" class="btn btn-sm btn-danger mt-1 border border-white"
+                        data-comment-emoji-toggle aria-expanded="false" aria-controls="public-comment-emoji-picker">
+                        <span aria-hidden="true">😀</span> Эмодзи
+                    </button>
+                    <emoji-picker id="public-comment-emoji-picker" class="public-comment-emoji-picker"
+                        locale="ru_RU"></emoji-picker>
+                </div>
                 <button type="submit" class="btn btn-sm btn-danger mt-1 border border-white"
                     id="public-comment-submit">Отправить</button>
             </div>

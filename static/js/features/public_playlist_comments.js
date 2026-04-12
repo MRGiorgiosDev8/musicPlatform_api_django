@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('public-comment-form');
   const textInput = document.getElementById('public-comment-text');
   const submitButton = document.getElementById('public-comment-submit');
+  const emojiToggleButton = form?.querySelector('[data-comment-emoji-toggle]') || null;
+  const emojiPicker = document.getElementById('public-comment-emoji-picker');
 
   if (!username || !list || !empty || !countNode) {
     return;
@@ -42,6 +44,87 @@ document.addEventListener('DOMContentLoaded', () => {
   let mobileLikeLongPressTimer = null;
   let mobileLongPressTriggered = false;
   const MOBILE_LIKERS_LONG_PRESS_MS = 420;
+  let isEmojiPickerOpen = false;
+
+  const insertTextAtCursor = (input, value) => {
+    if (!input || typeof value !== 'string' || value.length === 0) {
+      return;
+    }
+    const start = Number.isInteger(input.selectionStart) ? input.selectionStart : input.value.length;
+    const end = Number.isInteger(input.selectionEnd) ? input.selectionEnd : input.value.length;
+    input.setRangeText(value, start, end, 'end');
+    input.focus();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  const setEmojiPickerOpen = (open) => {
+    if (!emojiPicker || !emojiToggleButton) {
+      return;
+    }
+    isEmojiPickerOpen = Boolean(open);
+    emojiPicker.classList.toggle('is-open', isEmojiPickerOpen);
+    emojiToggleButton.setAttribute('aria-expanded', isEmojiPickerOpen ? 'true' : 'false');
+  };
+
+  const applyEmojiPickerRubyTheme = () => {
+    if (!emojiPicker || !emojiPicker.shadowRoot) {
+      return false;
+    }
+
+    if (emojiPicker.shadowRoot.querySelector('[data-ruby-emoji-theme]')) {
+      return true;
+    }
+
+    const rootCss = window.getComputedStyle(document.documentElement);
+    const rubyGlow =
+      rootCss.getPropertyValue('--shadow-ruby-glow').trim() ||
+      '0 0 0 1px rgba(254, 254, 254, 0.3), 0 0 14px rgb(255, 255, 255), 0 0 24px rgba(229, 47, 47, 0.268), 0 10px 26px rgba(0, 0, 0, 0.18)';
+    const rubyPrimary = rootCss.getPropertyValue('--color-primary').trim() || '#e52f2f';
+
+    const styleNode = document.createElement('style');
+    styleNode.setAttribute('data-ruby-emoji-theme', '1');
+    styleNode.textContent = `
+      .nav {
+        background: #fff;
+        border-radius: 12px 12px 0 0;
+        box-shadow: ${rubyGlow};
+      }
+      .tabpanel {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+      }
+      .pad-top,
+      .search-row,
+      .search-wrapper {
+        background: #fff;
+      }
+      input.search {
+        background: #fff !important;
+        color: #151515 !important;
+        opacity: 1;
+      }
+      input.search::placeholder {
+        color: #7f7f7f !important;
+      }
+      .indicator-wrapper {
+        border-bottom-color: rgba(229, 47, 47, 0.18);
+      }
+      .indicator {
+        background-color: ${rubyPrimary};
+      }
+    `;
+    emojiPicker.shadowRoot.appendChild(styleNode);
+    return true;
+  };
+
+  const ensureEmojiPickerRubyTheme = () => {
+    if (applyEmojiPickerRubyTheme()) {
+      return;
+    }
+    window.requestAnimationFrame(() => {
+      applyEmojiPickerRubyTheme();
+    });
+  };
 
   const updateMeta = () => {
     const count = list.querySelectorAll('[data-comment-id]').length;
@@ -483,6 +566,40 @@ document.addEventListener('DOMContentLoaded', () => {
     replyMeta.appendChild(replyText);
     replyMeta.appendChild(cancelReplyBtn);
     form.insertBefore(replyMeta, textInput);
+
+    if (emojiToggleButton && emojiPicker) {
+      ensureEmojiPickerRubyTheme();
+
+      emojiToggleButton.addEventListener('click', () => {
+        setEmojiPickerOpen(!isEmojiPickerOpen);
+        ensureEmojiPickerRubyTheme();
+      });
+
+      emojiPicker.addEventListener('emoji-click', (event) => {
+        const unicode = event?.detail?.unicode;
+        if (typeof unicode !== 'string' || unicode.length === 0) {
+          return;
+        }
+        insertTextAtCursor(textInput, unicode);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!isEmojiPickerOpen) {
+          return;
+        }
+        const target = event.target;
+        if (
+          target &&
+          (target === emojiToggleButton ||
+            emojiToggleButton.contains(target) ||
+            target === emojiPicker ||
+            emojiPicker.contains(target))
+        ) {
+          return;
+        }
+        setEmojiPickerOpen(false);
+      });
+    }
   }
 
   const buildCommentNode = (comment, isReply = false) => {
@@ -1047,6 +1164,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       hideLikersModal();
+      if (isEmojiPickerOpen) {
+        setEmojiPickerOpen(false);
+      }
     }
   });
 

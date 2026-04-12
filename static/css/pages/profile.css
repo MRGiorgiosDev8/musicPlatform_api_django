@@ -648,6 +648,49 @@ body.public-comment-modal-open {
     flex-wrap: wrap;
 }
 
+.public-comment-emoji-picker {
+    --background: #fff;
+    --border-radius: 14px;
+    --border-color: rgba(229, 47, 47, 0.24);
+    --input-font-color: #151515;
+    --input-placeholder-color: #7f7f7f;
+    --input-border-color: rgba(229, 47, 47, 0.34);
+    --outline-color: var(--color-primary);
+    --button-hover-background: rgba(229, 47, 47, 0.12);
+    --button-active-background: rgba(229, 47, 47, 0.18);
+    --indicator-color: var(--color-primary);
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 1080;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: var(--shadow-ruby-glow);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.96);
+    transform-origin: top left;
+    transition:
+        opacity 0.18s ease,
+        transform 0.38s cubic-bezier(0.22, 1.35, 0.4, 1),
+        visibility 0.2s linear;
+}
+
+.public-comment-emoji-picker.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .public-comment-emoji-picker {
+        transition: none;
+        transform: none;
+    }
+}
+
 #public-playlist-like-btn,
 #public-playlist-like-btn:hover,
 #public-playlist-like-btn:focus,
@@ -897,5 +940,37 @@ body.public-comment-modal-open {
     .public-comment-replies {
         margin-top: 0.5rem;
         padding-left: 0.72rem;
+    }
+
+    .public-comment-emoji-picker {
+        --num-columns: 7;
+        --emoji-size: 1.2rem;
+        --category-emoji-size: 1.05rem;
+        --input-font-size: 0.95rem;
+        --input-line-height: 1.35;
+        position: fixed;
+        top: auto;
+        left: 0.5rem;
+        right: 0.5rem;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+        width: auto;
+        max-width: none;
+        height: min(52vh, 360px);
+        max-height: 52vh;
+        border-radius: 16px;
+        z-index: 1200;
+        transform-origin: bottom center;
+    }
+
+    .public-comment-emoji-picker.is-open {
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 360px) {
+    .public-comment-emoji-picker {
+        --num-columns: 6;
+        --emoji-size: 1.08rem;
+        --category-emoji-size: 0.98rem;
     }
 }
