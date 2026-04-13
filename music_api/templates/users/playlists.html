@@ -119,7 +119,12 @@
                                                 type="button"
                                                 class="artist-bio-trigger js-artist-bio-trigger color-dark"
                                                 data-artist-name="{{ track.artist|default:'Unknown artist'|escape }}"
-                                                aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">{{ track.artist|default:"Unknown artist" }}</button>
+                                                aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">
+                                                <span class="artist-bio-trigger-track">
+                                                    <span class="artist-bio-trigger-text">{{ track.artist|default:"Unknown artist" }}</span>
+                                                    <span class="artist-bio-trigger-text artist-bio-trigger-text-clone" aria-hidden="true">{{ track.artist|default:"Unknown artist" }}</span>
+                                                </span>
+                                            </button>
                                         </p>
                                     </div>
 

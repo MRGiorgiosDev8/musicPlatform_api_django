@@ -61,6 +61,15 @@ def _normalize_track_for_storage(track):
     return stored
 
 
+def _looks_like_template_fragment(value):
+    text = str(value or "").strip().lower()
+    if not text:
+        return False
+    if "{{" in text or "}}" in text:
+        return True
+    return "track.artist" in text and "unknown artist" in text
+
+
 @sync_to_async
 def _add_track_to_favorites(user, track):
     with transaction.atomic():
@@ -204,6 +213,11 @@ class PlaylistTrackAddAPIView(APIView):
         if not name or not artist:
             return None, Response(
                 {"detail": "Both name and artist are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if _looks_like_template_fragment(artist):
+            return None, Response(
+                {"detail": "Invalid artist value."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         track = {"name": name, "artist": artist}

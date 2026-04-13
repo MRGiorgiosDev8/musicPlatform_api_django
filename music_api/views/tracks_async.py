@@ -29,6 +29,20 @@ LASTFM_BATCH_LIMIT = 75
 logger = logging.getLogger(__name__)
 
 
+def _normalize_artist_for_display(value):
+    artist = str(value or "").strip()
+    if not artist:
+        return ""
+
+    lowered = artist.lower()
+    if "{{" in artist or "}}" in artist:
+        return "Unknown artist"
+    if "track.artist" in lowered and "unknown artist" in lowered:
+        return "Unknown artist"
+
+    return artist
+
+
 class TrackPagination(PageNumberPagination):
     page_size = 14
     page_size_query_param = "page_size"
@@ -52,6 +66,7 @@ async def _enrich_tracks_list_async(tracks_list):
         artist_name = (
             artist_field.get("name") if isinstance(artist_field, dict) else artist_field
         )
+        artist_name = _normalize_artist_for_display(artist_name)
         if not artist_name:
             continue
 
@@ -91,11 +106,10 @@ async def _enrich_tracks_list_async(tracks_list):
         artist = (
             artist_field.get("name") if isinstance(artist_field, dict) else artist_field
         )
+        artist = _normalize_artist_for_display(artist)
         if not artist:
             continue
         track_key = (name, artist)
-
-        # Last.fm cover is intentionally ignored (only iTunes/Deezer covers)
 
         it_res = itunes_data.get(track_key, {})
         dz_res = deezer_data.get(track_key, {})

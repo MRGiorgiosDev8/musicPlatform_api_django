@@ -352,12 +352,59 @@
     line-height: inherit;
     font-weight: 500;
     cursor: pointer;
+    max-width: 24ch;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
 }
 
 .artist-bio-trigger:focus-visible {
     outline: 2px solid rgba(255, 13, 0, 0.45);
     outline-offset: 2px;
     border-radius: 4px;
+}
+
+.artist-bio-trigger-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.artist-bio-trigger-track {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--artist-bio-marquee-gap, 1rem);
+    min-width: 100%;
+    transform: translateX(0);
+}
+
+.artist-bio-trigger-text-clone {
+    display: none;
+}
+
+.artist-bio-trigger.is-marquee {
+    text-overflow: clip;
+}
+
+.artist-bio-trigger.is-marquee .artist-bio-trigger-text-clone {
+    display: inline-block;
+}
+
+.artist-bio-trigger.is-marquee .artist-bio-trigger-track {
+    will-change: transform;
+    animation-name: marqueeTrackScroll;
+    animation-duration: var(--artist-bio-marquee-duration, 8s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .artist-bio-trigger.is-marquee .artist-bio-trigger-track {
+        animation: none;
+        transform: none;
+    }
 }
 
 #artistBioModal .modal-body {

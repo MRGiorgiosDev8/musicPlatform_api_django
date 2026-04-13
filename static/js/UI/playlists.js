@@ -55,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let loadMoreContainer = null;
   let noMatchesAlert = null;
   let activeAudio = null;
+  let marqueeResizeRafId = null;
+  let marqueeResizeBound = false;
   const state = {
     sortMode: sortControls[0]?.value || 'new',
     artistFilter: artistControls[0]?.value || 'all',
@@ -234,6 +236,34 @@ document.addEventListener('DOMContentLoaded', () => {
     root.appendChild(noMatchesAlert);
   };
 
+  const syncArtistBioMarquee = () => {
+    if (typeof Utils === 'undefined' || typeof Utils.syncInfiniteMarquee !== 'function') return;
+    Utils.syncInfiniteMarquee({
+      container: root,
+      targetSelector: '.js-artist-bio-trigger',
+      trackSelector: '.artist-bio-trigger-track',
+      textSelector: '.artist-bio-trigger-text',
+      distanceVar: '--artist-bio-marquee-distance',
+      durationVar: '--artist-bio-marquee-duration',
+      gapVar: '--artist-bio-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
+    });
+  };
+
+  const scheduleArtistBioMarqueeSync = () => {
+    if (marqueeResizeRafId) {
+      window.cancelAnimationFrame(marqueeResizeRafId);
+    }
+    marqueeResizeRafId = window.requestAnimationFrame(() => {
+      marqueeResizeRafId = null;
+      syncArtistBioMarquee();
+    });
+  };
+
   const animateTrackRemoval = (element) =>
     new Promise((resolve) => {
       if (!element) {
@@ -356,12 +386,19 @@ document.addEventListener('DOMContentLoaded', () => {
     filterMetaBlocks.forEach((block) => {
       block.textContent = `Показано: ${maxVisible} из ${sorted.length}`;
     });
+
+    syncArtistBioMarquee();
   };
 
   if (trackList) {
     buildArtistFilterOptions();
     syncControlValues();
     renderTrackPagination({ animate: false });
+    window.setTimeout(syncArtistBioMarquee, 100);
+    if (!marqueeResizeBound) {
+      window.addEventListener('resize', scheduleArtistBioMarqueeSync);
+      marqueeResizeBound = true;
+    }
   }
 
   root.addEventListener(

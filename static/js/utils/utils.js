@@ -370,4 +370,52 @@ const Utils = {
       offcanvasEl.setAttribute('aria-hidden', 'true');
     }
   },
+
+  syncInfiniteMarquee({
+    container = document,
+    targetSelector = '',
+    trackSelector = '',
+    textSelector = '',
+    activeClass = 'is-marquee',
+    distanceVar = '--marquee-distance',
+    durationVar = '--marquee-duration',
+    gapVar = '--marquee-gap',
+    gap = 16,
+    overflowThreshold = 8,
+    minDuration = 4,
+    maxDuration = 12,
+    speed = 40,
+  } = {}) {
+    if (!container || !targetSelector || !trackSelector || !textSelector) return;
+
+    const targets = container.querySelectorAll(targetSelector);
+    targets.forEach((target) => {
+      const trackNode = target.querySelector(trackSelector);
+      const textNode = target.querySelector(textSelector);
+      if (!trackNode || !textNode) return;
+
+      target.classList.remove(activeClass);
+      target.style.removeProperty(distanceVar);
+      target.style.removeProperty(durationVar);
+      target.style.removeProperty(gapVar);
+
+      if (target.clientWidth <= 0) return;
+
+      const overflow = Math.ceil(textNode.scrollWidth - target.clientWidth);
+      if (overflow <= overflowThreshold) return;
+
+      const marqueeGap = Math.max(0, Number(gap) || 0);
+      const distance = Math.ceil(textNode.scrollWidth + marqueeGap);
+      const pxPerSecond = Math.max(1, Number(speed) || 40);
+      const duration = Math.max(
+        Number(minDuration) || 0,
+        Math.min(Number(maxDuration) || 999, distance / pxPerSecond)
+      );
+
+      target.classList.add(activeClass);
+      target.style.setProperty(distanceVar, `${distance}px`);
+      target.style.setProperty(durationVar, `${duration}s`);
+      target.style.setProperty(gapVar, `${marqueeGap}px`);
+    });
+  },
 };

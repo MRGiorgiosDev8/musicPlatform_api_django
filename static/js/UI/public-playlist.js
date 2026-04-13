@@ -154,6 +154,8 @@ const initPublicPlaylistPage = () => {
   let visibleTracksCount = pageSize;
   let loadMoreContainer = null;
   let activeAudio = null;
+  let marqueeResizeRafId = null;
+  let marqueeResizeBound = false;
 
   // Filter controls
   const artistControls = Array.from(document.querySelectorAll('[data-public-artist-filter]'));
@@ -205,6 +207,34 @@ const initPublicPlaylistPage = () => {
     alert.className = 'alert alert-light border mb-0';
     alert.textContent = 'По выбранному фильтру треки не найдены.';
     playlistRoot.appendChild(alert);
+  };
+
+  const syncArtistBioMarquee = () => {
+    if (typeof Utils === 'undefined' || typeof Utils.syncInfiniteMarquee !== 'function') return;
+    Utils.syncInfiniteMarquee({
+      container: playlistRoot,
+      targetSelector: '.js-artist-bio-trigger',
+      trackSelector: '.artist-bio-trigger-track',
+      textSelector: '.artist-bio-trigger-text',
+      distanceVar: '--artist-bio-marquee-distance',
+      durationVar: '--artist-bio-marquee-duration',
+      gapVar: '--artist-bio-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
+    });
+  };
+
+  const scheduleArtistBioMarqueeSync = () => {
+    if (marqueeResizeRafId) {
+      window.cancelAnimationFrame(marqueeResizeRafId);
+    }
+    marqueeResizeRafId = window.requestAnimationFrame(() => {
+      marqueeResizeRafId = null;
+      syncArtistBioMarquee();
+    });
   };
 
   const createLoadMoreButton = () => {
@@ -293,6 +323,8 @@ const initPublicPlaylistPage = () => {
       block.textContent = `Показано: ${page.maxVisible} из ${sorted.length}`;
     });
 
+    syncArtistBioMarquee();
+
     return newlyVisible;
   };
 
@@ -348,6 +380,11 @@ const initPublicPlaylistPage = () => {
   });
 
   renderTrackPagination(0);
+  window.setTimeout(syncArtistBioMarquee, 100);
+  if (!marqueeResizeBound) {
+    window.addEventListener('resize', scheduleArtistBioMarqueeSync);
+    marqueeResizeBound = true;
+  }
   document.dispatchEvent(new Event('publicPlaylist:rendered'));
 
   playlistRoot.addEventListener(

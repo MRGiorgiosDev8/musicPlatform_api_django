@@ -60,68 +60,50 @@ const Year2025App = {
   },
 
   syncTitleMarquee(container = document.getElementById('year2025-container')) {
-    if (!container) {
+    if (
+      !container ||
+      typeof Utils === 'undefined' ||
+      typeof Utils.syncInfiniteMarquee !== 'function'
+    ) {
       return;
     }
-
-    const titles = container.querySelectorAll('.year-track-title');
-    titles.forEach((title) => {
-      const trackNode = title.querySelector('.year-track-title-track');
-      const textNode = title.querySelector('.year-track-title-text');
-      if (!trackNode || !textNode) {
-        return;
-      }
-
-      title.classList.remove('is-marquee');
-      title.style.removeProperty('--year-title-marquee-distance');
-      title.style.removeProperty('--year-title-marquee-duration');
-      title.style.removeProperty('--year-title-marquee-gap');
-
-      const overflow = Math.ceil(textNode.scrollWidth - title.clientWidth);
-      if (overflow <= 8) {
-        return;
-      }
-
-      const gap = 18;
-      const distance = Math.ceil(textNode.scrollWidth + gap);
-      const duration = Math.max(4, Math.min(12, distance / 40));
-      title.classList.add('is-marquee');
-      title.style.setProperty('--year-title-marquee-distance', `${distance}px`);
-      title.style.setProperty('--year-title-marquee-duration', `${duration}s`);
-      title.style.setProperty('--year-title-marquee-gap', `${gap}px`);
+    Utils.syncInfiniteMarquee({
+      container,
+      targetSelector: '.year-track-title',
+      trackSelector: '.year-track-title-track',
+      textSelector: '.year-track-title-text',
+      distanceVar: '--year-title-marquee-distance',
+      durationVar: '--year-title-marquee-duration',
+      gapVar: '--year-title-marquee-gap',
+      gap: 18,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
     });
   },
 
   syncArtistBioMarquee(container = document.getElementById('year2025-container')) {
-    if (!container) {
+    if (
+      !container ||
+      typeof Utils === 'undefined' ||
+      typeof Utils.syncInfiniteMarquee !== 'function'
+    ) {
       return;
     }
-
-    const triggers = container.querySelectorAll('.js-artist-bio-trigger');
-    triggers.forEach((trigger) => {
-      const trackNode = trigger.querySelector('.artist-bio-trigger-track');
-      const textNode = trigger.querySelector('.artist-bio-trigger-text');
-      if (!trackNode || !textNode) {
-        return;
-      }
-
-      trigger.classList.remove('is-marquee');
-      trigger.style.removeProperty('--artist-bio-marquee-distance');
-      trigger.style.removeProperty('--artist-bio-marquee-duration');
-      trigger.style.removeProperty('--artist-bio-marquee-gap');
-
-      const overflow = Math.ceil(textNode.scrollWidth - trigger.clientWidth);
-      if (overflow <= 8) {
-        return;
-      }
-
-      const gap = 16;
-      const distance = Math.ceil(textNode.scrollWidth + gap);
-      const duration = Math.max(4, Math.min(12, distance / 40));
-      trigger.classList.add('is-marquee');
-      trigger.style.setProperty('--artist-bio-marquee-distance', `${distance}px`);
-      trigger.style.setProperty('--artist-bio-marquee-duration', `${duration}s`);
-      trigger.style.setProperty('--artist-bio-marquee-gap', `${gap}px`);
+    Utils.syncInfiniteMarquee({
+      container,
+      targetSelector: '.js-artist-bio-trigger',
+      trackSelector: '.artist-bio-trigger-track',
+      textSelector: '.artist-bio-trigger-text',
+      distanceVar: '--artist-bio-marquee-distance',
+      durationVar: '--artist-bio-marquee-duration',
+      gapVar: '--artist-bio-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
     });
   },
 

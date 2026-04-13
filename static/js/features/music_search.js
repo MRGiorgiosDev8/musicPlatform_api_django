@@ -112,6 +112,8 @@ const setupMusicSearch = () => {
   let renderVersion = 0;
   let resultsList = null;
   let currentQuery = '';
+  let marqueeResizeRafId = null;
+  let marqueeResizeBound = false;
 
   const prepareSearchFilters = () => {
     [searchFilterPanel, searchFilterTrigger].forEach((el) => {
@@ -193,6 +195,58 @@ const setupMusicSearch = () => {
     resultsList.className = 'track-list list-unstyled p-0 m-0 mt-4';
     resultsContainer.appendChild(resultsList);
     return resultsList;
+  };
+
+  const createArtistBioButton = (artistName, extraClassName = '') => {
+    const safeArtistName = normalizeArtist({ artist: artistName });
+    const artistButton = document.createElement('button');
+    artistButton.type = 'button';
+    artistButton.className = `artist-bio-trigger js-artist-bio-trigger color-dark ${extraClassName}`.trim();
+    artistButton.dataset.artistName = safeArtistName;
+
+    const artistTrack = document.createElement('span');
+    artistTrack.className = 'artist-bio-trigger-track';
+
+    const artistText = document.createElement('span');
+    artistText.className = 'artist-bio-trigger-text';
+    artistText.textContent = safeArtistName;
+
+    const artistTextClone = document.createElement('span');
+    artistTextClone.className = 'artist-bio-trigger-text artist-bio-trigger-text-clone';
+    artistTextClone.textContent = safeArtistName;
+    artistTextClone.setAttribute('aria-hidden', 'true');
+
+    artistTrack.append(artistText, artistTextClone);
+    artistButton.appendChild(artistTrack);
+    return artistButton;
+  };
+
+  const syncArtistBioMarquee = () => {
+    if (typeof Utils === 'undefined' || typeof Utils.syncInfiniteMarquee !== 'function') return;
+    Utils.syncInfiniteMarquee({
+      container: resultsContainer,
+      targetSelector: '.js-artist-bio-trigger',
+      trackSelector: '.artist-bio-trigger-track',
+      textSelector: '.artist-bio-trigger-text',
+      distanceVar: '--artist-bio-marquee-distance',
+      durationVar: '--artist-bio-marquee-duration',
+      gapVar: '--artist-bio-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
+    });
+  };
+
+  const scheduleArtistBioMarqueeSync = () => {
+    if (marqueeResizeRafId) {
+      window.cancelAnimationFrame(marqueeResizeRafId);
+    }
+    marqueeResizeRafId = window.requestAnimationFrame(() => {
+      marqueeResizeRafId = null;
+      syncArtistBioMarquee();
+    });
   };
 
   const resetSearchState = () => {
@@ -377,11 +431,7 @@ const setupMusicSearch = () => {
     artistLabel.className = 'track-artist-label';
     artistLabel.textContent = 'Артист:';
 
-    const artistButton = document.createElement('button');
-    artistButton.type = 'button';
-    artistButton.className = 'artist-bio-trigger js-artist-bio-trigger color-dark';
-    artistButton.dataset.artistName = normalizeArtist(track);
-    artistButton.textContent = normalizeArtist(track);
+    const artistButton = createArtistBioButton(normalizeArtist(track));
     pArtist.append(artistLabel, document.createTextNode(' '), artistButton);
 
     const pListeners = document.createElement('p');
@@ -462,12 +512,7 @@ const setupMusicSearch = () => {
       if (state.groupBy === 'artist' && artist !== lastArtist) {
         const groupHeader = document.createElement('li');
         groupHeader.className = 'search-group-title';
-        const groupArtistButton = document.createElement('button');
-        groupArtistButton.type = 'button';
-        groupArtistButton.className =
-          'artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark';
-        groupArtistButton.dataset.artistName = artist;
-        groupArtistButton.textContent = artist;
+        const groupArtistButton = createArtistBioButton(artist, 'fw-semibold');
         groupHeader.appendChild(groupArtistButton);
         listRoot.appendChild(groupHeader);
         lastArtist = artist;
@@ -487,6 +532,8 @@ const setupMusicSearch = () => {
     if (typeof Utils !== 'undefined' && typeof Utils.initAudioPreviews === 'function') {
       Utils.initAudioPreviews(resultsContainer);
     }
+    syncArtistBioMarquee();
+    window.setTimeout(syncArtistBioMarquee, 120);
   };
 
   const closeMobileNavbar = () => {
@@ -616,6 +663,10 @@ const setupMusicSearch = () => {
 
   syncControlValues();
   prepareSearchFilters();
+  if (!marqueeResizeBound) {
+    window.addEventListener('resize', scheduleArtistBioMarqueeSync);
+    marqueeResizeBound = true;
+  }
 
   const initialQuery = new URLSearchParams(window.location.search).get('q');
   if (initialQuery) {

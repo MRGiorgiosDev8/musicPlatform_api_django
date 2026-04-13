@@ -430,9 +430,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
-    closeBtn.className = 'btn btn-sm btn-danger';
+    closeBtn.className = 'btn-close';
     closeBtn.dataset.commentLikersModalClose = '';
-    closeBtn.textContent = 'Закрыть';
+    closeBtn.setAttribute('aria-label', 'Закрыть');
 
     head.appendChild(title);
     head.appendChild(closeBtn);

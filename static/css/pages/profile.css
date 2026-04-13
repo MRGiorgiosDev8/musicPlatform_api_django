@@ -350,6 +350,13 @@
     word-break: break-word;
 }
 
+@media (min-width: 576px) {
+    .public-comment-text {
+        font-size: 1rem;
+        line-height: 1.45;
+    }
+}
+
 .public-comment-actions .btn {
     font-size: 0.82rem;
 }
@@ -526,6 +533,7 @@
     justify-content: center;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-card);
     color: var(--color-primary);
     flex: 0 0 22px;
 }
@@ -535,6 +543,7 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+    box-shadow: var(--shadow-card);
 }
 
 .public-comment-liker-name {

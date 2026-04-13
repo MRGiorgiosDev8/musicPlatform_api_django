@@ -140,8 +140,12 @@
                                     <span class="track-artist-label">Артист:</span>
                                     <button type="button" class="artist-bio-trigger js-artist-bio-trigger color-dark"
                                         data-artist-name="{{ track.artist|default:'Unknown artist'|escape }}"
-                                        aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">{{
-                                        track.artist|default:"Unknown artist" }}</button>
+                                        aria-label="Показать биографию артиста {{ track.artist|default:'Unknown artist' }}">
+                                        <span class="artist-bio-trigger-track">
+                                            <span class="artist-bio-trigger-text">{{ track.artist|default:'Unknown artist' }}</span>
+                                            <span class="artist-bio-trigger-text artist-bio-trigger-text-clone" aria-hidden="true">{{ track.artist|default:'Unknown artist' }}</span>
+                                        </span>
+                                    </button>
                                 </p>
                             </div>
                             <div class="track-player me-sm-2">
@@ -179,8 +183,9 @@
             <div class="d-flex justify-content-between align-items-start gap-2 mt-2">
                 <div class="position-relative">
                     <button type="button" class="btn btn-sm btn-danger mt-1 border border-white"
-                        data-comment-emoji-toggle aria-expanded="false" aria-controls="public-comment-emoji-picker">
-                        <span aria-hidden="true">😀</span> Эмодзи
+                        data-comment-emoji-toggle aria-expanded="false" aria-controls="public-comment-emoji-picker"
+                        aria-label="Открыть emoji picker" title="Эмодзи">
+                        <i class="bi bi-emoji-smile-fill" aria-hidden="true"></i>
                     </button>
                     <emoji-picker id="public-comment-emoji-picker" class="public-comment-emoji-picker"
                         locale="ru_RU"></emoji-picker>
