@@ -4,7 +4,7 @@
 {% block title %}{{ profile_user.username }} - Public Playlist{% endblock %}
 
 {% block content %}
-<div class="container mt-md-3 d-flex flex-column gap-3">
+<div class="container mt-md-3 d-flex flex-column gap-3 public-profile-container">
     <nav aria-label="breadcrumb" class="mb-3 mt-3 ruby-breadcrumb pre-animation">
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
@@ -35,7 +35,7 @@
                 data-public-username="{{ profile_user.username }}"
                 data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
                 {% if user.is_authenticated and user.username != profile_user.username %}
-                <button type="button" class="btn btn-sm btn-danger" id="public-playlist-like-btn"
+                <button type="button" class="btn btn-sm btn-danger mx-4" id="public-playlist-like-btn"
                     aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
                     <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
                     <span class="ms-1">Лайк</span>

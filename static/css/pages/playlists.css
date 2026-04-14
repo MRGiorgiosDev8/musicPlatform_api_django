@@ -615,10 +615,4 @@
         text-align: center;
         white-space: normal;
     }
-
-    #public-playlist-root .track-list {
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
 }
