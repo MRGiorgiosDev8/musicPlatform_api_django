@@ -402,6 +402,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    font-family: var(--font-main);
     padding: 0.45rem 0.8rem;
     border-radius: 999px;
     background: var(--color-card-bg-light);

@@ -503,6 +503,7 @@
     margin-left: 0 !important;
     margin-right: auto !important;
     width: min(100%, 1276px) !important;
+    border-radius: 14px;
 }
 
 #public-playlist-root.public-view-grid .track-item-playlist {
@@ -570,6 +571,11 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .artist-bio-trigger,
+    .js-artist-bio-trigger {
+        max-width: 18ch;
     }
 
     .track-player {

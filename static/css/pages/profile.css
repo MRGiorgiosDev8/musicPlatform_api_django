@@ -909,8 +909,8 @@ body.public-comment-modal-open {
     }
 
     #public-comments-root {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        padding-left: 0.50rem !important;
+        padding-right: 0.50rem !important;
     }
 
     #public-comments-list {
