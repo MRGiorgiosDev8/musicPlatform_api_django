@@ -390,7 +390,8 @@
 .hamburger.hamburger--elastic .hamburger-inner,
 .hamburger.hamburger--elastic .hamburger-inner::before,
 .hamburger.hamburger--elastic .hamburger-inner::after {
-    height: 1.8px;
+    height: 2.8px;
+    width: 38px;
     background-color: #fff;
 }
 

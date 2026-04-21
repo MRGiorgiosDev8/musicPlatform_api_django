@@ -14,6 +14,7 @@ const Utils = {
     { value: 'r&b', label: 'R&B' },
     { value: 'k-pop', label: 'K-Pop' },
     { value: 'lo-fi', label: 'Lo-Fi' },
+    { value: 'funk', label: 'Funk' },
     { value: 'house', label: 'House' },
     { value: 'dubstep', label: 'Dubstep' },
     { value: 'trap', label: 'Trap' },

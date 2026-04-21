@@ -78,7 +78,7 @@ const initPublicPlaylistPage = () => {
 
   const updateLikeButton = (liked) => {
     if (!likeButton) return;
-    likeButton.className = 'btn btn-sm btn-danger';
+    likeButton.classList.add('btn', 'btn-sm', 'btn-danger');
     likeButton.setAttribute('aria-pressed', liked ? 'true' : 'false');
     likeButton.innerHTML = `<i class="bi bi-heart${liked ? '-fill' : ''}"></i><span class="ms-1">Лайк</span>`;
   };

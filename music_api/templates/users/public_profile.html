@@ -35,7 +35,7 @@
                 data-public-username="{{ profile_user.username }}"
                 data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
                 {% if user.is_authenticated and user.username != profile_user.username %}
-                <button type="button" class="btn btn-sm btn-danger mx-4" id="public-playlist-like-btn"
+                <button type="button" class="btn btn-sm btn-danger mx-3" id="public-playlist-like-btn"
                     aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
                     <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
                     <span class="ms-1">Лайк</span>

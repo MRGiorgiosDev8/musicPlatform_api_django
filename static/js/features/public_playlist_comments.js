@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       likeBtn.dataset.liked = likedByMe ? '1' : '0';
     }
     const isLiked = likeBtn.dataset.liked === '1';
-    const showFilledByCount = !canCompose && safeCount > 0;
+    const showFilledByCount = safeCount > 0;
     const shouldShowFilled = isLiked || showFilledByCount;
     likeBtn.classList.add('text-danger');
     likeIcon.className = shouldShowFilled ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
@@ -666,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const safeInitialLikesCount =
       Number.isInteger(initialLikesCount) && initialLikesCount >= 0 ? initialLikesCount : 0;
     const likedInitially = Boolean(comment.liked_by_me);
-    const showFilledInitially = likedInitially || (!canCompose && safeInitialLikesCount > 0);
+    const showFilledInitially = likedInitially || safeInitialLikesCount > 0;
     const initialIconClass = showFilledInitially ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
     const likeIcon = document.createElement('i');
     likeIcon.className = initialIconClass;

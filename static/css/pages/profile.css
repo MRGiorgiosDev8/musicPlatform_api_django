@@ -872,6 +872,12 @@ body.public-comment-modal-open {
         margin-right: 0;
     }
 
+    .public-profile-container #blcok-avatar {
+        --bs-gutter-x: 0;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
     #public-card {
         width: 100%;
         margin-left: 0;
