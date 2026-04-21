@@ -20,6 +20,15 @@
     <meta property="og:image" content="/static/images/og-cover.jpg">
     <meta property="og:locale" content="ru_RU">
     <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <script>
+        (function () {
+            const storageKey = 'site-theme';
+            const savedTheme = localStorage.getItem(storageKey);
+            const hasSavedTheme = savedTheme === 'dark' || savedTheme === 'default';
+            const initialTheme = hasSavedTheme ? savedTheme : 'default';
+            document.documentElement.setAttribute('data-theme', initialTheme);
+        })();
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +191,17 @@
         </div>
     </footer>
 
+    <button
+        id="themeToggle"
+        class="btn theme-toggle-btn theme-toggle-btn--floating"
+        type="button"
+        aria-label="Переключить тему"
+        title="Сменить тему"
+    >
+        <i class="bi bi-moon-stars-fill theme-icon-dark" aria-hidden="true"></i>
+        <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+    </button>
+
     <div class="modal fade" id="artistBioModal" tabindex="-1" aria-labelledby="artistBioModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -252,6 +272,7 @@
     <script src="/static/js/UI/playlists.js"></script>
     <script src="/static/js/UI/public-playlist.js"></script>
     <script src="/static/js/UI/avatar_actions_toggle.js"></script>
+    <script src="/static/js/UI/theme_toggle.js"></script>
 
     <!-- Утилиты -->
     <script src="/static/js/utils/utils.js"></script>

@@ -28,6 +28,28 @@
         0 10px 26px rgba(0, 0, 0, 0.18);
 }
 
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --color-bg: #0a0d12;
+    --color-card-bg: rgba(30, 37, 53, 0.78);
+    --color-card-bg-light: rgba(24, 31, 44, 0.86);
+    --color-text-dark: #edf1fb;
+    --color-text-light: #f5f8ff;
+    --color-text-muted: #9fa8bd;
+    --color-link-hover: #ff6767;
+    --surface-plain: #111723;
+    --input-border: rgba(255, 255, 255, 0.2);
+    --border-light-white: 1px solid rgba(255, 255, 255, 0.14);
+    --shadow-card:
+        0 2px 8px rgba(0, 0, 0, 0.35),
+        0 8px 24px rgba(0, 0, 0, 0.28);
+    --shadow-ruby-glow:
+        0 0 0 1px rgba(255, 255, 255, 0.12),
+        0 0 16px rgba(255, 255, 255, 0.08),
+        0 0 22px rgba(229, 47, 47, 0.24),
+        0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
 body {
     background-image: url('../images/backgroundai.png');
     background-size: cover;
@@ -72,4 +94,139 @@ body {
 
 #artistBioImage {
     max-height: 220px;
+}
+
+:root[data-theme="dark"] body {
+    background-image: linear-gradient(rgba(24, 31, 44, 0.966), rgba(28, 43, 70, 0.9)), url('../images/backgroundai.png');
+    color: var(--color-text-dark);
+}
+
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] .form-select,
+:root[data-theme="dark"] .form-check-input,
+:root[data-theme="dark"] .dropdown-menu,
+:root[data-theme="dark"] .offcanvas,
+:root[data-theme="dark"] .modal-content {
+    background-color: var(--surface-plain);
+    color: var(--color-text-dark);
+    border-color: var(--input-border);
+}
+
+:root[data-theme="dark"] .form-control::placeholder {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .custom-navbar,
+:root[data-theme="dark"] .footer-nav {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 0 7px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="dark"] .info-project p {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .info-project .django_span,
+:root[data-theme="dark"] .info-project .rest_span,
+:root[data-theme="dark"] .info-project .fm_span,
+:root[data-theme="dark"] .info-project .deexer_span,
+:root[data-theme="dark"] .info-project .tune_span,
+:root[data-theme="dark"] .info-project .api_span {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .info-project .ruby_span {
+    color: #d33f3f;
+}
+
+:root[data-theme="dark"] .artist-bio-trigger,
+:root[data-theme="dark"] .js-artist-bio-trigger {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #public-playlists-dashboard .text-dark {
+    color: var(--color-text-light) !important;
+}
+
+:root[data-theme="dark"] #public-playlists-dashboard .text-body,
+:root[data-theme="dark"] #public-playlists-dashboard .text-muted {
+    color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .track-title,
+:root[data-theme="dark"] .track-meta .track-title {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .track-artist,
+:root[data-theme="dark"] .track-listeners {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title,
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title .year-track-title-text,
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title .year-track-title-text-clone {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-artist > span,
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-listeners {
+    color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .profile-widget-title {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .avatar-actions-item,
+:root[data-theme="dark"] .profile-avatar-edit,
+:root[data-theme="dark"] .profile-avatar-edit i,
+:root[data-theme="dark"] .profile-avatar-edit-text,
+:root[data-theme="dark"] .profile-public-link,
+:root[data-theme="dark"] .btn-ruby-profile,
+:root[data-theme="dark"] .btn-ruby-profile i,
+:root[data-theme="dark"] .profile-public-link i,
+:root[data-theme="dark"] .profile-public-link .profile-avatar-edit-text {
+    color: var(--color-text-light) !important;
+}
+
+:root[data-theme="dark"] .avatar-actions-menu {
+    background: rgba(17, 23, 35, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] .avatar-actions-item:hover,
+:root[data-theme="dark"] .profile-avatar-edit:hover,
+:root[data-theme="dark"] .profile-public-link:hover,
+:root[data-theme="dark"] .btn-ruby-profile:hover {
+    color: #ffffff !important;
+    filter: brightness(1.18);
+}
+
+:root[data-theme="dark"] .profile-avatar-edit:hover,
+:root[data-theme="dark"] .profile-public-link:hover,
+:root[data-theme="dark"] .btn-ruby-profile:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] .track-artist-label {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] [data-public-filter-meta],
+:root[data-theme="dark"] [data-public-count-display],
+:root[data-theme="dark"] [data-public-shown-display],
+:root[data-theme="dark"] [data-playlist-filter-meta],
+:root[data-theme="dark"] [data-playlist-count-display] {
+    color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .search-results-summary-meta,
+:root[data-theme="dark"] .search-results-summary-meta .text-dark {
+    color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] .login-title,
+:root[data-theme="dark"] .signup-title {
+    color: var(--color-text-light);
 }

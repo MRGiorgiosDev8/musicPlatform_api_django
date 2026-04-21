@@ -84,6 +84,68 @@
     display: none;
 }
 
+.theme-toggle-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid rgba(229, 47, 47, 0.45);
+    background: rgba(255, 255, 255, 0.66);
+    color: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.84);
+    border-color: rgba(229, 47, 47, 0.72);
+    color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-btn--floating {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1060;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.theme-toggle-btn i {
+    position: absolute;
+    font-size: 1rem;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle-btn .theme-icon-light {
+    opacity: 0;
+    transform: scale(0.8) rotate(-20deg);
+}
+
+.theme-toggle-btn.is-dark .theme-icon-dark {
+    opacity: 0;
+    transform: scale(0.8) rotate(20deg);
+}
+
+.theme-toggle-btn.is-dark .theme-icon-light {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+:root[data-theme="dark"] .theme-toggle-btn {
+    border-color: rgba(229, 47, 47, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-primary);
+}
+
+:root[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(229, 47, 47, 0.72);
+    color: var(--color-primary);
+}
+
 @media (max-width: 991.98px) {
     .premium-nav-shell {
         margin-top: 0.6rem;
@@ -101,5 +163,19 @@
         background: none;
         color: #d8d8d8 !important;
         border-radius: 0;
+    }
+
+    .theme-toggle-btn {
+        margin-top: 0.2rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .theme-toggle-btn i {
+        font-size: 0.92rem;
+    }
+
+    .theme-toggle-btn--floating {
+        right: 0.7rem;
+        bottom: calc(4.1rem + env(safe-area-inset-bottom, 0px));
     }
 }
