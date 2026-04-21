@@ -65,7 +65,7 @@
         window.gsap.to(logoText, {
           duration: 0.32,
           ease: 'back.out(1.2)',
-          scale: 1.06,
+          scale: 1.1,
           x: 0,
           transformOrigin: 'left center',
         });
