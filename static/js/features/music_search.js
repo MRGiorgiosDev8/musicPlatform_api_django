@@ -414,7 +414,7 @@ const setupMusicSearch = () => {
     const img = document.createElement('img');
     img.src = track.image_url;
     img.alt = escapeHtml(track.name);
-    img.className = 'track-image shadow-sm img-fluid';
+    img.className = 'track-image search-track-image shadow-sm img-fluid';
     img.loading = 'lazy';
 
     const trackMeta = document.createElement('div');
@@ -435,7 +435,7 @@ const setupMusicSearch = () => {
     pArtist.append(artistLabel, document.createTextNode(' '), artistButton);
 
     const pListeners = document.createElement('p');
-    pListeners.className = 'track-listeners text-black mb-0 small';
+    pListeners.className = 'track-listeners mb-0 small';
     pListeners.textContent = `Прослушиваний: ${getTrackPopularity(track)}`;
 
     const hasAudio = Utils.hasAudioPreview(track.url);
@@ -456,7 +456,7 @@ const setupMusicSearch = () => {
       trackPlayer.appendChild(previewMount);
     } else {
       const noPreview = document.createElement('div');
-      noPreview.className = Utils.getNoPreviewBadgeClasses('border border-white');
+      noPreview.className = Utils.getNoPreviewBadgeClasses('no-preview-badge');
       noPreview.textContent = 'Превью недоступно';
       trackPlayer.appendChild(noPreview);
     }

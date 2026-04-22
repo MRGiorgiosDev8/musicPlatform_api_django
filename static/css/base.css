@@ -44,10 +44,10 @@
         0 2px 8px rgba(0, 0, 0, 0.35),
         0 8px 24px rgba(0, 0, 0, 0.28);
     --shadow-ruby-glow:
-        0 0 0 1px rgba(255, 255, 255, 0.12),
-        0 0 16px rgba(255, 255, 255, 0.08),
-        0 0 22px rgba(229, 47, 47, 0.24),
-        0 12px 30px rgba(0, 0, 0, 0.45);
+        0 0 0 1px rgba(255, 255, 255, 0.14),
+        0 0 18px rgba(229, 47, 47, 0.32),
+        0 0 32px rgba(115, 149, 255, 0.18),
+        0 12px 32px rgba(0, 0, 0, 0.52);
 }
 
 body {
@@ -163,6 +163,16 @@ body {
     color: var(--color-text-muted);
 }
 
+:root[data-theme="dark"] #trending-container .card-title.text-dark,
+:root[data-theme="dark"] #trending-container .text-dark,
+:root[data-theme="dark"] #trending-container .text-body {
+    color: var(--color-text-light) !important;
+}
+
+:root[data-theme="dark"] #trending-container .text-muted {
+    color: var(--color-text-muted) !important;
+}
+
 :root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title,
 :root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title .year-track-title-text,
 :root[data-theme="dark"] #year2025-container .year-track-meta .year-track-title .year-track-title-text-clone {
@@ -226,7 +236,55 @@ body {
     color: var(--color-text-muted) !important;
 }
 
+:root[data-theme="dark"] .search-autocomplete {
+    background: #2d3548;
+    border-color: rgba(229, 47, 47, 0.42);
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] .search-autocomplete-label {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .search-autocomplete-item.is-active,
+:root[data-theme="dark"] .search-autocomplete-item:hover {
+    background: rgba(229, 47, 47, 0.2);
+}
+
+:root[data-theme="dark"] .search-track-image {
+    border: none;
+}
+
+:root[data-theme="dark"] .no-preview-badge {
+    color: var(--color-text-light) !important;
+    border: 1px solid rgba(229, 47, 47, 0.44) !important;
+    border-bottom: 1px solid rgba(229, 47, 47, 0.54) !important;
+}
+
 :root[data-theme="dark"] .login-title,
 :root[data-theme="dark"] .signup-title {
     color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #artistBioModal .modal-content {
+    background: rgba(24, 31, 44, 0.96);
+    color: var(--color-text-light);
+    box-shadow: var(--shadow-ruby-glow);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] #artistBioModal .modal-header,
+:root[data-theme="dark"] #artistBioModal .modal-body {
+    background: rgba(24, 31, 44, 0.96);
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #artistBioModal .modal-title,
+:root[data-theme="dark"] #artistBioModal #artistBioContent {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #artistBioModal .btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: 0.9;
 }

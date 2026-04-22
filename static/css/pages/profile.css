@@ -749,6 +749,145 @@ body.public-comment-modal-open {
     animation: publicStatsMusicFloat 2.4s ease-in-out infinite;
 }
 
+:root[data-theme="dark"] #public-comments-root {
+    background: rgba(24, 31, 44, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] #public-comments-root h2,
+:root[data-theme="dark"] #public-comments-root .h5 {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #public-comment-form {
+    background: rgba(17, 23, 35, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+:root[data-theme="dark"] #public-comment-text {
+    background: rgba(17, 23, 35, 0.86);
+    color: var(--color-text-light);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+:root[data-theme="dark"] #public-comment-text::placeholder {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] #public-comments-empty {
+    color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="dark"] #public-comments-root .alert.alert-light {
+    background: rgba(17, 23, 35, 0.92);
+    color: var(--color-text-light);
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+:root[data-theme="dark"] .public-comment-item {
+    background: rgba(17, 23, 35, 0.9);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] .public-comment-item.is-reply {
+    background: rgba(22, 29, 42, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .public-comment-author,
+:root[data-theme="dark"] .public-comment-text {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .public-comment-time {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .public-comment-author-avatar {
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] .public-comment-author-fallback {
+    background: rgba(17, 23, 35, 0.88);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--color-primary);
+}
+
+:root[data-theme="dark"] .public-comment-replies {
+    border-left-color: rgba(229, 47, 47, 0.32);
+}
+
+:root[data-theme="dark"] .public-comment-reply-meta {
+    background: rgba(229, 47, 47, 0.11);
+    border-color: rgba(229, 47, 47, 0.42);
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .public-comment-likers-popover {
+    background: rgba(17, 23, 35, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] .public-comment-likers-popover-head {
+    background: rgba(29, 38, 55, 0.95);
+    color: var(--color-text-light);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .public-comment-likers-popover-foot {
+    background: rgba(17, 23, 35, 0.96);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .public-comment-likers-state,
+:root[data-theme="dark"] .public-comment-liker-name {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .public-comment-liker-row {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .public-comment-liker-row:hover {
+    background: rgba(229, 47, 47, 0.16);
+}
+
+:root[data-theme="dark"] .public-comment-liker-avatar-wrap {
+    background: rgba(17, 23, 35, 0.9);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] .public-comment-likers-modal-dialog {
+    background: rgba(17, 23, 35, 0.96);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] .public-comment-likers-modal-head {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .public-comment-emoji-picker {
+    --background: #111723;
+    --border-color: rgba(229, 47, 47, 0.34);
+    --input-font-color: #edf1fb;
+    --input-placeholder-color: #9fa8bd;
+    --input-border-color: rgba(229, 47, 47, 0.34);
+    --button-hover-background: rgba(229, 47, 47, 0.18);
+    --button-active-background: rgba(229, 47, 47, 0.26);
+    background: #111723;
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] .public-profile-stats-mobile .badge {
+    background: rgba(17, 23, 35, 0.92) !important;
+    color: var(--color-text-light) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: var(--shadow-card);
+}
+
 @keyframes publicStatsHeartBeat {
     0%,
     100% {
