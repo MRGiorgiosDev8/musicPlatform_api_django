@@ -30,7 +30,7 @@
 
 :root[data-theme="dark"] {
     color-scheme: dark;
-    --color-bg: #0a0d12;
+    --color-bg: #151d2b;
     --color-card-bg: rgba(30, 37, 53, 0.78);
     --color-card-bg-light: rgba(24, 31, 44, 0.86);
     --color-text-dark: #edf1fb;
@@ -114,6 +114,69 @@ body {
 
 :root[data-theme="dark"] .form-control::placeholder {
     color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas,
+:root[data-theme="dark"] .public-filter-offcanvas {
+    background: var(--color-bg);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-ruby-glow);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .offcanvas-header,
+:root[data-theme="dark"] .playlist-filter-offcanvas .offcanvas-body,
+:root[data-theme="dark"] .public-filter-offcanvas .offcanvas-header,
+:root[data-theme="dark"] .public-filter-offcanvas .offcanvas-body {
+    background: #151d2b;
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .offcanvas-title,
+:root[data-theme="dark"] .public-filter-offcanvas .offcanvas-title {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .offcanvas-header,
+:root[data-theme="dark"] .public-filter-offcanvas .offcanvas-header {
+    border-bottom: 1px solid rgba(229, 47, 47, 0.65);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-label,
+:root[data-theme="dark"] .public-filter-offcanvas .form-label {
+    color: var(--color-text-light) !important;
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-control,
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select,
+:root[data-theme="dark"] .public-filter-offcanvas .form-control,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select {
+    background: rgba(17, 23, 35, 0.92);
+    color: var(--color-text-light);
+    border: 1px solid rgba(229, 47, 47, 0.42);
+    box-shadow: none;
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-control:focus,
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select:focus,
+:root[data-theme="dark"] .public-filter-offcanvas .form-control:focus,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select:focus,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select:active {
+    background: rgba(17, 23, 35, 0.95);
+    color: var(--color-text-light);
+    border-color: rgba(229, 47, 47, 0.68);
+    box-shadow: 0 0 0 0.12rem rgba(229, 47, 47, 0.22);
+    outline: none;
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-control::placeholder,
+:root[data-theme="dark"] .public-filter-offcanvas .form-control::placeholder {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .btn-close,
+:root[data-theme="dark"] .public-filter-offcanvas .btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: 0.9 !important;
 }
 
 :root[data-theme="dark"] .custom-navbar,
@@ -237,7 +300,7 @@ body {
 }
 
 :root[data-theme="dark"] .search-autocomplete {
-    background: #2d3548;
+    background: rgba(45, 53, 72, 0.86);
     border-color: rgba(229, 47, 47, 0.42);
     box-shadow: var(--shadow-ruby-glow);
 }
@@ -249,6 +312,10 @@ body {
 :root[data-theme="dark"] .search-autocomplete-item.is-active,
 :root[data-theme="dark"] .search-autocomplete-item:hover {
     background: rgba(229, 47, 47, 0.2);
+}
+
+:root[data-theme="dark"] #trending-container .card-footer {
+    border-top-color: rgba(255, 255, 255, 0.28);
 }
 
 :root[data-theme="dark"] .search-track-image {
@@ -267,7 +334,7 @@ body {
 }
 
 :root[data-theme="dark"] #artistBioModal .modal-content {
-    background: rgba(24, 31, 44, 0.96);
+    background: #2d3548;
     color: var(--color-text-light);
     box-shadow: var(--shadow-ruby-glow);
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -275,7 +342,7 @@ body {
 
 :root[data-theme="dark"] #artistBioModal .modal-header,
 :root[data-theme="dark"] #artistBioModal .modal-body {
-    background: rgba(24, 31, 44, 0.96);
+    background: #2d3548;
     color: var(--color-text-light);
 }
 

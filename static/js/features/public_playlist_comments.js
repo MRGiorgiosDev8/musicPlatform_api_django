@@ -71,49 +71,56 @@ document.addEventListener('DOMContentLoaded', () => {
       return false;
     }
 
-    if (emojiPicker.shadowRoot.querySelector('[data-ruby-emoji-theme]')) {
-      return true;
-    }
-
     const rootCss = window.getComputedStyle(document.documentElement);
     const rubyGlow =
       rootCss.getPropertyValue('--shadow-ruby-glow').trim() ||
       '0 0 0 1px rgba(254, 254, 254, 0.3), 0 0 14px rgb(255, 255, 255), 0 0 24px rgba(229, 47, 47, 0.268), 0 10px 26px rgba(0, 0, 0, 0.18)';
     const rubyPrimary = rootCss.getPropertyValue('--color-primary').trim() || '#e52f2f';
+    const rubyMuted = rootCss.getPropertyValue('--color-text-muted').trim() || '#7f7f7f';
+    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
 
-    const styleNode = document.createElement('style');
-    styleNode.setAttribute('data-ruby-emoji-theme', '1');
+    const navBackground = isDarkTheme ? '#151d2b' : '#fff';
+    const panelBackground = isDarkTheme ? '#111723' : '#fff';
+    const searchText = isDarkTheme ? '#edf1fb' : '#151515';
+    const searchPlaceholder = isDarkTheme ? rubyMuted : '#7f7f7f';
+    const indicatorBorder = isDarkTheme ? 'rgba(229, 47, 47, 0.32)' : 'rgba(229, 47, 47, 0.18)';
+
+    let styleNode = emojiPicker.shadowRoot.querySelector('[data-ruby-emoji-theme]');
+    if (!styleNode) {
+      styleNode = document.createElement('style');
+      styleNode.setAttribute('data-ruby-emoji-theme', '1');
+      emojiPicker.shadowRoot.appendChild(styleNode);
+    }
     styleNode.textContent = `
       .nav {
-        background: #fff;
+        background: ${navBackground};
         border-radius: 12px 12px 0 0;
         box-shadow: ${rubyGlow};
       }
       .tabpanel {
-        background: #fff;
+        background: ${panelBackground};
         border-radius: 0 0 12px 12px;
       }
       .pad-top,
       .search-row,
       .search-wrapper {
-        background: #fff;
+        background: ${panelBackground};
       }
       input.search {
-        background: #fff !important;
-        color: #151515 !important;
+        background: ${panelBackground} !important;
+        color: ${searchText} !important;
         opacity: 1;
       }
       input.search::placeholder {
-        color: #7f7f7f !important;
+        color: ${searchPlaceholder} !important;
       }
       .indicator-wrapper {
-        border-bottom-color: rgba(229, 47, 47, 0.18);
+        border-bottom-color: ${indicatorBorder};
       }
       .indicator {
         background-color: ${rubyPrimary};
       }
     `;
-    emojiPicker.shadowRoot.appendChild(styleNode);
     return true;
   };
 

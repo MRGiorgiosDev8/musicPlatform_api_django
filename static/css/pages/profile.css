@@ -752,7 +752,7 @@ body.public-comment-modal-open {
 :root[data-theme="dark"] #public-comments-root {
     background: rgba(24, 31, 44, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: var(--shadow-ruby-glow);
+    box-shadow: var(--shadow-card);
 }
 
 :root[data-theme="dark"] #public-comments-root h2,
@@ -763,6 +763,17 @@ body.public-comment-modal-open {
 :root[data-theme="dark"] #public-comment-form {
     background: rgba(17, 23, 35, 0.92) !important;
     border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+:root[data-theme="dark"] #public-comment-submit,
+:root[data-theme="dark"] [data-comment-emoji-toggle] {
+    border-color: rgba(229, 47, 47, 0.52) !important;
+    color: #fff;
+}
+
+:root[data-theme="dark"] #public-comment-submit:hover,
+:root[data-theme="dark"] [data-comment-emoji-toggle]:hover {
+    border-color: rgba(229, 47, 47, 0.72) !important;
 }
 
 :root[data-theme="dark"] #public-comment-text {
@@ -800,6 +811,15 @@ body.public-comment-modal-open {
     color: var(--color-text-light);
 }
 
+:root[data-theme="dark"] .public-comment-actions [data-comment-reply] {
+    color: var(--color-text-light) !important;
+}
+
+:root[data-theme="dark"] .public-comment-actions [data-comment-reply]:hover {
+    color: #fff !important;
+    background: rgba(229, 47, 47, 0.18);
+}
+
 :root[data-theme="dark"] .public-comment-time {
     color: var(--color-text-muted);
 }
@@ -809,7 +829,7 @@ body.public-comment-modal-open {
 }
 
 :root[data-theme="dark"] .public-comment-author-fallback {
-    background: rgba(17, 23, 35, 0.88);
+    background: #fff;
     border-color: rgba(255, 255, 255, 0.12);
     color: var(--color-primary);
 }
@@ -855,8 +875,8 @@ body.public-comment-modal-open {
 }
 
 :root[data-theme="dark"] .public-comment-liker-avatar-wrap {
-    background: rgba(17, 23, 35, 0.9);
-    border-color: rgba(255, 255, 255, 0.14);
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.1);
 }
 
 :root[data-theme="dark"] .public-comment-likers-modal-dialog {
@@ -867,6 +887,12 @@ body.public-comment-modal-open {
 
 :root[data-theme="dark"] .public-comment-likers-modal-head {
     border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .public-comment-likers-modal .btn-close,
+:root[data-theme="dark"] [data-comment-likers-modal-close].btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: 0.9 !important;
 }
 
 :root[data-theme="dark"] .public-comment-emoji-picker {
