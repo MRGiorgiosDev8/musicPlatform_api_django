@@ -908,10 +908,15 @@ body.public-comment-modal-open {
 }
 
 :root[data-theme="dark"] .public-profile-stats-mobile .badge {
-    background: rgba(17, 23, 35, 0.92) !important;
+    background: #263045 !important;
     color: var(--color-text-light) !important;
     border-color: rgba(255, 255, 255, 0.14) !important;
     box-shadow: var(--shadow-card);
+}
+
+:root[data-theme="dark"] #public-playlist-root .track-image {
+    border: none !important;
+    box-shadow: none !important;
 }
 
 @keyframes publicStatsHeartBeat {
