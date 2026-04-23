@@ -752,7 +752,7 @@ body.public-comment-modal-open {
 :root[data-theme="dark"] #public-comments-root {
     background: rgba(24, 31, 44, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-card-dark);
 }
 
 :root[data-theme="dark"] #public-comments-root h2,
