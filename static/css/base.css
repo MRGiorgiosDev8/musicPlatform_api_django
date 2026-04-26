@@ -263,7 +263,7 @@ body {
 
 :root[data-theme="dark"] .track-artist,
 :root[data-theme="dark"] .track-listeners {
-    color: var(--color-text-muted);
+    color: var(--color-text-muted) !important;
 }
 
 :root[data-theme="dark"] #trending-container .card-title.text-dark,
@@ -289,6 +289,10 @@ body {
 
 :root[data-theme="dark"] .profile-widget-title {
     color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .profile-widget .text-muted {
+    color: var(--color-text-muted) !important;
 }
 
 :root[data-theme="dark"] .avatar-actions-item,
