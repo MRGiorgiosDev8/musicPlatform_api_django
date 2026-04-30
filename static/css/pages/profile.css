@@ -820,6 +820,12 @@ body.public-comment-modal-open {
     background: rgba(229, 47, 47, 0.18);
 }
 
+:root[data-theme="dark"] [data-comment-like-count],
+:root[data-theme="dark"] [data-comment-like-count].is-like-count-up,
+:root[data-theme="dark"] [data-comment-like-count].is-like-count-down {
+    color: #fff;
+}
+
 :root[data-theme="dark"] .public-comment-time {
     color: var(--color-text-muted);
 }

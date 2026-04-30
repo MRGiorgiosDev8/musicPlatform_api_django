@@ -435,7 +435,7 @@ const setupMusicSearch = () => {
     pArtist.append(artistLabel, document.createTextNode(' '), artistButton);
 
     const pListeners = document.createElement('p');
-    pListeners.className = 'track-listeners mb-0 small';
+    pListeners.className = 'track-listeners mb-0 small text-muted';
     pListeners.textContent = `Прослушиваний: ${getTrackPopularity(track)}`;
 
     const hasAudio = Utils.hasAudioPreview(track.url);

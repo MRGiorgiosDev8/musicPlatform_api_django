@@ -226,7 +226,18 @@ body {
 }
 
 :root[data-theme="dark"] .ruby-breadcrumb .breadcrumb {
-    background: #1f2532;
+    background: #1b2231;
+    border-color: rgba(255, 138, 138, 0.3);
+}
+
+:root[data-theme="dark"] .ruby-breadcrumb .breadcrumb::before {
+    background: linear-gradient(
+        110deg,
+        rgba(229, 47, 47, 0),
+        rgba(255, 138, 138, 0.34),
+        rgba(165, 198, 255, 0.2),
+        rgba(229, 47, 47, 0)
+    );
 }
 
 :root[data-theme="dark"] .info-project .django_span,
@@ -364,6 +375,21 @@ body {
 
 :root[data-theme="dark"] .search-track-image {
     border: none;
+}
+
+:root[data-theme="dark"] .audio-preview-time {
+    color: #fff;
+}
+
+:root[data-theme="dark"] .audio-preview-toggle.is-playing {
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.22),
+        0 0 12px rgba(229, 47, 47, 0.6),
+        0 0 24px rgba(229, 47, 47, 0.38);
+}
+
+:root[data-theme="dark"] .audio-preview-toggle::after {
+    border-color: rgba(255, 133, 133, 0.571);
 }
 
 :root[data-theme="dark"] .no-preview-badge {

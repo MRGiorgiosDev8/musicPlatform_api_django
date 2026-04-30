@@ -313,6 +313,10 @@
     flex: 0 0 60px;
 }
 
+:root[data-theme="dark"] #playlists-root .track-image {
+    border: none;
+}
+
 .track-meta {
     min-width: 100px;
     max-width: none;
