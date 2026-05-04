@@ -1,6 +1,7 @@
 (() => {
     const root = document.documentElement;
     const toggleButton = document.getElementById('themeToggle');
+    const footer = document.querySelector('footer');
     const storageKey = 'site-theme';
     const allowedThemes = new Set(['default', 'dark']);
     const showAfterScrollY = 120;
@@ -14,7 +15,13 @@
         if (!toggleButton) {
             return;
         }
-        const shouldShow = window.scrollY > showAfterScrollY;
+        const passedHeaderZone = window.scrollY > showAfterScrollY;
+        let overlapsFooter = false;
+        if (footer) {
+            const footerTopInViewport = footer.getBoundingClientRect().top;
+            overlapsFooter = footerTopInViewport <= window.innerHeight - 24;
+        }
+        const shouldShow = passedHeaderZone && !overlapsFooter;
         toggleButton.classList.toggle('is-visible', shouldShow);
     };
 
@@ -54,6 +61,8 @@
                 ticking = false;
             });
         }, { passive: true });
+
+        window.addEventListener('resize', syncToggleVisibility, { passive: true });
     }
 
     applyTheme(getTheme());
