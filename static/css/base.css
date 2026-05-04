@@ -115,7 +115,8 @@ body {
 }
 
 :root[data-theme="dark"] body {
-    background-image: linear-gradient(rgba(24, 31, 44, 0.966), rgba(28, 43, 70, 0.9)), url('../images/backgroundai.png');
+    background-color: #283043;
+    background-image: linear-gradient(rgba(40, 48, 67, 0.96), rgba(40, 48, 67, 0.92)), url('../images/backgroundai.png');
     color: var(--color-text-dark);
 }
 
@@ -140,28 +141,9 @@ body {
 
 :root[data-theme="dark"] #trending-genre-container,
 :root[data-theme="dark"] #year-genre-container {
-    background-color: #263045;
+    background-color: #283043;
     border-radius: 10px;
     padding: 0.35rem;
-}
-
-:root[data-theme="dark"] #trending-genre-container .genre-btn,
-:root[data-theme="dark"] #year-genre-container .genre-btn,
-:root[data-theme="dark"] #trending-genre-container .genre-btn:focus,
-:root[data-theme="dark"] #year-genre-container .genre-btn:focus,
-:root[data-theme="dark"] #trending-genre-container .genre-btn:active,
-:root[data-theme="dark"] #year-genre-container .genre-btn:active,
-:root[data-theme="dark"] #trending-genre-container .genre-btn:focus-visible,
-:root[data-theme="dark"] #year-genre-container .genre-btn:focus-visible {
-    background-color: #222838 !important;
-    border-color: rgba(76, 85, 103, 0.928) !important;
-}
-
-:root[data-theme="dark"] #trending-genre-container .genre-btn.active,
-:root[data-theme="dark"] #year-genre-container .genre-btn.active {
-    background-color: var(--color-primary) !important;
-    color: var(--color-text-light) !important;
-    border-color: var(--color-primary) !important;
 }
 
 :root[data-theme="dark"] .playlist-filter-offcanvas,
