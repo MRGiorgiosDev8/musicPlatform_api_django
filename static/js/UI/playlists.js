@@ -254,13 +254,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const scheduleArtistBioMarqueeSync = () => {
+  const syncTrackTitleMarquee = () => {
+    const titleNodes = root.querySelectorAll('.track-title');
+    if (!titleNodes.length) return;
+
+    const charThreshold = 23;
+    const gap = 16;
+    const minDuration = 4;
+    const maxDuration = 12;
+    const speed = 40;
+
+    titleNodes.forEach((titleNode) => {
+      const trackNode = titleNode.querySelector('.track-title-track');
+      const textNode = titleNode.querySelector('.track-title-text');
+      if (!trackNode || !textNode) return;
+
+      const textValue = (textNode.textContent || '').trim();
+      const byLength = textValue.length > charThreshold;
+      const byOverflow = Math.ceil(textNode.scrollWidth - titleNode.clientWidth) > 0;
+      const shouldMarquee = byLength || byOverflow;
+
+      titleNode.classList.remove('is-marquee');
+      titleNode.style.removeProperty('--playlist-track-title-marquee-distance');
+      titleNode.style.removeProperty('--playlist-track-title-marquee-duration');
+      titleNode.style.removeProperty('--playlist-track-title-marquee-gap');
+
+      if (!shouldMarquee || titleNode.clientWidth <= 0) return;
+
+      const distance = Math.ceil(textNode.scrollWidth + gap);
+      const duration = Math.max(minDuration, Math.min(maxDuration, distance / speed));
+
+      titleNode.classList.add('is-marquee');
+      titleNode.style.setProperty('--playlist-track-title-marquee-distance', `${distance}px`);
+      titleNode.style.setProperty('--playlist-track-title-marquee-duration', `${duration}s`);
+      titleNode.style.setProperty('--playlist-track-title-marquee-gap', `${gap}px`);
+    });
+  };
+
+  const scheduleMarqueeSync = () => {
     if (marqueeResizeRafId) {
       window.cancelAnimationFrame(marqueeResizeRafId);
     }
     marqueeResizeRafId = window.requestAnimationFrame(() => {
       marqueeResizeRafId = null;
       syncArtistBioMarquee();
+      syncTrackTitleMarquee();
     });
   };
 
@@ -388,15 +426,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     syncArtistBioMarquee();
+    syncTrackTitleMarquee();
   };
 
   if (trackList) {
     buildArtistFilterOptions();
     syncControlValues();
     renderTrackPagination({ animate: false });
-    window.setTimeout(syncArtistBioMarquee, 100);
+    window.setTimeout(() => {
+      syncArtistBioMarquee();
+      syncTrackTitleMarquee();
+    }, 100);
     if (!marqueeResizeBound) {
-      window.addEventListener('resize', scheduleArtistBioMarqueeSync);
+      window.addEventListener('resize', scheduleMarqueeSync);
       marqueeResizeBound = true;
     }
   }

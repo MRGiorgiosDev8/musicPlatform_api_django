@@ -328,9 +328,51 @@
     margin: 0 0 0.15rem;
     font-size: 1rem;
     line-height: 1.2;
+    display: block;
+    max-width: 23ch;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.track-title-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.track-title-track {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--playlist-track-title-marquee-gap, 1rem);
+    min-width: 100%;
+    transform: translateX(0);
+}
+
+.track-title-text-clone {
+    display: none;
+}
+
+.track-title.is-marquee {
+    text-overflow: clip;
+}
+
+.track-title.is-marquee .track-title-text-clone {
+    display: inline-block;
+}
+
+.track-title.is-marquee .track-title-track {
+    will-change: transform;
+    animation-name: playlistTrackTitleScroll;
+    animation-duration: var(--playlist-track-title-marquee-duration, 8s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+}
+
+@keyframes playlistTrackTitleScroll {
+    to {
+        transform: translateX(calc(-1 * var(--playlist-track-title-marquee-distance, 0px)));
+    }
 }
 
 .track-meta .track-artist {
@@ -405,6 +447,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .track-title.is-marquee .track-title-track,
     .artist-bio-trigger.is-marquee .artist-bio-trigger-track {
         animation: none;
         transform: none;
