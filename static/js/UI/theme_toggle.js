@@ -5,6 +5,8 @@
     const storageKey = 'site-theme';
     const allowedThemes = new Set(['default', 'dark']);
     const showAfterScrollY = 120;
+    const hideAfterIdleMs = 3000;
+    let idleHideTimerId = null;
 
     const getTheme = () => {
         const currentTheme = root.getAttribute('data-theme');
@@ -23,6 +25,16 @@
         }
         const shouldShow = passedHeaderZone && !overlapsFooter;
         toggleButton.classList.toggle('is-visible', shouldShow);
+    };
+
+    const resetIdleHideTimer = () => {
+        if (!toggleButton) return;
+        if (idleHideTimerId) {
+            window.clearTimeout(idleHideTimerId);
+        }
+        idleHideTimerId = window.setTimeout(() => {
+            toggleButton.classList.remove('is-visible');
+        }, hideAfterIdleMs);
     };
 
     const applyTheme = (theme) => {
@@ -58,13 +70,18 @@
             ticking = true;
             window.requestAnimationFrame(() => {
                 syncToggleVisibility();
+                resetIdleHideTimer();
                 ticking = false;
             });
         }, { passive: true });
 
-        window.addEventListener('resize', syncToggleVisibility, { passive: true });
+        window.addEventListener('resize', () => {
+            syncToggleVisibility();
+            resetIdleHideTimer();
+        }, { passive: true });
     }
 
     applyTheme(getTheme());
     syncToggleVisibility();
+    resetIdleHideTimer();
 })();
