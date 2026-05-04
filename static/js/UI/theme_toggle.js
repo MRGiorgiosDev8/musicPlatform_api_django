@@ -3,10 +3,19 @@
     const toggleButton = document.getElementById('themeToggle');
     const storageKey = 'site-theme';
     const allowedThemes = new Set(['default', 'dark']);
+    const showAfterScrollY = 120;
 
     const getTheme = () => {
         const currentTheme = root.getAttribute('data-theme');
         return allowedThemes.has(currentTheme) ? currentTheme : 'default';
+    };
+
+    const syncToggleVisibility = () => {
+        if (!toggleButton) {
+            return;
+        }
+        const shouldShow = window.scrollY > showAfterScrollY;
+        toggleButton.classList.toggle('is-visible', shouldShow);
     };
 
     const applyTheme = (theme) => {
@@ -33,7 +42,20 @@
             const nextTheme = getTheme() === 'dark' ? 'default' : 'dark';
             applyTheme(nextTheme);
         });
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (ticking) {
+                return;
+            }
+            ticking = true;
+            window.requestAnimationFrame(() => {
+                syncToggleVisibility();
+                ticking = false;
+            });
+        }, { passive: true });
     }
 
     applyTheme(getTheme());
+    syncToggleVisibility();
 })();

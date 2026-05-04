@@ -111,6 +111,21 @@
     bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
     z-index: 1060;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.96);
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0.25s ease;
+}
+
+.theme-toggle-btn--floating.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
 }
 
 .theme-toggle-btn i {
