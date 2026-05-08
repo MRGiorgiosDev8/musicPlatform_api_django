@@ -146,7 +146,7 @@ body {
 
 :root[data-theme="dark"] #trending-genre-container,
 :root[data-theme="dark"] #year-genre-container {
-    background-color: #283043;
+    background-color: transparent;
     border-radius: 10px;
     padding: 0.35rem;
 }
@@ -415,8 +415,55 @@ body {
         0 0 24px rgba(229, 47, 47, 0.38);
 }
 
+:root[data-theme="dark"] .now-playing-toggle.is-playing {
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.22),
+        0 0 12px rgba(229, 47, 47, 0.6),
+        0 0 24px rgba(229, 47, 47, 0.38);
+}
+
 :root[data-theme="dark"] .audio-preview-toggle::after {
     border-color: rgba(255, 133, 133, 0.571);
+}
+
+:root[data-theme="dark"] .now-playing-toggle::after {
+    border-color: rgba(255, 133, 133, 0.7);
+}
+
+:root[data-theme="dark"] .now-playing-bar {
+    background: rgba(22, 30, 44, 0.94);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.46),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+:root[data-theme="dark"] .now-playing-title {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] .now-playing-artist,
+:root[data-theme="dark"] .now-playing-time {
+    color: var(--color-text-muted);
+}
+
+:root[data-theme="dark"] .now-playing-progress {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+:root[data-theme="dark"] .now-playing-jump {
+    color: var(--color-text-light);
+    border-color: rgba(229, 47, 47, 0.44);
+    background: rgba(229, 47, 47, 0.14);
+}
+
+:root[data-theme="dark"] .now-playing-close {
+    color: rgba(241, 245, 255, 0.74);
+}
+
+:root[data-theme="dark"] .now-playing-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(241, 245, 255, 0.96);
 }
 
 :root[data-theme="dark"] .no-preview-badge {

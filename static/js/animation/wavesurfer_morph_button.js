@@ -32,20 +32,26 @@
   };
 
   const initButtons = (root) => {
-    root.querySelectorAll('.audio-preview-toggle').forEach((btn) => initButton(btn));
+    root.querySelectorAll('.audio-preview-toggle, .now-playing-toggle').forEach((btn) => initButton(btn));
   };
 
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes') {
         const target = mutation.target;
-        if (target.classList?.contains('audio-preview-toggle')) {
+        if (
+          target.classList?.contains('audio-preview-toggle') ||
+          target.classList?.contains('now-playing-toggle')
+        ) {
           morphToState(target, target.classList.contains('is-playing'));
         }
       } else if (mutation.type === 'childList') {
         mutation.addedNodes.forEach((node) => {
           if (!node || node.nodeType !== 1) return;
-          if (node.classList.contains('audio-preview-toggle')) {
+          if (
+            node.classList.contains('audio-preview-toggle') ||
+            node.classList.contains('now-playing-toggle')
+          ) {
             initButton(node);
           } else {
             initButtons(node);

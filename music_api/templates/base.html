@@ -202,6 +202,34 @@
         <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
     </button>
 
+    <section id="nowPlayingBar" class="now-playing-bar" aria-live="polite" aria-label="Now playing">
+        <button type="button" class="now-playing-close" id="nowPlayingClose" aria-label="Закрыть мини-плеер">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="now-playing-toggle" id="nowPlayingToggle" aria-label="Play or pause preview">
+            <span class="now-playing-icon">
+                <svg class="now-playing-svg" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        d="M6 4 L18 12 L6 20 Z"
+                        data-play-path="M6 4 L18 12 L6 20 Z"
+                        data-pause-path="M6 4 H10 V20 H6 Z M14 4 H18 V20 H14 Z"
+                    ></path>
+                </svg>
+            </span>
+        </button>
+        <div class="now-playing-meta">
+            <div class="now-playing-title" id="nowPlayingTitle">Нет активного трека</div>
+            <div class="now-playing-artist" id="nowPlayingArtist">Включите превью</div>
+            <div class="now-playing-progress">
+                <div class="now-playing-progress-bar" id="nowPlayingProgressBar"></div>
+            </div>
+            <div class="now-playing-time" id="nowPlayingTime">0:00 / 0:00</div>
+        </div>
+        <button type="button" class="now-playing-jump" id="nowPlayingJump" aria-label="Перейти к карточке трека">
+            <i class="bi bi-arrow-down-circle me-1" aria-hidden="true"></i>К треку
+        </button>
+    </section>
+
     <div class="modal fade" id="artistBioModal" tabindex="-1" aria-labelledby="artistBioModalTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -276,6 +304,7 @@
 
     <!-- Утилиты -->
     <script src="/static/js/utils/utils.js"></script>
+    <script src="/static/js/UI/now_playing.js"></script>
 
     <!-- Favorite Button Functionality -->
     <script src="/static/js/UI/favorite-button.js"></script>

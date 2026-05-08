@@ -277,6 +277,19 @@ const Utils = {
     if (!this._audioPreviewInstances) this._audioPreviewInstances = new Set();
     this._audioPreviewInstances.add(ws);
 
+    const emitPreviewEvent = (name, payload = {}) => {
+      document.dispatchEvent(
+        new CustomEvent(`ruby:preview:${name}`, {
+          detail: {
+            mount,
+            url,
+            ws,
+            ...payload,
+          },
+        })
+      );
+    };
+
     const updateButtonState = (isPlaying) => {
       playButton.setAttribute(
         'aria-label',
@@ -286,14 +299,17 @@ const Utils = {
     };
 
     ws.on('ready', () => {
-      time.textContent = `0:00 / ${this.formatTime(ws.getDuration())}`;
+      const duration = ws.getDuration();
+      time.textContent = `0:00 / ${this.formatTime(duration)}`;
+      emitPreviewEvent('ready', { currentTime: 0, duration, isPlaying: false });
     });
 
     ws.on('audioprocess', () => {
       if (!ws.isPlaying()) return;
-      time.textContent = `${this.formatTime(ws.getCurrentTime())} / ${this.formatTime(
-        ws.getDuration()
-      )}`;
+      const currentTime = ws.getCurrentTime();
+      const duration = ws.getDuration();
+      time.textContent = `${this.formatTime(currentTime)} / ${this.formatTime(duration)}`;
+      emitPreviewEvent('timeupdate', { currentTime, duration, isPlaying: true });
     });
 
     ws.on('play', () => {
@@ -301,20 +317,36 @@ const Utils = {
         if (instance !== ws) instance.pause();
       });
       updateButtonState(true);
+      emitPreviewEvent('play', {
+        currentTime: ws.getCurrentTime(),
+        duration: ws.getDuration(),
+        isPlaying: true,
+      });
     });
 
     ws.on('pause', () => {
       updateButtonState(false);
+      emitPreviewEvent('pause', {
+        currentTime: ws.getCurrentTime(),
+        duration: ws.getDuration(),
+        isPlaying: false,
+      });
     });
 
     ws.on('finish', () => {
       updateButtonState(false);
       ws.seekTo(0);
+      emitPreviewEvent('finish', {
+        currentTime: 0,
+        duration: ws.getDuration(),
+        isPlaying: false,
+      });
     });
 
     ws.on('error', () => {
       mount.dataset.audioPreviewInitialized = 'false';
       mount.replaceChildren();
+      emitPreviewEvent('error', { isPlaying: false });
     });
 
     playButton.addEventListener('click', () => {
