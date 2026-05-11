@@ -823,5 +823,6 @@
     .now-playing-jump {
         grid-column: 1 / -1;
         width: 100%;
+        margin-left: 1rem;
     }
 }

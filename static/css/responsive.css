@@ -105,6 +105,30 @@
 }
 
 @media (max-width: 767.98px) {
+    .container,
+    .container-fluid,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl,
+    .container-xxl,
+    .container-wide,
+    .container-small {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .row {
+        --bs-gutter-x: 0;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .row > * {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
     .btn {
         --bs-btn-hover-color: var(--bs-btn-color);
         --bs-btn-hover-bg: var(--bs-btn-bg);

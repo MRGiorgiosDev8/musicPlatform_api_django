@@ -85,8 +85,8 @@
 }
 
 .theme-toggle-btn {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.8rem;
+    height: 2.8rem;
     border-radius: 50%;
     border: 1px solid rgba(229, 47, 47, 0.45);
     background: rgba(255, 255, 255, 0.66);
@@ -102,7 +102,7 @@
     background: rgba(255, 255, 255, 0.84);
     border-color: rgba(229, 47, 47, 0.72);
     color: var(--color-primary);
-    transform: translateY(-2px) scale(1.12);
+    transform: translateY(-2px) scale(1.08);
 }
 
 .theme-toggle-btn--floating {
@@ -130,12 +130,12 @@
 
 .theme-toggle-btn--floating.is-visible:hover,
 .theme-toggle-btn--floating.is-visible:focus-visible {
-    transform: translateY(-2px) scale(1.06);
+    transform: translateY(-2px) scale(1.05);
 }
 
 .theme-toggle-btn i {
     position: absolute;
-    font-size: 1rem;
+    font-size: 1.12rem;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -195,7 +195,24 @@
     }
 
     .theme-toggle-btn--floating {
+        left: auto;
         right: 0.7rem;
-        bottom: calc(4.1rem + env(safe-area-inset-bottom, 0px));
+        top: 50%;
+        bottom: auto;
+        transform: translateY(calc(-50% + 10px)) scale(0.96);
+    }
+
+    .theme-toggle-btn--floating.is-visible {
+        transform: translateY(-50%) scale(1);
+    }
+
+    .theme-toggle-btn--floating.is-visible:hover,
+    .theme-toggle-btn--floating.is-visible:focus-visible,
+    .theme-toggle-btn:hover,
+    :root[data-theme="dark"] .theme-toggle-btn:hover {
+        transform: translateY(-50%) scale(1);
+        background: inherit;
+        border-color: inherit;
+        color: inherit;
     }
 }
