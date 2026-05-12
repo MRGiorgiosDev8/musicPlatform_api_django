@@ -211,8 +211,5 @@
     .theme-toggle-btn:hover,
     :root[data-theme="dark"] .theme-toggle-btn:hover {
         transform: translateY(-50%) scale(1);
-        background: inherit;
-        border-color: inherit;
-        color: inherit;
     }
 }
