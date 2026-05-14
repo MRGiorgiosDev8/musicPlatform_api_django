@@ -102,7 +102,7 @@
     background: rgba(255, 255, 255, 0.84);
     border-color: rgba(229, 47, 47, 0.72);
     color: var(--color-primary);
-    transform: translateY(-2px) scale(1.08);
+    transform: translateY(0) scale(1);
 }
 
 .theme-toggle-btn--floating {
@@ -114,11 +114,12 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(10px) scale(0.96);
+    transform: translateY(10px) scale(0);
+    transform-origin: center;
     transition:
-        opacity 0.25s ease,
-        transform 0.25s ease,
-        visibility 0.25s ease;
+        opacity 0.22s cubic-bezier(0.4, 0, 1, 1),
+        transform 0.22s cubic-bezier(0.4, 0, 1, 1),
+        visibility 0.22s linear;
 }
 
 .theme-toggle-btn--floating.is-visible {
@@ -126,11 +127,15 @@
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0) scale(1);
+    transition:
+        opacity 0.30s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.30s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0.30s linear;
 }
 
 .theme-toggle-btn--floating.is-visible:hover,
 .theme-toggle-btn--floating.is-visible:focus-visible {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(0) scale(1);
 }
 
 .theme-toggle-btn i {
@@ -199,7 +204,7 @@
         right: 0.7rem;
         top: 50%;
         bottom: auto;
-        transform: translateY(calc(-50% + 10px)) scale(0.96);
+        transform: translateY(calc(-50% + 10px)) scale(0);
     }
 
     .theme-toggle-btn--floating.is-visible {

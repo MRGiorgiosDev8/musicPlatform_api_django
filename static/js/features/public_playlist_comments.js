@@ -936,7 +936,15 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(payload.detail || `HTTP ${response.status}`);
       }
 
-      renderComment(payload, true, true);
+      const createdCommentNode = renderComment(payload, true, true);
+      if (createdCommentNode && typeof createdCommentNode.scrollIntoView === 'function') {
+        requestAnimationFrame(() => {
+          createdCommentNode.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        });
+      }
       textInput.value = '';
       clearReplyTarget();
     } catch (error) {
