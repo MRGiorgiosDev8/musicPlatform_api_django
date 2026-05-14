@@ -143,7 +143,40 @@ const initArtistWikipediaModal = () => {
 
   const batcher = createWikipediaArtistBatcher();
 
-  const renderModalPayload = (artistName, payload) => {
+  const renderImageWithPreload = (imageUrl, altText) =>
+    new Promise((resolve) => {
+      imageWrap.classList.remove('is-loaded');
+      imageWrap.classList.add('is-loading');
+      imageElement.removeAttribute('src');
+      imageElement.alt = altText || '';
+
+      if (!imageUrl) {
+        imageWrap.classList.remove('is-loading');
+        resolve(false);
+        return;
+      }
+
+      const preloader = new window.Image();
+      preloader.onload = () => {
+        imageElement.src = imageUrl;
+        imageElement.alt = altText || '';
+        imageWrap.classList.remove('is-loading');
+        requestAnimationFrame(() => {
+          imageWrap.classList.add('is-loaded');
+        });
+        resolve(true);
+      };
+      preloader.onerror = () => {
+        imageWrap.classList.remove('is-loading');
+        imageWrap.classList.remove('is-loaded');
+        imageElement.removeAttribute('src');
+        imageElement.alt = '';
+        resolve(false);
+      };
+      preloader.src = imageUrl;
+    });
+
+  const renderModalPayload = async (artistName, payload) => {
     const safeArtistName = String(artistName || '').trim() || 'Unknown artist';
     const bio = String(payload?.bio || '').trim();
     const imageUrl = String(payload?.image_url || '').trim();
@@ -153,13 +186,40 @@ const initArtistWikipediaModal = () => {
     loadingElement.hidden = true;
 
     imageWrap.hidden = !imageUrl;
-    if (imageUrl) {
-      imageElement.src = imageUrl;
-      imageElement.alt = safeArtistName;
-    } else {
+    if (!imageUrl) {
+      imageWrap.classList.remove('is-loading', 'is-loaded');
       imageElement.removeAttribute('src');
       imageElement.alt = '';
+      return;
     }
+
+    await renderImageWithPreload(imageUrl, safeArtistName);
+  };
+
+  const animateModalLayersIn = () => {
+    if (typeof gsap === 'undefined') return;
+
+    const layers = [];
+    if (!imageWrap.hidden) layers.push(imageWrap);
+    layers.push(titleElement, contentElement);
+
+    gsap.killTweensOf(layers);
+    gsap.set(layers, {
+      autoAlpha: 0,
+      y: 10,
+      filter: 'blur(4px)',
+    });
+
+    gsap.to(layers, {
+      autoAlpha: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      duration: 0.22,
+      ease: 'power2.out',
+      stagger: 0.18,
+      overwrite: 'auto',
+      clearProps: 'filter',
+    });
   };
 
   const prefetchVisibleArtists = () => {
@@ -181,12 +241,14 @@ const initArtistWikipediaModal = () => {
     event.preventDefault();
     loadingElement.hidden = false;
     imageWrap.hidden = true;
+    imageWrap.classList.remove('is-loading', 'is-loaded');
     contentElement.textContent = '';
     titleElement.textContent = artistName;
     modal.show();
 
     const payload = await batcher.queueArtist(artistName);
-    renderModalPayload(artistName, payload);
+    await renderModalPayload(artistName, payload);
+    animateModalLayersIn();
   });
 
   window.setTimeout(prefetchVisibleArtists, 300);

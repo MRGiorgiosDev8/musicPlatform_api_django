@@ -456,8 +456,9 @@
 
 #artistBioModal .modal-body {
     background-color: #fff;
-    font-size: 0.96rem;
-    line-height: 1.45;
+    font-size: 1rem;
+    line-height: 1.62;
+    padding: 1.05rem 1.15rem 1.2rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -481,11 +482,60 @@
     padding-left: 8px;
 }
 
+#artistBioModal #artistBioContent {
+    max-width: 62ch;
+    margin: 0.2rem auto 0;
+    line-height: 1.62;
+}
+
+#artistBioModal #artistBioContent p + p {
+    margin-top: 0.85rem;
+}
+
 #artistBioImage {
     object-fit: cover;
     width: auto;
     max-width: 100%;
     box-shadow: var(--shadow-card) !important;
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.02);
+    transition: opacity 0.34s ease, filter 0.34s ease, transform 0.34s ease;
+}
+
+#artistBioImageWrap {
+    position: relative;
+    min-height: 160px;
+}
+
+#artistBioImageWrap.is-loading::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: linear-gradient(
+        110deg,
+        rgba(220, 220, 220, 0.55) 8%,
+        rgba(245, 245, 245, 0.88) 18%,
+        rgba(220, 220, 220, 0.55) 33%
+    );
+    background-size: 240% 100%;
+    animation: artistBioImageShimmer 1.25s ease-in-out infinite;
+}
+
+#artistBioImageWrap.is-loaded #artistBioImage {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+}
+
+@keyframes artistBioImageShimmer {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -120% 0;
+    }
 }
 
 .track-player {
