@@ -37,6 +37,13 @@ const Year2025App = {
   marqueeResizeRafId: null,
   marqueeResizeBound: false,
 
+  shouldEnableDesktopTooltips() {
+    return Boolean(
+      window.matchMedia &&
+        window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    );
+  },
+
   init() {
     this.isAuthenticated = document.body?.dataset?.isAuthenticated === 'true';
     Utils.initGenreButtons('year-genre-container', (genre) => this.load(genre), true);
@@ -239,7 +246,7 @@ const Year2025App = {
       titleTrack.append(titleText, titleTextClone);
       title.appendChild(titleTrack);
 
-      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+      if (this.shouldEnableDesktopTooltips() && typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(title);
       }
 
@@ -285,7 +292,7 @@ const Year2025App = {
       artistTrack.append(artistText, artistTextClone);
       artistButton.appendChild(artistTrack);
       artistP.append(artistLabel, artistButton);
-      if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+      if (this.shouldEnableDesktopTooltips() && typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         new bootstrap.Tooltip(artistButton);
       }
 

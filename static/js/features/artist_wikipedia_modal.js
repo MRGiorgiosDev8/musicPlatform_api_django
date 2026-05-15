@@ -198,6 +198,7 @@ const initArtistWikipediaModal = () => {
 
   const animateModalLayersIn = () => {
     if (typeof gsap === 'undefined') return;
+    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
 
     const layers = [];
     if (!imageWrap.hidden) layers.push(imageWrap);
@@ -206,17 +207,17 @@ const initArtistWikipediaModal = () => {
     gsap.killTweensOf(layers);
     gsap.set(layers, {
       autoAlpha: 0,
-      y: 10,
-      filter: 'blur(4px)',
+      y: isDarkTheme ? 14 : 10,
+      filter: isDarkTheme ? 'blur(8px)' : 'blur(4px)',
     });
 
     gsap.to(layers, {
       autoAlpha: 1,
       y: 0,
       filter: 'blur(0px)',
-      duration: 0.22,
+      duration: isDarkTheme ? 0.28 : 0.22,
       ease: 'power2.out',
-      stagger: 0.18,
+      stagger: isDarkTheme ? 0.2 : 0.18,
       overwrite: 'auto',
       clearProps: 'filter',
     });

@@ -141,6 +141,7 @@
 .theme-toggle-btn i {
     position: absolute;
     font-size: 1.12rem;
+    opacity: 0.88;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
