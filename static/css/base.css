@@ -524,12 +524,14 @@ body {
 
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-bio {
     background: rgba(229, 47, 47, 0.12);
-    border: none;
+    border: 1px solid rgba(229, 47, 47, 0.26);
+    border-left: 3px solid rgba(229, 47, 47, 0.72);
+    border-right: 3px solid rgba(229, 47, 47, 0.72);
 }
 
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-line {
     background: rgba(255, 255, 255, 0.04);
-    border: none;
+    border: 1px solid rgba(210, 220, 236, 0.18);
 }
 
 :root[data-theme="dark"] .public-profile-about-trigger:hover {
@@ -538,14 +540,14 @@ body {
 
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
     background: rgba(229, 47, 47, 0.12);
-    border: none;
+    border: 1px solid rgba(229, 47, 47, 0.26);
+    border-left: 3px solid rgba(229, 47, 47, 0.72);
+    border-right: 3px solid rgba(229, 47, 47, 0.72);
 }
 
 @media (max-width: 767.98px) {
-    :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-line,
     :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
-        background: transparent;
-        border-color: transparent;
-        border: none;
+        border-left: 1px solid rgba(229, 47, 47, 0.26);
+        border-right: 1px solid rgba(229, 47, 47, 0.26);
     }
 }

@@ -1080,6 +1080,8 @@ body.public-comment-modal-open {
         padding: 0.9rem 1rem;
         background: rgba(229, 47, 47, 0.06);
         border: 1px solid rgba(229, 47, 47, 0.16);
+        border-left: 3px solid rgba(229, 47, 47, 0.72);
+        border-right: 3px solid rgba(229, 47, 47, 0.72);
     }
 
     #publicUserInfoModal .public-user-info-grid {
@@ -1096,6 +1098,36 @@ body.public-comment-modal-open {
     #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
         background: rgba(229, 47, 47, 0.06);
         border: 1px solid rgba(229, 47, 47, 0.16);
+        border-left: 3px solid rgba(229, 47, 47, 0.72);
+        border-right: 3px solid rgba(229, 47, 47, 0.72);
+    }
+}
+
+@media (max-width: 767.98px) {
+    #publicUserInfoModal .modal-body {
+        padding: 0.9rem 0.95rem 1rem;
+    }
+
+    #publicUserInfoModal .public-user-info-grid {
+        row-gap: 0.55rem !important;
+        column-gap: 0.55rem !important;
+    }
+
+    #publicUserInfoModal .public-user-info-grid .public-user-info-line {
+        padding: 0.62rem 0.72rem;
+        border-radius: 9px;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
+        background: rgba(229, 47, 47, 0.06);
+        border: 1px solid rgba(229, 47, 47, 0.16);
+    }
+
+    #publicUserInfoModal .public-user-info-grid .public-user-info-line .small,
+    #publicUserInfoModal .public-user-info-grid .public-user-info-line .fw-normal {
+        padding-left: 0.22rem;
     }
 }
 
