@@ -64,6 +64,15 @@ const computePublicPlaylistPagination = (
 };
 
 const initPublicPlaylistPage = () => {
+  const aboutTrigger = document.querySelector('.public-profile-about-trigger');
+  if (aboutTrigger) {
+    aboutTrigger.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      aboutTrigger.click();
+    });
+  }
+
   const likeRoot = document.querySelector('[data-public-like-root]');
   const likeButton = document.getElementById('public-playlist-like-btn');
   const likesCounters = Array.from(
@@ -157,7 +166,6 @@ const initPublicPlaylistPage = () => {
   let marqueeResizeRafId = null;
   let marqueeResizeBound = false;
 
-  // Filter controls
   const artistControls = Array.from(document.querySelectorAll('[data-public-artist-filter]'));
   const resetFilterButtons = Array.from(document.querySelectorAll('[data-public-reset-filters]'));
   const countDisplays = Array.from(document.querySelectorAll('[data-public-count-display]'));
@@ -266,7 +274,6 @@ const initPublicPlaylistPage = () => {
     const view = computePublicPlaylistView(trackRecords, state);
     const sorted = view.sorted;
 
-    // Hide all items first
     items.forEach((item) => {
       item.style.display = 'none';
     });
@@ -288,7 +295,6 @@ const initPublicPlaylistPage = () => {
 
     clearNoMatchesState();
 
-    // Show filtered items
     const page = computePublicPlaylistPagination(
       sorted.length,
       visibleTracksCount,
@@ -312,7 +318,6 @@ const initPublicPlaylistPage = () => {
     }
     loadMoreContainer.style.display = page.hasMore ? '' : 'none';
 
-    // Update counters
     countDisplays.forEach((block) => {
       block.textContent = `${sorted.length}`;
     });

@@ -1016,6 +1016,127 @@ body.public-comment-modal-open {
     font-size: 2rem;
 }
 
+.public-profile-about-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: flex-start;
+    text-align: left;
+    gap: 0.1rem;
+    width: fit-content;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0.1rem 0;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.public-profile-about-trigger:hover {
+    background: rgba(229, 47, 47, 0.07);
+}
+
+.public-profile-about-trigger:focus-visible {
+    outline: 2px solid rgba(229, 47, 47, 0.55);
+    outline-offset: 2px;
+}
+
+#publicUserInfoModal .public-user-info-line {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+}
+
+#publicUserInfoModal .modal-content {
+    box-shadow: var(--shadow-ruby-glow);
+    border-color: #fff;
+    border-radius: 8px;
+}
+
+#publicUserInfoModal .modal-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+#publicUserInfoModal .modal-title i {
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+#publicUserInfoModal .public-user-info-bio,
+#publicUserInfoModal .public-user-info-grid .public-user-info-line {
+    border-radius: 10px;
+}
+
+@media (min-width: 768px) {
+    #publicUserInfoModal .public-user-info-dialog {
+        max-width: 760px;
+    }
+
+    #publicUserInfoModal .modal-body {
+        padding: 1.15rem 1.25rem 1.25rem;
+    }
+
+    #publicUserInfoModal .public-user-info-bio {
+        padding: 0.9rem 1rem;
+        background: rgba(229, 47, 47, 0.06);
+        border: 1px solid rgba(229, 47, 47, 0.16);
+    }
+
+    #publicUserInfoModal .public-user-info-grid {
+        row-gap: 0.75rem !important;
+        column-gap: 0.75rem !important;
+    }
+
+    #publicUserInfoModal .public-user-info-grid .public-user-info-line {
+        padding: 0.75rem 0.85rem;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
+        background: rgba(229, 47, 47, 0.06);
+        border: 1px solid rgba(229, 47, 47, 0.16);
+    }
+}
+
+#publicUserInfoModal.show .public-user-info-line {
+    animation: publicUserInfoLineReveal 0.34s ease-out forwards;
+}
+
+#publicUserInfoModal.show .modal-body .row .public-user-info-line:nth-child(1) {
+    animation-delay: 0.04s;
+}
+
+#publicUserInfoModal.show .modal-body .row .public-user-info-line:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+#publicUserInfoModal.show .modal-body .row .public-user-info-line:nth-child(3) {
+    animation-delay: 0.22s;
+}
+
+#publicUserInfoModal.show .modal-body .row .public-user-info-line:nth-child(4) {
+    animation-delay: 0.29s;
+}
+
+@keyframes publicUserInfoLineReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #publicUserInfoModal .public-user-info-line,
+    #publicUserInfoModal.show .public-user-info-line {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        animation: none;
+    }
+}
+
 .public-track-audio {
     filter: sepia(1) saturate(2) hue-rotate(320deg);
 }

@@ -88,7 +88,7 @@
     width: 2.8rem;
     height: 2.8rem;
     border-radius: 50%;
-    border: 1px solid rgba(229, 47, 47, 0.45);
+    border: none;
     background: rgba(255, 255, 255, 0.66);
     color: var(--color-primary);
     display: inline-flex;
@@ -161,15 +161,24 @@
 }
 
 :root[data-theme="dark"] .theme-toggle-btn {
-    border-color: rgba(229, 47, 47, 0.45);
-    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-color: transparent;
+    background: rgba(29, 34, 48, 0.72);
     color: var(--color-primary);
+    box-shadow:
+        0 0 0 1px rgba(229, 47, 47, 0.22),
+        0 0 14px rgba(229, 47, 47, 0.26),
+        0 8px 18px rgba(0, 0, 0, 0.36);
 }
 
 :root[data-theme="dark"] .theme-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.16);
-    border-color: rgba(229, 47, 47, 0.72);
+    background: rgba(29, 34, 48, 0.86);
+    border-color: transparent;
     color: var(--color-primary);
+    box-shadow:
+        0 0 0 1px rgba(229, 47, 47, 0.34),
+        0 0 18px rgba(229, 47, 47, 0.34),
+        0 10px 22px rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 991.98px) {
@@ -217,5 +226,12 @@
     .theme-toggle-btn:hover,
     :root[data-theme="dark"] .theme-toggle-btn:hover {
         transform: translateY(-50%) scale(1);
+    }
+
+    :root[data-theme="dark"] .theme-toggle-btn {
+        box-shadow:
+            0 0 0 1px rgba(229, 47, 47, 0.36),
+            0 0 20px rgba(229, 47, 47, 0.4),
+            0 10px 22px rgba(0, 0, 0, 0.42);
     }
 }

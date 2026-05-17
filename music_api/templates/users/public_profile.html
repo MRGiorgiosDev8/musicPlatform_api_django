@@ -27,6 +27,14 @@
                 <div>
                     <h1 class="h4 mb-2">{{ profile_user.username }}</h1>
                     <div class="small text-muted">{{ playlist.title }}</div>
+                    <div class="small text-muted mt-1 public-profile-about-trigger"
+                        role="button"
+                        tabindex="0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#publicUserInfoModal"
+                        aria-label="Открыть информацию о пользователе {{ profile_user.username }}">
+                        <i class="bi bi-info-circle me-1"></i>Нажмите для подробной информации
+                    </div>
                 </div>
             </div>
 
@@ -84,7 +92,7 @@
                     <i class="bi bi-funnel-fill me-2 text-danger"></i>Фильтр
                 </h3>
 
-                <div class="mb-3">
+                <div class="mb-3 public-user-info-line">
                     <label class="form-label mb-1" for="public-artist-filter">Артист</label>
                     <select class="form-select form-select-sm" id="public-artist-filter" data-public-artist-filter>
                         <option value="all">Все артисты</option>
@@ -204,6 +212,63 @@
         <div id="public-comments-list" class="d-flex flex-column gap-2 mt-4" aria-live="polite"></div>
     </section>
     {% endif %}
+</div>
+
+<div class="modal fade" id="publicUserInfoModal" tabindex="-1" aria-labelledby="publicUserInfoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered public-user-info-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-semibold" id="publicUserInfoModalTitle">
+                    <i class="bi bi-person-vcard-fill text-danger me-2"></i>Информация о пользователе
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 public-user-info-grid">
+                    <div class="col-12 public-user-info-line public-user-info-bio">
+                        <div class="small text-muted mb-1">Описание профиля</div>
+                        <div class="fw-normal">
+                            {% if profile_user.bio %}
+                                {{ profile_user.bio }}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 public-user-info-line">
+                        <div class="small text-muted mb-1">Пол</div>
+                        <div class="fw-normal">
+                            {% if profile_user.get_gender_display %}
+                                {{ profile_user.get_gender_display }}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 public-user-info-line">
+                        <div class="small text-muted mb-1">Страна</div>
+                        <div class="fw-normal">
+                            {% if profile_user.country %}
+                                {{ profile_user.country }}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 public-user-info-line">
+                        <div class="small text-muted mb-1">Дата рождения</div>
+                        <div class="fw-normal">
+                            {% if profile_user.birth_date %}
+                                {{ profile_user.birth_date|date:"d.m.Y" }}
+                            {% else %}
+                                Не указано
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="offcanvas offcanvas-bottom public-filter-offcanvas d-lg-none" tabindex="-1" id="publicFilterOffcanvas"
