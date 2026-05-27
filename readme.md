@@ -27,6 +27,7 @@
 - 🛠️ **Django Admin**: Административная панель для управления пользователями, плейлистами, комментариями и контентом проекта.
 - ⚡ **Высокая производительность**: Оптимизация запросов и кэширование данных через Redis.
 - ❤️‍🩹 **Healthchecks (Liveness/Readiness)**: Эндпоинты `/health/live` и `/health/ready` для проверки живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний API).
+- 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -57,6 +58,8 @@
 - **Vitest** (Unit-тесты фронтенда)
 - **WebSocket (Django Channels)** (realtime-обновления)
 - **Healthchecks** (`/health/live`, `/health/ready`)
+- **Prometheus** (сбор RPS, latency, 5xx и DB-метрик локально через Docker Compose)
+- **Grafana** (дашборд для визуализации метрик)
 - **Docker & Docker Compose**
 - **GitHub Actions** (настроенный CI/CD-пайплайн)
 - **Uvicorn(ASGI)**
@@ -84,6 +87,12 @@
 - Используется **Docker Compose** для сборки и запуска всех сервисов
 - Позволяет избежать проблем с зависимостями и конфигурацией окружения
 - Поддерживает асинхронную архитектуру проекта без изменений
+- Локально через Docker Compose поднимается observability-контур:
+  - `Prometheus` — [http://localhost:9090](http://localhost:9090)
+  - `Grafana` — [http://localhost:3000](http://localhost:3000), логин по умолчанию `admin/admin`
+  - Django-метрики доступны на `/metrics` и собираются Prometheus с `web:8000/metrics`
+  - Дашборд `RubySound Overview` показывает RPS, p95 latency, 5xx error ratio и DB-метрики
+  - Важно: этот monitoring stack предназначен для локального Docker Compose-окружения; production-деплой на Render не поднимает Prometheus/Grafana автоматически
 
 ---
 
@@ -481,7 +490,23 @@
 
 ---
 
-#### 2026-05-27 — Healthchecks и readiness/liveness
+#### 2026-05-27 — Healthchecks и readiness/liveness и Метрики django-prometheus и Grafna
+- **feat (metrics)**: Подключен `django-prometheus`:
+  - добавлен endpoint `GET /metrics`;
+  - включены HTTP-метрики Django (RPS, latency, status codes);
+  - включены PostgreSQL-метрики через prometheus database backend.
+- **infra (monitoring/local)**: Добавлен локальный monitoring stack через Docker Compose:
+  - `Prometheus` на [http://localhost:9090](http://localhost:9090);
+  - `Grafana` на [http://localhost:3000](http://localhost:3000);
+  - конфигурация Prometheus находится в `monitoring/prometheus/prometheus.yml`;
+  - Grafana datasource и dashboard provisioned автоматически из `monitoring/grafana/`.
+- **dashboard (grafana)**: Добавлен стартовый дашборд `RubySound Overview`:
+  - `RPS (all)`;
+  - `P95 Request Latency`;
+  - `5xx Error Ratio`;
+  - `P95 DB Query Duration`;
+  - `DB Connections Created Total`.
+- **note (production)**: Prometheus/Grafana подключены как локальный observability-контур для демонстрации production-подхода.
 - **feat (health/api)**: Добавлены эндпоинты состояния сервиса:
   - `GET /health/live` — liveness-проверка (жив ли процесс приложения);
   - `GET /health/ready` — readiness-проверка готовности приложения к обработке трафика.
