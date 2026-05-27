@@ -10,6 +10,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
 LASTFM_KEY = config("LASTFM_KEY", default="")
+LASTFM_HEALTH_CACHE_KEY = "health:lastfm:status"
+LASTFM_HEALTH_TTL_SECONDS = 60 * 5
 
 
 def _check_postgres() -> tuple[bool, str]:
@@ -34,8 +36,20 @@ def _check_redis_cache() -> tuple[bool, str]:
 
 
 def _check_lastfm() -> tuple[bool, str]:
+    cached_status = cache.get(LASTFM_HEALTH_CACHE_KEY)
+    if isinstance(cached_status, dict):
+        ok = bool(cached_status.get("ok", False))
+        detail = str(cached_status.get("detail", "unknown"))
+        return ok, f"{detail} (cached)"
+
     if not LASTFM_KEY:
-        return False, "missing LASTFM_KEY"
+        result = (False, "missing LASTFM_KEY")
+        cache.set(
+            LASTFM_HEALTH_CACHE_KEY,
+            {"ok": result[0], "detail": result[1]},
+            timeout=LASTFM_HEALTH_TTL_SECONDS,
+        )
+        return result
 
     try:
         response = httpx.get(
@@ -49,10 +63,18 @@ def _check_lastfm() -> tuple[bool, str]:
             timeout=httpx.Timeout(3.0, connect=1.5),
         )
         if response.status_code == 200:
-            return True, "ok"
-        return False, f"status {response.status_code}"
+            result = (True, "ok")
+        else:
+            result = (False, f"status {response.status_code}")
     except Exception as exc:
-        return False, str(exc)
+        result = (False, str(exc))
+
+    cache.set(
+        LASTFM_HEALTH_CACHE_KEY,
+        {"ok": result[0], "detail": result[1]},
+        timeout=LASTFM_HEALTH_TTL_SECONDS,
+    )
+    return result
 
 
 @require_GET
@@ -71,13 +93,14 @@ def ready_health_view(request) -> JsonResponse:
         "redis_cache": {"ok": redis_ok, "detail": redis_msg},
         "lastfm_api": {"ok": lastfm_ok, "detail": lastfm_msg},
     }
-    is_ready = all(item["ok"] for item in checks.values())
+    is_ready = postgres_ok and redis_ok
 
     status_code = 200 if is_ready else 503
     payload = {
         "status": "ok" if is_ready else "degraded",
         "service": "rubysound",
         "check": "ready",
+        "critical_checks": ["postgres", "redis_cache"],
         "checks": checks,
     }
     return JsonResponse(payload, status=status_code)

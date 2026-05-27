@@ -489,6 +489,12 @@
   - `PostgreSQL` (`SELECT 1`);
   - `Redis` (cache round-trip `set/get`);
   - внешний API `Last.fm` (короткий запрос с таймаутом).
+- **refactor (health/ready)**: `ready` теперь учитывает только критичные зависимости:
+  - критичные: `PostgreSQL`, `Redis`;
+  - `Last.fm` переведен в `soft check` (информативная проверка, не влияет на HTTP-статус readiness).
+- **perf (health/external)**: Для `Last.fm` добавлен кэш статуса в Redis на 5 минут:
+  - реальный внешний запрос выполняется не чаще 1 раза в 300 секунд;
+  - при повторных запросах используется кэшированное состояние (`cached`).
 - **infra (docker-compose)**: Добавлены `healthcheck` для сервисов:
   - `web` — проверка `http://127.0.0.1:8000/health/live`;
   - `postgres` — `pg_isready`;
@@ -501,7 +507,7 @@
   curl http://localhost:8000/health/ready
   ```
   - `live` ожидаемо возвращает `200 OK`.
-  - `ready` может вернуть `503`, если внешний `Last.fm` временно недоступен (например `403`), при этом `Postgres/Redis` могут быть `ok`.
+  - `ready` возвращает `200`, если `Postgres/Redis` в порядке, даже если `Last.fm` недоступен.
 
 ---
 
