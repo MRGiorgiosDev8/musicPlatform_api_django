@@ -479,6 +479,30 @@
 
 ---
 
+#### 2026-05-27 — Healthchecks и readiness/liveness
+- **feat (health/api)**: Добавлены эндпоинты состояния сервиса:
+  - `GET /health/live` — liveness-проверка (жив ли процесс приложения);
+  - `GET /health/ready` — readiness-проверка готовности приложения к обработке трафика.
+- **feat (health/dependencies)**: В `ready` добавлены проверки зависимостей:
+  - `PostgreSQL` (`SELECT 1`);
+  - `Redis` (cache round-trip `set/get`);
+  - внешний API `Last.fm` (короткий запрос с таймаутом).
+- **infra (docker-compose)**: Добавлены `healthcheck` для сервисов:
+  - `web` — проверка `http://127.0.0.1:8000/health/live`;
+  - `postgres` — `pg_isready`;
+  - `redis` — `redis-cli ping`.
+- **infra (startup-order)**: Для `web` включена зависимость от статуса `service_healthy` у `postgres` и `redis`.
+- **ops**: Подтверждена корректная работа health-эндпоинтов локально и прохождение тестов после внедрения.
+- **verify (manual)**: Быстрая ручная проверка health-эндпоинтов после запуска:
+  ```bash
+  curl http://localhost:8000/health/live
+  curl http://localhost:8000/health/ready
+  ```
+  - `live` ожидаемо возвращает `200 OK`.
+  - `ready` может вернуть `503`, если внешний `Last.fm` временно недоступен (например `403`), при этом `Postgres/Redis` могут быть `ok`.
+
+---
+
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
 **Использование готового образа:**

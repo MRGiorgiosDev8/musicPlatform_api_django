@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Python 3.13 (musicPlatform_api_django)" />
+  </component>
+  <component name="MaterialThemeProjectNewConfig">
+    <option name="metadata">
+      <MTProjectMetadataState>
+        <option name="migrated" value="true" />
+        <option name="pristineConfig" value="false" />
+        <option name="userId" value="118a39ee:189946e1807:-8000" />
+        <option name="version" value="8.13.2" />
+      </MTProjectMetadataState>
+    </option>
+    <option name="titleBarState">
+      <MTProjectTitleBarConfigState>
+        <option name="overrideColor" value="false" />
+      </MTProjectTitleBarConfigState>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (musicPlatform_api_django)" project-jdk-type="Python SDK" />
+</project>

@@ -52,6 +52,7 @@
         0 0 18px rgba(229, 47, 47, 0.32),
         0 0 32px rgba(115, 149, 255, 0.18),
         0 12px 32px rgba(0, 0, 0, 0.52);
+    --filter-select-arrow-soft-white: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d7dde8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
 body {
@@ -189,6 +190,21 @@ body {
     color: var(--color-text-light);
     border: 1px solid rgba(229, 47, 47, 0.42);
     box-shadow: none;
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select {
+    --bs-form-select-bg-img: var(--filter-select-arrow-soft-white);
+    background-image: var(--bs-form-select-bg-img) !important;
+}
+
+:root[data-theme="dark"] .playlist-filter-card .form-select,
+:root[data-theme="dark"] .public-filter-card .form-select,
+:root[data-theme="dark"] #search-filter-panel .form-select,
+:root[data-theme="dark"] #playlist-filter-panel .form-select,
+:root[data-theme="dark"] #public-filter-panel .form-select {
+    --bs-form-select-bg-img: var(--filter-select-arrow-soft-white);
+    background-image: var(--bs-form-select-bg-img) !important;
 }
 
 :root[data-theme="dark"] .playlist-filter-offcanvas .form-control:focus,
@@ -525,8 +541,6 @@ body {
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-bio {
     background: rgba(229, 47, 47, 0.12);
     border: 1px solid rgba(229, 47, 47, 0.26);
-    border-left: 3px solid rgba(229, 47, 47, 0.72);
-    border-right: 3px solid rgba(229, 47, 47, 0.72);
 }
 
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-line {
@@ -541,8 +555,6 @@ body {
 :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
     background: rgba(229, 47, 47, 0.12);
     border: 1px solid rgba(229, 47, 47, 0.26);
-    border-left: 3px solid rgba(229, 47, 47, 0.72);
-    border-right: 3px solid rgba(229, 47, 47, 0.72);
 }
 
 @media (max-width: 767.98px) {

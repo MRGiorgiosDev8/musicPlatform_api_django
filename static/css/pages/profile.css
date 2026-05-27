@@ -1098,8 +1098,6 @@ body.public-comment-modal-open {
     #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
         background: rgba(229, 47, 47, 0.06);
         border: 1px solid rgba(229, 47, 47, 0.16);
-        border-left: 3px solid rgba(229, 47, 47, 0.72);
-        border-right: 3px solid rgba(229, 47, 47, 0.72);
     }
 }
 

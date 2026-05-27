@@ -11,8 +11,11 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+from music_api.views.health import live_health_view, ready_health_view
 
 urlpatterns = [
+    path("health/live", live_health_view, name="health-live"),
+    path("health/ready", ready_health_view, name="health-ready"),
     path("admin/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
