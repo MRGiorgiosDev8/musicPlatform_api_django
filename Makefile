@@ -1,3 +1,14 @@
+# Папка для локальных бэкапов PostgreSQL
+BACKUP_DIR ?= backups
+
+# Имя базы и пользователя внутри Docker Compose
+DB_SERVICE ?= postgres
+DB_NAME ?= music_platform
+DB_USER ?= postgres
+
+# Файл бэкапа по умолчанию с timestamp
+BACKUP_FILE ?= $(BACKUP_DIR)/music_platform_$(shell date +%Y%m%d-%H%M%S).dump
+
 # Запустить все тесты в Docker
 # Теперь pytest сам возьмет настройки из pytest.ini
 test:
@@ -25,6 +36,20 @@ migrate:
 # Создать суперпользователя
 admin:
 	docker compose exec web python manage.py createsuperuser
+
+# Создать backup PostgreSQL в формате custom dump
+db-backup:
+	mkdir -p $(BACKUP_DIR)
+	docker compose exec -T $(DB_SERVICE) pg_dump -U $(DB_USER) -d $(DB_NAME) -Fc --no-owner --no-privileges > $(BACKUP_FILE)
+	@echo "Backup saved to $(BACKUP_FILE)"
+
+# Восстановить backup PostgreSQL
+# Использование: make db-restore FILE=backups/music_platform_YYYYMMDD-HHMMSS.dump
+db-restore:
+	@test -n "$(FILE)" || (echo "Usage: make db-restore FILE=backups/your_backup.dump" && exit 1)
+	@test -f "$(FILE)" || (echo "Backup file not found: $(FILE)" && exit 1)
+	docker compose exec -T $(DB_SERVICE) pg_restore -U $(DB_USER) -d $(DB_NAME) --clean --if-exists --no-owner --no-privileges < "$(FILE)"
+	@echo "Restored from $(FILE)"
 
 # Остановить и удалить контейнеры
 down:

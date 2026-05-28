@@ -10,7 +10,6 @@
 
 Проект построен на **ASGI-архитектуре**, поддерживает высокую нагрузку за счет параллельных запросов и включает глубокую систему взаимодействия с пользователем.
 
-### 🌟 Основные возможности:
 - 🔍 **Умный асинхронный поиск**: Мгновенный сбор данных из трех внешних источников одновременно (batch-запросы).
 - 📈 **Интерактивные чарты**: Динамические списки популярных артистов/трэков с фильтрацией по жанрам.
 - 🎧 **Мультимедиа**: Прослушивание превью треков и бесшовная подгрузка метаданных.
@@ -29,6 +28,7 @@
 - ❤️‍🩹 **Healthchecks (Liveness/Readiness)**: Эндпоинты `/health/live` и `/health/ready` для проверки живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний API).
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
+- 💾 **Backup и Restore**: Локальная стратегия резервного копирования PostgreSQL через Docker Compose (`make db-backup` / `make db-restore`) с сохранением dump-файлов в `backups/`
 
 ---
 * **Live Demo:** 🌍 [georgios8-rubysoundfm.onrender.com](https://georgios8-rubysoundfm.onrender.com)
@@ -39,6 +39,7 @@
 - [🐍 Стек](#stack)
 - [🎨 Фронтенд](#frontend)
 - [🐳 Docker](#docker)
+- [💾 Backup и Restore](#backup-restore)
 - [🧪 Тестирование](#testing)
 - [🚀 Деплой и CI/CD](#deploy)
 - [📖 API Documentation](#api-docs)
@@ -57,7 +58,6 @@
 - **Pytest** (Тесты)
 - **Vitest** (Unit-тесты фронтенда)
 - **WebSocket (Django Channels)** (realtime-обновления)
-- **Healthchecks** (`/health/live`, `/health/ready`)
 - **Prometheus** (сбор RPS, latency, 5xx и DB-метрик локально через Docker Compose)
 - **Grafana** (дашборд для визуализации метрик)
 - **Docker & Docker Compose**
@@ -94,6 +94,30 @@
   - Дашборд `RubySound Overview` показывает RPS, p95 latency, 5xx error ratio и DB-метрики
   - Важно: этот monitoring stack предназначен для локального Docker Compose-окружения; production-деплой на Render не поднимает Prometheus/Grafana автоматически
 
+---
+
+### 💾 Backup и Restore <a id="backup-restore"></a>
+
+Для локальной PostgreSQL-базы добавлена простая стратегия резервного копирования и восстановления через Docker Compose.
+
+#### Что делает backup
+- Создает `custom dump` базы `music_platform` из контейнера `postgres`
+- Сохраняет файл в `backups/` с timestamp в имени
+
+#### Команды
+```bash
+make db-backup
+```
+
+Файл будет создан примерно в таком виде:
+```bash
+backups/music_platform_20260528-143000.dump
+```
+
+Восстановление:
+```bash
+make db-restore FILE=backups/music_platform_20260528-143000.dump
+```
 ---
 
 ## 🧪 Тестирование <a id="testing"></a>
@@ -490,7 +514,7 @@
 
 ---
 
-#### 2026-05-27 — Healthchecks и readiness/liveness и Метрики django-prometheus и Grafna
+#### 2026-05-27 — Healthchecks, readiness/liveness и метрики django-prometheus
 - **feat (metrics)**: Подключен `django-prometheus`:
   - добавлен endpoint `GET /metrics`;
   - включены HTTP-метрики Django (RPS, latency, status codes);
@@ -533,6 +557,16 @@
   ```
   - `live` ожидаемо возвращает `200 OK`.
   - `ready` возвращает `200`, если `Postgres/Redis` в порядке, даже если `Last.fm` недоступен.
+
+---
+
+#### 2026-05-28 — PostgreSQL backup/restore стратегия
+- **feat (backup/restore)**: Добавлена локальная стратегия резервного копирования и восстановления PostgreSQL через Docker Compose.
+  - `make db-backup` создаёт `custom dump` базы `music_platform` из контейнера `postgres`;
+  - backup сохраняется в `backups/` с timestamp в имени;
+  - `make db-restore FILE=...` восстанавливает базу через `pg_restore`.
+- **infra (gitignore)**: Папка `backups/` добавлена в `.gitignore`, чтобы локальные дампы не попадали в репозиторий.
+- **docs**: В README добавлен раздел с командами `backup/restore` и пояснением, что это локальная стратегия под Docker Compose.
 
 ---
 
