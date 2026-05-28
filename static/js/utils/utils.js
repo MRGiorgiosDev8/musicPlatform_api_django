@@ -187,7 +187,7 @@ const Utils = {
 
   getNoPreviewBadgeClasses(extraClasses = '') {
     const base =
-      'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 border border-white';
+      'no-preview-badge fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1 border border-white';
     return extraClasses ? `${base} ${extraClasses}` : base;
   },
 

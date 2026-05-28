@@ -258,6 +258,49 @@
     color: #fff;
 }
 
+.playlist-filter-offcanvas .form-select,
+.public-filter-offcanvas .form-select {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 2.25rem;
+    background-color: #fff;
+    background-image: var(--bs-form-select-bg-img);
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+.playlist-filter-offcanvas .form-select:focus,
+.playlist-filter-offcanvas .form-select:active,
+.public-filter-offcanvas .form-select:focus,
+.public-filter-offcanvas .form-select:active {
+    background-image: var(--bs-form-select-bg-img);
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select,
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select:focus,
+:root[data-theme="dark"] .playlist-filter-offcanvas .form-select:active,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select:focus,
+:root[data-theme="dark"] .public-filter-offcanvas .form-select:active {
+    background-image: var(--bs-form-select-bg-img) !important;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+.playlist-filter-offcanvas .form-control,
+.playlist-filter-offcanvas .form-select,
+.public-filter-offcanvas .form-control,
+.public-filter-offcanvas .form-select {
+    min-height: 38px;
+    font-size: 0.95rem;
+    line-height: 1.35;
+}
+
 .playlist-filter-offcanvas [data-playlist-reset-filters] {
     color: #fff;
 }

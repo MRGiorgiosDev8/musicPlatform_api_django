@@ -456,7 +456,7 @@ const setupMusicSearch = () => {
       trackPlayer.appendChild(previewMount);
     } else {
       const noPreview = document.createElement('div');
-      noPreview.className = Utils.getNoPreviewBadgeClasses('no-preview-badge');
+      noPreview.className = Utils.getNoPreviewBadgeClasses();
       noPreview.textContent = 'Превью недоступно';
       trackPlayer.appendChild(noPreview);
     }
