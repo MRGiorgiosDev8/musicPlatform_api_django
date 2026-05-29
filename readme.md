@@ -28,7 +28,6 @@
 - ❤️‍🩹 **Healthchecks (Liveness/Readiness)**: Эндпоинты `/health/live` и `/health/ready` для проверки живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний API).
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
-- 💾 **Backup и Restore**: Локальная стратегия резервного копирования PostgreSQL через Docker Compose (`make db-backup` / `make db-restore`) с сохранением dump-файлов в `backups/`
 
 ---
 * **Live Demo:** 🌍 [georgios8-rubysoundfm.onrender.com](https://georgios8-rubysoundfm.onrender.com)
