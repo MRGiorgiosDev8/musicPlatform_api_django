@@ -559,16 +559,6 @@ make db-restore FILE=backups/music_platform_20260528-143000.dump
 
 ---
 
-#### 2026-05-28 — PostgreSQL backup/restore стратегия
-- **feat (backup/restore)**: Добавлена локальная стратегия резервного копирования и восстановления PostgreSQL через Docker Compose.
-  - `make db-backup` создаёт `custom dump` базы `music_platform` из контейнера `postgres`;
-  - backup сохраняется в `backups/` с timestamp в имени;
-  - `make db-restore FILE=...` восстанавливает базу через `pg_restore`.
-- **infra (gitignore)**: Папка `backups/` добавлена в `.gitignore`, чтобы локальные дампы не попадали в репозиторий.
-- **docs**: В README добавлен раздел с командами `backup/restore` и пояснением, что это локальная стратегия под Docker Compose.
-
----
-
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
 **Использование готового образа:**

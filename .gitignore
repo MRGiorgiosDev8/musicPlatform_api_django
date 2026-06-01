@@ -8,3 +8,5 @@ node_modules/
 info*/
 logs/
 backups/
+.continue/
+.junie/
