@@ -27,6 +27,7 @@
 - ⚡ **Высокая производительность**: Оптимизация запросов и кэширование данных через Redis.
 - ❤️‍🩹 **Healthchecks (Liveness/Readiness)**: Эндпоинты `/health/live` и `/health/ready` для проверки живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний API).
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
+- 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -39,6 +40,7 @@
 - [🎨 Фронтенд](#frontend)
 - [🐳 Docker](#docker)
 - [💾 Backup и Restore](#backup-restore)
+- [📈 Load Testing (k6)](#load-testing)
 - [🧪 Тестирование](#testing)
 - [🚀 Деплой и CI/CD](#deploy)
 - [📖 API Documentation](#api-docs)
@@ -56,6 +58,7 @@
 - **PostgreSQL** (Основная БД)
 - **Pytest** (Тесты)
 - **Vitest** (Unit-тесты фронтенда)
+- **k6** (нагрузочное тестирование)
 - **WebSocket (Django Channels)** (realtime-обновления)
 - **Prometheus** (сбор RPS, latency, 5xx и DB-метрик локально через Docker Compose)
 - **Grafana** (дашборд для визуализации метрик)
@@ -117,6 +120,44 @@ backups/music_platform_20260528-143000.dump
 ```bash
 make db-restore FILE=backups/music_platform_20260528-143000.dump
 ```
+
+---
+
+### 📈 Load Testing (k6) <a id="load-testing"></a>
+
+Для локального нагрузочного тестирования добавлен `k6`-сценарий, который бьет по реальным публичным endpoints проекта:
+
+- `GET /health/live`
+- `GET /music_api/trending/`
+- `GET /music_api/search/`
+- `GET /music_api/search/artists/`
+- `GET /api/playlists/public/trending/`
+- `GET /music_api/year-chart/`
+
+Если указать `LOADTEST_USERNAME` и `LOADTEST_PASSWORD`, сценарий дополнительно проверит:
+- `GET /api/users/me/`
+- `GET /api/playlists/me/`
+
+#### Запуск
+```bash
+make k6-load
+```
+
+#### Настройка
+Параметры можно менять в `docker-compose.k6.yml`:
+```bash
+K6_BASE_URL=http://localhost:8000
+PUBLIC_QUERY=metallica
+YEAR_GENRE=rock
+TRENDING_LIMIT=10
+SEARCH_LIMIT=12
+STEADY_SLEEP=1
+```
+
+#### Что это дает
+- показывает поведение async/search/trending ... под параллельной нагрузкой
+- помогает увидеть `p95` latency и ошибки на локальном стеке
+- 
 ---
 
 ## 🧪 Тестирование <a id="testing"></a>
@@ -557,6 +598,21 @@ make db-restore FILE=backups/music_platform_20260528-143000.dump
   - `live` ожидаемо возвращает `200 OK`.
   - `ready` возвращает `200`, если `Postgres/Redis` в порядке, даже если `Last.fm` недоступен.
 
+---
+
+#### 2026-06-02 — Нагрузочное тестирование k6
+- **feat (loadtesting)**: Добавлен локальный `k6`-сценарий для проверки производительности и устойчивости endpoints.
+  - `GET /health/live`;
+  - `GET /music_api/trending/`;
+  - `GET /music_api/search/`;
+  - `GET /music_api/search/artists/`;
+  - `GET /api/playlists/public/trending/`;
+  - `GET /music_api/year-chart/`.
+- **feat (auth/loadtesting)**: При наличии `LOADTEST_USERNAME` и `LOADTEST_PASSWORD` сценарий дополнительно проверяет:
+  - `GET /api/users/me/`;
+  - `GET /api/playlists/me/`.
+- **infra (compose)**: Добавлен отдельный `docker-compose.k6.yml`, чтобы запускать нагрузочный тест без ручной установки `k6`.
+- **infra (make)**: Добавлена команда `make k6-load`.
 ---
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>

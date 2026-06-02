@@ -1,0 +1,19 @@
+services:
+  k6:
+    image: grafana/k6:latest
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      BASE_URL: ${K6_BASE_URL:-http://web:8000}
+      LOADTEST_USERNAME: ${LOADTEST_USERNAME:-}
+      LOADTEST_PASSWORD: ${LOADTEST_PASSWORD:-}
+      PUBLIC_QUERY: ${PUBLIC_QUERY:-metallica}
+      YEAR_GENRE: ${YEAR_GENRE:-rock}
+      TRENDING_LIMIT: ${TRENDING_LIMIT:-10}
+      SEARCH_LIMIT: ${SEARCH_LIMIT:-12}
+      STEADY_SLEEP: ${STEADY_SLEEP:-1}
+    volumes:
+      - ./monitoring/k6:/scripts:ro
+    entrypoint: ["k6"]
+    command: ["run", "/scripts/rubysound-loadtest.js"]

@@ -51,6 +51,10 @@ db-restore:
 	docker compose exec -T $(DB_SERVICE) pg_restore -U $(DB_USER) -d $(DB_NAME) --clean --if-exists --no-owner --no-privileges < "$(FILE)"
 	@echo "Restored from $(FILE)"
 
+# Запустить нагрузочное тестирование k6 на локальном стеке
+k6-load:
+	docker compose -f docker-compose.yml -f docker-compose.k6.yml run --rm k6
+
 # Остановить и удалить контейнеры
 down:
 	docker compose down
