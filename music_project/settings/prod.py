@@ -2,6 +2,8 @@
 Production settings for music_project project.
 """
 
+import os
+
 # Добавляем noqa, чтобы линтер не ругался на неиспользуемый импорт *
 from .base import *  # noqa: F403, F401
 
@@ -17,15 +19,32 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1,0.0.0.0").s
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_SECONDS = 0
-SECURE_REDIRECT_EXEMPT = []
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
 X_FRAME_OPTIONS = "DENY"
 CSRF_TRUSTED_ORIGINS = [
     "https://georgios8-rubysoundfm.onrender.com",
 ]
+
+# Динамический Security Hardening в зависимости от окружения (Render vs Local Prod Test)
+if "RENDER" in os.environ:
+    # 1. Защита кук (передача только по HTTPS)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # 2. Включаем HSTS (строгий HTTPS на стороне браузера)
+    SECURE_HSTS_SECONDS = 31536000  # 1 год
+    SECURE_HSTS_PRELOAD = True
+
+    # 3. Доверяем прокси-балансировщику Render, который шифрует входящий трафик
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+else:
+    # Локальный запуск (например, docker compose с файлом prod.py для тестов)
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_PRELOAD = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+SECURE_SSL_REDIRECT = False
+SECURE_REDIRECT_EXEMPT = []
 
 # Настройки почтового сервера
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

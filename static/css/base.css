@@ -557,6 +557,11 @@ body {
     border: 1px solid rgba(229, 47, 47, 0.26);
 }
 
+:root[data-theme="dark"] hr {
+    border-color: rgba(255, 255, 255, 0.972);
+    color: #fff;
+}
+
 @media (max-width: 767.98px) {
     :root[data-theme="dark"] #publicUserInfoModal .public-user-info-grid .public-user-info-bio {
         border-left: 1px solid rgba(229, 47, 47, 0.26);
