@@ -12,9 +12,11 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 from music_api.views.health import live_health_view, ready_health_view
+from music_project.pwa_views import service_worker_view
 
 urlpatterns = [
     path("", include("django_prometheus.urls")),
+    path("service-worker.js", service_worker_view, name="service-worker"),
     path("health/live", live_health_view, name="health-live"),
     path("health/ready", ready_health_view, name="health-ready"),
     path("admin/", admin.site.urls),

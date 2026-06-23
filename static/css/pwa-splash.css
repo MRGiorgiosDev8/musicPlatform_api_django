@@ -1,0 +1,88 @@
+.pwa-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(229, 47, 47, 0.18), transparent 55%),
+        linear-gradient(160deg, #0b101a 0%, #151d2b 45%, #101722 100%);
+    color: #f5f8ff;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition: visibility 0s linear 0s;
+}
+
+.pwa-splash.is-hidden {
+    pointer-events: none;
+}
+
+.pwa-splash__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.pwa-splash__logo-wrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 0 24px rgba(229, 47, 47, 0.28),
+        0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.pwa-splash__logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+}
+
+.pwa-splash__title {
+    margin: 0;
+    font-family: "Archivo Black", sans-serif;
+    font-size: clamp(1.35rem, 4vw, 1.85rem);
+    letter-spacing: 0.02em;
+}
+
+.pwa-splash__title-accent {
+    color: #e52f2f;
+}
+
+.pwa-splash__status {
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    font-size: 0.95rem;
+    color: #9fa8bd;
+}
+
+.pwa-splash__spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-top-color: #e52f2f;
+    border-radius: 50%;
+    animation: pwaSplashSpin 0.9s linear infinite;
+}
+
+@keyframes pwaSplashSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pwa-splash__spinner {
+        animation: none;
+        border-top-color: rgba(229, 47, 47, 0.65);
+    }
+}

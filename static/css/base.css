@@ -102,7 +102,7 @@ body {
 }
 
 .home-poster-image {
-    border-radius:7px;
+    border-radius: 7px;
     box-shadow:
         0 8px 20px rgba(0, 0, 0, 0.16),
         0 2px 6px rgba(0, 0, 0, 0.1);
@@ -274,13 +274,11 @@ body {
 }
 
 :root[data-theme="dark"] .ruby-breadcrumb .breadcrumb::before {
-    background: linear-gradient(
-        110deg,
-        rgba(229, 47, 47, 0),
-        rgba(255, 138, 138, 0.34),
-        rgba(165, 198, 255, 0.2),
-        rgba(229, 47, 47, 0)
-    );
+    background: linear-gradient(110deg,
+            rgba(229, 47, 47, 0),
+            rgba(255, 138, 138, 0.34),
+            rgba(165, 198, 255, 0.2),
+            rgba(229, 47, 47, 0));
 }
 
 :root[data-theme="dark"] .info-project .django_span,
@@ -336,7 +334,7 @@ body {
     color: var(--color-text-light);
 }
 
-:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-artist > span,
+:root[data-theme="dark"] #year2025-container .year-track-meta .year-track-artist>span,
 :root[data-theme="dark"] #year2025-container .year-track-meta .year-track-listeners {
     color: var(--color-text-muted) !important;
 }
@@ -560,6 +558,12 @@ body {
 :root[data-theme="dark"] hr {
     border-color: rgba(255, 255, 255, 0.972);
     color: #fff;
+}
+
+:root[data-theme="dark"] .alert.alert-danger {
+    background: rgba(255, 55, 55, 0.427);
+    color: var(--color-text-light);
+    border-color: rgba(255, 255, 255, 0.108) !important;
 }
 
 @media (max-width: 767.98px) {

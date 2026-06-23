@@ -628,6 +628,25 @@ STEADY_SLEEP=1
 - **infra (make)**: Добавлена команда `make k6-load`.
 ---
 
+#### 2026-06-22 — PWA (Progressive Web App)
+- **feat (pwa/manifest)**: Добавлен `static/manifest.json` с режимом `"display": "standalone"`.
+  - иконки: `ruby-touch-icon.png`, `poster_music.png`;
+  - подключение через `<link rel="manifest">` и meta-теги PWA в `base.html`.
+- **feat (pwa/service-worker)**: Добавлен `static/service-worker.js` со стратегией **Cache First** для базовой статики:
+  - HTML-навигация, CSS, JS, логотип и vendor-ресурсы из `/static/`;
+  - precache ключевых shell-ресурсов при `install`.
+- **feat (pwa/network-only)**: Аудио и музыкальные запросы исключены из кэша (**Network Only**):
+  - превью/стриминг (`destination: audio`, расширения `.mp3/.m4a/...`);
+  - эндпоинты `/music_api/`, `/api/`, `/health/`, WebSocket и внешние музыкальные домены (iTunes, Deezer, Last.fm и др.).
+- **feat (pwa/splash)**: Добавлен полноэкранный splash-лоадер при старте:
+  - `static/css/pwa-splash.css` + overlay в `base.html`;
+  - фоновый ping `GET /health/live` с retry (удобно для cold start на Render);
+  - скрытие overlay через GSAP после ответа `200 OK`.
+- **feat (pwa/register)**: Добавлен `static/js/pwa/register.js` — регистрация Service Worker на `/service-worker.js`.
+- **infra (pwa)**: Service Worker отдаётся с корня сайта через `music_project/pwa_views.py` (`Service-Worker-Allowed: /`).
+
+---
+
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
 **Использование готового образа:**

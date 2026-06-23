@@ -9,6 +9,11 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#151d2b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RubySound">
     <title>{% block title %}RubySound.fm ♬ — топ артисты и живой чарт.{% endblock %}</title>
     <meta name="description"
         content="RubySound.fm — поиск треков, обложки альбомов и актуальная статистика прослушиваний.">
@@ -59,7 +64,9 @@
 
 
     <link rel="icon" type="image/x-icon" href="/static/images/musicico.ico">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/ruby-touch-icon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/pwa-splash.css' %}">
 
     <script type="application/ld+json">
     {
@@ -81,6 +88,25 @@
 <body class="d-flex flex-column min-vh-100"
     data-is-search-page="{% if request.resolver_match and request.resolver_match.url_name == 'search_page' %}true{% else %}false{% endif %}"
     data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    <div id="pwaSplash" class="pwa-splash" role="status" aria-live="polite" aria-label="Загрузка приложения">
+        <div class="pwa-splash__inner">
+            <div class="pwa-splash__logo-wrap">
+                <img
+                    class="pwa-splash__logo"
+                    src="{% static 'images/musicheadphonelogo1.svg' %}"
+                    alt=""
+                    width="56"
+                    height="56"
+                    decoding="async"
+                >
+            </div>
+            <h1 class="pwa-splash__title">
+                RubySound<span class="pwa-splash__title-accent">.fm</span>
+            </h1>
+            <div class="pwa-splash__spinner" aria-hidden="true"></div>
+            <p id="pwaSplashStatus" class="pwa-splash__status">Запуск RubySound.fm…</p>
+        </div>
+    </div>
     <header>
         <nav class="navbar-content navbar navbar-expand-lg custom-navbar fixed-top">
             <div class="container-fluid">
@@ -253,6 +279,7 @@
     <!-- Библиотеки (vendor) -->
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/vendor/gsap/gsap.min.js"></script>
+    <script src="{% static 'js/pwa/register.js' %}"></script>
     <script src="/static/vendor/gsap/ScrollToPlugin.min.js"></script>
     <script src="/static/vendor/gsap/CustomBounce.min.js"></script>
     <script src="/static/vendor/gsap/CustomEase.min.js"></script>
