@@ -28,7 +28,7 @@
 - ❤️‍🩹 **Healthchecks (Liveness/Readiness)**: Эндпоинты `/health/live` и `/health/ready` для проверки живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний API).
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
-- 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`) с кастомным лоадером, который маскирует «холодный старт» хостинга до ответа бэкенда.
+- 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`).
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -639,10 +639,6 @@ STEADY_SLEEP=1
 - **feat (pwa/network-only)**: Аудио и музыкальные запросы исключены из кэша (**Network Only**):
   - превью/стриминг (`destination: audio`, расширения `.mp3/.m4a/...`);
   - эндпоинты `/music_api/`, `/api/`, `/health/`, WebSocket и внешние музыкальные домены (iTunes, Deezer, Last.fm и др.).
-- **feat (pwa/splash)**: Добавлен полноэкранный splash-лоадер при старте:
-  - `static/css/pwa-splash.css` + overlay в `base.html`;
-  - фоновый ping `GET /health/live` с retry (удобно для cold start на Render);
-  - скрытие overlay через GSAP после ответа `200 OK`.
 - **feat (pwa/register)**: Добавлен `static/js/pwa/register.js` — регистрация Service Worker на `/service-worker.js`.
 - **infra (pwa)**: Service Worker отдаётся с корня сайта через `music_project/pwa_views.py` (`Service-Worker-Allowed: /`).
 

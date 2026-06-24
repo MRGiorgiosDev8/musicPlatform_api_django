@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rubysound-static-v1';
+const CACHE_VERSION = 'rubysound-static-v2';
 const OFFLINE_URL = '/';
 
 const PRECACHE_URLS = [
@@ -108,19 +108,20 @@ function isCacheFirstCandidate(request) {
 
 async function cacheFirst(request) {
   const cache = await caches.open(CACHE_VERSION);
-  const cached = await cache.match(request);
 
+  const cached = await cache.match(request);
   if (cached) {
     return cached;
   }
 
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    if (response.ok && request.mode !== 'navigate') {
       await cache.put(request, response.clone());
     }
     return response;
   } catch (error) {
+    // Фоллбек на случай полной потери сети (офлайн режим)
     if (request.mode === 'navigate') {
       const offlineFallback = await cache.match(OFFLINE_URL);
       if (offlineFallback) {
@@ -165,4 +166,3 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(cacheFirst(request));
   }
 });
-
