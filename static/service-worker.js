@@ -4,7 +4,7 @@ const OFFLINE_URL = '/';
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/static/images/musicheadphonelogo1.svg',
-  '/static/images/ruby-touch-icon.png',
+  '/static/images/ruby-touch.png',
   '/static/vendor/bootstrap/css/bootstrap.min.css',
   '/static/css/global.css',
   '/static/css/base.css',
