@@ -418,6 +418,7 @@ const Utils = {
     minDuration = 4,
     maxDuration = 12,
     speed = 40,
+    pauseDuration = 1000,
   } = {}) {
     if (!container || !targetSelector || !trackSelector || !textSelector) return;
 
@@ -427,10 +428,15 @@ const Utils = {
       const textNode = target.querySelector(textSelector);
       if (!trackNode || !textNode) return;
 
+      if (typeof target.__marqueeCleanup === 'function') {
+        target.__marqueeCleanup();
+      }
+
       target.classList.remove(activeClass);
       target.style.removeProperty(distanceVar);
       target.style.removeProperty(durationVar);
       target.style.removeProperty(gapVar);
+      trackNode.style.removeProperty('animation');
 
       if (target.clientWidth <= 0) return;
 
@@ -449,6 +455,46 @@ const Utils = {
       target.style.setProperty(distanceVar, `${distance}px`);
       target.style.setProperty(durationVar, `${duration}s`);
       target.style.setProperty(gapVar, `${marqueeGap}px`);
+
+      const animationName = window.getComputedStyle(trackNode).animationName;
+      if (!animationName || animationName === 'none') return;
+
+      const cyclePause = Math.max(0, Number(pauseDuration) || 0);
+      let restartTimeoutId = null;
+
+      const startCycle = () => {
+        trackNode.style.animation = 'none';
+        void trackNode.offsetWidth;
+        trackNode.style.animation = `${animationName} ${duration}s linear 1 forwards`;
+      };
+
+      const scheduleRestart = () => {
+        if (restartTimeoutId) {
+          window.clearTimeout(restartTimeoutId);
+        }
+        restartTimeoutId = window.setTimeout(() => {
+          restartTimeoutId = null;
+          startCycle();
+        }, cyclePause);
+      };
+
+      const handleAnimationEnd = (event) => {
+        if (event.animationName !== animationName) return;
+        scheduleRestart();
+      };
+
+      trackNode.addEventListener('animationend', handleAnimationEnd);
+      target.__marqueeCleanup = () => {
+        if (restartTimeoutId) {
+          window.clearTimeout(restartTimeoutId);
+          restartTimeoutId = null;
+        }
+        trackNode.removeEventListener('animationend', handleAnimationEnd);
+        trackNode.style.removeProperty('animation');
+        delete target.__marqueeCleanup;
+      };
+
+      startCycle();
     });
   },
 };
