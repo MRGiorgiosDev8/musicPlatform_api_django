@@ -1,0 +1,79 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <div id="content-main">
+        <h1>Backup-центр</h1>
+
+        {% if messages %}
+            <ul class="messagelist">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="module" style="padding: 16px; margin-bottom: 20px;">
+            <p>
+                Создайте backup базы данных через <code>pg_dump</code>. Файлы сохраняются в <code>BACKUP_DIR</code>.
+            </p>
+            <p>
+                Лимит хранения: <strong>{{ keep_count }}</strong> последних backup-файлов.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="button default">Сделать backup</button>
+                <button type="submit" formaction="{% url 'admin:music_api_db_backup_cleanup' %}" class="button">Очистить старые</button>
+                <a href="{% url 'admin:index' %}" class="button">Назад в админку</a>
+            </form>
+        </div>
+
+        <div class="module">
+            <h2>Последний backup</h2>
+            {% if latest_backup %}
+                <p>
+                    <strong>{{ latest_backup.name }}</strong><br>
+                    Изменен: {{ latest_backup.modified_at|date:"d.m.Y H:i" }}<br>
+                    Размер: {{ latest_backup.size_mb|floatformat:2 }} MB
+                </p>
+            {% else %}
+                <p>Backup-файлов пока нет.</p>
+            {% endif %}
+        </div>
+
+        <div class="module">
+            <h2>Список backup-файлов</h2>
+            {% if backups %}
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th>Файл</th>
+                        <th>Изменен</th>
+                        <th>Размер</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for backup in backups %}
+                        <tr>
+                            <td>{{ backup.name }}</td>
+                            <td>{{ backup.modified_at|date:"d.m.Y H:i" }}</td>
+                            <td>{{ backup.size_mb|floatformat:2 }} MB</td>
+                            <td>
+                                <a class="button" href="{% url 'admin:music_api_db_backup_download' backup.name %}">Скачать</a>
+                                <a class="button default" href="{% url 'admin:music_api_db_backup_restore' backup.name %}">Восстановить</a>
+                                <form method="post" action="{% url 'admin:music_api_db_backup_delete' backup.name %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Нет доступных backup-файлов.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

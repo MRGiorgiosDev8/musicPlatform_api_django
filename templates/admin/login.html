@@ -1,0 +1,23 @@
+{% extends "admin/login.html" %}
+{% load i18n %}
+
+{% block content %}
+{{ block.super }}
+{% if request.GET.restored == "1" %}
+<ul class="messagelist" style="margin-bottom: 16px;">
+    <li class="success">
+        Backup восстановлен. Войдите снова, чтобы продолжить работу в админке.
+    </li>
+</ul>
+{% endif %}
+{% if request.GET.restore_error == "1" %}
+<ul class="messagelist" style="margin-bottom: 16px;">
+    <li class="error">
+        Backup восстановлен не полностью или завершился с ошибкой. Проверьте логи сервера.
+    </li>
+</ul>
+{% endif %}
+<div class="login-home-link" style="margin-bottom: 16px; text-align: center;">
+    <a class="button" href="{% url 'home' %}">{% translate "На главную сайта" %}</a>
+</div>
+{% endblock %}

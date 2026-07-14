@@ -126,6 +126,8 @@ STATICFILES_FINDERS = [
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+BACKUP_DIR = Path(config("BACKUP_DIR", default=str(BASE_DIR / "backups")))
+BACKUP_KEEP_COUNT = config("BACKUP_KEEP_COUNT", cast=int, default=10)
 
 REDIS_PORT = config("REDIS_PORT", cast=int, default=6379)
 REDIS_DB = config("REDIS_DB", cast=int, default=0)

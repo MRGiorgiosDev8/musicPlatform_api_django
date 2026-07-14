@@ -1,13 +1,278 @@
+import logging
+from types import MethodType
+
 from django.contrib import admin
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.core.exceptions import PermissionDenied
+from django.conf import settings
+from django.http import FileResponse, Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html_join, format_html
 
 from .models import Playlist, PlaylistComment, PlaylistLike, PlaylistLikeNotification
+from .services.db_backup import (
+    DatabaseBackupError,
+    cleanup_old_backup_files,
+    delete_backup_file,
+    create_database_backup,
+    list_backup_files,
+    resolve_backup_path,
+    restore_database_backup,
+)
+
+logger = logging.getLogger(__name__)
 
 admin.site.site_header = "RubySound Control Room"
 admin.site.site_title = "RubySound Admin"
 admin.site.index_title = "Music Aggregator Dashboard"
+
+_original_admin_get_urls = admin.site.get_urls
+_original_admin_index = admin.site.index
+
+
+def _build_backup_overview():
+    backups = list_backup_files()
+    return {
+        "backups": backups,
+        "backup_count": len(backups),
+        "latest_backup": backups[0] if backups else None,
+        "keep_count": getattr(settings, "BACKUP_KEEP_COUNT", 10),
+    }
+
+
+def _admin_index_view(request, extra_context=None):
+    context = {"backup_overview": _build_backup_overview()}
+    if extra_context:
+        context.update(extra_context)
+    return _original_admin_index(request, extra_context=context)
+
+
+def _admin_backup_view(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied("Only superusers can create database backups.")
+
+    context = {
+        **admin.site.each_context(request),
+        "title": "Создание backup",
+        **_build_backup_overview(),
+    }
+
+    if request.method == "POST":
+        logger.info(
+            "Database backup requested by superuser %s (id=%s)",
+            request.user.get_username(),
+            request.user.pk,
+        )
+        try:
+            backup_path = create_database_backup()
+        except DatabaseBackupError as exc:
+            logger.warning(
+                "Database backup failed for superuser %s (id=%s): %s",
+                request.user.get_username(),
+                request.user.pk,
+                exc,
+            )
+            messages.error(request, str(exc))
+        except Exception:
+            logger.exception(
+                "Unexpected error while creating backup for superuser %s (id=%s)",
+                request.user.get_username(),
+                request.user.pk,
+            )
+            messages.error(
+                request, "Не удалось создать backup. Подробности смотрите в логах."
+            )
+        else:
+            size_mb = backup_path.stat().st_size / (1024 * 1024)
+            logger.info(
+                "Database backup created by superuser %s (id=%s): %s (%.2f MB)",
+                request.user.get_username(),
+                request.user.pk,
+                backup_path,
+                size_mb,
+            )
+            messages.success(
+                request,
+                f"Backup создан: {backup_path.name} ({size_mb:.2f} MB)",
+            )
+            return HttpResponseRedirect(request.path)
+
+    return TemplateResponse(request, "admin/backup.html", context)
+
+
+def _admin_backup_delete_view(request, filename):
+    if not request.user.is_superuser:
+        raise PermissionDenied("Only superusers can delete database backups.")
+
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+    try:
+        backup_path = delete_backup_file(filename)
+    except DatabaseBackupError as exc:
+        messages.error(request, str(exc))
+        return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+    logger.info(
+        "Backup deleted by superuser %s (id=%s): %s",
+        request.user.get_username(),
+        request.user.pk,
+        backup_path,
+    )
+    messages.success(request, f"Backup удален: {backup_path.name}")
+    return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+
+def _admin_backup_cleanup_view(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied("Only superusers can clean database backups.")
+
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+    try:
+        deleted = cleanup_old_backup_files()
+    except DatabaseBackupError as exc:
+        messages.error(request, str(exc))
+        return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+    logger.info(
+        "Backup cleanup requested by superuser %s (id=%s): deleted=%s",
+        request.user.get_username(),
+        request.user.pk,
+        [path.name for path in deleted],
+    )
+    if deleted:
+        messages.success(
+            request,
+            f"Удалено старых backup-файлов: {len(deleted)}",
+        )
+    else:
+        messages.info(request, "Удалять было нечего.")
+    return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+
+def _admin_backup_download_view(request, filename):
+    if not request.user.is_superuser:
+        raise PermissionDenied("Only superusers can download database backups.")
+
+    try:
+        backup_path = resolve_backup_path(filename)
+    except DatabaseBackupError as exc:
+        messages.error(request, str(exc))
+        raise Http404(str(exc)) from exc
+
+    logger.info(
+        "Backup download requested by superuser %s (id=%s): %s",
+        request.user.get_username(),
+        request.user.pk,
+        backup_path,
+    )
+    return FileResponse(
+        backup_path.open("rb"),
+        as_attachment=True,
+        filename=backup_path.name,
+    )
+
+
+def _admin_backup_restore_view(request, filename):
+    if not request.user.is_superuser:
+        raise PermissionDenied("Only superusers can restore database backups.")
+
+    user_username = request.user.get_username()
+    user_pk = request.user.pk
+
+    try:
+        backup_path = resolve_backup_path(filename)
+    except DatabaseBackupError as exc:
+        messages.error(request, str(exc))
+        return HttpResponseRedirect(reverse("admin:music_api_db_backup"))
+
+    backups = list_backup_files()
+    backup_info = next(
+        (item for item in backups if item.name == backup_path.name), None
+    )
+    context = {
+        **admin.site.each_context(request),
+        "title": "Восстановление backup",
+        "backup": backup_info,
+    }
+
+    if request.method == "POST":
+        logout(request)
+        logger.info(
+            "Database restore requested by superuser %s (id=%s): %s",
+            user_username,
+            user_pk,
+            backup_path,
+        )
+        try:
+            restore_database_backup(backup_path)
+        except DatabaseBackupError as exc:
+            logger.warning(
+                "Database restore failed for superuser %s (id=%s): %s",
+                user_username,
+                user_pk,
+                exc,
+            )
+            return HttpResponseRedirect("/admin/login/?restore_error=1")
+        except Exception:
+            logger.exception(
+                "Unexpected error while restoring backup for superuser %s (id=%s)",
+                user_username,
+                user_pk,
+            )
+            return HttpResponseRedirect("/admin/login/?restore_error=1")
+        else:
+            return HttpResponseRedirect("/admin/login/?restored=1")
+
+    return TemplateResponse(request, "admin/backup_restore.html", context)
+
+
+def _get_admin_urls():
+    urls = _original_admin_get_urls()
+    custom_urls = [
+        path(
+            "backup/",
+            admin.site.admin_view(_admin_backup_view),
+            name="music_api_db_backup",
+        ),
+        path(
+            "backup/download/<str:filename>/",
+            admin.site.admin_view(_admin_backup_download_view),
+            name="music_api_db_backup_download",
+        ),
+        path(
+            "backup/delete/<str:filename>/",
+            admin.site.admin_view(_admin_backup_delete_view),
+            name="music_api_db_backup_delete",
+        ),
+        path(
+            "backup/cleanup/",
+            admin.site.admin_view(_admin_backup_cleanup_view),
+            name="music_api_db_backup_cleanup",
+        ),
+        path(
+            "backup/restore/<str:filename>/",
+            admin.site.admin_view(_admin_backup_restore_view),
+            name="music_api_db_backup_restore",
+        ),
+    ]
+    return custom_urls + urls
+
+
+def _site_get_urls(self):
+    return _get_admin_urls()
+
+
+def _site_index(self, request, extra_context=None):
+    return _admin_index_view(request, extra_context=extra_context)
+
+
+admin.site.index = MethodType(_site_index, admin.site)
+admin.site.get_urls = MethodType(_site_get_urls, admin.site)
 
 
 @admin.register(Playlist)

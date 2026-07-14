@@ -1,0 +1,28 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    {% if request.user.is_superuser %}
+        <div class="module" style="padding: 16px; margin-bottom: 20px;">
+            <h2 style="margin-top: 0;">Database backup</h2>
+            <p style="margin-bottom: 12px;">
+                Создайте PostgreSQL backup прямо из админки. Здесь же можно просмотреть список файлов и восстановить базу из выбранного архива.
+            </p>
+            <p style="margin-bottom: 12px;">
+                {% if backup_overview.latest_backup %}
+                    Последний backup: <strong>{{ backup_overview.latest_backup.name }}</strong>
+                    <span style="opacity:.75;">({{ backup_overview.latest_backup.modified_at|date:"d.m.Y H:i" }})</span>
+                {% else %}
+                    Последний backup: <strong>пока не создан</strong>
+                {% endif %}
+            </p>
+            <p style="margin-bottom: 12px;">
+                Всего backup-файлов: <strong>{{ backup_overview.backup_count }}</strong>
+            </p>
+            <p style="margin-bottom: 12px;">
+                Лимит хранения: <strong>{{ backup_overview.keep_count }}</strong>
+            </p>
+            <a class="button default" href="{% url 'admin:music_api_db_backup' %}">Открыть backup-центр</a>
+        </div>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
