@@ -6,23 +6,22 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from django.core.cache import cache
 import asyncio
 import logging
-from decouple import config
 from asgiref.sync import async_to_sync
 
 # Асинхронные сервисные функции
 from .services_async import (
     _get_lastfm_artists_by_genre_async,
     _get_lastfm_artists_chart_async,
-    _get_deezer_artists_batch_async,
     _get_lastfm_releases_batch_async,
+    _get_wikipedia_artist_bios_batch_async,
     _search_lastfm_artists_async,
 )
 
-LASTFM_KEY = config("LASTFM_KEY")
 DEFAULT_ARTIST_COUNT = 16
 CACHE_TIMEOUT = 600  # 10 минут
+CACHE_VERSION = "v5"
 
-DEEZER_ARTISTS_BATCH_LIMIT = 40
+WIKIPEDIA_ARTIST_IMAGES_BATCH_LIMIT = 30
 LASTFM_RELEASES_BATCH_LIMIT = 75
 LASTFM_CHART_LIMIT = 75
 
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
     """Асинхронное получение трендовых артистов с batch обогащением"""
-    cache_key = f"trending_artists_full:{genre or 'all'}:{limit}"
+    cache_key = f"trending_artists_full:{CACHE_VERSION}:{genre or 'all'}:{limit}"
     cached = cache.get(cache_key)
     if cached:
         return cached, True
@@ -46,34 +45,26 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             return {"artists": []}, False
 
         artists_raw = artists_raw[:limit]
-        artist_names = [art["name"] for art in artists_raw]
-
-        deezer_photos_task = _get_deezer_artists_batch_async(
-            artist_names[:DEEZER_ARTISTS_BATCH_LIMIT]
+        artist_images_task = _get_wikipedia_artist_bios_batch_async(
+            [art["name"] for art in artists_raw[:WIKIPEDIA_ARTIST_IMAGES_BATCH_LIMIT]],
+            "ru",
         )
+
         releases_task = _get_lastfm_releases_batch_async(
             artists_raw[:LASTFM_RELEASES_BATCH_LIMIT]
         )
 
-        deezer_photos, releases_data = await asyncio.gather(
-            deezer_photos_task, releases_task, return_exceptions=True
+        artist_images, releases_data = await asyncio.gather(
+            artist_images_task, releases_task, return_exceptions=True
         )
 
-        if isinstance(deezer_photos, Exception):
-            logger.error(f"Deezer batch fail: {deezer_photos}")
-            deezer_photos = {}
+        if isinstance(artist_images, Exception):
+            logger.error(f"Wikipedia artist image batch fail: {artist_images}")
+            artist_images = {}
 
         if isinstance(releases_data, Exception):
             logger.error(f"Last.fm releases fail: {releases_data}")
             releases_data = {}
-
-        def _extract_lastfm_image(artist_data):
-            images = artist_data.get("image") or []
-            if isinstance(images, list) and images:
-                last_image = images[-1]
-                if isinstance(last_image, dict):
-                    return last_image.get("#text") or ""
-            return ""
 
         enriched_artists = []
         for art in artists_raw:
@@ -81,7 +72,7 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             enriched_artists.append(
                 {
                     "name": name,
-                    "photo_url": deezer_photos.get(name) or _extract_lastfm_image(art),
+                    "photo_url": (artist_images.get(name) or {}).get("image_url") or "",
                     "listeners": art.get("listeners", 0),
                     "playcount": art.get("playcount", 0),
                     "releases": releases_data.get(name, []),
