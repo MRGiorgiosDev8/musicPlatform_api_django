@@ -33,7 +33,7 @@
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
-* **Live Demo:** 🌍 [georgios8-rubysoundfm.onrender.com](https://georgios8-rubysoundfm.onrender.com)
+* **Live Demo:** 🌍 [georgios8-rubysoundfm.onrender.com](https://georgios8-rubysoundfm.onrender.com) (требуется VPN, так как Render заблокирован в РФ)
 ---
 
 ## 📑 Оглавление
@@ -406,3 +406,5 @@ docker compose exec web python manage.py createsuperuser
 #### 🔗 Публичный доступ к проекту через туннель
 При необходимости могу показать работающее приложение в сети, используя SSH-туннель.
 Запустив его, скину публичный URL, по которому можно открыть проект.
+
+> **Примечание:** Для лучшей работы приложения рекомендуется использовать VPN, так как некоторые музыкальные данные берутся из источников, заблокированных в РФ.
