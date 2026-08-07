@@ -1,6 +1,7 @@
 services:
   web:
     image: georgio8/music_project:latest
+    platform: linux/amd64
     ports:
       - "8000:8000"
     mem_limit: 512m
