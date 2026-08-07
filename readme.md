@@ -268,6 +268,8 @@ STEADY_SLEEP=1
 
 ### ⚡ Быстрый запуск <a id="quick-start"></a>
 
+> **Требование:** Для запуска проекта необходим установленный **Docker**.
+
 **Использование готового образа:**
 
 - Вы можете запустить проект одной строкой. Команда скачает конфигурацию, поднимет контейнеры, применит миграции и откроет сайт
@@ -277,16 +279,20 @@ STEADY_SLEEP=1
 curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml && \
 docker compose up -d && \
 sleep 5 && \
+docker compose exec web python manage.py makemigrations music_api && \
 docker compose exec web python manage.py migrate && \
-open http://localhost:8000
+open http://localhost:8000 && \
+open http://localhost:3000
 ```
 Для Windows (PowerShell)
 ```bash
-curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml > docker-compose.yml; `
-docker compose up -d; `
-Start-Sleep -Seconds 5; `
-docker compose exec web python manage.py migrate; `
-start http://localhost:8000
+curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml -o docker-compose.yml ^
+&& docker compose up -d ^
+&& timeout /t 5 ^
+&& docker compose exec web python manage.py makemigrations music_api ^
+&& docker compose exec web python manage.py migrate ^
+&& start http://localhost:8000 ^
+&& start http://localhost:3000
 ```
 
 - Остальной запуск про локальный dev — для тех, кто хочет разбираться глубже.
