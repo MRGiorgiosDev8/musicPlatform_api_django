@@ -22,8 +22,6 @@ os.environ.setdefault(
 
 DEBUG = False
 ALLOWED_HOSTS = ["testserver", "localhost", "127.0.0.1"]
-COMPRESS_ENABLED = False
-COMPRESS_OFFLINE = False
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 TEST_DATABASE_URL = config(

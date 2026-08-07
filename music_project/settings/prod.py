@@ -67,9 +67,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = "/tmp/media"
 SERVE_MEDIA = True
 
-COMPRESS_ENABLED = False
-COMPRESS_OFFLINE = False
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

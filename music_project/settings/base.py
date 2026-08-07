@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "music_api.apps.MusicApiConfig",
     "users.apps.UsersConfig",
-    "compressor",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
@@ -121,7 +120,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "compressor.finders.CompressorFinder",
 ]
 
 MEDIA_URL = "/media/"
@@ -174,9 +172,6 @@ else:
             "BACKEND": "channels.layers.InMemoryChannelLayer",
         }
     }
-
-COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
 
 LASTFM_KEY = config("LASTFM_KEY")
 

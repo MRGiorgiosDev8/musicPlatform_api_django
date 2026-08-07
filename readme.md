@@ -72,7 +72,7 @@
 - **GitHub Actions** (настроенный CI/CD-пайплайн)
 - **Uvicorn(ASGI)**
 - **httpx (async)** 
-- **WhiteNoise**, **django-compressor**
+- **WhiteNoise**
 - **Swagger UI (Автодокументация API)**
 
 ---

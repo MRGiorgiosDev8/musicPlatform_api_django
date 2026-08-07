@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns="http://www.w3.org/1999/html">
 
-{% load compress %}
-
 {% load static %}
 
 <head>
@@ -45,7 +43,6 @@
 
     <!--    Подключение Bootstrap -->
     <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    {% compress css %}
     <link rel="stylesheet" href="/static/vendor/hamburgers/hamburgers.min.css">
     <link rel="stylesheet" href="/static/css/global.css">
     <link rel="stylesheet" href="/static/css/base.css">
@@ -55,7 +52,6 @@
     <link rel="stylesheet" href="/static/css/forms.css">
     <link rel="stylesheet" href="/static/css/animations.css">
     <link rel="stylesheet" href="/static/css/responsive.css">
-    {% endcompress %}
 
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/static/css/pages/auth.css">
@@ -270,7 +266,6 @@
     <script src="/static/vendor/wavesurfer/wavesurfer.min.js"></script>
     <script type="module" src="/static/vendor/emoji-picker-element/index.js"></script>
     
-    {% compress js %}
     <!-- Анимации и визуальные эффекты -->
     <script src="/static/js/animation/track-animations.js"></script>
     <script src="/static/js/animation/animation_home.js"></script>
@@ -315,8 +310,6 @@
 
     <!-- Favorite Button Functionality -->
     <script src="/static/js/UI/favorite-button.js"></script>
-    {% endcompress %}
-
 </body>
 
 </html>

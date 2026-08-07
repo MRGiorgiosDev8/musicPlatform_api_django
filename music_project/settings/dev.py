@@ -16,10 +16,6 @@ ALLOWED_HOSTS = ["*"]
 # Отправка писем в консоль для удобства отладки email
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Отключаем сжатие для удобства отладки статики
-COMPRESS_ENABLED = False
-COMPRESS_OFFLINE = False
-
 # Хранение статических файлов без сжатия
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
