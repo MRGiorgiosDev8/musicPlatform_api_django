@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     environment:
       USE_DOCKER: "true"
+      SECRET_KEY: "o-+l(a04j^$sjp!7d-34c#$rmor^=k3#d_6#00vwemb%#j!1b2"
       REDIS_HOST: redis
       REDIS_PORT: 6379
       DB_HOST: postgres
