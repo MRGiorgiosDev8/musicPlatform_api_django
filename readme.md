@@ -297,6 +297,8 @@ curl -sSL https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_dja
 
 - Остальной запуск про локальный dev — для тех, кто хочет разбираться глубже.
 
+---
+
 
 ## 🚀 Запуск проекта <a id="run"></a>
 
@@ -318,7 +320,7 @@ cp .env.example .env
 DEBUG=1
 
 # Сгенерируйте новый ключ
-SECRET_KEY=django-insecure-change-me-to-something-secret
+SECRET_KEY=
 
 ALLOWED_HOSTS=*
 
@@ -380,7 +382,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-5**Запуск сервера разработки:**
+5 **Запуск сервера разработки:**
 ```bash
 uvicorn music_project.asgi:application --reload
 ```
@@ -388,6 +390,7 @@ uvicorn music_project.asgi:application --reload
 Поэтому **не рекомендуется** использовать `python manage.py runserver`, так как он работает в
 синхронном режиме и значительно снижает производительность.
 
+---
 ### 🔹 Сборка и запуск через Docker
 **Сборка и запуск контейнеров:**
 ```bash
@@ -396,15 +399,28 @@ docker compose up -d --build
 **Настройка базы данных:**
 ```bash
 # Применение миграций (создание таблиц в PostgreSQL)
+docker compose exec web python manage.py makemigrations music_api
 docker compose exec web python manage.py migrate
 ``` 
 ```bash
 # Создание администратора
 docker compose exec web python manage.py createsuperuser
-``` 
+```
+---
+#### 🌐 Доступные сервисы после запуска
+
+| Сервис | URL | Доступ / Описание |
+| :--- | :--- | :--- |
+| **Django Web App (ASGI)** | [http://localhost:8000](http://localhost:8000) | Основное веб-приложение и API |
+| **Grafana Dashboard** | [http://localhost:3000](http://localhost:3000) | `admin` / `admin` (Мониторинг) |
+| **Prometheus Metrics** | [http://localhost:9090](http://localhost:9090) | Сбор метрик приложения |
+
+---
 
 #### 🔗 Публичный доступ к проекту через туннель
 При необходимости могу показать работающее приложение в сети, используя SSH-туннель.
 Запустив его, скину публичный URL, по которому можно открыть проект.
+
+---
 
 > **Примечание:** Для лучшей работы приложения рекомендуется использовать VPN, так как некоторые музыкальные данные берутся из источников, заблокированных в РФ.
