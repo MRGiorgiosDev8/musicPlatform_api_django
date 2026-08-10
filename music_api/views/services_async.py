@@ -1,10 +1,11 @@
-import time
 import asyncio
-import httpx
 import hashlib
+import httpx
 import re
+import unicodedata
+import time
 from django.core.cache import cache
-from .base import logger, LASTFM_KEY
+from .base import LASTFM_KEY, THEAUDIO_DB_API_KEY, logger
 
 
 def _safe_cache_key(prefix, *parts):
@@ -75,6 +76,26 @@ def _track_names_match(target: str, candidate: str) -> bool:
     if len(target_norm) < 4 or len(candidate_norm) < 4:
         return False
     return target_norm in candidate_norm or candidate_norm in target_norm
+
+
+def _normalize_artist_name(value: str) -> str:
+    if not value:
+        return ""
+
+    text = unicodedata.normalize("NFKD", str(value))
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = text.casefold()
+    text = re.sub(r"[^\w\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _select_theaudiodb_artist_image(artist_data):
+    for field in ("strArtistThumb", "strArtistCutout"):
+        url = str(artist_data.get(field) or "").strip()
+        if url:
+            return url
+    return ""
 
 
 async def _get_itunes_batch_async(tracks, limit=25):
@@ -202,6 +223,110 @@ async def _get_deezer_batch_async(tracks):
             continue
         track_key, data = result
         results[track_key] = data
+
+    return results
+
+
+async def _get_theaudiodb_artists_batch_async(artists):
+    results = {}
+    if not artists:
+        return results
+
+    unique_artists = []
+    seen = set()
+    for raw_artist in artists[:40]:
+        if not isinstance(raw_artist, dict):
+            continue
+
+        name = str(raw_artist.get("name") or "").strip()
+        if not name:
+            continue
+
+        mbid = str(raw_artist.get("mbid") or "").strip()
+        dedupe_key = mbid or name.lower()
+        if dedupe_key in seen:
+            continue
+
+        seen.add(dedupe_key)
+        unique_artists.append({"name": name, "mbid": mbid})
+
+    tadb_sem = asyncio.Semaphore(10)
+    cache_version = "v1"
+
+    async def fetch_artist_image(artist):
+        name = artist["name"]
+        mbid = artist["mbid"]
+        cache_key = _safe_cache_key(
+            "theaudiodb_artist_image", cache_version, mbid or name.lower()
+        )
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return name, cached
+
+        try:
+            if mbid:
+                base_url = (
+                    f"https://www.theaudiodb.com/api/v1/json/"
+                    f"{THEAUDIO_DB_API_KEY}"
+                )
+                url = f"{base_url}/artist-mb.php"
+                params = {"i": mbid}
+            else:
+                base_url = (
+                    f"https://www.theaudiodb.com/api/v1/json/"
+                    f"{THEAUDIO_DB_API_KEY}"
+                )
+                url = f"{base_url}/search.php"
+                params = {"s": name}
+
+            async with tadb_sem:
+                r = await http_client.get(url, params=params)
+                r.raise_for_status()
+                payload = r.json() or {}
+                artist_rows = payload.get("artists") or []
+                if not isinstance(artist_rows, list):
+                    artist_rows = []
+
+                expected_name = _normalize_artist_name(name)
+
+                for art in artist_rows:
+                    if not isinstance(art, dict):
+                        continue
+
+                    candidate_name = _normalize_artist_name(art.get("strArtist"))
+                    candidate_mbid = str(art.get("strMusicBrainzID") or "").strip()
+
+                    if (
+                        mbid
+                        and candidate_mbid
+                        and candidate_mbid.lower() != mbid.lower()
+                    ):
+                        continue
+                    if not mbid and candidate_name != expected_name:
+                        continue
+
+                    photo = _select_theaudiodb_artist_image(art)
+                    cache_ttl = 60 * 60 * 24 * 7 if photo else 60 * 60
+                    cache.set(cache_key, photo, timeout=cache_ttl)
+                    return name, photo
+
+                cache.set(cache_key, "", timeout=60 * 60)
+                return name, ""
+        except Exception as e:
+            logger.warning(f"TheAudioDB artist API error for artist='{name}': {e}")
+            cache.set(cache_key, "", timeout=60 * 60)
+            return name, ""
+
+    async with _build_http_client() as http_client:
+        tasks = [fetch_artist_image(artist) for artist in unique_artists]
+        completed_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    for result in completed_results:
+        if isinstance(result, Exception):
+            logger.error(f"TheAudioDB artist fetch error: {result}")
+            continue
+        name, photo = result
+        results[name] = photo
 
     return results
 
@@ -548,51 +673,6 @@ async def _search_lastfm_artists_async(query, limit=20):
             exc_info=True,
         )
         return []
-
-
-async def _get_deezer_artists_batch_async(artist_names):
-    results = {}
-    artist_names = artist_names[:40]
-    deezer_sem = asyncio.Semaphore(15)
-
-    async def fetch_artist_photo(name):
-        cache_key = _safe_cache_key("deezer_artist", name.lower())
-        cached = cache.get(cache_key)
-        if cached is not None:
-            return name, cached
-
-        try:
-            async with deezer_sem:
-                r = await http_client.get(
-                    "https://api.deezer.com/search/artist",
-                    params={"q": name, "limit": 1},
-                )
-                data = r.json()
-                if data.get("data"):
-                    art = data["data"][0]
-                    photo = art.get("picture_xl") or art.get("picture_big")
-                    cache.set(cache_key, photo, 60 * 60 * 24 * 7)
-                    return name, photo
-                else:
-                    cache.set(cache_key, None, 60 * 60)
-                    return name, None
-        except Exception as e:
-            logger.warning(f"Deezer artist API error for artist='{name}': {e}")
-            cache.set(cache_key, None, 60 * 60)
-            return name, None
-
-    async with _build_http_client() as http_client:
-        tasks = [fetch_artist_photo(name) for name in artist_names]
-        completed_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    for result in completed_results:
-        if isinstance(result, Exception):
-            logger.error(f"Deezer artist fetch error: {result}")
-            continue
-        name, photo = result
-        results[name] = photo
-
-    return results
 
 
 async def _get_lastfm_releases_batch_async(artists):

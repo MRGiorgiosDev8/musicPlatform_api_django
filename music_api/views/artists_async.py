@@ -13,15 +13,15 @@ from .services_async import (
     _get_lastfm_artists_by_genre_async,
     _get_lastfm_artists_chart_async,
     _get_lastfm_releases_batch_async,
-    _get_wikipedia_artist_bios_batch_async,
+    _get_theaudiodb_artists_batch_async,
     _search_lastfm_artists_async,
 )
 
 DEFAULT_ARTIST_COUNT = 16
 CACHE_TIMEOUT = 600  # 10 минут
-CACHE_VERSION = "v5"
+CACHE_VERSION = "v7"
 
-WIKIPEDIA_ARTIST_IMAGES_BATCH_LIMIT = 30
+THEAUDIODB_ARTISTS_BATCH_LIMIT = 40
 LASTFM_RELEASES_BATCH_LIMIT = 75
 LASTFM_CHART_LIMIT = 75
 
@@ -45,22 +45,21 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             return {"artists": []}, False
 
         artists_raw = artists_raw[:limit]
-        artist_images_task = _get_wikipedia_artist_bios_batch_async(
-            [art["name"] for art in artists_raw[:WIKIPEDIA_ARTIST_IMAGES_BATCH_LIMIT]],
-            "ru",
-        )
 
+        theaudiodb_photos_task = _get_theaudiodb_artists_batch_async(
+            artists_raw[:THEAUDIODB_ARTISTS_BATCH_LIMIT]
+        )
         releases_task = _get_lastfm_releases_batch_async(
             artists_raw[:LASTFM_RELEASES_BATCH_LIMIT]
         )
 
-        artist_images, releases_data = await asyncio.gather(
-            artist_images_task, releases_task, return_exceptions=True
+        theaudiodb_photos, releases_data = await asyncio.gather(
+            theaudiodb_photos_task, releases_task, return_exceptions=True
         )
 
-        if isinstance(artist_images, Exception):
-            logger.error(f"Wikipedia artist image batch fail: {artist_images}")
-            artist_images = {}
+        if isinstance(theaudiodb_photos, Exception):
+            logger.error(f"TheAudioDB batch fail: {theaudiodb_photos}")
+            theaudiodb_photos = {}
 
         if isinstance(releases_data, Exception):
             logger.error(f"Last.fm releases fail: {releases_data}")
@@ -72,7 +71,7 @@ async def _async_get_artists(genre=None, limit=DEFAULT_ARTIST_COUNT):
             enriched_artists.append(
                 {
                     "name": name,
-                    "photo_url": (artist_images.get(name) or {}).get("image_url") or "",
+                    "photo_url": theaudiodb_photos.get(name) or "",
                     "listeners": art.get("listeners", 0),
                     "playcount": art.get("playcount", 0),
                     "releases": releases_data.get(name, []),

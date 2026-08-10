@@ -6,7 +6,7 @@
 ![Deploy](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&logo=github&color=%23e0115f)
 
 # 🎵 RubySound.fm
-**RubySound.fm** — полнофункциональный музыкальный агрегатор с асинхронной архитектурой на Django + DRF, объединяющий данные из Last.fm, Deezer и iTunes.
+**RubySound.fm** — полнофункциональный музыкальный агрегатор с асинхронной архитектурой на Django + DRF, объединяющий данные из Last.fm, TheAudioDB и iTunes.
 
 Проект построен на **ASGI-архитектуре**, поддерживает высокую нагрузку за счет параллельных запросов и включает глубокую систему взаимодействия с пользователем.
 
@@ -345,18 +345,20 @@ python -c "from django.core.management.utils import get_random_secret_key; print
 
 ### 🛠 Предварительные требования
 
-- Для корректной работы проекта в локальной среде должны быть установлены и запущены следующие сервисы:
+Для корректной работы проекта в локальной среде (при запуске без Docker) должны быть установлены и запущены следующие сервисы:
 
 * **PostgreSQL** — основная база данных. 
 * **Redis** — используется для кэширования и сессий.
+* **Prometheus** — система сбора метрик и мониторинга.
+* **Grafana** — визуализация метрик и аналитические дашборды.
 
 #### **Быстрый запуск сервисов:**
 
-| ОС | Команда запуска (Redis + Postgres) |
+| ОС | Команда запуска (Redis + Postgres + Prometheus + Grafana) |
 | :--- | :--- |
-| **macOS** | `brew services start redis && brew services start postgresql` |
-| **Linux** | `sudo systemctl start redis-server postgresql` |
-| **Windows** | Используйте **WSL2** или запустите сервисы через Docker: |
+| **macOS** | `brew services start redis && brew services start postgresql && brew services start prometheus && brew services start grafana` |
+| **Linux** | `sudo systemctl start redis-server postgresql prometheus grafana-server` |
+| **Windows** | Запустите сервисы через **WSL2** или используйте **Docker** |
 
 
 ---

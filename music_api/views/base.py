@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 # Загружается из переменных окружения
 # (не хранится в коде и не коммитится в репозиторий)
 LASTFM_KEY = config("LASTFM_KEY")
+THEAUDIO_DB_API_KEY = config("THEAUDIO_DB_API_KEY", default="123")
 
 
 def search_page_view(request):
