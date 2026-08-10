@@ -369,3 +369,11 @@
 - **ui**: На странице `admin/login` добавлена кнопка перехода на главную страницу сайта.
 - **infra**: В Docker-образ добавлен `postgresql-client`, чтобы `pg_dump` и `pg_restore` были доступны в контейнере.
 - **test**: Добавлены тесты для backup-центра, restore, автоочистки и шаблона login admin.
+
+
+#### 2026-08-10 — TheAudioDB для изображений артистов
+
+- **feat**: Изображения артистов в `Trending Artists` теперь загружаются через TheAudioDB.
+- **fix**: Добавлено точное сопоставление по `MBID` или имени артиста, чтобы избежать подмены изображений.
+- **refactor**: Удалена неиспользуемая функция `_get_deezer_artists_batch_async`.
+- **test**: Добавлены unit-тесты для batch-запросов TheAudioDB и логики `Trending Artists`.
