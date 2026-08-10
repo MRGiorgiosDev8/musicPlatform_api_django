@@ -1,10 +1,7 @@
 name: Continuous Integration
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_call:
 
 jobs:
   lint:
@@ -50,7 +47,7 @@ jobs:
       - name: Run frontend unit tests (Vitest)
         run: npx vitest run
 
-  test:
+  backend-test:
     needs: [lint, frontend-test]
     runs-on: ubuntu-latest
 
