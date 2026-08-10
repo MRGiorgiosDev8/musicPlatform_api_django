@@ -39,6 +39,8 @@
 ## 📑 Оглавление
 - [⚡ Быстрый запуск](#quick-start)
 - [🐍 Стек](#stack)
+- [⚙️ Backend](#backend)
+- [🔐 Аутентификация и безопасность](#security)
 - [🎨 Фронтенд](#frontend)
 - [🐳 Docker](#docker)
 - [💾 Backup и Restore](#backup-restore)
@@ -77,18 +79,98 @@
 
 ---
 
-### 🎨 Фронтенд <a id="frontend"></a>
+### ⚙️ Backend <a id="backend"></a>
 
-- **Bootstrap 5** — сетка и адаптивные компоненты
-- **Font Awesome** — иконки
-- **GSAP** — анимации и визуальные эффекты
-- **Собственные скрипты фронтенда**:
-  - `js/features/*.js` — функциональные модули (трендовые артисты, чарты, поиск)
-  - `js/UI/*.js` — UI-модули (scroll, кнопки, поиск)
-  - `js/animation/*.js` — анимации и визуальные эффекты
-  - `js/utils/utils.js` — утилиты
+Backend построен на **Django 5** и работает через **ASGI**. Он отвечает за API, серверный рендеринг страниц, пользователей, плейлисты, realtime-функции и интеграции с внешними музыкальными сервисами.
+
+#### Основные компоненты
+
+- `music_project/` — настройки окружения, маршрутизация Django/Channels и ASGI-приложение.
+- `music_api/` — музыкальный API, модели треков и плейлистов, async views, сервисы интеграций и Django Admin.
+- `users/` — пользователи, JWT-аутентификация, профили, избранное, presence и уведомления.
+- **Django REST Framework** + **Simple JWT** — REST API и авторизация.
+- **PostgreSQL** — основная база данных; миграции находятся в `music_api/migrations/` и `users/migrations/`.
+- **Redis** — кэширование и backend для Channels.
+- **Django Channels + WebSocket** — realtime presence, комментарии и уведомления.
+- **httpx/aiohttp** — асинхронные запросы к Last.fm, TheAudioDB, iTunes, Deezer и Wikipedia.
+- **drf-spectacular** — OpenAPI-документация, Swagger UI и ReDoc.
+- **django-prometheus** — endpoint `/metrics` для локального мониторинга.
+
+#### Healthchecks и служебные endpoints
+
+- `GET /health/live` — проверка доступности приложения.
+- `GET /health/ready` — проверка готовности PostgreSQL, Redis и внешних зависимостей.
+- `GET /metrics` — метрики Django для Prometheus.
+- `/api/docs/` и `/api/redoc/` — интерактивная документация API.
+
+#### Тестирование Backend
+
+Backend-тесты находятся в `tests/` и запускаются через **pytest**, включая проверки API, моделей, безопасности, внешних интеграций и WebSocket-соединений:
+
+```bash
+pytest
+```
 
 ---
+
+### 🎨 Фронтенд <a id="frontend"></a>
+
+Фронтенд встроен в Django templates и не требует отдельного dev-сервера: HTML-страницы отдаются Django, а статические ресурсы подключаются из `static/`.
+
+#### Технологии
+
+- **Bootstrap 5** — сетка и адаптивные компоненты.
+- **Font Awesome** и **Bootstrap Icons** — иконки.
+- **GSAP** — анимации и визуальные эффекты.
+- **WaveSurfer.js** — визуализация и управление аудиопревью.
+- **WebSocket (Django Channels)** — realtime-статус пользователей, комментарии и уведомления.
+- **PWA** — manifest и service worker для установки приложения на устройство.
+
+#### Структура frontend-кода
+
+- `music_api/templates/` — Django-шаблоны страниц и общая разметка.
+- `static/css/` — глобальные стили, компоненты, адаптивность и стили отдельных страниц.
+- `static/js/features/` — функциональные модули: поиск, trending, публичные плейлисты, комментарии и realtime-функции.
+- `static/js/UI/` — интерактивные элементы интерфейса: кнопки, плейлисты, навигация, тема и аудиоплеер.
+- `static/js/animation/` — GSAP-анимации страниц, карточек, модальных окон и навигации.
+- `static/js/utils/utils.js` — общие frontend-утилиты.
+- `static/vendor/` — локальные vendor-ресурсы, исключённые из пользовательского linting.
+
+#### Проверка и форматирование JavaScript
+
+Зависимости устанавливаются из `package-lock.json`:
+
+```bash
+npm ci
+```
+
+Для проверки JavaScript используются **ESLint** (ошибки кода и необъявленные переменные) и **Prettier** (форматирование):
+
+```bash
+npm run lint:js       # ESLint для static/js и tests/js
+npm run lint:js:fix   # ESLint с автоматическим исправлением
+npm run format        # форматирование Prettier
+npm run format:check  # проверка форматирования без изменений
+npm run test:js       # frontend unit-тесты Vitest
+```
+
+Frontend unit-тесты находятся в `tests/js/` и запускаются в окружении `jsdom`.
+
+---
+
+### 🔐 Аутентификация и безопасность <a id="security"></a>
+
+- **JWT-аутентификация** — access- и refresh-токены выдаются через `POST /api/auth/token/` и обновляются через `POST /api/auth/token/refresh/`.
+- **Отзыв токенов** — доступна blacklist-операция через `POST /api/auth/token/blacklist/`.
+- **Защищённые API-методы** — по умолчанию REST API требует `IsAuthenticated`; публичные endpoints явно используют `AllowAny`.
+- **Асинхронная JWT-аутентификация** — `AsyncJWTAuthentication` адаптирует проверку токена для ASGI и асинхронных views.
+- **Разграничение доступа** — операции с профилем, избранным и личными плейлистами доступны только владельцу; публичные плейлисты и комментарии разделяют публичные и авторизованные действия.
+- **Django Admin** — backup-операции доступны только пользователю с правами `superuser`.
+- **CSRF-защита** — включён `CsrfViewMiddleware`; production-настройки используют trusted origins и secure CSRF cookie.
+- **Безопасные ошибки API** — единый обработчик возвращает клиенту нормализованный формат ошибок и не раскрывает детали необработанных исключений.
+
+---
+
 ### 🐳 Docker <a id="docker"></a>
 
 - **Контейнеризация проекта** для удобной локальной разработки и деплоя
@@ -211,7 +293,7 @@ STEADY_SLEEP=1
 ### Frontend Unit Tests (Vitest)
 - Покрыты ключевые модули: `favorite-button`, `music_search`, `playlists`, `public-playlist`, `artist_wikipedia_modal`, `year2025`, `trending`.
 - Проверяются: фильтрация/сортировка/пагинация, кэш/TTL, batch-запросы, обработка ошибок API, состояние UI-кнопок.
-- Текущий статус: **39 passed** (`tests/js`, 7 test files).
+- Текущий статус: **54 passed** (`tests/js`, 9 test files).
 
 ### Команды запуска
 
@@ -244,10 +326,11 @@ STEADY_SLEEP=1
 ### **Автоматизация (CI/CD)**
 Процесс обновления проекта полностью автономен:
 
-1.  **Тестирование:** При каждом *push* GitHub Actions автоматически запускает проверку кода (`tests.yml`).
-2.  **Сборка:** После успешного прохождения тестов собирается актуальный Docker-образ и отправляется на Docker Hub (`main.yml`).
-3.  **Авто-деплой:** Render мгновенно подхватывает изменения и пересобирает проект «на лету» без участия разработчика.
-4.  **Linting**: Контроль качества кода с помощью `Black` и `Flake8`.
+1.  **Тестирование:** `tests.yml` запускает jobs `lint`, `frontend-test` и `backend-test` при каждом *push* и `pull_request`.
+2.  **Проверка перед сборкой:** `main.yml` вызывает `tests.yml` как reusable workflow через job `tests` и продолжает pipeline только при успешном завершении всех проверок.
+3.  **Сборка:** После успешного прохождения `tests` job `build_and_push` собирает Docker-образ и отправляет его на Docker Hub.
+4.  **Авто-деплой:** Отдельный job `deploy` после успешной сборки вызывает Render Deploy Hook.
+5.  **Linting**: Контроль качества Python-кода с помощью `Black` и `Flake8`, а JavaScript-кода — с помощью `ESLint` (`npm run lint:js`).
 
 ---
 ### 📖 API Documentation(Swagger UI) <a id="api-docs"></a>
