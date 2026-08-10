@@ -355,7 +355,7 @@
 
 ---
 
-## 2026-07-11 — Центр резервного копирования (Backup & Restore Control Panel)
+#### 2026-07-11 — Центр резервного копирования (Backup & Restore Control Panel)
 - **feat**: Добавлен backup-центр в Django admin для `superuser`.
   - Кнопка `Сделать backup` создает PostgreSQL dump через `pg_dump`.
   - На главной странице админки отображается последний backup и лимит хранения.
@@ -370,6 +370,7 @@
 - **infra**: В Docker-образ добавлен `postgresql-client`, чтобы `pg_dump` и `pg_restore` были доступны в контейнере.
 - **test**: Добавлены тесты для backup-центра, restore, автоочистки и шаблона login admin.
 
+---
 
 #### 2026-08-10 — TheAudioDB для изображений артистов
 
