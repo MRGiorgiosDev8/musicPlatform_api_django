@@ -256,6 +256,7 @@ async def _get_theaudiodb_artists_batch_async(artists):
     async def fetch_artist_image(artist):
         name = artist["name"]
         mbid = artist["mbid"]
+        api_base = "https://www.theaudiodb.com/api/v1/json"
         cache_key = _safe_cache_key(
             "theaudiodb_artist_image", cache_version, mbid or name.lower()
         )
@@ -265,18 +266,10 @@ async def _get_theaudiodb_artists_batch_async(artists):
 
         try:
             if mbid:
-                base_url = (
-                    f"https://www.theaudiodb.com/api/v1/json/"
-                    f"{THEAUDIO_DB_API_KEY}"
-                )
-                url = f"{base_url}/artist-mb.php"
+                url = f"{api_base}/{THEAUDIO_DB_API_KEY}/artist-mb.php"
                 params = {"i": mbid}
             else:
-                base_url = (
-                    f"https://www.theaudiodb.com/api/v1/json/"
-                    f"{THEAUDIO_DB_API_KEY}"
-                )
-                url = f"{base_url}/search.php"
+                url = f"{api_base}/{THEAUDIO_DB_API_KEY}/search.php"
                 params = {"s": name}
 
             async with tadb_sem:
