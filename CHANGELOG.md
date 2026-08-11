@@ -378,3 +378,14 @@
 - **fix**: Добавлено точное сопоставление по `MBID` или имени артиста, чтобы избежать подмены изображений.
 - **refactor**: Удалена неиспользуемая функция `_get_deezer_artists_batch_async`.
 - **test**: Добавлены unit-тесты для batch-запросов TheAudioDB и логики `Trending Artists`.
+
+---
+
+#### 2026-08-11 — Централизация CI/CD
+
+- **ci**: Вся проверка и доставка проекта объединены в `.github/workflows/main.yml`.
+- **ci**: Добавлены отдельные jobs `lint`, `frontend-test` и `backend-test`.
+- **ci**: Сборка и публикация Docker-образа (`build_and_push`) запускаются только после успешного прохождения всех проверок.
+- **cd**: Деплой на Render вынесен в отдельный job `deploy`, зависящий от успешной сборки.
+- **refactor**: Удалён отдельный reusable workflow `.github/workflows/tests.yml`.
+
