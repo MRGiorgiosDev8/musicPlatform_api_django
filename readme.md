@@ -2,7 +2,7 @@
 ![Repository size](https://img.shields.io/github/repo-size/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-%23e0115f)
 ![License](https://img.shields.io/github/license/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f)
-![Tests](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/tests.yml?label=tests&logo=github&color=%23e0115f)
+![Tests](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=tests&logo=github&color=%23e0115f)
 ![Deploy](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&logo=github&color=%23e0115f)
 
 # 🎵 RubySound.fm
@@ -106,10 +106,6 @@ Backend построен на **Django 5** и работает через **ASGI
 #### Тестирование Backend
 
 Backend-тесты находятся в `tests/` и запускаются через **pytest**, включая проверки API, моделей, безопасности, внешних интеграций и WebSocket-соединений:
-
-```bash
-pytest
-```
 
 ---
 
@@ -326,9 +322,9 @@ STEADY_SLEEP=1
 ### **Автоматизация (CI/CD)**
 Процесс обновления проекта полностью автономен:
 
-1.  **Тестирование:** `tests.yml` запускает jobs `lint`, `frontend-test` и `backend-test` при каждом *push* и `pull_request`.
-2.  **Проверка перед сборкой:** `main.yml` вызывает `tests.yml` как reusable workflow через job `tests` и продолжает pipeline только при успешном завершении всех проверок.
-3.  **Сборка:** После успешного прохождения `tests` job `build_and_push` собирает Docker-образ и отправляет его на Docker Hub.
+1.  **Тестирование:** `main.yml` запускает jobs `lint`, `frontend-test` и `backend-test` при каждом *push* и `pull_request`.
+2.  **Проверка перед сборкой:** job `build_and_push` запускается только после успешного завершения всех трёх jobs тестирования.
+3.  **Сборка:** После успешного прохождения тестов job `build_and_push` собирает Docker-образ и отправляет его на Docker Hub.
 4.  **Авто-деплой:** Отдельный job `deploy` после успешной сборки вызывает Render Deploy Hook.
 5.  **Linting**: Контроль качества Python-кода с помощью `Black` и `Flake8`, а JavaScript-кода — с помощью `ESLint` (`npm run lint:js`).
 
