@@ -6,7 +6,7 @@
 ![Deploy](https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&logo=github&color=%23e0115f)
 
 # 🎵 RubySound.fm
-**RubySound.fm** — полнофункциональный музыкальный агрегатор с асинхронной архитектурой на Django + DRF, объединяющий данные из Last.fm, TheAudioDB и iTunes.
+**RubySound.fm** — полнофункциональный музыкальный агрегатор с асинхронной архитектурой на Django + DRF, объединяющий данные из Last.fm, TheAudioDB,Deezer и iTunes.
 
 Проект построен на **ASGI-архитектуре**, поддерживает высокую нагрузку за счет параллельных запросов и включает глубокую систему взаимодействия с пользователем.
 
@@ -30,6 +30,7 @@
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
 - 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`).
+- 🧪 **Тестирование**: Frontend — **54 passed**, Backend — **93 passed**.
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -286,20 +287,25 @@ STEADY_SLEEP=1
 * **pytest-cov** — отчеты о покрытии кода.
 * **Vitest + jsdom** — unit-тесты frontend-логики и DOM-сценариев.
 
-### Frontend Unit Tests (Vitest)
+### Frontend Unit Tests (vitest)
 - Покрыты ключевые модули: `favorite-button`, `music_search`, `playlists`, `public-playlist`, `artist_wikipedia_modal`, `year2025`, `trending`.
 - Проверяются: фильтрация/сортировка/пагинация, кэш/TTL, batch-запросы, обработка ошибок API, состояние UI-кнопок.
-- Текущий статус: **54 passed** (`tests/js`, 9 test files).
+- Текущий статус: **54 passed**.
+
+### Backend Tests (pytest)
+- Покрываются API, модели, авторизация и безопасность, внешние интеграции, плейлисты, backup-функциональность и WebSocket-сценарии.
+- Текущий статус: **93 passed**.
 
 ### Команды запуска
 
 | Окружение | Команда | Среднее время |
 | :--- | :--- |:--------------|
-| **Docker** (рекомендуется) | `make test` | ~6.30s ⚡️     |
-| **Локально** (macOS) | `make test-local` | ~10.01s       |
+| **Backend в Docker** (рекомендуется) | `make test` | зависит от окружения ⚡️ |
+| **Backend локально** (macOS) | `make test-local` | 13.59s |
 | **Frontend Unit** | `npx vitest run` | ~1-2s ⚡️ |
 
 > При локальном запуске убедитесь, что Postgres и Redis запущены через `brew services`.
+
 
 ---
 
