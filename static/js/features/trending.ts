@@ -1,0 +1,206 @@
+/**
+ * Тренды артистов на главной странице.
+ * Side-effect модуль: на DOMContentLoaded инициализирует жанровые кнопки
+ * и загружает тренды через глобальный Utils (static/js/utils/utils.js).
+ * CJS-мост сохранён для тестов (см. tests/js/helpers/trending.js).
+ */
+
+interface TrendingRelease {
+  title?: string;
+  cover?: string;
+  playcount?: number | string;
+}
+
+interface TrendingArtist {
+  name?: string;
+  photo_url?: string;
+  releases?: TrendingRelease[];
+}
+
+interface TrendingResponse {
+  artists?: TrendingArtist[];
+}
+
+const buildTrendingUrl = (baseUrl: string, genre: string = ''): string =>
+  genre ? `${baseUrl}?genre=${encodeURIComponent(genre)}` : baseUrl;
+
+const extractTrendingArtists = (data: TrendingResponse | null | undefined): TrendingArtist[] => {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Неверный формат ответа сервера');
+  }
+  return Array.isArray(data.artists) ? data.artists : [];
+};
+
+const TrendingApp = {
+  URL: '/music_api/trending/',
+  cache: {},
+
+  init(): void {
+    Utils.initGenreButtons('trending-genre-container', (genre: string) => this.load(genre));
+    this.load();
+  },
+
+  render(list: TrendingArtist[]): void {
+    const container = document.getElementById('trending-container') as HTMLElement;
+    if (!list || !list.length) {
+      Utils.renderEmpty('trending-container');
+      return;
+    }
+
+    container.replaceChildren();
+
+    const fragment = document.createDocumentFragment();
+
+    list.forEach((a) => {
+      if (!a || !a.name) return;
+
+      const col = document.createElement('div');
+      col.className = 'col';
+
+      const card = document.createElement('div');
+      card.className = 'card h-100 rounded-sm card-custom';
+
+      const row = document.createElement('div');
+      row.className = 'row g-0 h-100';
+
+      const colImg = document.createElement('div');
+      colImg.className = 'col-md-4 shadow';
+
+      const img = document.createElement('img');
+      img.src = a.photo_url || '';
+      img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
+      img.alt = a.name;
+      img.loading = 'lazy';
+      img.onerror = () => {
+        img.removeAttribute('src');
+      };
+
+      colImg.appendChild(img);
+
+      const colContent = document.createElement('div');
+      colContent.className = 'col-md-8 d-flex flex-column';
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title mb-1 text-dark';
+      const artistButton = document.createElement('button');
+      artistButton.type = 'button';
+      artistButton.className = 'artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark';
+      artistButton.dataset.artistName = a.name;
+      artistButton.textContent = a.name;
+      cardTitle.appendChild(artistButton);
+
+      cardBody.appendChild(cardTitle);
+
+      const cardFooter = document.createElement('div');
+      cardFooter.className = 'card-footer mt-auto';
+
+      const smallText = document.createElement('small');
+      smallText.className = 'text-muted';
+      smallText.textContent = 'Популярные альбомы:';
+
+      const ul = document.createElement('ul');
+      ul.className = 'list-unstyled mb-0 mt-1';
+
+      // Защита от отсутствия releases
+      const releases = a.releases || [];
+      releases.forEach((r) => {
+        if (!r || !r.title) return;
+
+        const li = document.createElement('li');
+        li.className = 'd-flex align-items-center mb-1';
+
+        const coverImg = document.createElement('img');
+        coverImg.src = r.cover || '';
+        coverImg.width = 32;
+        coverImg.height = 32;
+        coverImg.className = 'rounded me-2 shadow';
+        coverImg.loading = 'lazy';
+        coverImg.onerror = () => {
+          coverImg.removeAttribute('src');
+        };
+
+        const divInfo = document.createElement('div');
+
+        const titleDiv = document.createElement('div');
+        titleDiv.classList.add('fw-semibold', 'text-body');
+        titleDiv.textContent = r.title;
+
+        const playcountDiv = document.createElement('div');
+        playcountDiv.className = 'small text-muted';
+        playcountDiv.textContent = `Прослушиваний:\u00A0${r.playcount || 0}`;
+
+        divInfo.appendChild(titleDiv);
+        divInfo.appendChild(playcountDiv);
+
+        li.appendChild(coverImg);
+        li.appendChild(divInfo);
+
+        ul.appendChild(li);
+      });
+
+      cardFooter.appendChild(smallText);
+      cardFooter.appendChild(ul);
+
+      colContent.appendChild(cardBody);
+      colContent.appendChild(cardFooter);
+
+      row.appendChild(colImg);
+      row.appendChild(colContent);
+
+      card.appendChild(row);
+      col.appendChild(card);
+
+      fragment.appendChild(col);
+    });
+
+    container.appendChild(fragment);
+
+    document.dispatchEvent(new Event('trending:rendered'));
+  },
+
+  async load(genre: string = ''): Promise<void> {
+    const cached = Utils.getCached(this.cache, genre);
+    if (cached) {
+      this.render(cached);
+      return;
+    }
+
+    Utils.showTrendingSpinner(true);
+    try {
+      const url = buildTrendingUrl(this.URL, genre);
+      const data = await Utils.fetchData(url);
+      const artists = extractTrendingArtists(data);
+
+      if (!artists.length) {
+        console.warn('Нет артистов для жанра:', genre || 'все');
+        Utils.setCache(this.cache, genre, artists);
+        this.render(artists);
+        return;
+      }
+
+      Utils.setCache(this.cache, genre, artists);
+      this.render(artists);
+    } catch (e) {
+      console.error('Ошибка загрузки трендов:', e);
+      const errorMessage = (e as Error).message || 'Не удалось загрузить данные';
+      Utils.showError('trending-container', errorMessage);
+
+      this.render([]);
+    } finally {
+      Utils.showTrendingSpinner(false);
+    }
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => TrendingApp.init());
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    TrendingApp,
+    buildTrendingUrl,
+    extractTrendingArtists,
+  };
+}

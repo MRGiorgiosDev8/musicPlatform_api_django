@@ -1,5 +1,7 @@
 /* @vitest-environment jsdom */
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
 
 const flushPromises = async () => {
   await Promise.resolve();
@@ -47,7 +49,7 @@ let isCommentsModuleLoaded = false;
 
 const initCommentsModule = async () => {
   if (!isCommentsModuleLoaded) {
-    await import('../../static/js/features/public_playlist_comments.js');
+    await import('../../static/js/features/public_playlist_comments.ts');
     isCommentsModuleLoaded = true;
   }
   document.dispatchEvent(new globalThis.Event('DOMContentLoaded'));
@@ -56,7 +58,7 @@ const initCommentsModule = async () => {
 
 describe('public-playlist-comments P1', () => {
   beforeAll(async () => {
-    await import('../../static/js/features/public_playlist_comments.js');
+    await import('../../static/js/features/public_playlist_comments.ts');
     isCommentsModuleLoaded = true;
   });
 
@@ -316,9 +318,9 @@ describe('public-playlist-comments P1', () => {
         }),
       })
     );
-    expect(document.querySelector('[data-comment-id="3"] .small.text-muted')?.textContent).toContain(
-      'Ответ @bob'
-    );
+    expect(
+      document.querySelector('[data-comment-id="3"] .small.text-muted')?.textContent
+    ).toContain('Ответ @bob');
   });
 
   it('deletes comment by button click', async () => {
@@ -582,7 +584,9 @@ describe('public-playlist-comments P1', () => {
       }),
     });
 
-    expect(likeButton.querySelector('[data-comment-like-icon]').className).toContain('bi-heart me-1');
+    expect(likeButton.querySelector('[data-comment-like-icon]').className).toContain(
+      'bi-heart me-1'
+    );
   });
 
   it('ignores empty form submission', async () => {
@@ -602,5 +606,120 @@ describe('public-playlist-comments P1', () => {
     await flushPromises();
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('public-playlist-comments — legacy IIFE', () => {
+  const createLegacySocketMock = (dom) => {
+    const sockets = [];
+    const WebSocketMock = vi.fn(function MockWebSocket(url) {
+      const listeners = {};
+      const socket = {
+        url,
+        addEventListener: vi.fn((event, handler) => {
+          listeners[event] = handler;
+        }),
+        close: vi.fn(),
+        emit(event, payload) {
+          if (listeners[event]) {
+            listeners[event](payload);
+          }
+        },
+      };
+      sockets.push(socket);
+      return socket;
+    });
+    dom.window.WebSocket = WebSocketMock;
+    return sockets;
+  };
+
+  it('рендерит комментарии и обрабатывает WebSocket-сообщения', async () => {
+    const legacyCode = readFileSync('static/js/features/public_playlist_comments.js', 'utf8');
+    const dom = new JSDOM(
+      `<!DOCTYPE html><html><body>
+        <div data-public-comments-root data-public-username="test user">
+          <span id="public-comments-count">0</span>
+          <form id="public-comment-form">
+            <textarea id="public-comment-text" placeholder="Напишите комментарий..."></textarea>
+            <button type="submit" id="public-comment-submit">Отправить</button>
+          </form>
+          <div id="public-comments-empty">Комментариев пока нет.</div>
+          <div id="public-comments-list" aria-live="polite"></div>
+        </div>
+      </body></html>`,
+      { runScripts: 'outside-only', url: 'http://localhost/' }
+    );
+
+    const sockets = createLegacySocketMock(dom);
+    dom.window.PublicCommentsAnimation = {
+      pulseNewComment: vi.fn(),
+      collapseDeleteComment: vi.fn((node, done) => done()),
+      flipCommentsCount: vi.fn((node, count) => {
+        node.textContent = String(count);
+      }),
+    };
+    dom.window.buildAuthHeaders = vi.fn(() => ({
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer test',
+    }));
+    dom.window.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        results: [
+          {
+            id: 1,
+            text: 'Legacy comment',
+            author_username: 'alice',
+            author_profile_url: '/profile/alice/',
+            created_at_display: 'now',
+            likes_count: 2,
+            liked_by_me: true,
+            can_delete: true,
+          },
+        ],
+      }),
+    });
+
+    dom.window.eval(legacyCode);
+
+    await vi.waitFor(() => {
+      expect(dom.window.WebSocket).toHaveBeenCalledTimes(1);
+    });
+
+    const list = dom.window.document.getElementById('public-comments-list');
+    const item = list.querySelector('[data-comment-id="1"]');
+    expect(item).toBeTruthy();
+    expect(item.querySelector('.public-comment-text').textContent).toBe('Legacy comment');
+    expect(
+      dom.window.document.getElementById('public-comments-empty').classList.contains('d-none')
+    ).toBe(true);
+
+    sockets[0].emit('message', {
+      data: JSON.stringify({
+        type: 'playlist_comment_created',
+        comment: {
+          id: 3,
+          text: 'WS legacy',
+          author_username: 'bob',
+          author_profile_url: '/profile/bob/',
+          created_at_display: 'now',
+          can_delete: false,
+        },
+      }),
+    });
+
+    expect(dom.window.document.querySelector('[data-comment-id="3"]')).toBeTruthy();
+    expect(dom.window.PublicCommentsAnimation.pulseNewComment).toHaveBeenCalled();
+
+    sockets[0].emit('message', {
+      data: JSON.stringify({
+        type: 'playlist_comment_deleted',
+        comment_id: 3,
+        deleted_ids: [3],
+      }),
+    });
+
+    expect(dom.window.document.querySelector('[data-comment-id="3"]')).toBeNull();
+    dom.window.close();
   });
 });

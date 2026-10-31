@@ -1,183 +1,152 @@
-const buildTrendingUrl = (baseUrl, genre = '') =>
-  genre ? `${baseUrl}?genre=${encodeURIComponent(genre)}` : baseUrl;
-
-const extractTrendingArtists = (data) => {
-  if (!data || typeof data !== 'object') {
-    throw new Error('Неверный формат ответа сервера');
-  }
-  return Array.isArray(data.artists) ? data.artists : [];
-};
-
-const TrendingApp = {
-  URL: '/music_api/trending/',
-  cache: {},
-
-  init() {
-    Utils.initGenreButtons('trending-genre-container', (genre) => this.load(genre));
-    this.load();
-  },
-
-  render(list) {
-    const container = document.getElementById('trending-container');
-    if (!list || !list.length) {
-      Utils.renderEmpty('trending-container');
-      return;
-    }
-
-    container.replaceChildren();
-
-    const fragment = document.createDocumentFragment();
-
-    list.forEach((a) => {
-      if (!a || !a.name) return;
-
-      const col = document.createElement('div');
-      col.className = 'col';
-
-      const card = document.createElement('div');
-      card.className = 'card h-100 rounded-sm card-custom';
-
-      const row = document.createElement('div');
-      row.className = 'row g-0 h-100';
-
-      const colImg = document.createElement('div');
-      colImg.className = 'col-md-4 shadow';
-
-      const img = document.createElement('img');
-      img.src = a.photo_url || '';
-      img.className = 'img-fluid rounded-start h-100 w-100 object-fit-cover';
-      img.alt = a.name;
-      img.loading = 'lazy';
-      img.onerror = () => {
-        img.removeAttribute('src');
-      };
-
-      colImg.appendChild(img);
-
-      const colContent = document.createElement('div');
-      colContent.className = 'col-md-8 d-flex flex-column';
-
-      const cardBody = document.createElement('div');
-      cardBody.className = 'card-body';
-
-      const cardTitle = document.createElement('h5');
-      cardTitle.className = 'card-title mb-1 text-dark';
-      const artistButton = document.createElement('button');
-      artistButton.type = 'button';
-      artistButton.className = 'artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark';
-      artistButton.dataset.artistName = a.name;
-      artistButton.textContent = a.name;
-      cardTitle.appendChild(artistButton);
-
-      cardBody.appendChild(cardTitle);
-
-      const cardFooter = document.createElement('div');
-      cardFooter.className = 'card-footer mt-auto';
-
-      const smallText = document.createElement('small');
-      smallText.className = 'text-muted';
-      smallText.textContent = 'Популярные альбомы:';
-
-      const ul = document.createElement('ul');
-      ul.className = 'list-unstyled mb-0 mt-1';
-
-      // Защита от отсутствия releases
-      const releases = a.releases || [];
-      releases.forEach((r) => {
-        if (!r || !r.title) return;
-
-        const li = document.createElement('li');
-        li.className = 'd-flex align-items-center mb-1';
-
-        const coverImg = document.createElement('img');
-        coverImg.src = r.cover || '';
-        coverImg.width = 32;
-        coverImg.height = 32;
-        coverImg.className = 'rounded me-2 shadow';
-        coverImg.loading = 'lazy';
-        coverImg.onerror = () => {
-          coverImg.removeAttribute('src');
-        };
-
-        const divInfo = document.createElement('div');
-
-        const titleDiv = document.createElement('div');
-        titleDiv.classList.add('fw-semibold', 'text-body');
-        titleDiv.textContent = r.title;
-
-        const playcountDiv = document.createElement('div');
-        playcountDiv.className = 'small text-muted';
-        playcountDiv.textContent = `Прослушиваний:\u00A0${r.playcount || 0}`;
-
-        divInfo.appendChild(titleDiv);
-        divInfo.appendChild(playcountDiv);
-
-        li.appendChild(coverImg);
-        li.appendChild(divInfo);
-
-        ul.appendChild(li);
-      });
-
-      cardFooter.appendChild(smallText);
-      cardFooter.appendChild(ul);
-
-      colContent.appendChild(cardBody);
-      colContent.appendChild(cardFooter);
-
-      row.appendChild(colImg);
-      row.appendChild(colContent);
-
-      card.appendChild(row);
-      col.appendChild(card);
-
-      fragment.appendChild(col);
-    });
-
-    container.appendChild(fragment);
-
-    document.dispatchEvent(new Event('trending:rendered'));
-  },
-
-  async load(genre = '') {
-    const cached = Utils.getCached(this.cache, genre);
-    if (cached) {
-      this.render(cached);
-      return;
-    }
-
-    Utils.showTrendingSpinner(true);
-    try {
-      const url = buildTrendingUrl(this.URL, genre);
-      const data = await Utils.fetchData(url);
-      const artists = extractTrendingArtists(data);
-
-      if (!artists.length) {
-        console.warn('Нет артистов для жанра:', genre || 'все');
-        Utils.setCache(this.cache, genre, artists);
-        this.render(artists);
-        return;
-      }
-
-      Utils.setCache(this.cache, genre, artists);
-      this.render(artists);
-    } catch (e) {
-      console.error('Ошибка загрузки трендов:', e);
-      const errorMessage = e.message || 'Не удалось загрузить данные';
-      Utils.showError('trending-container', errorMessage);
-
-      this.render([]);
-    } finally {
-      Utils.showTrendingSpinner(false);
-    }
-  },
-};
-
-document.addEventListener('DOMContentLoaded', () => TrendingApp.init());
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    TrendingApp,
-    buildTrendingUrl,
-    extractTrendingArtists,
+"use strict";
+(() => {
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
-}
+
+  // static/js/features/trending.ts
+  var require_trending = __commonJS({
+    "static/js/features/trending.ts"(exports, module) {
+      var buildTrendingUrl = (baseUrl, genre = "") => genre ? `${baseUrl}?genre=${encodeURIComponent(genre)}` : baseUrl;
+      var extractTrendingArtists = (data) => {
+        if (!data || typeof data !== "object") {
+          throw new Error("\u041D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u0444\u043E\u0440\u043C\u0430\u0442 \u043E\u0442\u0432\u0435\u0442\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0430");
+        }
+        return Array.isArray(data.artists) ? data.artists : [];
+      };
+      var TrendingApp = {
+        URL: "/music_api/trending/",
+        cache: {},
+        init() {
+          Utils.initGenreButtons("trending-genre-container", (genre) => this.load(genre));
+          this.load();
+        },
+        render(list) {
+          const container = document.getElementById("trending-container");
+          if (!list || !list.length) {
+            Utils.renderEmpty("trending-container");
+            return;
+          }
+          container.replaceChildren();
+          const fragment = document.createDocumentFragment();
+          list.forEach((a) => {
+            if (!a || !a.name) return;
+            const col = document.createElement("div");
+            col.className = "col";
+            const card = document.createElement("div");
+            card.className = "card h-100 rounded-sm card-custom";
+            const row = document.createElement("div");
+            row.className = "row g-0 h-100";
+            const colImg = document.createElement("div");
+            colImg.className = "col-md-4 shadow";
+            const img = document.createElement("img");
+            img.src = a.photo_url || "";
+            img.className = "img-fluid rounded-start h-100 w-100 object-fit-cover";
+            img.alt = a.name;
+            img.loading = "lazy";
+            img.onerror = () => {
+              img.removeAttribute("src");
+            };
+            colImg.appendChild(img);
+            const colContent = document.createElement("div");
+            colContent.className = "col-md-8 d-flex flex-column";
+            const cardBody = document.createElement("div");
+            cardBody.className = "card-body";
+            const cardTitle = document.createElement("h5");
+            cardTitle.className = "card-title mb-1 text-dark";
+            const artistButton = document.createElement("button");
+            artistButton.type = "button";
+            artistButton.className = "artist-bio-trigger js-artist-bio-trigger fw-semibold color-dark";
+            artistButton.dataset.artistName = a.name;
+            artistButton.textContent = a.name;
+            cardTitle.appendChild(artistButton);
+            cardBody.appendChild(cardTitle);
+            const cardFooter = document.createElement("div");
+            cardFooter.className = "card-footer mt-auto";
+            const smallText = document.createElement("small");
+            smallText.className = "text-muted";
+            smallText.textContent = "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u0430\u043B\u044C\u0431\u043E\u043C\u044B:";
+            const ul = document.createElement("ul");
+            ul.className = "list-unstyled mb-0 mt-1";
+            const releases = a.releases || [];
+            releases.forEach((r) => {
+              if (!r || !r.title) return;
+              const li = document.createElement("li");
+              li.className = "d-flex align-items-center mb-1";
+              const coverImg = document.createElement("img");
+              coverImg.src = r.cover || "";
+              coverImg.width = 32;
+              coverImg.height = 32;
+              coverImg.className = "rounded me-2 shadow";
+              coverImg.loading = "lazy";
+              coverImg.onerror = () => {
+                coverImg.removeAttribute("src");
+              };
+              const divInfo = document.createElement("div");
+              const titleDiv = document.createElement("div");
+              titleDiv.classList.add("fw-semibold", "text-body");
+              titleDiv.textContent = r.title;
+              const playcountDiv = document.createElement("div");
+              playcountDiv.className = "small text-muted";
+              playcountDiv.textContent = `\u041F\u0440\u043E\u0441\u043B\u0443\u0448\u0438\u0432\u0430\u043D\u0438\u0439:\xA0${r.playcount || 0}`;
+              divInfo.appendChild(titleDiv);
+              divInfo.appendChild(playcountDiv);
+              li.appendChild(coverImg);
+              li.appendChild(divInfo);
+              ul.appendChild(li);
+            });
+            cardFooter.appendChild(smallText);
+            cardFooter.appendChild(ul);
+            colContent.appendChild(cardBody);
+            colContent.appendChild(cardFooter);
+            row.appendChild(colImg);
+            row.appendChild(colContent);
+            card.appendChild(row);
+            col.appendChild(card);
+            fragment.appendChild(col);
+          });
+          container.appendChild(fragment);
+          document.dispatchEvent(new Event("trending:rendered"));
+        },
+        async load(genre = "") {
+          const cached = Utils.getCached(this.cache, genre);
+          if (cached) {
+            this.render(cached);
+            return;
+          }
+          Utils.showTrendingSpinner(true);
+          try {
+            const url = buildTrendingUrl(this.URL, genre);
+            const data = await Utils.fetchData(url);
+            const artists = extractTrendingArtists(data);
+            if (!artists.length) {
+              console.warn("\u041D\u0435\u0442 \u0430\u0440\u0442\u0438\u0441\u0442\u043E\u0432 \u0434\u043B\u044F \u0436\u0430\u043D\u0440\u0430:", genre || "\u0432\u0441\u0435");
+              Utils.setCache(this.cache, genre, artists);
+              this.render(artists);
+              return;
+            }
+            Utils.setCache(this.cache, genre, artists);
+            this.render(artists);
+          } catch (e) {
+            console.error("\u041E\u0448\u0438\u0431\u043A\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438 \u0442\u0440\u0435\u043D\u0434\u043E\u0432:", e);
+            const errorMessage = e.message || "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435";
+            Utils.showError("trending-container", errorMessage);
+            this.render([]);
+          } finally {
+            Utils.showTrendingSpinner(false);
+          }
+        }
+      };
+      document.addEventListener("DOMContentLoaded", () => TrendingApp.init());
+      if (typeof module !== "undefined" && module.exports) {
+        module.exports = {
+          TrendingApp,
+          buildTrendingUrl,
+          extractTrendingArtists
+        };
+      }
+    }
+  });
+  require_trending();
+})();

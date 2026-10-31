@@ -1,5 +1,7 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
 import * as trendingModule from './helpers/trending.js';
 
 describe('trending P2', () => {
@@ -93,5 +95,58 @@ describe('trending P2', () => {
     expect(renderSpy).toHaveBeenCalledWith([]);
     expect(Utils.showTrendingSpinner).toHaveBeenNthCalledWith(1, true);
     expect(Utils.showTrendingSpinner).toHaveBeenLastCalledWith(false);
+  });
+});
+
+describe('trending — legacy IIFE', () => {
+  it('инициализируется на DOMContentLoaded и рендерит тренды', async () => {
+    const legacyCode = readFileSync('static/js/features/trending.js', 'utf8');
+    const dom = new JSDOM(
+      `<!DOCTYPE html><html><body>
+        <div id="trending-genre-container"></div>
+        <div id="trending-container"></div>
+      </body></html>`,
+      { runScripts: 'outside-only', url: 'http://localhost/' }
+    );
+
+    const fetchData = vi.fn().mockResolvedValue({
+      artists: [
+        {
+          name: 'Muse',
+          photo_url: '',
+          releases: [{ title: 'Absolution', cover: '', playcount: 100 }],
+        },
+      ],
+    });
+    dom.window.Utils = {
+      getCached: vi.fn().mockReturnValue(null),
+      fetchData,
+      setCache: vi.fn(),
+      showTrendingSpinner: vi.fn(),
+      showError: vi.fn(),
+      renderEmpty: vi.fn(),
+      initGenreButtons: vi.fn(),
+    };
+
+    dom.window.eval(legacyCode);
+    const renderedSpy = vi.fn();
+    dom.window.document.addEventListener('trending:rendered', renderedSpy);
+
+    await vi.waitFor(() => {
+      expect(renderedSpy).toHaveBeenCalledTimes(1);
+    });
+
+    const container = dom.window.document.getElementById('trending-container');
+    expect(container.querySelectorAll('.card-custom').length).toBe(1);
+    expect(container.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
+    expect(container.querySelectorAll('li').length).toBe(1);
+    expect(fetchData).toHaveBeenCalledWith('/music_api/trending/');
+    expect(dom.window.Utils.initGenreButtons).toHaveBeenCalledWith(
+      'trending-genre-container',
+      expect.any(Function)
+    );
+    expect(dom.window.Utils.showTrendingSpinner).toHaveBeenNthCalledWith(1, true);
+    expect(dom.window.Utils.showTrendingSpinner).toHaveBeenLastCalledWith(false);
+    dom.window.close();
   });
 });

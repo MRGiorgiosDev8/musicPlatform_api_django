@@ -31,14 +31,14 @@ import '../animation/public_comments_animation.js';
 import '../animation/wavesurfer_morph_button.js';
 
 // Фичи сайта (modules/features)
-import '../features/trending.js';
-import '../features/year2025.js';
+import '../features/trending.ts';
+import '../features/year2025.ts';
 import '../features/public_playlists_dashboard.ts';
 import '../features/music_search.js';
 import '../features/artist_wikipedia_modal.js';
 import '../features/realtime_notifications.ts';
 import '../features/realtime_presence.ts';
-import '../features/public_playlist_comments.js';
+import '../features/public_playlist_comments.ts';
 
 // Поиск и UI-специфичные скрипты
 import '../UI/scrollbutton.ts';
