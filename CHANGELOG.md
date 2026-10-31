@@ -430,3 +430,22 @@
 - **Результат**: Frontend-тестовая база переведена на ESM-импорты без изменения runtime-кода и подготовки к дальнейшей миграции JS в TypeScript.
 
 ---
+
+---
+
+#### 2026-10-31 — Совместный запуск Django и Vite, исправление подключения бандла
+
+- feat (dev): Добавлена команда `npm run start` для совместного запуска Django и Vite через `concurrently`.
+  - `dev:django` — ASGI-сервер Uvicorn с автоматической перезагрузкой.
+  - `dev:vite:watch` — пересборка frontend-бандла при изменении исходников.
+- chore (dependencies): Добавлен `concurrently@^9.2.5` в devDependencies, обновлён `package-lock.json`.
+- fix (frontend): Исправлено условие подключения Vite-бандла в `base.html`.
+  - Результат тега `vite_available` явно сохраняется в переменную `has_vite_bundle`.
+  - При доступной сборке подключается Vite-бандл без дублирования legacy-скриптов.
+  - При отсутствии сборки сохраняется legacy-fallback.
+- verify: Проверены запуск и остановка обоих процессов, доступность `/health/live`, главной страницы и JS-бандла.
+- verify: Через HTTP-запросы подтверждены оба сценария рендера: с Vite-сборкой и без неё.
+- Изменённые файлы:
+  - `package.json`
+  - `package-lock.json`
+  - `music_api/templates/base.html`

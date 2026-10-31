@@ -19,7 +19,7 @@ import '../animation/card_search_animation.js';
 import '../animation/alert_log_animation.js';
 import '../animation/auth_widget_animation.js';
 import '../animation/carousel_animation.js';
-import '../animation/hamburger_animation.js';
+import '../animation/hamburger_animation.ts';
 import '../animation/navbar_logo_collapse_animation.js';
 import '../animation/radial_reveal_animation.js';
 import '../animation/spinner_animation.js';

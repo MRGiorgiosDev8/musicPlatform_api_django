@@ -3,3 +3,4 @@ static/vendor
 staticfiles
 .venv
 package-lock.json
+static/js/animation/hamburger_animation.js

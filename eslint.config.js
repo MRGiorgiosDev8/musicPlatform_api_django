@@ -41,6 +41,7 @@ module.exports = [
       "static/vendor/**",
       "staticfiles/**",
       ".venv/**",
+      "static/js/animation/hamburger_animation.js",
     ],
   },
   {
@@ -80,6 +81,7 @@ module.exports = [
         global: "readonly",
         Utils: "readonly",
         document: "readonly",
+        Event: "readonly",
         localStorage: "readonly",
         console: "readonly",
       },
