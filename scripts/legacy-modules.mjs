@@ -16,6 +16,7 @@ export const LEGACY_MODULES = [
   'static/js/features/realtime_presence.ts',
   'static/js/features/public_playlists_dashboard.ts',
   'static/js/UI/now_playing.ts',
+  'static/js/UI/favorite-button.ts',
   'static/js/animation/auth_widget_animation.ts',
   'static/js/animation/profile_stagger_animation.ts',
   'static/js/animation/public_profile_stagger_animation.ts',

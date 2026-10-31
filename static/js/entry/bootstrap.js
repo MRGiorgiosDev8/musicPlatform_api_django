@@ -55,7 +55,7 @@ import '../utils/utils.js';
 import '../UI/now_playing.ts';
 
 // Favorite Button
-import '../UI/favorite-button.js';
+import '../UI/favorite-button.ts';
 
 /**
  * Восстановление глобального контракта.
