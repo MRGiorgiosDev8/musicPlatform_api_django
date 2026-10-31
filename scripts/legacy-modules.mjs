@@ -11,6 +11,11 @@ export const LEGACY_MODULES = [
   'static/js/UI/clear_search_button.ts',
   'static/js/UI/search_button_scroll.ts',
   'static/js/UI/theme_toggle.ts',
+  'static/js/pwa/register.ts',
+  'static/js/features/realtime_notifications.ts',
+  'static/js/features/realtime_presence.ts',
+  'static/js/features/public_playlists_dashboard.ts',
+  'static/js/UI/now_playing.ts',
 ];
 
 export const legacyOutfile = (source) => source.replace(/\.ts$/, '.js');

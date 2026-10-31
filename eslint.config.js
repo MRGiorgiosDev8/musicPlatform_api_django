@@ -46,6 +46,11 @@ module.exports = [
       "static/js/UI/clear_search_button.js",
       "static/js/UI/search_button_scroll.js",
       "static/js/UI/theme_toggle.js",
+      "static/js/pwa/register.js",
+      "static/js/features/realtime_notifications.js",
+      "static/js/features/realtime_presence.js",
+      "static/js/features/public_playlists_dashboard.js",
+      "static/js/UI/now_playing.js",
     ],
   },
   {

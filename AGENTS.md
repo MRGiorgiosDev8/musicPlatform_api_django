@@ -73,3 +73,22 @@ templates + vanilla JS — there is **no JS build step**.
 - `deploy.yml` hardcodes `SECRET_KEY` / `LASTFM_KEY` — do not add more secrets to it.
 - CI (`.github/workflows/main.yml`): lint → frontend-test + backend-test (Postgres + Redis
   services) → Docker build/push → Render deploy hook, on `main` only.
+
+## Frontend TypeScript migration (active)
+
+- Frontend migration to TypeScript is in progress.
+- TypeScript sources are the source of truth; Vite imports `.ts` files.
+- Legacy fallback `.js` files are generated from `.ts` sources.
+- `scripts/legacy-modules.mjs` is the single source of truth for legacy modules and shared esbuild options.
+- Add each migrated TS source to `scripts/legacy-modules.mjs`.
+- Generate legacy JS with `npm run build:legacy`; verify it with `npm run check:legacy`.
+- Do not edit generated legacy `.js` files manually.
+- Do not change `base.html` legacy script tags: they continue referencing generated `.js`.
+- Replace imports in `static/js/entry/bootstrap.js` from `.js` to `.ts`, preserving import order.
+- Keep runtime behavior, dependencies, and import order unchanged; do not perform unrelated refactoring.
+- For each migrated module, add behavioral tests for both modes: TS import and generated IIFE.
+- Isolate timers, DOM, `localStorage`, and mocks between tests; assert completion of deferred actions.
+- Do not migrate modules using `gsap`, `ScrollToPlugin`, `window.*` contracts, CJS bridges, `MutationObserver`, or `readyState` patterns until separately planned.
+- After each batch run: `npm run build:legacy`, `npm run check:legacy`, `npm run typecheck`, `npm run lint:js`, Prettier check for new source files, `npm run test:js`, `npm run build:frontend`.
+- Do not add dependencies. Do not fix unrelated formatting or lint issues.
+- Keep final reports short: migrated files, added tests, actual test count, check results, limitations.

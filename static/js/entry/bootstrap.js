@@ -10,7 +10,7 @@
  * Все импорты — только за побочными эффектами (classic-скрипты пишут
  * в window/global и сами подписываются на DOMContentLoaded).
  */
-import '../pwa/register.js';
+import '../pwa/register.ts';
 
 // Анимации и визуальные эффекты (порядок как в base.html)
 import '../animation/track-animations.js';
@@ -33,11 +33,11 @@ import '../animation/wavesurfer_morph_button.js';
 // Фичи сайта (modules/features)
 import '../features/trending.js';
 import '../features/year2025.js';
-import '../features/public_playlists_dashboard.js';
+import '../features/public_playlists_dashboard.ts';
 import '../features/music_search.js';
 import '../features/artist_wikipedia_modal.js';
-import '../features/realtime_notifications.js';
-import '../features/realtime_presence.js';
+import '../features/realtime_notifications.ts';
+import '../features/realtime_presence.ts';
 import '../features/public_playlist_comments.js';
 
 // Поиск и UI-специфичные скрипты
@@ -52,7 +52,7 @@ import '../UI/theme_toggle.ts';
 
 // Утилиты
 import '../utils/utils.js';
-import '../UI/now_playing.js';
+import '../UI/now_playing.ts';
 
 // Favorite Button
 import '../UI/favorite-button.js';
