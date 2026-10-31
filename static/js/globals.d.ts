@@ -5,3 +5,5 @@
  * широкий — это сторонний скрипт вне нашей типизации, dependency не добавляем.
  */
 declare const gsap: any;
+declare const bootstrap: any;
+declare const SplitText: any;

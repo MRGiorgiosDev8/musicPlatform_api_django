@@ -19,6 +19,10 @@ export const LEGACY_MODULES = [
   'static/js/animation/auth_widget_animation.ts',
   'static/js/animation/profile_stagger_animation.ts',
   'static/js/animation/public_profile_stagger_animation.ts',
+  'static/js/animation/animation_home.ts',
+  'static/js/animation/playlist_stagger_animation.ts',
+  'static/js/animation/track-animations.ts',
+  'static/js/animation/artist_bio_modal_close_animation.ts',
 ];
 
 export const legacyOutfile = (source) => source.replace(/\.ts$/, '.js');

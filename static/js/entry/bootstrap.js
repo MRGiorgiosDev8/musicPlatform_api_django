@@ -13,8 +13,8 @@
 import '../pwa/register.ts';
 
 // Анимации и визуальные эффекты (порядок как в base.html)
-import '../animation/track-animations.js';
-import '../animation/animation_home.js';
+import '../animation/track-animations.ts';
+import '../animation/animation_home.ts';
 import '../animation/card_search_animation.js';
 import '../animation/alert_log_animation.js';
 import '../animation/auth_widget_animation.ts';
@@ -24,9 +24,9 @@ import '../animation/navbar_logo_collapse_animation.js';
 import '../animation/radial_reveal_animation.js';
 import '../animation/spinner_animation.js';
 import '../animation/profile_stagger_animation.ts';
-import '../animation/playlist_stagger_animation.js';
+import '../animation/playlist_stagger_animation.ts';
 import '../animation/public_profile_stagger_animation.ts';
-import '../animation/artist_bio_modal_close_animation.js';
+import '../animation/artist_bio_modal_close_animation.ts';
 import '../animation/public_comments_animation.js';
 import '../animation/wavesurfer_morph_button.js';
 

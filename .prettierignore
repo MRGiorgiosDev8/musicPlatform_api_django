@@ -16,3 +16,7 @@ static/js/UI/now_playing.js
 static/js/animation/auth_widget_animation.js
 static/js/animation/profile_stagger_animation.js
 static/js/animation/public_profile_stagger_animation.js
+static/js/animation/animation_home.js
+static/js/animation/playlist_stagger_animation.js
+static/js/animation/track-animations.js
+static/js/animation/artist_bio_modal_close_animation.js
