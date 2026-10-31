@@ -1,36 +1,39 @@
 /* @vitest-environment jsdom */
 /* global window */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadSearchAutocomplete } from './helpers/search_autocomplete.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
+import * as searchAutocomplete from '../../static/js/UI/search_autocomplete.ts';
+
+const MARKUP = `
+  <form class="form-search">
+    <div class="position-relative">
+      <input id="search-query" class="input-search" type="text" />
+    </div>
+  </form>
+`;
 
 const setupDom = () => {
-  document.body.innerHTML = `
-    <form class="form-search">
-      <div class="position-relative">
-        <input id="search-query" class="input-search" type="text" />
-      </div>
-    </form>
-  `;
+  document.body.innerHTML = MARKUP;
   const form = document.querySelector('.form-search');
   form.requestSubmit = vi.fn();
 };
 
 describe('search_autocomplete', () => {
-  beforeEach(() => {
+  afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
-    vi.useFakeTimers();
-    localStorage.clear();
-    setupDom();
+    document.body.innerHTML = '';
   });
 
   it('normalizeText removes diacritics and lowercases', () => {
-    const { normalizeText } = loadSearchAutocomplete();
+    const { normalizeText } = searchAutocomplete;
     expect(normalizeText('Björk')).toBe('bjork');
     expect(normalizeText('  Édith   Piaf ')).toBe('edith piaf');
   });
 
   it('buildItems prefers startsWith and sorts by listeners', () => {
-    const { buildItems } = loadSearchAutocomplete();
+    const { buildItems } = searchAutocomplete;
     const rows = [
       { name: 'Lil Yachy', listeners: 5 },
       { name: 'Lil Yachty', listeners: 5000 },
@@ -42,33 +45,96 @@ describe('search_autocomplete', () => {
     expect(items.some((item) => item.label === 'Post Malone')).toBe(false);
   });
 
-  it('renders dropdown items and selects on click', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        results: [
-          { name: 'Post Malone', listeners: 9000 },
-          { name: 'Lil Yachty', listeners: 8000 },
-        ],
-      }),
+  describe('TS-режим: взаимодействие с DOM', () => {
+    it('renders dropdown items and selects on click', async () => {
+      vi.useFakeTimers();
+      localStorage.clear();
+      setupDom();
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          results: [
+            { name: 'Post Malone', listeners: 9000 },
+            { name: 'Lil Yachty', listeners: 8000 },
+          ],
+        }),
+      });
+
+      // модуль — side-effect IIFE, исполняется при импорте; переисполняем после DOM
+      vi.resetModules();
+      await import('../../static/js/UI/search_autocomplete.ts');
+
+      const input = document.getElementById('search-query');
+      input.value = 'pos';
+      input.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+      await vi.runAllTimersAsync();
+
+      const dropdown = document.querySelector('.search-autocomplete');
+      expect(dropdown.hidden).toBe(false);
+      const items = dropdown.querySelectorAll('.search-autocomplete-item');
+      expect(items.length).toBeGreaterThan(0);
+
+      items[0].dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
+      const form = document.querySelector('.form-search');
+      expect(form.requestSubmit).toHaveBeenCalled();
+      expect(input.value.length).toBeGreaterThan(0);
     });
 
-    loadSearchAutocomplete();
+    it('ignores short queries (fewer than 2 chars)', async () => {
+      vi.useFakeTimers();
+      localStorage.clear();
+      setupDom();
+      global.fetch = vi.fn();
 
-    const input = document.getElementById('search-query');
-    input.value = 'pos';
-    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+      vi.resetModules();
+      await import('../../static/js/UI/search_autocomplete.ts');
 
-    await vi.runAllTimersAsync();
+      const input = document.getElementById('search-query');
+      input.value = 'p';
+      input.dispatchEvent(new window.Event('input', { bubbles: true }));
 
-    const dropdown = document.querySelector('.search-autocomplete');
-    expect(dropdown.hidden).toBe(false);
-    const items = dropdown.querySelectorAll('.search-autocomplete-item');
-    expect(items.length).toBeGreaterThan(0);
+      await vi.runAllTimersAsync();
 
-    items[0].dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true }));
-    const form = document.querySelector('.form-search');
-    expect(form.requestSubmit).toHaveBeenCalled();
-    expect(input.value.length).toBeGreaterThan(0);
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Legacy-режим: сгенерированный IIFE', () => {
+    it('renders dropdown items and selects on click так же, как TS-режим', async () => {
+      const legacyCode = readFileSync('static/js/UI/search_autocomplete.js', 'utf8');
+      const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
+        url: 'http://localhost/',
+        runScripts: 'outside-only',
+      });
+      const { window: w } = dom;
+      const form = w.document.querySelector('.form-search');
+      form.requestSubmit = vi.fn();
+      w.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          results: [{ name: 'Post Malone', listeners: 9000 }],
+        }),
+      });
+
+      w.eval(legacyCode);
+
+      const input = w.document.getElementById('search-query');
+      input.value = 'pos';
+      input.dispatchEvent(new w.Event('input', { bubbles: true }));
+
+      // legacy-режим использует стандартные setTimeout — дожидаемся вручную
+      await new Promise((resolve) => w.setTimeout(resolve, 250));
+
+      const dropdown = w.document.querySelector('.search-autocomplete');
+      expect(dropdown.hidden).toBe(false);
+      const items = dropdown.querySelectorAll('.search-autocomplete-item');
+      expect(items.length).toBeGreaterThan(0);
+
+      items[0].dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true }));
+      expect(form.requestSubmit).toHaveBeenCalled();
+
+      dom.window.close();
+    });
   });
 });

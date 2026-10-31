@@ -41,10 +41,10 @@ import '../features/realtime_presence.ts';
 import '../features/public_playlist_comments.js';
 
 // Поиск и UI-специфичные скрипты
-import '../UI/scrollbutton.js';
+import '../UI/scrollbutton.ts';
 import '../UI/search_button_scroll.ts';
 import '../UI/clear_search_button.ts';
-import '../UI/search_autocomplete.js';
+import '../UI/search_autocomplete.ts';
 import '../UI/playlists.ts';
 import '../UI/public-playlist.js';
 import '../UI/avatar_actions_toggle.ts';
