@@ -2,6 +2,7 @@
 <html lang="ru" xmlns="http://www.w3.org/1999/html">
 
 {% load static %}
+{% load vite_tags %}
 
 <head>
     <meta charset="UTF-8">
@@ -255,7 +256,6 @@
     <!-- Библиотеки (vendor) -->
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/vendor/gsap/gsap.min.js"></script>
-    <script src="{% static 'js/pwa/register.js' %}"></script>
     <script src="/static/vendor/gsap/ScrollToPlugin.min.js"></script>
     <script src="/static/vendor/gsap/CustomBounce.min.js"></script>
     <script src="/static/vendor/gsap/CustomEase.min.js"></script>
@@ -266,6 +266,13 @@
     <script src="/static/vendor/wavesurfer/wavesurfer.min.js"></script>
     <script type="module" src="/static/vendor/emoji-picker-element/index.js"></script>
     
+    {% if vite_available %}
+    <!-- First-party JS собран в Vite-бандл (static/frontend) -->
+    <script type="module" src="{% vite_asset %}"></script>
+    {% else %}
+    <!-- Legacy first-party scripts (fallback без Vite-сборки) -->
+    <script src="{% static 'js/pwa/register.js' %}"></script>
+
     <!-- Анимации и визуальные эффекты -->
     <script src="/static/js/animation/track-animations.js"></script>
     <script src="/static/js/animation/animation_home.js"></script>
@@ -310,6 +317,7 @@
 
     <!-- Favorite Button Functionality -->
     <script src="/static/js/UI/favorite-button.js"></script>
+    {% endif %}
 </body>
 
 </html>

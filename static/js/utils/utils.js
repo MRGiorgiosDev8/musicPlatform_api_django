@@ -498,3 +498,7 @@ const Utils = {
     });
   },
 };
+
+// Vite-бандл (см. static/js/entry/bootstrap.js): в классическом скрипте `Utils`
+// был top-level global; для ESM-бандла восстанавливаем этот контракт явно.
+window.Utils = Utils;

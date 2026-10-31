@@ -15,5 +15,5 @@
     "resolveJsonModule": true,
     "types": []
   },
-  "include": ["static/js", "tests/js", "vitest.config.ts"]
+  "include": ["static/js", "tests/js", "vitest.config.ts", "vite.config.ts"]
 }
