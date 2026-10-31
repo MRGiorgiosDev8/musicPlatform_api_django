@@ -1,6 +1,9 @@
 /* @vitest-environment jsdom */
-import { beforeEach, describe, expect, it } from 'vitest';
-import * as playlists from './helpers/playlists.js';
+/* global window */
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
+import * as playlists from '../../static/js/UI/playlists.ts';
 
 const createTrackItem = ({ trackIndex, artist = '', trackArtistInCard }) => {
   const item = document.createElement('li');
@@ -14,6 +17,49 @@ const createTrackItem = ({ trackIndex, artist = '', trackArtistInCard }) => {
   card.dataset.trackArtist = typeof trackArtistInCard !== 'undefined' ? trackArtistInCard : artist;
   item.appendChild(card);
   return item;
+};
+
+// Минимальный маркап плейлиста: root + track-list + контролы.
+const buildPlaylistMarkup = (trackItems) => {
+  const root = document.createElement('div');
+  root.id = 'playlists-root';
+
+  const trackList = document.createElement('div');
+  trackList.className = 'track-list';
+  trackItems.forEach((item) => trackList.appendChild(item));
+  root.appendChild(trackList);
+
+  const sortControl = document.createElement('select');
+  sortControl.dataset.playlistSort = '';
+  const sortOption = document.createElement('option');
+  sortOption.value = 'new';
+  sortOption.textContent = 'Новые';
+  sortControl.appendChild(sortOption);
+  root.appendChild(sortControl);
+
+  const countDisplay = document.createElement('div');
+  countDisplay.dataset.playlistCountDisplay = '';
+  root.appendChild(countDisplay);
+
+  const filterMeta = document.createElement('div');
+  filterMeta.dataset.playlistFilterMeta = '';
+  root.appendChild(filterMeta);
+
+  return root;
+};
+
+const createUtilsMock = () => ({
+  initAudioPreviews: vi.fn(),
+  syncInfiniteMarquee: vi.fn(),
+  createShowMoreButton: vi.fn(() => document.createElement('button')),
+  createChevronDownIcon: vi.fn(() => document.createElement('i')),
+  closeParentOffcanvas: vi.fn(),
+});
+
+const flushPromises = async () => {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
 };
 
 describe('playlists P1', () => {
@@ -127,5 +173,112 @@ describe('playlists P1', () => {
 
     expect(view.maxVisible).toBe(4);
     expect(view.hidden).toHaveLength(0);
+  });
+});
+
+describe('playlists — DOM-поведение (оба режима загрузки)', () => {
+  afterEach(() => {
+    delete window.Utils;
+    document.body.innerHTML = '';
+  });
+
+  it('TS-режим: инициализация рендерит пагинацию и счётчики', () => {
+    window.Utils = createUtilsMock();
+    const items = [
+      createTrackItem({ trackIndex: 1, artist: 'Muse' }),
+      createTrackItem({ trackIndex: 2, artist: 'Adele' }),
+      createTrackItem({ trackIndex: 3, artist: 'Bowie' }),
+    ];
+    document.body.appendChild(buildPlaylistMarkup(items));
+
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    const root = document.getElementById('playlists-root');
+    const countDisplay = root.querySelector('[data-playlist-count-display]');
+    const filterMeta = root.querySelector('[data-playlist-filter-meta]');
+    const rendered = Array.from(root.querySelectorAll('.track-item-playlist'));
+
+    // сортировка "new": 3, 2, 1
+    expect(rendered.map((item) => Number(item.dataset.trackIndex))).toEqual([3, 2, 1]);
+    expect(rendered.every((item) => item.style.display !== 'none')).toBe(true);
+    expect(countDisplay.textContent).toBe('3');
+    expect(filterMeta.textContent).toBe('Показано: 3 из 3');
+    // load-more скрыт, когда все треки умещаются
+    const loadMore = root.querySelector('.load-more-container');
+    expect(loadMore).not.toBeNull();
+    expect(loadMore.style.display).toBe('none');
+  });
+
+  it('TS-режим: load-more показывает остальные треки', async () => {
+    window.Utils = createUtilsMock();
+    const items = Array.from({ length: 7 }, (_, idx) =>
+      createTrackItem({ trackIndex: idx + 1, artist: 'Artist' })
+    );
+    document.body.appendChild(buildPlaylistMarkup(items));
+
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    const root = document.getElementById('playlists-root');
+    const countDisplay = root.querySelector('[data-playlist-count-display]');
+    const filterMeta = root.querySelector('[data-playlist-filter-meta]');
+    const loadMore = root.querySelector('.load-more-container');
+    const showMoreButton = loadMore.querySelector('button');
+
+    expect(countDisplay.textContent).toBe('7');
+    expect(filterMeta.textContent).toBe('Показано: 6 из 7');
+    expect(loadMore.style.display).not.toBe('none');
+    expect(root.querySelectorAll('.track-item-playlist[style*="none"]').length).toBeGreaterThan(0);
+
+    showMoreButton.click();
+    await flushPromises();
+
+    expect(filterMeta.textContent).toBe('Показано: 7 из 7');
+    expect(loadMore.style.display).toBe('none');
+  });
+
+  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
+    const legacyCode = readFileSync('static/js/UI/playlists.js', 'utf8');
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
+      url: 'http://localhost/',
+      runScripts: 'outside-only',
+    });
+    const { window: w } = dom;
+    w.Utils = createUtilsMock();
+
+    const root = w.document.createElement('div');
+    root.id = 'playlists-root';
+    const trackList = w.document.createElement('div');
+    trackList.className = 'track-list';
+    const makeItem = (trackIndex, artist) => {
+      const item = w.document.createElement('li');
+      item.className = 'track-item-playlist';
+      item.dataset.trackIndex = String(trackIndex);
+      const card = w.document.createElement('div');
+      card.className = 'track-playlist';
+      card.dataset.trackArtist = artist;
+      item.appendChild(card);
+      return item;
+    };
+    [makeItem(1, 'Muse'), makeItem(2, 'Adele'), makeItem(3, 'Bowie')].forEach((item) =>
+      trackList.appendChild(item)
+    );
+    root.appendChild(trackList);
+    const countDisplay = w.document.createElement('div');
+    countDisplay.dataset.playlistCountDisplay = '';
+    root.appendChild(countDisplay);
+    const filterMeta = w.document.createElement('div');
+    filterMeta.dataset.playlistFilterMeta = '';
+    root.appendChild(filterMeta);
+    w.document.body.appendChild(root);
+
+    w.eval(legacyCode);
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+
+    const rendered = Array.from(root.querySelectorAll('.track-item-playlist'));
+    expect(rendered.map((item) => Number(item.dataset.trackIndex))).toEqual([3, 2, 1]);
+    expect(countDisplay.textContent).toBe('3');
+    expect(filterMeta.textContent).toBe('Показано: 3 из 3');
+
+    dom.window.close();
   });
 });
