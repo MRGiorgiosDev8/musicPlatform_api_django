@@ -42,13 +42,13 @@ import '../features/public_playlist_comments.js';
 
 // Поиск и UI-специфичные скрипты
 import '../UI/scrollbutton.js';
-import '../UI/search_button_scroll.js';
-import '../UI/clear_search_button.js';
+import '../UI/search_button_scroll.ts';
+import '../UI/clear_search_button.ts';
 import '../UI/search_autocomplete.js';
 import '../UI/playlists.js';
 import '../UI/public-playlist.js';
-import '../UI/avatar_actions_toggle.js';
-import '../UI/theme_toggle.js';
+import '../UI/avatar_actions_toggle.ts';
+import '../UI/theme_toggle.ts';
 
 // Утилиты
 import '../utils/utils.js';

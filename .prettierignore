@@ -4,3 +4,7 @@ staticfiles
 .venv
 package-lock.json
 static/js/animation/hamburger_animation.js
+static/js/UI/avatar_actions_toggle.js
+static/js/UI/clear_search_button.js
+static/js/UI/search_button_scroll.js
+static/js/UI/theme_toggle.js

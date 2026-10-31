@@ -1,33 +1,34 @@
 /**
- * Проверка актуальности сгенерированного legacy-JS относительно TS-источника.
+ * Проверка актуальности сгенерированных legacy-JS относительно TS-источников.
  *
- * Источник правды: static/js/animation/hamburger_animation.ts
- * Legacy-файл:    static/js/animation/hamburger_animation.js (генерируется `npm run build:legacy`)
+ * esbuild собирает в память (write: false), результат сверяется с существующими
+ * файлами. При любом рассинхроне — ненулевой exit code со списком проблемных файлов.
+ * Список модулей — в scripts/legacy-modules.mjs.
  *
- * Сравнение выполняется без записи на диск: esbuild собирает в память (write: false),
- * результат сверяется с существующим файлом. При рассинхроне — ненулевой exit code.
+ * Запуск: npm run check:legacy
  */
 import { build } from 'esbuild';
 import { readFile } from 'node:fs/promises';
+import { LEGACY_MODULES, legacyOptions, legacyOutfile } from './legacy-modules.mjs';
 
-const SOURCE = 'static/js/animation/hamburger_animation.ts';
-const LEGACY = 'static/js/animation/hamburger_animation.js';
+let mismatched = false;
 
-const result = await build({
-  entryPoints: [SOURCE],
-  bundle: true,
-  format: 'iife',
-  write: false,
-});
+for (const source of LEGACY_MODULES) {
+  const outfile = legacyOutfile(source);
+  const result = await build({ ...legacyOptions(source), write: false });
+  const generated = result.outputFiles[0].text;
+  const current = await readFile(outfile, 'utf8');
 
-const generated = result.outputFiles[0].text;
-const current = await readFile(LEGACY, 'utf8');
+  if (generated !== current) {
+    mismatched = true;
+    console.error(
+      `check:legacy: ${outfile} устарел относительно ${source}. Выполните: npm run build:legacy`
+    );
+  }
+}
 
-if (generated !== current) {
-  console.error(
-    `check:legacy: ${LEGACY} устарел относительно ${SOURCE}. Выполните: npm run build:legacy`
-  );
+if (mismatched) {
   process.exit(1);
 }
 
-console.log('check:legacy: OK — legacy-JS соответствует TS-источнику');
+console.log('check:legacy: OK — все legacy-JS соответствуют TS-источникам');

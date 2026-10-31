@@ -449,3 +449,16 @@
   - `package.json`
   - `package-lock.json`
   - `music_api/templates/base.html`
+
+---
+
+#### 2026-10-31 — Начало миграции frontend на TypeScript 
+
+- refactor (typescript): Анимация hamburger-меню переведена в `hamburger_animation.ts`.
+  - Vite подключает TS-исходник.
+  - Для legacy-fallback сохранён сгенерированный классический JS-скрипт.
+- build: Добавлены команды `build:legacy` и `check:legacy` для генерации и проверки актуальности legacy-JS.
+- test: Добавлены две поведенческие проверки переключения класса меню — для TS-исходника и legacy-скрипта.
+- verify: Успешно пройдены 56 тестов в 10 файлах, проверка типов, линт JS и frontend-сборка.
+- verify: Проверено подключение Vite-бандла и сохранение legacy-fallback.
+- Ограничения: TS-файлы пока проверяются через TypeScript без ESLint; общая проверка форматирования остаётся неуспешной из-за ранее существовавших замечаний.

@@ -1,0 +1,92 @@
+(() => {
+  const root = document.documentElement;
+  const toggleButton = document.getElementById('themeToggle');
+  const footer = document.querySelector('footer');
+  const storageKey = 'site-theme';
+  const allowedThemes = new Set(['default', 'dark']);
+  const showAfterScrollY = 120;
+  const hideAfterIdleMs = 3000;
+  let idleHideTimerId: number | null = null;
+
+  const getTheme = () => {
+    const currentTheme = root.getAttribute('data-theme');
+    return currentTheme && allowedThemes.has(currentTheme) ? currentTheme : 'default';
+  };
+
+  const syncToggleVisibility = () => {
+    if (!toggleButton) {
+      return;
+    }
+    const passedHeaderZone = window.scrollY > showAfterScrollY;
+    let overlapsFooter = false;
+    if (footer) {
+      const footerTopInViewport = footer.getBoundingClientRect().top;
+      overlapsFooter = footerTopInViewport <= window.innerHeight - 24;
+    }
+    const shouldShow = passedHeaderZone && !overlapsFooter;
+    toggleButton.classList.toggle('is-visible', shouldShow);
+  };
+
+  const resetIdleHideTimer = () => {
+    if (!toggleButton) return;
+    if (idleHideTimerId) {
+      window.clearTimeout(idleHideTimerId);
+    }
+    idleHideTimerId = window.setTimeout(() => {
+      toggleButton.classList.remove('is-visible');
+    }, hideAfterIdleMs);
+  };
+
+  const applyTheme = (theme: string) => {
+    const nextTheme = allowedThemes.has(theme) ? theme : 'default';
+    root.setAttribute('data-theme', nextTheme);
+    localStorage.setItem(storageKey, nextTheme);
+    if (!toggleButton) {
+      return;
+    }
+    const isDark = nextTheme === 'dark';
+    toggleButton.classList.toggle('is-dark', isDark);
+    toggleButton.setAttribute(
+      'aria-label',
+      isDark ? 'Переключить на текущую тему' : 'Переключить на тёмную тему'
+    );
+    toggleButton.setAttribute('title', isDark ? 'Тёмная тема включена' : 'Текущая тема включена');
+  };
+
+  if (toggleButton) {
+    toggleButton.addEventListener('click', () => {
+      const nextTheme = getTheme() === 'dark' ? 'default' : 'dark';
+      applyTheme(nextTheme);
+    });
+
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) {
+          return;
+        }
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          syncToggleVisibility();
+          resetIdleHideTimer();
+          ticking = false;
+        });
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'resize',
+      () => {
+        syncToggleVisibility();
+        resetIdleHideTimer();
+      },
+      { passive: true }
+    );
+  }
+
+  applyTheme(getTheme());
+  syncToggleVisibility();
+  resetIdleHideTimer();
+})();
