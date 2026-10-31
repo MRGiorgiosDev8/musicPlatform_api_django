@@ -18,6 +18,8 @@ export const LEGACY_MODULES = [
   'static/js/features/trending.ts',
   'static/js/features/year2025.ts',
   'static/js/features/public_playlist_comments.ts',
+  'static/js/features/music_search.ts',
+  'static/js/features/artist_wikipedia_modal.ts',
   'static/js/UI/now_playing.ts',
   'static/js/UI/favorite-button.ts',
   'static/js/UI/playlists.ts',
