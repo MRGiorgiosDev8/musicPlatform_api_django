@@ -7,9 +7,11 @@
     "format:check": "prettier --check \"static/js/**/*.js\" \"tests/js/**/*.js\"",
     "typecheck": "tsc --noEmit",
     "build:frontend": "vite build",
-    "dev:vite": "vite"
+    "dev:vite": "vite",
+    "vendor:icons": "node scripts/vendor-icons.mjs"
   },
   "devDependencies": {
+    "bootstrap-icons": "^1.11.0",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^28.1.0",

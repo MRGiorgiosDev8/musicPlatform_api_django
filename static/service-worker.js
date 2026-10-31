@@ -10,6 +10,9 @@ const PRECACHE_URLS = [
   '/static/css/base.css',
   '/static/css/layout.css',
   '/static/css/components.css',
+  '/static/vendor/bootstrap-icons/font/bootstrap-icons.css',
+  '/static/vendor/bootstrap-icons/font/fonts/bootstrap-icons.woff',
+  '/static/vendor/bootstrap-icons/font/fonts/bootstrap-icons.woff2',
   '/static/vendor/gsap/gsap.min.js',
   '/static/vendor/bootstrap/js/bootstrap.bundle.min.js',
 ];
@@ -132,13 +135,31 @@ async function cacheFirst(request) {
   }
 }
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE_VERSION)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting())
+/**
+ * Отказоустойчивый precache: каждый URL кэшируется отдельно, ошибки
+ * логируются и не ломают установку/обновление service worker
+ * (в отличие от cache.addAll, где одна неудачная запись роняет весь install).
+ */
+async function precache(urls) {
+  const cache = await caches.open(CACHE_VERSION);
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        const request = new Request(url, { cache: 'reload' });
+        const response = await fetch(request);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} for ${url}`);
+        }
+        await cache.put(request, response.clone());
+      } catch (error) {
+        console.warn(`[SW] Precache failed for ${url}: ${error.message}`);
+      }
+    })
   );
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(precache(PRECACHE_URLS).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
