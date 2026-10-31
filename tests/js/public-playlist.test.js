@@ -1,6 +1,9 @@
 /* @vitest-environment jsdom */
+/* global window */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import * as publicPlaylist from './helpers/public-playlist.js';
+import { readFileSync } from 'node:fs';
+import { JSDOM } from 'jsdom';
+import * as publicPlaylist from '../../static/js/UI/public-playlist.ts';
 
 const flushPromises = async () => {
   await Promise.resolve();
@@ -113,5 +116,59 @@ describe('public-playlist P1', () => {
     expect(root.classList.contains('public-view-grid')).toBe(false);
     expect(localStorage.getItem(key)).toBe('list');
     expect(listBtn.classList.contains('active')).toBe(true);
+  });
+});
+
+describe('public-playlist — legacy IIFE', () => {
+  it('сгенерированный IIFE инициализирует view mode и рендерит пагинацию', () => {
+    const legacyCode = readFileSync('static/js/UI/public-playlist.js', 'utf8');
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
+      url: 'http://localhost/',
+      runScripts: 'outside-only',
+    });
+    const { window: w } = dom;
+    w.Utils = {
+      initAudioPreviews: vi.fn(),
+      syncInfiniteMarquee: vi.fn(),
+      createShowMoreButton: vi.fn(() => w.document.createElement('button')),
+      createChevronDownIcon: vi.fn(() => w.document.createElement('i')),
+      closeParentOffcanvas: vi.fn(),
+    };
+
+    const likeRoot = w.document.createElement('div');
+    likeRoot.dataset.publicLikeRoot = '';
+    likeRoot.dataset.publicUsername = 'alex';
+    w.document.body.appendChild(likeRoot);
+
+    const root = w.document.createElement('div');
+    root.id = 'public-playlist-root';
+    const trackList = w.document.createElement('div');
+    trackList.className = 'track-list';
+    for (let i = 0; i < 2; i += 1) {
+      const li = w.document.createElement('li');
+      li.className = 'track-item-playlist';
+      trackList.appendChild(li);
+    }
+    root.appendChild(trackList);
+    w.document.body.appendChild(root);
+
+    const listBtn = w.document.createElement('button');
+    listBtn.dataset.trackView = 'list';
+    w.document.body.appendChild(listBtn);
+    const gridBtn = w.document.createElement('button');
+    gridBtn.dataset.trackView = 'grid';
+    w.document.body.appendChild(gridBtn);
+
+    w.eval(legacyCode);
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+
+    expect(root.classList.contains('public-view-grid')).toBe(false);
+    expect(listBtn.classList.contains('active')).toBe(true);
+
+    gridBtn.click();
+    expect(root.classList.contains('public-view-grid')).toBe(true);
+    expect(gridBtn.classList.contains('active')).toBe(true);
+
+    dom.window.close();
   });
 });

@@ -20,6 +20,7 @@ export const LEGACY_MODULES = [
   'static/js/UI/playlists.ts',
   'static/js/UI/scrollbutton.ts',
   'static/js/UI/search_autocomplete.ts',
+  'static/js/UI/public-playlist.ts',
   'static/js/animation/auth_widget_animation.ts',
   'static/js/animation/profile_stagger_animation.ts',
   'static/js/animation/public_profile_stagger_animation.ts',

@@ -46,7 +46,7 @@ import '../UI/search_button_scroll.ts';
 import '../UI/clear_search_button.ts';
 import '../UI/search_autocomplete.ts';
 import '../UI/playlists.ts';
-import '../UI/public-playlist.js';
+import '../UI/public-playlist.ts';
 import '../UI/avatar_actions_toggle.ts';
 import '../UI/theme_toggle.ts';
 
