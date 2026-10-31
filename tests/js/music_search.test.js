@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const musicSearch = require('../../static/js/features/music_search.js');
+import * as musicSearch from './helpers/music_search.js';
 
 describe('music_search P0', () => {
   beforeEach(() => {

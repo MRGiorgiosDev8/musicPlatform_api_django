@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const wikipediaModal = require('../../static/js/features/artist_wikipedia_modal.js');
+import * as wikipediaModal from './helpers/artist_wikipedia_modal.js';
 
 describe('artist wikipedia batching P2', () => {
   beforeEach(() => {

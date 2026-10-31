@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const playlists = require('../../static/js/UI/playlists.js');
+import * as playlists from './helpers/playlists.js';
 
 const createTrackItem = ({ trackIndex, artist = '', trackArtistInCard }) => {
   const item = document.createElement('li');
