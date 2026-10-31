@@ -51,6 +51,9 @@ module.exports = [
       "static/js/features/realtime_presence.js",
       "static/js/features/public_playlists_dashboard.js",
       "static/js/UI/now_playing.js",
+      "static/js/animation/auth_widget_animation.js",
+      "static/js/animation/profile_stagger_animation.js",
+      "static/js/animation/public_profile_stagger_animation.js",
     ],
   },
   {
