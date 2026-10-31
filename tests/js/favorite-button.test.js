@@ -1,9 +1,18 @@
 /* @vitest-environment jsdom */
+/* global window */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
+import '../../static/js/UI/favorite-button.js';
 
-const require = createRequire(import.meta.url);
-const favoriteButton = require('../../static/js/UI/favorite-button.js');
+// Двойной режим исходника: ESM side-effect import не даёт именованных экспортов,
+// поэтому собираем API из window-привязок файла (UI/favorite-button.js, строки 256–266).
+const favoriteButton = {
+  createFavoriteButton: window.createFavoriteButton,
+  isTrackFavorite: window.isTrackFavorite,
+  getCSRFToken: window.getCSRFToken,
+  getJWTToken: window.getJWTToken,
+  buildAuthHeaders: window.buildAuthHeaders,
+  resetFavoritesCache: window.resetFavoritesCache,
+};
 
 const flushPromises = async () => {
   await Promise.resolve();
