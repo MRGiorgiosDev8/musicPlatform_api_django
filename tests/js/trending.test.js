@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const trendingModule = require('../../static/js/features/trending.js');
+import * as trendingModule from './helpers/trending.js';
 
 describe('trending P2', () => {
   beforeEach(() => {

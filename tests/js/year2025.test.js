@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const yearModule = require('../../static/js/features/year2025.js');
+import * as yearModule from './helpers/year2025.js';
 
 describe('year2025 P1', () => {
   beforeEach(() => {

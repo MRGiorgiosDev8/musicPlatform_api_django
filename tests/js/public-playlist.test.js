@@ -1,9 +1,6 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createRequire } from 'node:module';
-
-const require = createRequire(import.meta.url);
-const publicPlaylist = require('../../static/js/UI/public-playlist.js');
+import * as publicPlaylist from './helpers/public-playlist.js';
 
 const flushPromises = async () => {
   await Promise.resolve();
