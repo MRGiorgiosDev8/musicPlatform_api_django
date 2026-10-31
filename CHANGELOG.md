@@ -389,3 +389,44 @@
 - **cd**: Деплой на Render вынесен в отдельный job `deploy`, зависящий от успешной сборки.
 - **refactor**: Удалён отдельный reusable workflow `.github/workflows/tests.yml`.
 
+---
+
+#### 2026-10-31 — Фаза 3.1: перевод frontend-тестов на ESM import
+- **refactor (tests/frontend)**: Все 8 оставшихся тестов `tests/js/*.test.js` переведены с `createRequire().require()` на ESM `import` без изменения исходных JS-файлов.
+  - `favorite-button.test.js` — side-effect import исходника + сбор API из `window`-привязок (`static/js/UI/favorite-button.js` — единственный модуль, отдающий API в `window`).
+  - `music_search`, `playlists`, `artist_wikipedia_modal`, `trending`, `year2025`, `public-playlist` — через helper-модули в `tests/js/helpers/` (CJS-мост `createRequire` + реэкспорт именованных привязок).
+  - `search_autocomplete.test.js` — helper `loadSearchAutocomplete()` инкапсулирует `delete require.cache[...]` + повторный `require`, сохраняя пере-исполнение IIFE между кейсами.
+- **chore (tests/frontend)**: Добавлены helper-модули `tests/js/helpers/`: `music_search.js`, `playlists.js`, `artist_wikipedia_modal.js`, `trending.js`, `year2025.js`, `public-playlist.js`, `search_autocomplete.js`.
+- **note (tests/frontend)**: `public-playlist-comments.test.js` уже использовал ESM `import`. Исходные JS в `static/js`, `eslint.config.js`, Vite entry, `base.html` и legacy-fallback не менялись; `export` в исходники не добавлялся.
+- **test**: `npm run test:js` — **54 теста пройдены успешно** (9 test files, Full Green); `npm run typecheck`, `npm run lint:js`, `npm run build:frontend` — успешно.
+
+---
+
+---
+
+#### 2026-10-31 — Перевод frontend-тестов на ESM-импорты (Фаза 3.1)
+
+- **refactor (frontend tests)**: Все 9 Vitest-тестов переведены с `createRequire`/`require` на ESM `import`.
+  - Тесты больше не используют `createRequire(import.meta.url)` и прямые CJS-загрузки исходников.
+  - Тела тестов, DOM-сетап, моки и проверки сохранены без изменений.
+- **feat (test helpers)**: Добавлены ESM helper-модули в `tests/js/helpers/` для legacy-скриптов без ESM-экспортов:
+  - `favorite-button.js`
+  - `music_search.js`
+  - `playlists.js`
+  - `artist_wikipedia_modal.js`
+  - `trending.js`
+  - `year2025.js`
+  - `public-playlist.js`
+  - `search_autocomplete.js`
+- **refactor (search autocomplete)**: Для IIFE-модуля `search_autocomplete.js` добавлен helper `loadSearchAutocomplete()`.
+  - Инкапсулирует `require.resolve`, `delete require.cache` и повторный `require`.
+  - Сохраняет исходное поведение тестов: повторное исполнение IIFE, свежие DOM-listeners и сброс внутреннего состояния между кейсами.
+- **chore (compatibility)**: Исходные JS-файлы в `static/js/`, `eslint.config.js`, Vite entry, `base.html`, backend, service worker и legacy-fallback не изменены.
+- **test**: Подтверждена стабильность тестовой инфраструктуры:
+  - `npx vitest run` — **54 теста успешно пройдены** (`9 files, 54 passed`);
+  - `npm run typecheck` — без ошибок;
+  - `npm run lint:js` — без ошибок;
+  - `npm run build:frontend` — сборка Vite успешно завершена.
+- **Результат**: Frontend-тестовая база переведена на ESM-импорты без изменения runtime-кода и подготовки к дальнейшей миграции JS в TypeScript.
+
+---

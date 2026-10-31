@@ -266,7 +266,8 @@
     <script src="/static/vendor/wavesurfer/wavesurfer.min.js"></script>
     <script type="module" src="/static/vendor/emoji-picker-element/index.js"></script>
     
-    {% if vite_available %}
+    {% vite_available as has_vite_bundle %}
+    {% if has_vite_bundle %}
     <!-- First-party JS собран в Vite-бандл (static/frontend) -->
     <script type="module" src="{% vite_asset %}"></script>
     {% else %}

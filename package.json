@@ -8,10 +8,14 @@
     "typecheck": "tsc --noEmit",
     "build:frontend": "vite build",
     "dev:vite": "vite",
+    "dev:django": "uvicorn music_project.asgi:application --reload",
+    "dev:vite:watch": "vite build --watch",
+    "start": "concurrently -k -n django,vite -c auto \"npm:dev:django\" \"npm:dev:vite:watch\"",
     "vendor:icons": "node scripts/vendor-icons.mjs"
   },
   "devDependencies": {
     "bootstrap-icons": "^1.11.0",
+    "concurrently": "^9.2.5",
     "eslint": "^10.0.2",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^28.1.0",
