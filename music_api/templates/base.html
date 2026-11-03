@@ -4,6 +4,8 @@
 {% load static %}
 {% load vite_tags %}
 
+{% vite_available as has_vite_bundle %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
@@ -40,11 +42,12 @@
         href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Boldonse&family=Play:wght@400;700&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/font/bootstrap-icons.css' %}">
 
-    <!--    Подключение Bootstrap -->
-    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/vendor/hamburgers/hamburgers.min.css">
+    {% if has_vite_bundle %}
+    <!-- Vendor CSS (bootstrap, bootstrap-icons, hamburgers) собран в Vite-чанк -->
+    {% vite_css %}
+    {% endif %}
+
     <link rel="stylesheet" href="/static/css/global.css">
     <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/layout.css">
@@ -253,22 +256,8 @@
         </div>
     </div>
 
-    <!-- Библиотеки (vendor) -->
-    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/vendor/gsap/gsap.min.js"></script>
-    <script src="/static/vendor/gsap/ScrollToPlugin.min.js"></script>
-    <script src="/static/vendor/gsap/CustomBounce.min.js"></script>
-    <script src="/static/vendor/gsap/CustomEase.min.js"></script>
-    <script src="/static/vendor/gsap/SplitText.min.js"></script>
-    <script src="/static/vendor/gsap/ScrambleTextPlugin.min.js"></script>
-    <script src="/static/vendor/gsap/DrawSVGPlugin.min.js"></script>
-    <script src="/static/vendor/gsap/MorphSVGPlugin.min.js"></script>
-    <script src="/static/vendor/wavesurfer/wavesurfer.min.js"></script>
-    <script type="module" src="/static/vendor/emoji-picker-element/index.js"></script>
-    
-    {% vite_available as has_vite_bundle %}
+    <!-- Сборка Vite: first-party JS + vendor (bootstrap, gsap, wavesurfer, emoji-picker) -->
     {% if has_vite_bundle %}
-    <!-- First-party JS собран в Vite-бандл (static/frontend) -->
     <script type="module" src="{% vite_asset %}"></script>
     {% else %}
     <!-- Legacy first-party scripts (fallback без Vite-сборки) -->

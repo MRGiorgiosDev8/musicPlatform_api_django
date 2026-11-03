@@ -12,8 +12,7 @@
     "dev:vite": "vite",
     "dev:django": "uvicorn music_project.asgi:application --reload",
     "dev:vite:watch": "vite build --watch",
-    "start": "concurrently -k -n django,vite -c auto \"npm:dev:django\" \"npm:dev:vite:watch\"",
-    "vendor:icons": "node scripts/vendor-icons.mjs"
+    "start": "concurrently -k -n django,vite -c auto \"npm:dev:django\" \"npm:dev:vite:watch\""
   },
   "devDependencies": {
     "bootstrap-icons": "^1.11.0",
@@ -28,7 +27,10 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "bootstrap": "^5.3.8",
     "emoji-picker-element": "^1.29.1",
+    "gsap": "^3.15.0",
+    "hamburgers": "^1.2.1",
     "wavesurfer.js": "^7.12.2"
   }
 }

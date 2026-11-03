@@ -61,6 +61,9 @@
 ## 🐍 Стек <a id="stack"></a>
 
 - **Python 3.12**
+- **TypeScript**
+- *Vite** (сборка frontend и dev/watch-режим)
+- **Concurrently** (запуск Django и Vite watch-сборки одной командой)
 - **Django**
 - **Django REST Framework** + **JWT**
 - **Redis** (Кэш и сессии)
@@ -110,14 +113,12 @@ Backend-тесты находятся в `tests/` и запускаются че
 
 ---
 
-### 🎨 Фронтенд <a id="frontend"></a>
-
-Фронтенд встроен в Django templates и не требует отдельного dev-сервера: HTML-страницы отдаются Django, а статические ресурсы подключаются из `static/`.
-
 #### Технологии
 
+- **TypeScript** — основной язык frontend-модулей.
+- **Vite** — сборка frontend-бандла, watch-режим и обработка vendor-зависимостей.
 - **Bootstrap 5** — сетка и адаптивные компоненты.
-- **Font Awesome** и **Bootstrap Icons** — иконки.
+- **Bootstrap Icons** — иконки.
 - **GSAP** — анимации и визуальные эффекты.
 - **WaveSurfer.js** — визуализация и управление аудиопревью.
 - **WebSocket (Django Channels)** — realtime-статус пользователей, комментарии и уведомления.
@@ -127,13 +128,13 @@ Backend-тесты находятся в `tests/` и запускаются че
 
 - `music_api/templates/` — Django-шаблоны страниц и общая разметка.
 - `static/css/` — глобальные стили, компоненты, адаптивность и стили отдельных страниц.
-- `static/js/features/` — функциональные модули: поиск, trending, публичные плейлисты, комментарии и realtime-функции.
-- `static/js/UI/` — интерактивные элементы интерфейса: кнопки, плейлисты, навигация, тема и аудиоплеер.
-- `static/js/animation/` — GSAP-анимации страниц, карточек, модальных окон и навигации.
-- `static/js/utils/utils.js` — общие frontend-утилиты.
-- `static/vendor/` — локальные vendor-ресурсы, исключённые из пользовательского linting.
+- `static/js/` — TypeScript-модули анимаций, UI, фич и утилит.
+- `static/js/entry/bootstrap.js` — Vite entry: управляет порядком импортов и глобальным контрактом.
+- `static/js/entry/vendor-globals.js` — подключает vendor CSS и выставляет глобальные `window.gsap`, `window.bootstrap`, `window.WaveSurfer`.
+- `static/js/utils/utils.js` — классический модуль с глобальным `Utils`.
+- `static/service-worker.js` — service worker для PWA.
 
-#### Проверка и форматирование JavaScript
+#### Запуск frontend в разработке
 
 Зависимости устанавливаются из `package-lock.json`:
 
@@ -141,17 +142,16 @@ Backend-тесты находятся в `tests/` и запускаются че
 npm ci
 ```
 
-Для проверки JavaScript используются **ESLint** (ошибки кода и необъявленные переменные) и **Prettier** (форматирование):
+Для отдельных операций:
 
 ```bash
-npm run lint:js       # ESLint для static/js и tests/js
-npm run lint:js:fix   # ESLint с автоматическим исправлением
-npm run format        # форматирование Prettier
-npm run format:check  # проверка форматирования без изменений
-npm run test:js       # frontend unit-тесты Vitest
+npm run build:frontend  # однократная Vite-сборка
+npm run dev:vite        # Vite dev-сервер
+npm run typecheck       # проверка типов TypeScript
+npm run lint:js         # ESLint
+npm run format          # Prettier
+npm run test:js         # Vitest
 ```
-
-Frontend unit-тесты находятся в `tests/js/` и запускаются в окружении `jsdom`.
 
 ---
 
@@ -471,7 +471,7 @@ python manage.py migrate
 
 5 **Запуск сервера разработки:**
 ```bash
-uvicorn music_project.asgi:application --reload
+npm run start
 ```
 ⚠️ Проект использует полноценную асинхронную архитектуру (ASGI, httpx.AsyncClient, asyncio.gather).
 Поэтому **не рекомендуется** использовать `python manage.py runserver`, так как он работает в

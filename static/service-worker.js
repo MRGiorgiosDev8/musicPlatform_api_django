@@ -1,20 +1,17 @@
-const CACHE_VERSION = 'rubysound-static-v2';
+const CACHE_VERSION = 'rubysound-static-v3';
 const OFFLINE_URL = '/';
 
+// Vendor-ресурсы (bootstrap, gsap, bootstrap-icons) больше не precache-ятся:
+// они собираются в статические файлы static/frontend (Vite) и попадают в кэш
+// рантайм-стратегией cacheFirst при первом запросе.
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/static/images/musicheadphonelogo1.svg',
   '/static/images/ruby-touch.png',
-  '/static/vendor/bootstrap/css/bootstrap.min.css',
   '/static/css/global.css',
   '/static/css/base.css',
   '/static/css/layout.css',
   '/static/css/components.css',
-  '/static/vendor/bootstrap-icons/font/bootstrap-icons.css',
-  '/static/vendor/bootstrap-icons/font/fonts/bootstrap-icons.woff',
-  '/static/vendor/bootstrap-icons/font/fonts/bootstrap-icons.woff2',
-  '/static/vendor/gsap/gsap.min.js',
-  '/static/vendor/bootstrap/js/bootstrap.bundle.min.js',
 ];
 
 const NETWORK_ONLY_PATH_PREFIXES = [

@@ -74,7 +74,8 @@ const computePlaylistView = (
 
 // Внешние контракты (см. docs/frontend-global-contract.md):
 // - window.buildAuthHeaders — из UI/favorite-button.ts (guard'ы на месте);
-// - window.bootstrap.Toast — из static/vendor/bootstrap;
+// - window.bootstrap.Toast — из node_modules (bootstrap), выставляется
+//   vendor-globals.js (Vite-бандл);
 // - bare Utils — из static/js/utils/utils.js (top-level global).
 type BuildAuthHeadersFn = (
   includeJsonContentType?: boolean,

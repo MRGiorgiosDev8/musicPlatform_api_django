@@ -1,7 +1,12 @@
 /**
- * Entry-точка Vite-бандла (Фаза 2 миграции).
+ * Entry-точка Vite-бандла (Фаза 2 миграции; Фаза 4 — vendor из node_modules).
  *
- * Порядок импортов СТРОГО повторяет порядок first-party script-тегов в
+ * Первым импортируется vendor-globals: он подключает CSS (bootstrap-icons,
+ * bootstrap, hamburgers) и выставляет window-глобалы (gsap/плагины,
+ * bootstrap, WaveSurfer, emoji-picker), заменяя прежние script-теги из
+ * static/vendor (см. static/js/entry/vendor-globals.js).
+ *
+ * Далее порядок импортов СТРОГО повторяет порядок first-party script-тегов в
  * music_api/templates/base.html — это гарантирует прежнюю семантику:
  *  - провайдеры window.* (Spinners, PublicCommentsAnimation, animateGenreBtn,
  *    favorite-button API и т.д.) выполняются раньше потребителей;
@@ -10,6 +15,8 @@
  * Все импорты — только за побочными эффектами (classic-скрипты пишут
  * в window/global и сами подписываются на DOMContentLoaded).
  */
+import './vendor-globals';
+
 import '../pwa/register.ts';
 
 // Анимации и визуальные эффекты (порядок как в base.html)

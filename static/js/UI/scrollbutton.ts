@@ -2,13 +2,14 @@
  * Кнопки горизонтальной прокрутки каруселей (жанровые плитки на главной).
  *
  * Side-effect модуль: вся работа — в DOMContentLoaded-обработчике. Использует
- * gsap + ScrollToPlugin (vendor, загружаются классическими script-тегами).
+ * gsap + ScrollToPlugin из node_modules (gsap): подключаются в Vite-бандл
+ * модулем static/js/entry/vendor-globals.js и доступны как глобалы window.gsap /
+ * window.ScrollToPlugin.
  * В window ничего не пишет, CJS-моста нет.
  */
 
-// ScrollToPlugin — глобал из static/vendor/gsap (classic script), вне
-// globals.d.ts; объявляем локально как `any`, чтобы не править globals.d.ts.
-declare const ScrollToPlugin: any;
+// Типы `ScrollToPlugin` и `gsap` приходят глобально из npm-пакета gsap
+// (node_modules/gsap/types/*.d.ts), поэтому отдельные declare не нужны.
 
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof gsap !== 'undefined' && typeof ScrollToPlugin !== 'undefined') {

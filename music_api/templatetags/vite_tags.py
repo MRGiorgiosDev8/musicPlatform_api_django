@@ -7,10 +7,13 @@ build.outDir = static/frontend, manifest = true).
 - `{% vite_available %}` — есть ли собранный бандл (manifest найден).
 - `{% vite_asset %}` — URL entry-чанка бандла (учитывает hashed-хранение
   WhiteNoise через staticfiles_storage).
+- `{% vite_css %}` — <link rel="stylesheet"> для CSS-чанков entry-бандла
+  (vendor-стили: bootstrap, bootstrap-icons, hamburgers; подключаются через
+  импорты в static/js/entry/vendor-globals.js).
 
 Шаблон base.html использует эти теги как переключатель: при наличии бандла
-подключается один `<script type="module">`, иначе рендерятся legacy script-теги
-(fallback без запуска Vite-сборки, например в DEBUG).
+подключаются один `<script type="module">` и CSS-чанки, иначе рендерятся legacy
+script-теги (fallback без запуска Vite-сборки, например в DEBUG).
 """
 
 import json
@@ -18,6 +21,7 @@ import json
 from django import template
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -88,3 +92,18 @@ def vite_asset() -> str:
         return ""
     relative_path = f"frontend/{entry['file']}"
     return staticfiles_storage.url(relative_path)
+
+
+@register.simple_tag
+def vite_css() -> str:
+    """HTML `<link rel="stylesheet">` для CSS-чанков entry-бандла или пустая строка."""
+    entry = _find_entry(_manifest())
+    if entry is None:
+        return ""
+    links = []
+    for css_file in entry.get("css") or []:
+        url = staticfiles_storage.url(f"frontend/{css_file}")
+        links.append(f'<link rel="stylesheet" href="{url}">')
+    # mark_safe: simple_tag экранирует вывод по умолчанию, без этого браузер
+    # показывает сырой текст "<link ...>", а не сам тег.
+    return mark_safe("\n".join(links))

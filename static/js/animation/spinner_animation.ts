@@ -1,5 +1,5 @@
-declare const DrawSVGPlugin: unknown;
-
+// Типы `DrawSVGPlugin` и `gsap` приходят глобально из npm-пакета gsap
+// (node_modules/gsap/types/*.d.ts), поэтому отдельные declare не нужны.
 gsap.registerPlugin(DrawSVGPlugin);
 
 (function () {

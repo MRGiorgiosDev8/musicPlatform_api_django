@@ -38,7 +38,6 @@ module.exports = [
   {
     ignores: [
       "node_modules/**",
-      "static/vendor/**",
       "staticfiles/**",
       ".venv/**",
       "static/js/animation/hamburger_animation.js",

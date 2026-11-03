@@ -126,10 +126,39 @@
       }
       syncImmediateState();
     };
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initNavbarLogoCollapseAnimation);
-    } else {
+    // Инициализация строго после стабилизации layout в WebKit/Safari.
+    // При кэшированных ресурсах DOMContentLoaded может наступить до готового
+    // layout, из-за чего gsap.set пиннит неверное начальное состояние
+    // .logo-text / .logo-font img (лого "разлетается" при перезагрузке).
+    // Ждём, пока другие модули закончат править navbar (покой мутаций DOM),
+    // с гарантированным fallback на событие load.
+    let initialized = false;
+    let observer = null;
+    let settleTimer = 0;
+    const initOnce = () => {
+      if (initialized) return;
+      initialized = true;
+      if (observer) observer.disconnect();
       initNavbarLogoCollapseAnimation();
-    }
+    };
+    const initWhenStable = () => {
+      if (document.readyState === "complete") {
+        // DOMContentLoaded и load уже прошли — layout готов
+        initOnce();
+        return;
+      }
+      observer = new MutationObserver(() => {
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(initOnce, 80);
+      });
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+      // Гарантированный вызов, даже если DOM продолжает мутироваться
+      window.addEventListener("load", initOnce);
+    };
+    initWhenStable();
   })();
 })();

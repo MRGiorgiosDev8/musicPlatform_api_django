@@ -1,6 +1,20 @@
 ### История изменений <a id="changelog"></a>
 
-#### 2026-02-05 
+#### 2026-11-02 — Фаза 4: vendor из node_modules вместо static/vendor
+
+- **refactor (frontend/vendor)**: Все vendor-ресурсы переведены с `static/vendor/` на импорты из npm в Vite:
+  - CSS: `bootstrap-icons/font/bootstrap-icons.css`, `bootstrap/dist/css/bootstrap.min.css`, `hamburgers/dist/hamburgers.min.css` — подключаются через Vite и рендерятся CSS-чанком бандла;
+  - JS: `bootstrap`, `gsap` (+ ScrollToPlugin, CustomBounce, CustomEase, SplitText, ScrambleTextPlugin, DrawSVGPlugin, MorphSVGPlugin), `wavesurfer.js`, `emoji-picker-element`.
+- **feat (entry)**: Добавлен `static/js/entry/vendor-globals.js` — импортируется первым в `bootstrap.js`, выставляет прежние window-глобалы (`window.gsap`, плагины GSAP, `window.bootstrap`, `window.WaveSurfer`) до исполнения first-party модулей, сохраняя порядок загрузки из старого `base.html`.
+- **chore (deps)**: Установлены npm-пакеты `bootstrap`, `gsap`, `hamburgers`.
+- **feat (templatetags)**: `vite_tags.py` — добавлен тег `{% vite_css %}` для CSS-чанков entry-бандла из `manifest.json`.
+- **refactor (templates)**: `base.html` — убраны vendor-теги (CSS `<link>` и JS `<script>`), CSS-чанк подключается в `<head>` вместо прежних трёх vendor-`<link>`, legacy-fallback first-party скриптов сохранён.
+- **chore (pwa)**: `service-worker.js` — precache очищен от vendor-URL (бандл кэшируется рантайм-стратегией cacheFirst), версия кэша поднята до `rubysound-static-v3`.
+- **cleanup**: Удалены `static/vendor/` и `scripts/vendor-icons.mjs` (вместе со скриптом `vendor:icons`), убрано упоминание `static/vendor` из eslint и readme.
+- **verify**: `build:frontend`, `test:js`, `typecheck`, `lint:js`, `build:legacy`, `check:legacy`, `black --check`, `flake8` — успешно.
+
+---
+
 
 - **fix**: Параллельная обработка треков в `_get_lastfm_tracks_by_genre_async` вместо последовательного цикла
 - **feat**: Кеширование результатов `track.getInfo` в Django (`LocMemCache`)
@@ -462,3 +476,40 @@
 - verify: Успешно пройдены 56 тестов в 10 файлах, проверка типов, линт JS и frontend-сборка.
 - verify: Проверено подключение Vite-бандла и сохранение legacy-fallback.
 - Ограничения: TS-файлы пока проверяются через TypeScript без ESLint; общая проверка форматирования остаётся неуспешной из-за ранее существовавших замечаний.
+
+---
+
+#### 2026-11-01 — Миграция static/js на TypeScript
+
+- **refactor (typescript)**: Весь код `static/js/` переведён с JavaScript на TypeScript, включая модули анимаций, UI-логику и вспомогательные модули.
+
+- **chore (build)**: Добавлена библиотека `concurrently` для запуска Django и Vite watch-сборки одной командой:
+
+  ```bash
+  npm run start
+  ```
+
+  Команда одновременно запускает:
+
+  ```bash
+  uvicorn music_project.asgi:application --reload
+  vite build --watch
+  ```
+
+- **chore (legacy)**: Сохранена поддержка legacy IIFE-сборки: TS-источники собираются через `build:legacy`, а `check:legacy` проверяет соответствие сгенерированных JS-файлов исходникам.
+
+- **chore (bootstrap.js)**: Импорты first-party модулей переключены на `.ts`-источники. `bootstrap.js` остаётся Vite entry: он задаёт порядок загрузки vendor-глобалов и first-party модулей, а также восстанавливает глобальный `Utils`.
+
+- **chore (vendor-globals.js)**: Vendor-зависимости перенесены из `static/vendor` в `node_modules`. Файл подключает vendor CSS, импортирует Bootstrap JS, GSAP с плагинами, WaveSurfer и `emoji-picker-element`, регистрирует GSAP-плагины и восстанавливает глобальные `window.gsap`, `window.bootstrap`, `window.WaveSurfer` и плагины GSAP.
+
+- **test**: Vitest-тесты обновлены под TS-модули; исправлена изоляция DOM-состояния между тестами.
+
+- **verify**: Пройдены `build:legacy`, `check:legacy`, `typecheck`, `lint:js`, `test:js` и `build:frontend`.
+
+- **Остались на JS** (намеренно):
+  - `static/js/entry/bootstrap.js` — Vite entry: управляет порядком импортов и глобальным контрактом;
+  - `static/js/entry/vendor-globals.js` — entry-обвязка vendor-зависимостей: подключает CSS и выставляет глобальные `window.*`;
+  - `static/js/utils/utils.js` — классический скрипт, который предоставляет глобальный `Utils` и используется вне TS-модулей;
+  - `static/service-worker.js` — исполняется в контексте Service Worker браузера вне основного Vite-бандла.
+
+---
