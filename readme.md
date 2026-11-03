@@ -30,7 +30,8 @@
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
 - 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`).
-- 🧪 **Тестирование**: Frontend — **54 passed**, Backend — **93 passed**.
+- 🧪 **Тестирование**: Frontend — **147 passed** (35 файлов), Backend — **93 passed**.
+- 🧩 **TypeScript + Vite**: Frontend-модули написаны на TypeScript и собираются через Vite; Django и Vite watch-сборка запускаются одной командой `npm run start`
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -62,7 +63,7 @@
 
 - **Python 3.12**
 - **TypeScript**
-- *Vite** (сборка frontend и dev/watch-режим)
+- **Vite** (сборка frontend и dev/watch-режим)
 - **Concurrently** (запуск Django и Vite watch-сборки одной командой)
 - **Django**
 - **Django REST Framework** + **JWT**
