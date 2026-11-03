@@ -5,6 +5,7 @@ WORKDIR /frontend
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY static/js ./static/js
+COPY vite.config.ts ./
 RUN npm run build:frontend
 
 # ---------- Runtime (Python/Django) ----------

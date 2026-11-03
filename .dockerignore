@@ -12,8 +12,6 @@ __pycache__
 .env
 node_modules
 npm-debug.log*
-staticfiles
-static/frontend
 media
 backups
 info*
