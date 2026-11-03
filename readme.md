@@ -152,7 +152,7 @@ npm run dev:vite        # Vite dev-сервер
 npm run typecheck       # проверка типов TypeScript
 npm run lint:js         # ESLint
 npm run format          # Prettier
-npm run test:js         # Vitest
+npx vitest run          # Vitest
 ```
 
 ---

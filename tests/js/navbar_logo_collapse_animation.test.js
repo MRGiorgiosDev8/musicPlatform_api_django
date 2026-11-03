@@ -111,7 +111,10 @@ describe('navbar_logo_collapse_animation — оба режима загрузк�
     dom.window.gsap = gsapMock;
     dom.window.matchMedia = () => ({ matches: false, addEventListener: () => {} });
     dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
+    // Safari-фикс инициализирует логотип по load (fallback) либо после
+    // успокоения MutationObserver, а не по DOMContentLoaded. Диспатчим load,
+    // чтобы initOnce отработал синхронно до show.bs.collapse.
+    dom.window.dispatchEvent(new dom.window.Event('load'));
 
     dom.window.document
       .getElementById('navbarNav')
