@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/features/realtime_presence.ts';
@@ -104,38 +102,5 @@ describe('realtime_presence — оба режима загрузки', () => {
 
     // посторонний тип события игнорируется без ошибок
     socket.emit('message', { type: 'some_other_event' });
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/features/realtime_presence.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-      url: 'http://localhost/',
-    });
-    dom.window.WebSocket = FakeWebSocket;
-    FakeWebSocket.instances = [];
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const badge8 = dom.window.document.querySelector('[data-presence-user-id="8"]');
-    const badge7 = dom.window.document.querySelector('[data-presence-user-id="7"]');
-    const socket = FakeWebSocket.instances[0];
-
-    expect(socket.url).toBe('ws://localhost/ws/presence/');
-    expect(badge8.querySelector('.presence-label').textContent).toBe('Онлайн');
-    expect(badge7.querySelector('.presence-label').textContent).toBe('Был(а): 12:30');
-
-    socket.emit('open', '');
-    expect(socket.sent).toEqual([
-      JSON.stringify({ action: 'watch_user', user_id: 7 }),
-      JSON.stringify({ action: 'watch_user', user_id: 8 }),
-    ]);
-
-    socket.emit('message', { type: 'presence_status', user_id: '7', is_online: true });
-    expect(badge7.dataset.presenceOnline).toBe('true');
-    expect(badge7.querySelector('.presence-label').textContent).toBe('Онлайн');
-
-    dom.window.close();
   });
 });

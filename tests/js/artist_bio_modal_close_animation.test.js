@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/animation/artist_bio_modal_close_animation.ts';
@@ -108,37 +106,5 @@ describe('artist_bio_modal_close_animation — оба режима загруз�
     const event = new Event('hide.bs.modal', { cancelable: true });
     document.getElementById('artistBioModal').dispatchEvent(event);
     expect(event.defaultPrevented).toBe(false);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync(
-      'static/js/animation/artist_bio_modal_close_animation.js',
-      'utf8'
-    );
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-    const hide = vi.fn();
-    function Modal() {}
-    Modal.getInstance = vi.fn(() => ({ hide }));
-    dom.window.bootstrap = { Modal };
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const modal = dom.window.document.getElementById('artistBioModal');
-    const firstHide = new dom.window.Event('hide.bs.modal', { cancelable: true });
-    firstHide.preventDefault = vi.fn();
-    modal.dispatchEvent(firstHide);
-
-    const timelineConfig = gsapMock.timeline.mock.calls[0][0];
-    expect(gsapMock.tl.to).toHaveBeenCalledTimes(1);
-    timelineConfig.onComplete();
-    expect(hide).toHaveBeenCalledTimes(1);
-    expect(modal.dataset.gsapClosing).toBe('1');
-
-    dom.window.close();
   });
 });

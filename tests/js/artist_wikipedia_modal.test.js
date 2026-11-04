@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import * as wikipediaModal from './helpers/artist_wikipedia_modal.js';
 
 describe('artist wikipedia batching P2', () => {
@@ -119,70 +117,5 @@ describe('artist wikipedia batching P2', () => {
     expect(firstBody.artists).toHaveLength(12);
     expect(secondBody.artists).toHaveLength(12);
     expect(merged).not.toContain('Artist-1');
-  });
-});
-
-describe('artist_wikipedia_modal — legacy IIFE', () => {
-  it('открывает модалку по клику и рендерит биографию из батчера', async () => {
-    const legacyCode = readFileSync('static/js/features/artist_wikipedia_modal.js', 'utf8');
-    const dom = new JSDOM(
-      `<!DOCTYPE html><html><body>
-        <div id="artistBioModal">
-          <div id="artistBioModalTitle"></div>
-          <div id="artistBioLoading"></div>
-          <div id="artistBioContent"></div>
-          <div id="artistBioImageWrap"><img id="artistBioImage" /></div>
-        </div>
-      </body></html>`,
-      { runScripts: 'outside-only', url: 'http://localhost/' }
-    );
-
-    const showMock = vi.fn();
-    dom.window.bootstrap = {
-      Modal: vi.fn(function MockModal() {
-        this.show = showMock;
-      }),
-    };
-    dom.window.gsap = { killTweensOf: vi.fn(), set: vi.fn(), to: vi.fn() };
-    dom.window.buildAuthHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }));
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        artists: {
-          Muse: { bio: 'bio-muse', title: 'Muse', source_url: '', image_url: '', lang: 'ru' },
-        },
-      }),
-    });
-    dom.window.fetch = fetchMock;
-
-    // JSDOM шлёт DOMContentLoaded асинхронно после парсинга — ждём его,
-    // чтобы обработчик init зарегистрировал document click-listener.
-    const domReady = new Promise((resolve) => {
-      dom.window.document.addEventListener('DOMContentLoaded', resolve, { once: true });
-    });
-    dom.window.eval(legacyCode);
-    await domReady;
-
-    const trigger = dom.window.document.createElement('button');
-    trigger.className = 'js-artist-bio-trigger';
-    trigger.dataset.artistName = 'Muse';
-    dom.window.document.body.appendChild(trigger);
-    trigger.click();
-
-    await vi.waitFor(() => {
-      expect(dom.window.document.getElementById('artistBioContent').textContent).toBe('bio-muse');
-    });
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      '/api/wikipedia/artists/',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ artists: ['Muse'], lang: 'ru' }),
-      })
-    );
-    expect(showMock).toHaveBeenCalled();
-    expect(dom.window.gsap.to).toHaveBeenCalled();
-    expect(dom.window.document.getElementById('artistBioModalTitle').textContent).toBe('Muse');
-    dom.window.close();
   });
 });

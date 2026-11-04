@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/animation/public_profile_stagger_animation.ts';
@@ -73,31 +71,5 @@ describe('public_profile_stagger_animation — оба режима загруз�
     );
     expect(visible.style.opacity).toBe('1');
     expect(visible.style.transform).toBe('none');
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync(
-      'static/js/animation/public_profile_stagger_animation.js',
-      'utf8'
-    );
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-    dom.window.requestAnimationFrame = (cb) => {
-      cb(0);
-      return 1;
-    };
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const calls = gsapMock.fromTo.mock.calls;
-    expect(calls.length).toBe(2);
-    expect(calls[0][0]).toBe(dom.window.document.getElementById('public-card'));
-    expect(calls[1][0].length).toBe(1);
-
-    dom.window.close();
   });
 });

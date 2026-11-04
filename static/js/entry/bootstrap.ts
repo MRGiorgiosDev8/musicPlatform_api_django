@@ -4,7 +4,7 @@
  * Первым импортируется vendor-globals: он подключает CSS (bootstrap-icons,
  * bootstrap, hamburgers) и выставляет window-глобалы (gsap/плагины,
  * bootstrap, WaveSurfer, emoji-picker), заменяя прежние script-теги из
- * static/vendor (см. static/js/entry/vendor-globals.js).
+ * static/vendor (см. static/js/entry/vendor-globals.ts).
  *
  * Далее порядок импортов СТРОГО повторяет порядок first-party script-тегов в
  * music_api/templates/base.html — это гарантирует прежнюю семантику:
@@ -15,7 +15,7 @@
  * Все импорты — только за побочными эффектами (classic-скрипты пишут
  * в window/global и сами подписываются на DOMContentLoaded).
  */
-import './vendor-globals';
+import './vendor-globals.ts';
 
 import '../pwa/register.ts';
 
@@ -58,7 +58,7 @@ import '../UI/avatar_actions_toggle.ts';
 import '../UI/theme_toggle.ts';
 
 // Утилиты
-import '../utils/utils.js';
+import '../utils/utils.ts';
 import '../UI/now_playing.ts';
 
 // Favorite Button
@@ -67,10 +67,10 @@ import '../UI/favorite-button.ts';
 /**
  * Восстановление глобального контракта.
  *
- * `Utils` — top-level `const` в utils.js (в классическом скрипте это был global;
+ * `Utils` — top-level `const` в utils.ts (в классическом скрипте это был global;
  * см. docs/frontend-global-contract.md). В ESM-бандле он изолирован в модуле,
  * поэтому для потребителей, которые ссылаются на `Utils` без `window.`,
- * привязываем его к глобалу явно. Файл utils.js дополнительно выполняет
- * `window.Utils = Utils;` при импорте (см. конец utils.js).
+ * привязываем его к глобалу явно. Файл utils.ts дополнительно выполняет
+ * `window.Utils = Utils;` при импорте (см. конец utils.ts).
  */
-globalThis.Utils = window.Utils;
+(globalThis as unknown as { Utils: unknown }).Utils = window.Utils;

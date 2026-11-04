@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/animation/auth_widget_animation.ts';
@@ -48,25 +46,5 @@ describe('auth_widget_animation — оба режима загрузки', () =>
     document.dispatchEvent(new Event('DOMContentLoaded'));
     // при отсутствии gsap обработчик выходит по первому же условию без ошибок
     expect(document.querySelector('.auth-widget')).toBeTruthy();
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/animation/auth_widget_animation.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    expect(gsapMock.fromTo).toHaveBeenCalledTimes(1);
-    const [targets, , toVars] = gsapMock.fromTo.mock.calls[0];
-    expect(targets.length).toBe(2);
-    expect(targets[0].classList.contains('auth-widget')).toBe(true);
-    expect(toVars.duration).toBe(0.3);
-
-    dom.window.close();
   });
 });

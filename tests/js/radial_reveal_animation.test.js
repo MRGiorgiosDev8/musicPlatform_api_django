@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const MARKUP = `
   <button class="genre-btn">
@@ -95,25 +93,5 @@ describe('radial_reveal_animation — оба режима загрузки', () 
     lateBtn.innerHTML = '<span class="genre-btn-reveal"></span>';
     window.animateGenreBtn(lateBtn, 3);
     expect(lateBtn.dataset.radialRevealInit).toBeUndefined();
-  });
-
-  it('Legacy-режим: IIFE вешает window.animateGenreBtn', () => {
-    const legacyCode = readFileSync('static/js/animation/radial_reveal_animation.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-    dom.window.matchMedia = () => ({ matches: false });
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const btn = dom.window.document.querySelector('.genre-btn');
-    btn.dispatchEvent(new dom.window.MouseEvent('mouseenter', { clientX: 4, clientY: 5 }));
-    expect(gsapMock.set).toHaveBeenCalled();
-    expect(typeof dom.window.animateGenreBtn).toBe('function');
-    expect(typeof dom.window.showActiveReveal).toBe('function');
-    expect(typeof dom.window.hideActiveReveal).toBe('function');
-    dom.window.close();
   });
 });

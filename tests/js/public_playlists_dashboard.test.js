@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 // Модуль использует глобальный Utils.fetchData — подменяем его до dispatch.
@@ -80,33 +78,5 @@ describe('public_playlists_dashboard — оба режима загрузки', 
     const block = document.getElementById('public-playlists-dashboard-block');
     expect(root.children.length).toBe(0);
     expect(block.style.display).toBe('none');
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', async () => {
-    const legacyCode = readFileSync('static/js/features/public_playlists_dashboard.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const fetchData = vi.fn().mockResolvedValue({
-      results: [{ username: 'carol', tracks_count: 1, likes_count: 0 }],
-    });
-    dom.window.Utils = { fetchData };
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    // ожидание асинхронного load()
-    await flushPromises();
-
-    const root = dom.window.document.getElementById('public-playlists-dashboard');
-    const block = dom.window.document.getElementById('public-playlists-dashboard-block');
-
-    expect(fetchData).toHaveBeenCalledWith('/api/playlists/public/trending/?limit=6');
-    expect(root.querySelectorAll('.dashboard-card').length).toBe(1);
-    expect(root.querySelector('.dashboard-card').getAttribute('href')).toBe('/u/carol/');
-    expect(root.textContent).toContain('Треков: 1 - Лайков: 0');
-    expect(block.style.display).not.toBe('none');
-
-    dom.window.close();
   });
 });

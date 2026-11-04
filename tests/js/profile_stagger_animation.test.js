@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/animation/profile_stagger_animation.ts';
@@ -100,26 +98,5 @@ describe('profile_stagger_animation — оба режима загрузки', (
     expect(img).toBeTruthy();
     expect(img.src).toBe('blob:mock');
     expect(img.classList.contains('profile-avatar-fallback')).toBe(false);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/animation/profile_stagger_animation.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-      url: 'http://localhost/',
-    });
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const calls = gsapMock.tl.fromTo.mock.calls;
-    expect(gsapMock.timeline).toHaveBeenCalledTimes(1);
-    expect(calls.length).toBe(2);
-    expect(calls[0][0]).toBe(dom.window.document.getElementById('blcok-avatar'));
-    expect(calls[1][0].length).toBe(4);
-
-    dom.window.close();
   });
 });

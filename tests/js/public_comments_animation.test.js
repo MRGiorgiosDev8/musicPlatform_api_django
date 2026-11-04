@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const createGsapMock = () => {
   const timeline = { to: vi.fn(() => timeline), fromTo: vi.fn(() => timeline) };
@@ -99,22 +97,5 @@ describe('public_comments_animation — оба режима загрузки', (
     window.PublicCommentsAnimation.collapseDeleteComment(node, done);
     expect(done).toHaveBeenCalledTimes(1);
     expect(window.gsap.timeline).not.toHaveBeenCalled();
-  });
-
-  it('Legacy-режим: IIFE выставляет window.PublicCommentsAnimation', () => {
-    const legacyCode = readFileSync('static/js/animation/public_comments_animation.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-    dom.window.matchMedia = () => ({ matches: false });
-    dom.window.eval(legacyCode);
-
-    const node = dom.window.document.createElement('div');
-    dom.window.PublicCommentsAnimation.pulseNewComment(node);
-    expect(gsapMock.fromTo).toHaveBeenCalled();
-    expect(typeof dom.window.PublicCommentsAnimation.animateStatCount).toBe('function');
-    dom.window.close();
   });
 });

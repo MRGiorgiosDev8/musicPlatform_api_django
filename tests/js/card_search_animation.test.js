@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const createGsapMock = () => {
   const timeline = { to: vi.fn() };
@@ -96,34 +94,5 @@ describe('card_search_animation — оба режима загрузки', () =>
 
     expect(gsapMock.set).not.toHaveBeenCalled();
     expect(gsapMock.timelineInstance.to).not.toHaveBeenCalled();
-  });
-
-  it('Legacy-режим: сгенерированный IIFE анимирует появившиеся карточки', async () => {
-    const legacyCode = readFileSync('static/js/animation/card_search_animation.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM('<!DOCTYPE html><html><body><div id="host"></div></body></html>', {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-
-    // Ждём завершения парсинга документа JSDOM: иначе jsdom сам повторно
-    // дёрнет DOMContentLoaded, IIFE зарегистрирует второй bodyObserver, чей
-    // колбэк сработает уже после close() на разобранном document.
-    await flushObserver();
-    expect(dom.window.document.readyState).not.toBe('loading');
-
-    dom.window.eval(legacyCode);
-
-    const container = dom.window.document.createElement('div');
-    container.id = 'searchResults';
-    const item = dom.window.document.createElement('div');
-    item.className = 'track-item';
-    container.appendChild(item);
-    dom.window.document.body.appendChild(container);
-    await flushObserver();
-
-    expect(gsapMock.set).toHaveBeenCalledTimes(1);
-    expect(item.dataset.animated).toBe('true');
-    dom.window.close();
   });
 });

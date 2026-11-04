@@ -31,6 +31,9 @@ const Utils = {
     { value: 'hyperpop', label: 'Hyperpop' },
   ],
 
+  // Внутреннее хранилище живых экземпляров WaveSurfer (инициализируется лениво).
+  _audioPreviewInstances: undefined as Set<any> | undefined,
+
   showTrendingSpinner(show = true) {
     if (window.Spinners && window.Spinners.trending) {
       if (show) {
@@ -51,7 +54,7 @@ const Utils = {
     }
   },
 
-  initGenreButtons(containerId, onSelect, addCarouselClass = false) {
+  initGenreButtons(containerId: string, onSelect: (genre: string) => void, addCarouselClass = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -105,7 +108,7 @@ const Utils = {
     }, 100);
 
     container.addEventListener('click', (e) => {
-      const btn = e.target.closest('.genre-btn');
+      const btn = (e.target as Element | null)?.closest<HTMLElement>('.genre-btn');
       if (!btn || !container.contains(btn)) return;
 
       const allBtns = container.querySelectorAll('.genre-btn');
@@ -127,20 +130,20 @@ const Utils = {
 
       if (typeof showActiveReveal === 'function') showActiveReveal(btn);
 
-      onSelect(btn.dataset.genre);
+      onSelect(btn.dataset.genre ?? '');
     });
   },
 
-  getCached(cacheObj, key) {
+  getCached(cacheObj: any, key: string) {
     const cached = cacheObj[key];
     return cached && Date.now() - cached.ts < this.CACHE_TTL ? cached.data : null;
   },
 
-  setCache(cacheObj, key, data) {
+  setCache(cacheObj: any, key: string, data: any) {
     cacheObj[key] = { ts: Date.now(), data };
   },
 
-  renderEmpty(containerId) {
+  renderEmpty(containerId: string) {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.replaceChildren();
@@ -155,7 +158,7 @@ const Utils = {
     container.appendChild(wrapper);
   },
 
-  showError(containerId, message = 'Не удалось загрузить данные') {
+  showError(containerId: string, message = 'Не удалось загрузить данные') {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.querySelectorAll('.alert-log').forEach((el) => el.remove());
@@ -168,7 +171,7 @@ const Utils = {
     setTimeout(() => alert.remove(), 30000);
   },
 
-  async fetchData(url) {
+  async fetchData(url: string) {
     const res = await fetch(url);
     if (!res.ok) {
       let errorMessage = `HTTP ${res.status}`;
@@ -181,7 +184,7 @@ const Utils = {
     return res.json();
   },
 
-  hasAudioPreview(url) {
+  hasAudioPreview(url: string | null | undefined) {
     return Boolean(url && /\.(mp3|m4a)(\?.*)?$/i.test(url));
   },
 
@@ -191,15 +194,15 @@ const Utils = {
     return extraClasses ? `${base} ${extraClasses}` : base;
   },
 
-  formatTime(seconds) {
+  formatTime(seconds: number) {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   },
 
-  initAudioPreviews(root = document) {
-    const mounts = root.querySelectorAll('[data-audio-preview-url]');
+  initAudioPreviews(root: HTMLElement | Document = document) {
+    const mounts = root.querySelectorAll<HTMLElement>('[data-audio-preview-url]');
     if (!mounts.length) return;
 
     mounts.forEach((mount) => {
@@ -223,7 +226,7 @@ const Utils = {
     });
   },
 
-  _createWaveSurferPlayer(mount, url) {
+  _createWaveSurferPlayer(mount: HTMLElement, url: string) {
     const wrapper = document.createElement('div');
     wrapper.className = 'audio-preview-player';
 
@@ -277,7 +280,7 @@ const Utils = {
     if (!this._audioPreviewInstances) this._audioPreviewInstances = new Set();
     this._audioPreviewInstances.add(ws);
 
-    const emitPreviewEvent = (name, payload = {}) => {
+    const emitPreviewEvent = (name: string, payload: Record<string, unknown> = {}) => {
       document.dispatchEvent(
         new CustomEvent(`ruby:preview:${name}`, {
           detail: {
@@ -290,7 +293,7 @@ const Utils = {
       );
     };
 
-    const updateButtonState = (isPlaying) => {
+    const updateButtonState = (isPlaying: boolean) => {
       playButton.setAttribute(
         'aria-label',
         isPlaying ? 'Поставить превью на паузу' : 'Воспроизвести превью'
@@ -313,7 +316,7 @@ const Utils = {
     });
 
     ws.on('play', () => {
-      this._audioPreviewInstances.forEach((instance) => {
+      this._audioPreviewInstances?.forEach((instance) => {
         if (instance !== ws) instance.pause();
       });
       updateButtonState(true);
@@ -391,7 +394,7 @@ const Utils = {
     return button;
   },
 
-  closeParentOffcanvas(element) {
+  closeParentOffcanvas(element: Element | null | undefined) {
     if (!element?.closest) return;
     const offcanvasEl = element.closest('.offcanvas');
     if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
@@ -422,9 +425,9 @@ const Utils = {
   } = {}) {
     if (!container || !targetSelector || !trackSelector || !textSelector) return;
 
-    const targets = container.querySelectorAll(targetSelector);
+    const targets = container.querySelectorAll<HTMLElement>(targetSelector);
     targets.forEach((target) => {
-      const trackNode = target.querySelector(trackSelector);
+      const trackNode = target.querySelector<HTMLElement>(trackSelector);
       const textNode = target.querySelector(textSelector);
       if (!trackNode || !textNode) return;
 
@@ -460,7 +463,7 @@ const Utils = {
       if (!animationName || animationName === 'none') return;
 
       const cyclePause = Math.max(0, Number(pauseDuration) || 0);
-      let restartTimeoutId = null;
+      let restartTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
 
       const startCycle = () => {
         trackNode.style.animation = 'none';
@@ -478,8 +481,8 @@ const Utils = {
         }, cyclePause);
       };
 
-      const handleAnimationEnd = (event) => {
-        if (event.animationName !== animationName) return;
+      const handleAnimationEnd = (event: Event) => {
+        if ((event as AnimationEvent).animationName !== animationName) return;
         scheduleRestart();
       };
 

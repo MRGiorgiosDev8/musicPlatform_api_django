@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const MARKUP = `
   <div id="trending-spinner" hidden></div>
@@ -83,21 +81,5 @@ describe('spinner_animation — оба режима загрузки', () => {
     document.body.innerHTML = '';
     await import('../../static/js/animation/spinner_animation.ts');
     expect(window.Spinners).toEqual({ trending: null, year: null, search: null });
-  });
-
-  it('Legacy-режим: IIFE создаёт те же контролы', () => {
-    const legacyCode = readFileSync('static/js/animation/spinner_animation.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-    dom.window.DrawSVGPlugin = { id: 'DrawSVGPlugin' };
-    dom.window.eval(legacyCode);
-
-    expect(gsapMock.registerPlugin).toHaveBeenCalledWith(dom.window.DrawSVGPlugin);
-    expect(dom.window.Spinners.search).toBeTruthy();
-    expect(dom.window.document.querySelectorAll('#year-spinner circle').length).toBe(8);
-    dom.window.close();
   });
 });

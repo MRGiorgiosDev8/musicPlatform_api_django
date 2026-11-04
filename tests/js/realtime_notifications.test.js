@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/features/realtime_notifications.ts';
@@ -90,45 +88,5 @@ describe('realtime_notifications — оба режима загрузки', () =
     socket.emit('message', { type: 'playlist_like_removed', notification_id: 42 });
     expect(list.querySelectorAll('.js-like-notification-item').length).toBe(0);
     expect(empty.classList.contains('d-none')).toBe(false);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/features/realtime_notifications.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-      url: 'http://localhost/',
-    });
-    dom.window.WebSocket = FakeWebSocket;
-    FakeWebSocket.instances = [];
-    dom.window.document.body.dataset.isAuthenticated = 'true';
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const list = dom.window.document.getElementById('like-notifications-list');
-    const empty = dom.window.document.getElementById('like-notifications-empty');
-    const socket = FakeWebSocket.instances[0];
-
-    expect(socket.url).toBe('ws://localhost/ws/notifications/');
-
-    socket.emit('message', {
-      type: 'playlist_like',
-      notification_id: '13',
-      actor_id: 3,
-      playlist_id: 5,
-      actor_username: 'bob',
-    });
-
-    const items = list.querySelectorAll('.js-like-notification-item');
-    expect(items.length).toBe(1);
-    expect(items[0].dataset.notificationId).toBe('13');
-    expect(items[0].querySelector('strong').textContent).toBe('bob');
-    expect(empty.classList.contains('d-none')).toBe(true);
-
-    socket.emit('message', { type: 'playlist_like_removed', actor_id: 3, playlist_id: 5 });
-    expect(list.querySelectorAll('.js-like-notification-item').length).toBe(0);
-    expect(empty.classList.contains('d-none')).toBe(false);
-
-    dom.window.close();
   });
 });

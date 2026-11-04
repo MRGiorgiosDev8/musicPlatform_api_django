@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует слушатели.
 import '../../static/js/animation/animation_home.ts';
@@ -141,32 +139,5 @@ describe('animation_home — оба режима загрузки', () => {
     expect(
       targets.some((els) => els.includes(document.querySelector('#year2025-container .card-year')))
     ).toBe(true);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/animation/animation_home.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${CONTAINERS}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-    const observed = [];
-    dom.window.IntersectionObserver = createIntersectionObserverMock(observed);
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    expect(gsapMock.fromTo.mock.calls[0][0]).toBe('.popular-h2');
-    expect(observed.map((el) => el.id)).toContain('trending-container');
-
-    dom.window.IntersectionObserver.lastInstance.callback([
-      { isIntersecting: true, target: dom.window.document.getElementById('trending-container') },
-    ]);
-    expect(gsapMock.fromTo).toHaveBeenCalledTimes(2);
-    expect(Array.from(gsapMock.fromTo.mock.calls[1][0])[0]).toBe(
-      dom.window.document.querySelector('#trending-container .card-custom')
-    );
-
-    dom.window.close();
   });
 });

@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const createGsapMock = () => ({
   fromTo: vi.fn(),
@@ -92,29 +90,5 @@ describe('alert_log_animation — оба режима загрузки', () => {
     await flushObserver();
 
     expect(gsapMock.fromTo).toHaveBeenCalledTimes(2);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE удаляет алерт по onComplete', () => {
-    const legacyCode = readFileSync('static/js/animation/alert_log_animation.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM(
-      '<!DOCTYPE html><html><body><div class="alert-log">ok</div></body></html>',
-      {
-        runScripts: 'outside-only',
-      }
-    );
-    dom.window.gsap = gsapMock;
-    vi.spyOn(dom.window, 'setTimeout').mockImplementation((cb) => {
-      cb();
-      return 1;
-    });
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    expect(gsapMock.fromTo).toHaveBeenCalledTimes(1);
-    expect(gsapMock.to).toHaveBeenCalledTimes(1);
-    gsapMock.to.mock.calls[0][1].onComplete();
-    expect(dom.window.document.querySelector('.alert-log')).toBeNull();
-    dom.window.close();
   });
 });

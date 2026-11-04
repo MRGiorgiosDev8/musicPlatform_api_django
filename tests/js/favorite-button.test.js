@@ -1,8 +1,6 @@
 /* @vitest-environment jsdom */
 /* global window */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import '../../static/js/UI/favorite-button.ts';
 
 // Двойной режим исходника: ESM side-effect import не даёт именованных экспортов,
@@ -16,25 +14,10 @@ const favoriteButton = {
   resetFavoritesCache: window.resetFavoritesCache,
 };
 
-// Все window-функции, которые обязан предоставить сгенерированный legacy-IIFE.
-const WINDOW_API_NAMES = [
-  'createFavoriteButtonWithCheck',
-  'createFavoriteButton',
-  'isTrackFavorite',
-  'getCSRFToken',
-  'getJWTToken',
-  'buildAuthHeaders',
-  'resetFavoritesCache',
-  'triggerHapticFeedback',
-  'isIOSDevice',
-];
-
 const flushPromises = async () => {
   await Promise.resolve();
   await Promise.resolve();
 };
-
-const readLegacyFavoriteButton = () => readFileSync('static/js/UI/favorite-button.js', 'utf8');
 
 describe('favorite-button', () => {
   beforeEach(() => {
@@ -154,78 +137,5 @@ describe('favorite-button', () => {
       })
     );
     expect(toggleListener).toHaveBeenCalledTimes(2);
-  });
-
-  describe('Legacy-режим: сгенерированный IIFE', () => {
-    it('выставляет весь window-контракт из 9 функций', () => {
-      const legacyCode = readLegacyFavoriteButton();
-      const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-        url: 'http://localhost/',
-        runScripts: 'outside-only',
-      });
-
-      dom.window.eval(legacyCode);
-
-      for (const name of WINDOW_API_NAMES) {
-        expect(typeof dom.window[name]).toBe('function');
-      }
-
-      dom.window.close();
-    });
-
-    it('getCSRFToken/buildAuthHeaders работают так же, как в TS-режиме', () => {
-      const legacyCode = readLegacyFavoriteButton();
-      const dom = new JSDOM('<!DOCTYPE html><html><head></head><body></body></html>', {
-        url: 'http://localhost/',
-        runScripts: 'outside-only',
-      });
-      const { window: w } = dom;
-
-      w.eval(legacyCode);
-
-      const meta = w.document.createElement('meta');
-      meta.name = 'csrf-token';
-      meta.content = 'csrf-meta';
-      w.document.head.appendChild(meta);
-      w.localStorage.setItem('access_token', 'abc123');
-
-      expect(w.getCSRFToken()).toBe('csrf-meta');
-      expect(w.buildAuthHeaders(true, true)).toEqual({
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer abc123',
-        'X-CSRFToken': 'csrf-meta',
-      });
-
-      dom.window.close();
-    });
-
-    it('toggle кнопки диспатчит favoriteToggled', async () => {
-      const legacyCode = readLegacyFavoriteButton();
-      const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-        url: 'http://localhost/',
-        runScripts: 'outside-only',
-      });
-      const { window: w } = dom;
-
-      w.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({}),
-      });
-      w.eval(legacyCode);
-
-      const toggleListener = vi.fn();
-      w.document.addEventListener('favoriteToggled', toggleListener);
-
-      const button = w.createFavoriteButton('Track 1', 'Artist 1', false, 'mbid-1');
-      w.document.body.appendChild(button);
-      button.click();
-      await flushPromises();
-      await vi.waitFor(() => {
-        expect(button.getAttribute('aria-pressed')).toBe('true');
-      });
-      expect(toggleListener).toHaveBeenCalledTimes(1);
-
-      dom.window.close();
-    });
   });
 });

@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import * as yearModule from './helpers/year2025.js';
 
 describe('year2025 P1', () => {
@@ -125,56 +123,5 @@ describe('year2025 P1', () => {
     expect(root.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
     expect(root.querySelectorAll('.year-track-no-preview').length).toBe(0);
     expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
-  });
-});
-
-describe('year2025 — legacy IIFE', () => {
-  it('инициализируется на DOMContentLoaded и рендерит треки с превью', async () => {
-    const legacyCode = readFileSync('static/js/features/year2025.js', 'utf8');
-    const dom = new JSDOM(
-      `<!DOCTYPE html><html><body>
-        <div id="year-genre-container"></div>
-        <div id="year2025-container"></div>
-      </body></html>`,
-      { runScripts: 'outside-only', url: 'http://localhost/' }
-    );
-
-    const fetchData = vi.fn().mockResolvedValue({
-      tracks: [
-        { name: 'One', artist: 'A', url: 'https://x/one.mp3', playcount: '10', image_url: '' },
-        { name: 'Two', artist: 'B', url: 'https://x/two.ogg', playcount: '5', image_url: '' },
-      ],
-    });
-    dom.window.Utils = {
-      getCached: vi.fn().mockReturnValue(null),
-      fetchData,
-      setCache: vi.fn(),
-      showYearSpinner: vi.fn(),
-      showError: vi.fn(),
-      renderEmpty: vi.fn(),
-      initGenreButtons: vi.fn(),
-      initAudioPreviews: vi.fn(),
-      syncInfiniteMarquee: vi.fn(),
-      hasAudioPreview: undefined,
-    };
-
-    dom.window.eval(legacyCode);
-    const renderedSpy = vi.fn();
-    dom.window.document.addEventListener('year2025:rendered', renderedSpy);
-
-    await vi.waitFor(() => {
-      expect(renderedSpy).toHaveBeenCalledTimes(1);
-    });
-
-    const container = dom.window.document.getElementById('year2025-container');
-    expect(container.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
-    expect(container.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
-    expect(fetchData).toHaveBeenCalledWith('/music_api/apple-chart/');
-    expect(dom.window.Utils.initGenreButtons).toHaveBeenCalledWith(
-      'year-genre-container',
-      expect.any(Function),
-      true
-    );
-    dom.window.close();
   });
 });

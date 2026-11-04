@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import * as musicSearch from './helpers/music_search.js';
 
 describe('music_search P0', () => {
@@ -79,62 +77,5 @@ describe('music_search P0', () => {
       listenersSort: 'desc',
     });
     expect(desc.map((t) => t.name)).toEqual(['Track B', 'Track C', 'Track A', 'Track D']);
-  });
-});
-
-describe('music_search — legacy IIFE', () => {
-  it('инициализируется на DOMContentLoaded и рендерит результаты поиска', async () => {
-    const legacyCode = readFileSync('static/js/features/music_search.js', 'utf8');
-    const dom = new JSDOM(
-      `<!DOCTYPE html><html><body data-is-search-page="true">
-        <form class="form-search" action="/search/">
-          <input class="input-search" />
-        </form>
-        <div id="searchResults"></div>
-      </body></html>`,
-      { runScripts: 'outside-only', url: 'http://localhost/search/?q=test' }
-    );
-
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        results: [
-          {
-            name: 'Track A',
-            artist: 'Artist 1',
-            url: 'https://x/a.mp3',
-            image_url: '',
-            listeners: '1,000',
-          },
-        ],
-      }),
-    });
-    dom.window.fetch = fetchMock;
-    dom.window.Utils = {
-      initAudioPreviews: vi.fn(),
-      syncInfiniteMarquee: vi.fn(),
-      hasAudioPreview: vi.fn(() => true),
-      createShowMoreButton: vi.fn(() => dom.window.document.createElement('button')),
-      createChevronDownIcon: vi.fn(() => dom.window.document.createElement('i')),
-      getNoPreviewBadgeClasses: vi.fn(() => ''),
-      closeParentOffcanvas: vi.fn(),
-    };
-    dom.window.Spinners = { search: { show: vi.fn(), hide: vi.fn() } };
-
-    dom.window.eval(legacyCode);
-
-    await vi.waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith('/music_api/search/?q=test');
-    });
-    await vi.waitFor(() => {
-      expect(dom.window.document.querySelectorAll('.track-item-playlist').length).toBe(1);
-    });
-
-    const root = dom.window.document.getElementById('searchResults');
-    expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
-    expect(root.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
-    expect(dom.window.Spinners.search.show).toHaveBeenCalled();
-    expect(dom.window.Spinners.search.hide).toHaveBeenCalled();
-    dom.window.close();
   });
 });

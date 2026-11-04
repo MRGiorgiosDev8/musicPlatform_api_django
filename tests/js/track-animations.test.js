@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener.
 import '../../static/js/animation/track-animations.ts';
@@ -95,30 +93,5 @@ describe('track-animations — оба режима загрузки', () => {
 
     document.querySelector('.navbar-brand').click();
     expect(window.sessionStorage.getItem('logoAnimated')).toBeNull();
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/animation/track-animations.js', 'utf8');
-    const dom = new JSDOM(
-      `<!DOCTYPE html><html><body><div class="logo-text">RubySoundFM</div></body></html>`,
-      { runScripts: 'outside-only', url: 'http://localhost/' }
-    );
-    const gsapMock = createGsapMock();
-    dom.window.gsap = gsapMock;
-    const instances = [];
-    dom.window.SplitText = function (target, vars) {
-      this.chars = [dom.window.document.createElement('span')];
-      this.vars = vars;
-      instances.push(this);
-    };
-
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    expect(gsapMock.timeline).toHaveBeenCalledWith({ delay: 0.4 });
-    expect(instances[0].vars).toEqual({ type: 'chars' });
-    expect(dom.window.sessionStorage.getItem('logoAnimated')).toBe('true');
-
-    dom.window.close();
   });
 });

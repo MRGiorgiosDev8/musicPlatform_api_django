@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const MARKUP = `
   <div id="nowPlayingBar">
@@ -112,51 +110,5 @@ describe('now_playing — оба режима загрузки', () => {
     expect(artist.textContent).toBe('Включите превью');
     expect(time.textContent).toBe('0:00 / 0:00');
     expect(jump.disabled).toBe(true);
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/UI/now_playing.js', 'utf8');
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    const pending = [];
-    dom.window.setTimeout = (fn) => {
-      pending.push(fn);
-      return pending.length;
-    };
-    const scrollIntoView = vi.fn();
-    dom.window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
-
-    const ws = createWsMock();
-    const { card, mount } = createCardWithMount(dom.window, 'Legacy Track');
-
-    dom.window.eval(legacyCode);
-
-    dom.window.document.dispatchEvent(
-      new dom.window.CustomEvent('ruby:preview:play', {
-        detail: { mount, currentTime: 30, duration: 120, ws },
-      })
-    );
-
-    const title = dom.window.document.getElementById('nowPlayingTitle');
-    const time = dom.window.document.getElementById('nowPlayingTime');
-    const jump = dom.window.document.getElementById('nowPlayingJump');
-    const toggle = dom.window.document.getElementById('nowPlayingToggle');
-
-    expect(title.textContent).toBe('Legacy Track');
-    expect(time.textContent).toBe('0:30 / 2:00');
-    expect(jump.disabled).toBe(false);
-
-    jump.click();
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
-    expect(card.classList.contains('now-playing-source-highlight')).toBe(true);
-    expect(pending).toHaveLength(1);
-    pending[0]();
-    expect(card.classList.contains('now-playing-source-highlight')).toBe(false);
-
-    toggle.click();
-    expect(ws.pause).toHaveBeenCalledTimes(1);
-
-    dom.window.close();
   });
 });

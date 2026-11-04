@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const MARKUP = `
   <div id="navbarNav"></div>
@@ -97,29 +95,5 @@ describe('navbar_logo_collapse_animation — оба режима загрузк�
     expect(
       gsapMock.set.mock.calls.some((call) => call[1].opacity === 1 && call[1].width === 70)
     ).toBe(true);
-  });
-
-  it('Legacy-режим: IIFE синхронизирует логотип при show.bs.collapse', () => {
-    const legacyCode = readFileSync(
-      'static/js/animation/navbar_logo_collapse_animation.js',
-      'utf8'
-    );
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-    dom.window.matchMedia = () => ({ matches: false, addEventListener: () => {} });
-    dom.window.eval(legacyCode);
-    // Safari-фикс инициализирует логотип по load (fallback) либо после
-    // успокоения MutationObserver, а не по DOMContentLoaded. Диспатчим load,
-    // чтобы initOnce отработал синхронно до show.bs.collapse.
-    dom.window.dispatchEvent(new dom.window.Event('load'));
-
-    dom.window.document
-      .getElementById('navbarNav')
-      .dispatchEvent(new dom.window.Event('show.bs.collapse'));
-    expect(gsapMock.to).toHaveBeenCalled();
-    dom.window.close();
   });
 });

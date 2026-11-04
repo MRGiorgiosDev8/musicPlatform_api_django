@@ -5,8 +5,6 @@
     "lint:js:fix": "npm run lint:js -- --fix",
     "format": "prettier --write \"static/js/**/*.{js,ts}\" \"tests/js/**/*.{js,ts}\"",
     "format:check": "prettier --check \"static/js/**/*.{js,ts}\" \"tests/js/**/*.{js,ts}\"",
-    "build:legacy": "node scripts/build-legacy.mjs",
-    "check:legacy": "node scripts/check-legacy.mjs",
     "typecheck": "tsc --noEmit",
     "build:frontend": "vite build",
     "dev:vite": "vite",

@@ -18,7 +18,7 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
-        bootstrap: 'static/js/entry/bootstrap.js',
+        bootstrap: 'static/js/entry/bootstrap.ts',
       },
     },
   },

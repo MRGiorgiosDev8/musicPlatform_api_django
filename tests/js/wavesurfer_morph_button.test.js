@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 const PLAY = 'M0 0 L10 5 L0 10 Z';
 const PAUSE = 'M0 0 H4 V10 H0 Z';
@@ -74,22 +72,5 @@ describe('wavesurfer_morph_button — оба режима загрузки', () 
     document.body.appendChild(wrap);
     await flushObserver();
     expect(wrap.querySelector('button').dataset.morphInit).toBe('true');
-  });
-
-  it('Legacy-режим: IIFE морфит path по class is-playing', async () => {
-    const legacyCode = readFileSync('static/js/animation/wavesurfer_morph_button.js', 'utf8');
-    const gsapMock = createGsapMock();
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${buttonMarkup()}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    dom.window.gsap = gsapMock;
-    dom.window.MorphSVGPlugin = { id: 'MorphSVGPlugin' };
-    dom.window.eval(legacyCode);
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const path = dom.window.document.querySelector('path');
-    expect(gsapMock.to.mock.calls[0][0]).toBe(path);
-    expect(gsapMock.to.mock.calls[0][1].morphSVG).toBe(PLAY);
-    dom.window.close();
   });
 });

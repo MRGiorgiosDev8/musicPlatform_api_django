@@ -1,8 +1,6 @@
 /* @vitest-environment jsdom */
 /* global window */
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import * as searchAutocomplete from '../../static/js/UI/search_autocomplete.ts';
 
 const MARKUP = `
@@ -97,44 +95,6 @@ describe('search_autocomplete', () => {
       await vi.runAllTimersAsync();
 
       expect(global.fetch).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Legacy-режим: сгенерированный IIFE', () => {
-    it('renders dropdown items and selects on click так же, как TS-режим', async () => {
-      const legacyCode = readFileSync('static/js/UI/search_autocomplete.js', 'utf8');
-      const dom = new JSDOM(`<!DOCTYPE html><html><body>${MARKUP}</body></html>`, {
-        url: 'http://localhost/',
-        runScripts: 'outside-only',
-      });
-      const { window: w } = dom;
-      const form = w.document.querySelector('.form-search');
-      form.requestSubmit = vi.fn();
-      w.fetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          results: [{ name: 'Post Malone', listeners: 9000 }],
-        }),
-      });
-
-      w.eval(legacyCode);
-
-      const input = w.document.getElementById('search-query');
-      input.value = 'pos';
-      input.dispatchEvent(new w.Event('input', { bubbles: true }));
-
-      // legacy-режим использует стандартные setTimeout — дожидаемся вручную
-      await new Promise((resolve) => w.setTimeout(resolve, 250));
-
-      const dropdown = w.document.querySelector('.search-autocomplete');
-      expect(dropdown.hidden).toBe(false);
-      const items = dropdown.querySelectorAll('.search-autocomplete-item');
-      expect(items.length).toBeGreaterThan(0);
-
-      items[0].dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true }));
-      expect(form.requestSubmit).toHaveBeenCalled();
-
-      dom.window.close();
     });
   });
 });

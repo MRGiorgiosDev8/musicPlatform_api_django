@@ -1,7 +1,5 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 
 // Vite-режим: импорт TS-источника (side-effect) регистрирует DOMContentLoaded-listener
 // ровно один раз на глобальном document тестового окружения.
@@ -24,29 +22,5 @@ describe('hamburger_animation — поведение в обоих режима�
 
     button.click();
     expect(button.classList.contains('is-active')).toBe(false);
-  });
-
-  it('Legacy-режим: сгенерированный .js (IIFE) ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/animation/hamburger_animation.js', 'utf8');
-
-    // Изолированное окно: собственный document и собственные обработчики.
-    // runScripts: 'outside-only' разрешает window.eval для классического скрипта.
-    const dom = new JSDOM(`<!DOCTYPE html><html><body>${HAMBURGER_MARKUP}</body></html>`, {
-      runScripts: 'outside-only',
-    });
-    dom.window.eval(legacyCode);
-    // Ровно один DOMContentLoaded в этом окне.
-    dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
-
-    const button = dom.window.document.querySelector('.hamburger');
-    expect(button.classList.contains('is-active')).toBe(false);
-
-    button.click();
-    expect(button.classList.contains('is-active')).toBe(true);
-
-    button.click();
-    expect(button.classList.contains('is-active')).toBe(false);
-
-    dom.window.close();
   });
 });

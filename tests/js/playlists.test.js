@@ -1,8 +1,6 @@
 /* @vitest-environment jsdom */
 /* global window */
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
 import * as playlists from '../../static/js/UI/playlists.ts';
 
 const createTrackItem = ({ trackIndex, artist = '', trackArtistInCard }) => {
@@ -234,51 +232,5 @@ describe('playlists — DOM-поведение (оба режима загруз
 
     expect(filterMeta.textContent).toBe('Показано: 7 из 7');
     expect(loadMore.style.display).toBe('none');
-  });
-
-  it('Legacy-режим: сгенерированный IIFE ведёт себя так же', () => {
-    const legacyCode = readFileSync('static/js/UI/playlists.js', 'utf8');
-    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-      url: 'http://localhost/',
-      runScripts: 'outside-only',
-    });
-    const { window: w } = dom;
-    w.Utils = createUtilsMock();
-
-    const root = w.document.createElement('div');
-    root.id = 'playlists-root';
-    const trackList = w.document.createElement('div');
-    trackList.className = 'track-list';
-    const makeItem = (trackIndex, artist) => {
-      const item = w.document.createElement('li');
-      item.className = 'track-item-playlist';
-      item.dataset.trackIndex = String(trackIndex);
-      const card = w.document.createElement('div');
-      card.className = 'track-playlist';
-      card.dataset.trackArtist = artist;
-      item.appendChild(card);
-      return item;
-    };
-    [makeItem(1, 'Muse'), makeItem(2, 'Adele'), makeItem(3, 'Bowie')].forEach((item) =>
-      trackList.appendChild(item)
-    );
-    root.appendChild(trackList);
-    const countDisplay = w.document.createElement('div');
-    countDisplay.dataset.playlistCountDisplay = '';
-    root.appendChild(countDisplay);
-    const filterMeta = w.document.createElement('div');
-    filterMeta.dataset.playlistFilterMeta = '';
-    root.appendChild(filterMeta);
-    w.document.body.appendChild(root);
-
-    w.eval(legacyCode);
-    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
-
-    const rendered = Array.from(root.querySelectorAll('.track-item-playlist'));
-    expect(rendered.map((item) => Number(item.dataset.trackIndex))).toEqual([3, 2, 1]);
-    expect(countDisplay.textContent).toBe('3');
-    expect(filterMeta.textContent).toBe('Показано: 3 из 3');
-
-    dom.window.close();
   });
 });
