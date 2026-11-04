@@ -62,8 +62,8 @@
 ## 🐍 Стек <a id="stack"></a>
 
 - **Python 3.12**
-- **TypeScript** — основной язык frontend-модулей; типы проверяются через `tsc`.
-- **Vite** — компиляция TypeScript в JS-бандлы, production-сборка, watch-режим и обработка vendor-зависимостей.
+- **TypeScript** (основной язык frontend-модулей; типы проверяются через `tsc`)
+- **Vite** (компиляция TypeScript в JS-бандлы, production-сборка, watch-режим и обработка vendor-зависимостей)
 - **Concurrently** (запуск Django и Vite watch-сборки одной командой)
 - **Django**
 - **Django REST Framework** + **JWT**

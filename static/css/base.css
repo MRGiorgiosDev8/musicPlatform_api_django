@@ -121,8 +121,7 @@ body {
 }
 
 :root[data-theme="dark"] body {
-    background-color: #283043;
-    background-image: linear-gradient(rgba(40, 48, 67, 0.96), rgba(40, 48, 67, 0.92)), url('../images/backgroundai.png');
+    background-image: url('../images/backgrounddarkthem.png');
     color: var(--color-text-dark);
 }
 
