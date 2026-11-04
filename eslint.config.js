@@ -34,30 +34,42 @@ const browserGlobals = {
   module: "readonly",
 };
 
-module.exports = [
+// Глобалы для тестов (общие для *.js и *.ts).
+const testGlobals = {
+  describe: "readonly",
+  it: "readonly",
+  expect: "readonly",
+  beforeEach: "readonly",
+  vi: "readonly",
+  global: "readonly",
+  Utils: "readonly",
+  document: "readonly",
+  Event: "readonly",
+  window: "readonly",
+  localStorage: "readonly",
+  setTimeout: "readonly",
+  console: "readonly",
+};
+
+const tseslint = require("typescript-eslint");
+
+module.exports = tseslint.config(
   {
     ignores: [
       "node_modules/**",
       "staticfiles/**",
       ".venv/**",
-      "static/js/animation/hamburger_animation.js",
-      "static/js/UI/avatar_actions_toggle.js",
-      "static/js/UI/clear_search_button.js",
-      "static/js/UI/search_button_scroll.js",
-      "static/js/UI/theme_toggle.js",
-      "static/js/pwa/register.js",
-      "static/js/features/realtime_notifications.js",
-      "static/js/features/realtime_presence.js",
-      "static/js/features/public_playlists_dashboard.js",
-      "static/js/UI/now_playing.js",
-      "static/js/animation/auth_widget_animation.js",
-      "static/js/animation/profile_stagger_animation.js",
-      "static/js/animation/public_profile_stagger_animation.js",
-      "static/js/animation/animation_home.js",
-      "static/js/animation/playlist_stagger_animation.js",
-      "static/js/animation/track-animations.js",
-      "static/js/animation/artist_bio_modal_close_animation.js",
     ],
+  },
+  {
+    // Регистрируем TypeScript-парсер и плагин глобально. Правил
+    // @typescript-eslint/* не включаем — ведём себя как с базовыми script-скриптами.
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
+    languageOptions: {
+      parser: tseslint.parser,
+    },
   },
   {
     files: ["static/js/**/*.js"],
@@ -87,24 +99,48 @@ module.exports = [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
-      globals: {
-        describe: "readonly",
-        it: "readonly",
-        expect: "readonly",
-        beforeEach: "readonly",
-        vi: "readonly",
-        global: "readonly",
-        Utils: "readonly",
-        document: "readonly",
-        Event: "readonly",
-        window: "readonly",
-        localStorage: "readonly",
-        setTimeout: "readonly",
-        console: "readonly",
-      },
+      globals: testGlobals,
     },
     rules: {
       "no-undef": "error",
     },
   },
-];
+  {
+    // Классические TypeScript-скрипты — как script-скрипты с browser-глобалами.
+    //
+    // no-undef выключен для .ts: ESLint-core no-undef не понимает type-only
+    // глобальные имена (Element, HTMLElement, Document и т.п.) из TS-библиотеки
+    // DOM и даёт на них ложные срабатывания. Неопределённые идентификаторы в TS
+    // проверяет сам компилятор (npm run typecheck / tsc --noEmit).
+    files: ["static/js/**/*.ts"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "script",
+      globals: browserGlobals,
+    },
+    rules: {
+      "no-undef": "off",
+    },
+  },
+  {
+    // Vite entry TS — ES-модуль (import), остальное как у script-скриптов.
+    files: ["static/js/entry/**/*.ts"],
+    languageOptions: {
+      sourceType: "module",
+      globals: browserGlobals,
+    },
+    rules: {
+      "no-undef": "off",
+    },
+  },
+  {
+    files: ["tests/js/**/*.ts"],
+    languageOptions: {
+      sourceType: "module",
+      globals: testGlobals,
+    },
+    rules: {
+      "no-undef": "off",
+    },
+  },
+);
