@@ -54,7 +54,11 @@ const Utils = {
     }
   },
 
-  initGenreButtons(containerId: string, onSelect: (genre: string) => void, addCarouselClass = false) {
+  initGenreButtons(
+    containerId: string,
+    onSelect: (genre: string) => void,
+    addCarouselClass = false
+  ) {
     const container = document.getElementById(containerId);
     if (!container) return;
 

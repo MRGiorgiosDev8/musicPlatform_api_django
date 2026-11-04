@@ -513,3 +513,14 @@
   - `static/service-worker.js` — исполняется в контексте Service Worker браузера вне основного Vite-бандла.
 
 ---
+
+## [2026-11-04] - Переход на TypeScript с компиляцией через Vite и настройка ESLint
+
+
+- Перевёл исходники с legacy JavaScript на TypeScript: `static/js/**/*.js` → `static/js/**/*.ts`.
+- Настроил Vite как основной сборщик frontend: TypeScript-исходники компилируются в JS-бандлы в `static/js/entry/`, которые подключаются из `base.html`.
+- Удалил legacy JavaScript-сборку и прямое подключение старых `.js`-файлов; `base.html` теперь загружает Vite-собранные `entry/*.js`.
+- Настроил ESLint для TypeScript через `typescript-eslint`; для `.ts` отключил `no-undef`, так как эту проверку выполняет `tsc`.
+- Понизил `typescript` с `^7.0.2` до `^6.0.3` для совместимости с `typescript-eslint@^8.72.1`.
+- Добавил `allowImportingTsExtensions` в `tsconfig.json` для импортов с расширением `.ts` при `noEmit: true`.
+- Удалил устаревшие legacy JS-игноры из `eslint.config.js`.

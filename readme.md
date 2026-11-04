@@ -31,7 +31,7 @@
 - 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
 - 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`).
 - 🧪 **Тестирование**: Frontend — **147 passed** (35 файлов), Backend — **93 passed**.
-- 🧩 **TypeScript + Vite**: Frontend-модули написаны на TypeScript и собираются через Vite; Django и Vite watch-сборка запускаются одной командой `npm run start`
+- 🧩 **TypeScript + Vite**: Frontend-модули написаны на TypeScript, проверяются `tsc` и ESLint, а затем компилируются Vite в production JS-бандлы; Django и Vite watch-сборка запускаются одной командой `npm run start`
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
 ---
@@ -62,8 +62,8 @@
 ## 🐍 Стек <a id="stack"></a>
 
 - **Python 3.12**
-- **TypeScript**
-- **Vite** (сборка frontend и dev/watch-режим)
+- **TypeScript** — основной язык frontend-модулей; типы проверяются через `tsc`.
+- **Vite** — компиляция TypeScript в JS-бандлы, production-сборка, watch-режим и обработка vendor-зависимостей.
 - **Concurrently** (запуск Django и Vite watch-сборки одной командой)
 - **Django**
 - **Django REST Framework** + **JWT**
@@ -115,6 +115,8 @@ Backend-тесты находятся в `tests/` и запускаются че
 ---
 ### 🎨 Фронтенд <a id="frontend"></a>
 
+Frontend написан на TypeScript и собирается Vite в обычные JS-бандлы. Django не исполняет TypeScript напрямую: в шаблонах подключаются уже собранные файлы из `static/js/entry/`. Перед сборкой код проверяется `tsc` и ESLint.
+
 #### Технологии
 
 - **TypeScript** — основной язык frontend-модулей.
@@ -130,10 +132,9 @@ Backend-тесты находятся в `tests/` и запускаются че
 
 - `music_api/templates/` — Django-шаблоны страниц и общая разметка.
 - `static/css/` — глобальные стили, компоненты, адаптивность и стили отдельных страниц.
-- `static/js/` — TypeScript-модули анимаций, UI, фич и утилит.
-- `static/js/entry/bootstrap.js` — Vite entry: управляет порядком импортов и глобальным контрактом.
-- `static/js/entry/vendor-globals.js` — подключает vendor CSS и выставляет глобальные `window.gsap`, `window.bootstrap`, `window.WaveSurfer`.
-- `static/js/utils/utils.js` — классический модуль с глобальным `Utils`.
+- `static/js/entry/bootstrap.ts` — Vite entry: управляет порядком импортов и глобальным контрактом.
+- `static/js/entry/vendor-globals.ts` — подключает vendor CSS и выставляет глобальные `window.gsap`, `window.bootstrap`, `window.WaveSurfer`.
+- `static/js/utils/utils.ts` — классический модуль с глобальным `Utils`.
 - `static/service-worker.js` — service worker для PWA.
 
 #### Запуск frontend в разработке
@@ -150,7 +151,7 @@ npm ci
 npm run build:frontend  # однократная Vite-сборка
 npm run dev:vite        # Vite dev-сервер
 npm run typecheck       # проверка типов TypeScript
-npm run lint:js         # ESLint
+npm run lint:js         # ESLint для JS и TypeScript
 npm run format          # Prettier
 npx vitest run          # Vitest
 ```
@@ -292,7 +293,7 @@ STEADY_SLEEP=1
 ### Frontend Unit Tests (vitest)
 - Покрыты ключевые модули: `favorite-button`, `music_search`, `playlists`, `public-playlist`, `artist_wikipedia_modal`, `year2025`, `trending`.
 - Проверяются: фильтрация/сортировка/пагинация, кэш/TTL, batch-запросы, обработка ошибок API, состояние UI-кнопок.
-- Текущий статус: **54 passed**.
+- Текущий статус: **147 passed** (35 файлов).
 
 ### Backend Tests (pytest)
 - Покрываются API, модели, авторизация и безопасность, внешние интеграции, плейлисты, backup-функциональность и WebSocket-сценарии.
@@ -334,7 +335,7 @@ STEADY_SLEEP=1
 2.  **Проверка перед сборкой:** job `build_and_push` запускается только после успешного завершения всех трёх jobs тестирования.
 3.  **Сборка:** После успешного прохождения тестов job `build_and_push` собирает Docker-образ и отправляет его на Docker Hub.
 4.  **Авто-деплой:** Отдельный job `deploy` после успешной сборки вызывает Render Deploy Hook.
-5.  **Linting**: Контроль качества Python-кода с помощью `Black` и `Flake8`, а JavaScript-кода — с помощью `ESLint` (`npm run lint:js`).
+5.  **Linting**: Контроль качества Python-кода с помощью `Black` и `Flake8`, а frontend-кода на JavaScript и TypeScript — с помощью ESLint и `typescript-eslint` (`npm run lint:js`). TypeScript-типы дополнительно проверяются командой `npm run typecheck`.
 
 ---
 ### 📖 API Documentation(Swagger UI) <a id="api-docs"></a>

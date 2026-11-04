@@ -32,12 +32,8 @@ interface Window {
  * Хелперы радиальной reveal-анимации (radial_reveal_animation.ts выставляет их
  * на window): utils.ts обращается к ним как к глобалам.
  */
-declare const showActiveReveal:
-  | ((btn: Element | null | undefined) => void)
-  | undefined;
-declare const hideActiveReveal:
-  | ((btn: Element | null | undefined) => void)
-  | undefined;
+declare const showActiveReveal: ((btn: Element | null | undefined) => void) | undefined;
+declare const hideActiveReveal: ((btn: Element | null | undefined) => void) | undefined;
 
 /**
  * marquee-анимация (utils.ts / index) вешает на элемент кастомный cleanup-хук.
