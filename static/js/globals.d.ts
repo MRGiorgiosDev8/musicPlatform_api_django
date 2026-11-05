@@ -10,6 +10,13 @@ declare const bootstrap: any;
 declare const SplitText: any;
 
 /**
+ * Bootstrap импортируется как npm-модуль в static/js/entry/vendor-globals.ts.
+ * У пакета нет встроенных TypeScript-деклараций, поэтому объявляем модуль
+ * как shorthand ambient module: все его импорты получают тип any.
+ */
+declare module 'bootstrap';
+
+/**
  * Глобалы, восстанавливаемые на window модулями vendor-globals.ts / utils.ts /
  * spinner_animation.ts и читаемые first-party модулями без импортов.
  * `gsap` и `MorphSVGPlugin` объявлены в navbar_logo_collapse_animation.ts и
