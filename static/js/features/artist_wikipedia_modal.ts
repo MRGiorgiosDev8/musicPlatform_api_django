@@ -319,3 +319,5 @@ if (typeof module !== 'undefined' && module.exports) {
     createWikipediaArtistBatcher,
   };
 }
+
+export {};

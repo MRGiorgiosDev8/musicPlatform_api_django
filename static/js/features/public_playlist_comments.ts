@@ -1370,3 +1370,5 @@ document.addEventListener('DOMContentLoaded', () => {
       connectSocket();
     });
 });
+
+export {};

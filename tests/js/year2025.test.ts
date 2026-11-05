@@ -1,0 +1,129 @@
+/* @vitest-environment jsdom */
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as yearModule from './helpers/year2025.js';
+// Тип сообщает TS, что `global` (псевдоним globalThis в vitest) известен.
+declare const global: typeof globalThis;
+
+describe('year2025 P1', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="year2025-container"></div>';
+    // MutationObserver не используется в тестах напрямую (createFavoriteControl
+    // замокан), но заглушка гарантирует отсутствие зависимости от jsdom.
+    global.MutationObserver = class {
+      observe() {}
+      disconnect() {}
+      takeRecords() {
+        return [];
+      }
+    };
+    (global as any).Utils = {
+      getCached: vi.fn(),
+      fetchData: vi.fn(),
+      setCache: vi.fn(),
+      showYearSpinner: vi.fn(),
+      showError: vi.fn(),
+      renderEmpty: vi.fn(),
+      initGenreButtons: vi.fn(),
+      getNoPreviewBadgeClasses: vi.fn((extraClasses = '') => {
+        const base =
+          'fs-6 text-body d-inline-block border-bottom border-danger bg-danger rounded bg-opacity-10 p-1';
+        return extraClasses ? `${base} ${extraClasses}` : base;
+      }),
+    };
+    vi.restoreAllMocks();
+  });
+
+  it('buildYearChartUrl builds URL with encoded genre', () => {
+    expect(yearModule.buildYearChartUrl('/music_api/year-chart/', 'k-pop & edm')).toBe(
+      '/music_api/year-chart/?genre=k-pop%20%26%20edm'
+    );
+    expect(yearModule.buildYearChartUrl('/music_api/year-chart/', '')).toBe(
+      '/music_api/year-chart/'
+    );
+  });
+
+  it('extractYearTracks validates payload format', () => {
+    expect(yearModule.extractYearTracks({ tracks: [{ name: 'A' }] })).toEqual([{ name: 'A' }]);
+    expect(yearModule.extractYearTracks({ tracks: 'bad' })).toEqual([]);
+    expect(() => yearModule.extractYearTracks(null)).toThrow('Неверный формат ответа сервера');
+  });
+
+  it('hasAudioPreview and resolveTrackPlaycount behave as expected', () => {
+    expect(yearModule.hasAudioPreview('https://x/y.mp3')).toBe(true);
+    expect(yearModule.hasAudioPreview('https://x/y.mp4')).toBe(false);
+    expect(yearModule.resolveTrackPlaycount({ playcount: '11', listeners: '3' })).toBe('11');
+    expect(yearModule.resolveTrackPlaycount({ listeners: '3' })).toBe('3');
+    expect(yearModule.resolveTrackPlaycount({})).toBe(0);
+  });
+
+  it('load uses cache and skips fetch', async () => {
+    const app = yearModule.Year2025App;
+    app.cache = {};
+    vi.mocked(Utils.getCached).mockReturnValue([{ name: 'cached-track' }]);
+    const renderSpy = vi.spyOn(app, 'render').mockResolvedValue(undefined);
+
+    await app.load('rock');
+
+    expect(Utils.getCached).toHaveBeenCalledWith(app.cache, 'rock');
+    expect(renderSpy).toHaveBeenCalledWith([{ name: 'cached-track' }]);
+    expect(Utils.fetchData).not.toHaveBeenCalled();
+    expect(Utils.showYearSpinner).not.toHaveBeenCalled();
+  });
+
+  it('load fetches, caches, renders and toggles spinner', async () => {
+    const app = yearModule.Year2025App;
+    app.cache = {};
+    vi.mocked(Utils.getCached).mockReturnValue(null);
+    vi.mocked(Utils.fetchData).mockResolvedValue({ tracks: [{ name: 'New', artist: 'A' }] });
+    const renderSpy = vi.spyOn(app, 'render').mockResolvedValue(undefined);
+
+    await app.load('k-pop');
+
+    expect(Utils.fetchData).toHaveBeenCalledWith('/music_api/year-chart/?genre=k-pop');
+    expect(Utils.setCache).toHaveBeenCalledWith(app.cache, 'k-pop', [{ name: 'New', artist: 'A' }]);
+    expect(renderSpy).toHaveBeenCalledWith([{ name: 'New', artist: 'A' }]);
+    expect(Utils.showYearSpinner).toHaveBeenNthCalledWith(1, true);
+    expect(Utils.showYearSpinner).toHaveBeenLastCalledWith(false);
+  });
+
+  it('load handles invalid payload as error and renders empty list', async () => {
+    const app = yearModule.Year2025App;
+    app.cache = {};
+    vi.mocked(Utils.getCached).mockReturnValue(null);
+    vi.mocked(Utils.fetchData).mockResolvedValue(null);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const renderSpy = vi.spyOn(app, 'render').mockResolvedValue(undefined);
+
+    await app.load();
+
+    expect(Utils.showError).toHaveBeenCalledWith(
+      'year2025-container',
+      'Неверный формат ответа сервера'
+    );
+    expect(renderSpy).toHaveBeenCalledWith([]);
+    expect(Utils.showYearSpinner).toHaveBeenNthCalledWith(1, true);
+    expect(Utils.showYearSpinner).toHaveBeenLastCalledWith(false);
+  });
+
+  it('render skips tracks without preview and shows audio preview block', async () => {
+    const app = yearModule.Year2025App;
+    app.renderVersion = 0;
+    app.createFavoriteControl = vi.fn().mockResolvedValue(document.createElement('div'));
+
+    await app.render([
+      {
+        name: 'Track 1',
+        artist: 'Artist 1',
+        url: 'https://x/one.mp3',
+        playcount: 10,
+        image_url: '',
+      },
+      { name: 'Track 2', artist: '', url: 'https://x/two.ogg', listeners: 7, image_url: '' },
+    ]);
+
+    const root = document.getElementById('year2025-container')!;
+    expect(root.querySelectorAll('[data-audio-preview-url]').length).toBe(1);
+    expect(root.querySelectorAll('.year-track-no-preview').length).toBe(0);
+    expect(root.querySelectorAll('.js-artist-bio-trigger').length).toBe(1);
+  });
+});

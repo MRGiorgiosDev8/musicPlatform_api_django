@@ -79,3 +79,5 @@
     SearchAnimations.init();
   }
 })();
+
+export {};

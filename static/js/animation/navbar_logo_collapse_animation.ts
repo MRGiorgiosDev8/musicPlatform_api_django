@@ -179,3 +179,5 @@ interface Window {
 
   initWhenStable();
 })();
+
+export {};

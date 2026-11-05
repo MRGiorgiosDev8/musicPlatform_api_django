@@ -34,7 +34,6 @@ const browserGlobals = {
   module: "readonly",
 };
 
-// Глобалы для тестов (общие для *.js и *.ts).
 const testGlobals = {
   describe: "readonly",
   it: "readonly",
@@ -62,8 +61,6 @@ module.exports = tseslint.config(
     ],
   },
   {
-    // Регистрируем TypeScript-парсер и плагин глобально. Правил
-    // @typescript-eslint/* не включаем — ведём себя как с базовыми script-скриптами.
     plugins: {
       "@typescript-eslint": tseslint.plugin,
     },
@@ -83,35 +80,6 @@ module.exports = tseslint.config(
     },
   },
   {
-    // Vite entry — ES-модуль (import), остальные правила как у script-скриптов.
-    files: ["static/js/entry/**/*.js"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      globals: browserGlobals,
-    },
-    rules: {
-      "no-undef": "error",
-    },
-  },
-  {
-    files: ["tests/js/**/*.js"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      globals: testGlobals,
-    },
-    rules: {
-      "no-undef": "error",
-    },
-  },
-  {
-    // Классические TypeScript-скрипты — как script-скрипты с browser-глобалами.
-    //
-    // no-undef выключен для .ts: ESLint-core no-undef не понимает type-only
-    // глобальные имена (Element, HTMLElement, Document и т.п.) из TS-библиотеки
-    // DOM и даёт на них ложные срабатывания. Неопределённые идентификаторы в TS
-    // проверяет сам компилятор (npm run typecheck / tsc --noEmit).
     files: ["static/js/**/*.ts"],
     languageOptions: {
       ecmaVersion: "latest",
@@ -123,7 +91,6 @@ module.exports = tseslint.config(
     },
   },
   {
-    // Vite entry TS — ES-модуль (import), остальное как у script-скриптов.
     files: ["static/js/entry/**/*.ts"],
     languageOptions: {
       sourceType: "module",
@@ -136,6 +103,7 @@ module.exports = tseslint.config(
   {
     files: ["tests/js/**/*.ts"],
     languageOptions: {
+      ecmaVersion: "latest",
       sourceType: "module",
       globals: testGlobals,
     },

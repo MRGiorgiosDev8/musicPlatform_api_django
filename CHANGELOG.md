@@ -524,3 +524,10 @@
 - Понизил `typescript` с `^7.0.2` до `^6.0.3` для совместимости с `typescript-eslint@^8.72.1`.
 - Добавил `allowImportingTsExtensions` в `tsconfig.json` для импортов с расширением `.ts` при `noEmit: true`.
 - Удалил устаревшие legacy JS-игноры из `eslint.config.js`.
+
+## Перевод unit-тестов на TypeScript - 2026-11-06
+
+- Переведены unit-тесты фронтенда с JavaScript на TypeScript.
+- Все тесты в `tests/js` теперь написаны на TypeScript; логика тестов, assertions, моки и количество тестов не изменены.
+- Добавлена проверка типов фронтенда (`npm run typecheck`) в CI.
+- Обновлён статус фронтенд-тестирования: 109 passing tests в 35 TypeScript-файлах.

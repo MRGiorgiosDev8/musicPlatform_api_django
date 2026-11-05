@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test:js": "vitest run tests/js",
-    "lint:js": "eslint \"static/js/**/*.ts\" \"tests/js/**/*.js\"",
+    "lint:js": "eslint \"static/js/**/*.ts\" \"tests/js/**/*.ts\"",
     "lint:js:fix": "npm run lint:js -- --fix",
     "format": "prettier --write \"static/js/**/*.{js,ts}\" \"tests/js/**/*.{js,ts}\"",
     "format:check": "prettier --check \"static/js/**/*.{js,ts}\" \"tests/js/**/*.{js,ts}\"",

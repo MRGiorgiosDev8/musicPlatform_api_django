@@ -26,6 +26,12 @@ interface Window {
   SplitText: any;
   ScrambleTextPlugin: any;
   DrawSVGPlugin: any;
+  /**
+   * Хелперы радиальной reveal-анимации (radial_reveal_animation.ts выставляет их
+   * на window): обязательны как `window.*`, но могут быть не заданы в рантайме.
+   */
+  showActiveReveal: ((btn: Element | null | undefined) => void) | undefined;
+  hideActiveReveal: ((btn: Element | null | undefined) => void) | undefined;
 }
 
 /**

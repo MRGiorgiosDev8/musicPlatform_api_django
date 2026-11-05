@@ -204,3 +204,5 @@ if (typeof module !== 'undefined' && module.exports) {
     extractTrendingArtists,
   };
 }
+
+export {};

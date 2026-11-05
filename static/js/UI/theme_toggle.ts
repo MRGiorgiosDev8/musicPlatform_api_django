@@ -90,3 +90,5 @@
   syncToggleVisibility();
   resetIdleHideTimer();
 })();
+
+export {};

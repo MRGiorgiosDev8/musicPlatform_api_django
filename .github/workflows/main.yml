@@ -43,6 +43,9 @@ jobs:
       - name: Run JavaScript lint
         run: npm run lint:js
 
+      - name: Typecheck frontend
+        run: npm run typecheck
+
   frontend-test:
     name: Frontend tests
     needs: lint

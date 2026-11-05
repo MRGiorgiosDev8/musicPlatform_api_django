@@ -134,3 +134,5 @@ gsap.registerPlugin(DrawSVGPlugin);
     search: createLiquidSpinner(document.getElementById('searchLoader')),
   };
 })();
+
+export {};

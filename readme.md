@@ -30,7 +30,7 @@
 - 📊 **Метрики и локальный мониторинг**: `django-prometheus` экспортирует метрики на `/metrics`, Prometheus собирает RPS/latency/5xx/DB-метрики, Grafana отображает их в дашборде.
 - 📈 **Нагрузочное тестирование**: `k6`-сценарий для проверки public endpoints, search, trending и auth-путей на локальном Docker Compose-стеке.
 - 📱 **Progressive Web App (PWA)**: Возможность установки сайта как приложения на любое устройство (режим `standalone`).
-- 🧪 **Тестирование**: Frontend — **147 passed** (35 файлов), Backend — **93 passed**.
+- 🧪 **Тестирование**: Frontend — **109 passed** (35 TypeScript-файлов, Vitest), Backend — **93 passed**.
 - 🧩 **TypeScript + Vite**: Frontend-модули написаны на TypeScript, проверяются `tsc` и ESLint, а затем компилируются Vite в production JS-бандлы; Django и Vite watch-сборка запускаются одной командой `npm run start`
 - 🔄 **CI/CD**: Автоматизированное тестирование и деплой через GitHub Actions, контейнеризация проекта с Docker
 
@@ -290,10 +290,11 @@ STEADY_SLEEP=1
 * **pytest-cov** — отчеты о покрытии кода.
 * **Vitest + jsdom** — unit-тесты frontend-логики и DOM-сценариев.
 
-### Frontend Unit Tests (vitest)
+### Frontend Unit Tests (Vitest + TypeScript)
+- Все unit-тесты фронтенда в `tests/js` написаны на TypeScript.
 - Покрыты ключевые модули: `favorite-button`, `music_search`, `playlists`, `public-playlist`, `artist_wikipedia_modal`, `year2025`, `trending`.
 - Проверяются: фильтрация/сортировка/пагинация, кэш/TTL, batch-запросы, обработка ошибок API, состояние UI-кнопок.
-- Текущий статус: **147 passed** (35 файлов).
+- Текущий статус: **109 passed** (35 TypeScript-файлов).
 
 ### Backend Tests (pytest)
 - Покрываются API, модели, авторизация и безопасность, внешние интеграции, плейлисты, backup-функциональность и WebSocket-сценарии.
