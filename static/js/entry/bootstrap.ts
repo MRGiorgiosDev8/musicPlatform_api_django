@@ -46,6 +46,7 @@ import '../features/artist_wikipedia_modal.ts';
 import '../features/realtime_notifications.ts';
 import '../features/realtime_presence.ts';
 import '../features/public_playlist_comments.ts';
+import '../editorial_music_feed.ts';
 
 // Поиск и UI-специфичные скрипты
 import '../UI/scrollbutton.ts';

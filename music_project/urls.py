@@ -28,6 +28,11 @@ urlpatterns = [
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("music_api/", include("music_api.urls")),
+    path(
+        "editorial/music/",
+        TemplateView.as_view(template_name="editorial_music.html"),
+        name="editorial_music",
+    ),
     path("api/", include("users.urls")),
     path("api/", include("music_api.api_urls")),
     path("", include("users.urls")),

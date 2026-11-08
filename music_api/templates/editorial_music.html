@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Новости и обзоры — RubySound.fm{% endblock %}
+
+{% block content %}
+<section class="container container-wide my-5" aria-labelledby="editorial-music-title">
+  <h1 id="editorial-music-title" class="mb-4 text-center popular-h2 pb-2 p-2 visually-hidden">Новости и обзоры</h1>
+  <div id="editorial-music-spinner" class="search-loading" hidden></div>
+  <div id="editorial-music-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+</section>
+
+<div class="modal fade" id="editorialArticleModal" tabindex="-1" aria-labelledby="editorialArticleModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fw-semibold fs-4" id="editorialArticleModalTitle">Рецензия Pitchfork</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body" id="editorialArticleModalBody">
+        <div id="editorialArticleLoading" class="text-center py-4" hidden>
+          <div class="spinner-border text-danger" role="status" aria-label="Загрузка"></div>
+        </div>
+        <div id="editorialArticleError" class="alert alert-danger" hidden></div>
+        <div id="editorialArticleContent">
+          <p class="text-muted mb-3" id="editorialArticleMeta"></p>
+          <p id="editorialArticleSummary" class="text-body mb-4"></p>
+          <div id="editorialArticleHtml" class="text-body"></div>
+          <p class="text-muted mt-4 mb-2">Источник: Pitchfork</p>
+          <a id="editorialArticleOriginal" class="btn custom-button" target="_blank" rel="noopener noreferrer">
+            Открыть рецензию на Pitchfork
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -110,7 +110,14 @@
                     {% url 'login' as login_url %}
                     {% url 'signup' as signup_url %}
                     {% url 'logout' as logout_url %}
+                    {% url 'editorial_music' as editorial_music_url %}
                     <ul class="navbar-nav gap-1 gap-md-3 premium-nav-shell d-flex w-100">
+                        <li class="nav-item me-1">
+                            <a class="nav-link premium-nav-link {% if request.path == editorial_music_url %}is-active{% endif %}"
+                                href="{% url 'editorial_music' %}">
+                                Новости
+                            </a>
+                        </li>
                         {% if user.is_authenticated %}
                         <li class="nav-item me-1">
                             <a class="nav-link premium-nav-link {% if request.path == profile_url %}is-active{% endif %}"
