@@ -193,7 +193,7 @@ const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
 
   if (sourceUrl) {
     const link = document.createElement('a');
-    link.className = 'btn custom-button align-self-start';
+    link.className = 'btn btn-danger rounded-2 align-self-start';
     link.href = sourceUrl;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';

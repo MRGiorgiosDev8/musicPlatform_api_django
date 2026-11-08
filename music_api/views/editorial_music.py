@@ -22,7 +22,7 @@ PITCHFORK_RSS_URL = "https://pitchfork.com/feed/feed-album-reviews/rss"
 PITCHFORK_HOSTS = {"pitchfork.com", "www.pitchfork.com"}
 PITCHFORK_CACHE_KEY = "editorial-music-feed:pitchfork:v2"
 PITCHFORK_CACHE_TIMEOUT = 10 * 60
-PITCHFORK_LIMIT = 20
+PITCHFORK_LIMIT = 21
 PITCHFORK_HTTP_TIMEOUT = 5
 PITCHFORK_USER_AGENT = (
     "RubySound.fm/1.0 "

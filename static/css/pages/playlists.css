@@ -372,6 +372,8 @@
     font-size: 1rem;
     line-height: 1.2;
     display: block;
+    min-width: 0;
+    flex: 1 1 auto;
     max-width: 23ch;
     white-space: nowrap;
     overflow: hidden;
@@ -410,6 +412,20 @@
     animation-timing-function: linear;
     animation-iteration-count: infinite;
     animation-direction: normal;
+}
+
+.search-track-title.is-marquee .track-title-track {
+    animation-name: searchTrackTitleScroll;
+}
+
+@keyframes searchTrackTitleScroll {
+    from {
+        transform: translateX(calc(-1 * var(--playlist-track-title-marquee-distance, 0px)));
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 @keyframes playlistTrackTitleScroll {

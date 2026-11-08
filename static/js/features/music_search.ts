@@ -291,6 +291,42 @@ const setupMusicSearch = (): void => {
     });
   };
 
+  const syncSearchSummaryMarquee = (): void => {
+    if (typeof Utils === 'undefined' || typeof Utils.syncInfiniteMarquee !== 'function') return;
+    Utils.syncInfiniteMarquee({
+      container: resultsContainer as unknown as Document,
+      targetSelector: '.search-results-summary-query',
+      trackSelector: '.search-results-summary-query-track',
+      textSelector: '.search-results-summary-query-text',
+      distanceVar: '--search-summary-marquee-distance',
+      durationVar: '--search-summary-marquee-duration',
+      gapVar: '--search-summary-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
+    });
+  };
+
+  const syncTrackTitleMarquee = (): void => {
+    if (typeof Utils === 'undefined' || typeof Utils.syncInfiniteMarquee !== 'function') return;
+    Utils.syncInfiniteMarquee({
+      container: resultsContainer as unknown as Document,
+      targetSelector: '.track-title',
+      trackSelector: '.track-title-track',
+      textSelector: '.track-title-text',
+      distanceVar: '--playlist-track-title-marquee-distance',
+      durationVar: '--playlist-track-title-marquee-duration',
+      gapVar: '--playlist-track-title-marquee-gap',
+      gap: 16,
+      overflowThreshold: 8,
+      minDuration: 4,
+      maxDuration: 12,
+      speed: 40,
+    });
+  };
+
   const scheduleArtistBioMarqueeSync = (): void => {
     if (marqueeResizeRafId) {
       window.cancelAnimationFrame(marqueeResizeRafId);
@@ -298,6 +334,8 @@ const setupMusicSearch = (): void => {
     marqueeResizeRafId = window.requestAnimationFrame(() => {
       marqueeResizeRafId = null;
       syncArtistBioMarquee();
+      syncSearchSummaryMarquee();
+      syncTrackTitleMarquee();
     });
   };
 
@@ -336,9 +374,24 @@ const setupMusicSearch = (): void => {
     queryText.textContent = queryLabel;
     queryText.className = 'text-danger';
 
-    meta.appendChild(searchIcon);
-    meta.appendChild(labelText);
-    meta.appendChild(queryText);
+    const queryMarquee = document.createElement('span');
+    queryMarquee.className = 'search-results-summary-query text-danger';
+
+    const queryTrack = document.createElement('span');
+    queryTrack.className = 'search-results-summary-query-track';
+
+    const queryTextNode = document.createElement('span');
+    queryTextNode.className = 'search-results-summary-query-text';
+    queryTextNode.appendChild(queryText);
+
+    const queryTextClone = queryTextNode.cloneNode(true) as HTMLSpanElement;
+    queryTextClone.className =
+      'search-results-summary-query-text search-results-summary-query-text-clone';
+    queryTextClone.setAttribute('aria-hidden', 'true');
+
+    queryTrack.append(queryTextNode, queryTextClone);
+    queryMarquee.appendChild(queryTrack);
+    meta.append(searchIcon, labelText, queryMarquee);
 
     const clearButton = document.createElement('button');
     clearButton.type = 'button';
@@ -490,8 +543,21 @@ const setupMusicSearch = (): void => {
     trackMeta.className = 'track-meta';
 
     const h5 = document.createElement('h5');
-    h5.className = 'track-title text-start';
-    h5.textContent = track.name;
+    h5.className = 'track-title search-track-title text-start';
+
+    const titleTrack = document.createElement('span');
+    titleTrack.className = 'track-title-track';
+
+    const titleText = document.createElement('span');
+    titleText.className = 'track-title-text';
+    titleText.textContent = track.name;
+
+    const titleTextClone = titleText.cloneNode(true) as HTMLSpanElement;
+    titleTextClone.className = 'track-title-text track-title-text-clone';
+    titleTextClone.setAttribute('aria-hidden', 'true');
+
+    titleTrack.append(titleText, titleTextClone);
+    h5.appendChild(titleTrack);
 
     const pArtist = document.createElement('p');
     pArtist.className = 'track-artist';
@@ -564,6 +630,8 @@ const setupMusicSearch = (): void => {
         </div>
         `
       );
+      syncSearchSummaryMarquee();
+      window.setTimeout(syncSearchSummaryMarquee, 120);
       return;
     }
 
@@ -602,7 +670,13 @@ const setupMusicSearch = (): void => {
       Utils.initAudioPreviews(resultsContainer as unknown as Document);
     }
     syncArtistBioMarquee();
-    window.setTimeout(syncArtistBioMarquee, 120);
+    syncSearchSummaryMarquee();
+    syncTrackTitleMarquee();
+    window.setTimeout(() => {
+      syncArtistBioMarquee();
+      syncSearchSummaryMarquee();
+      syncTrackTitleMarquee();
+    }, 120);
   };
 
   const closeMobileNavbar = (): void => {

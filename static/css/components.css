@@ -101,8 +101,76 @@
 }
 
 .search-results-summary-meta {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0%;
     min-width: 0;
-    word-break: break-word;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.search-results-summary-meta > .bi,
+.search-results-summary-meta > .text-dark {
+    flex: 0 0 auto;
+}
+
+.search-results-summary-query {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.search-results-summary-query-track {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--search-summary-marquee-gap, 1rem);
+    min-width: 100%;
+    transform: translateX(0);
+}
+
+.search-results-summary-query-text {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.search-results-summary-query-text-clone {
+    display: none;
+}
+
+.search-results-summary-query.is-marquee {
+    text-overflow: clip;
+}
+
+.search-results-summary-query.is-marquee .search-results-summary-query-text-clone {
+    display: inline-block;
+}
+
+.search-results-summary-query.is-marquee .search-results-summary-query-track {
+    will-change: transform;
+    animation-name: searchSummaryMarqueeTrack;
+    animation-duration: var(--search-summary-marquee-duration, 8s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: normal;
+}
+
+@keyframes searchSummaryMarqueeTrack {
+    from {
+        transform: translateX(calc(-1 * var(--search-summary-marquee-distance, 0px)));
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-results-summary-query.is-marquee .search-results-summary-query-track {
+        animation: none;
+        transform: none;
+    }
 }
 
 .search-group-title {
