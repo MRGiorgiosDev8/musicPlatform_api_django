@@ -136,6 +136,10 @@ body {
     border-color: var(--input-border);
 }
 
+:root[data-theme="dark"] #editorialArticleModal p {
+    color: var(--color-text-light) !important;
+}
+
 :root[data-theme="dark"] .form-control::placeholder {
     color: var(--color-text-muted);
 }
@@ -256,6 +260,27 @@ body {
 :root[data-theme="dark"] .popular-h2,
 :root[data-theme="dark"] #public-card {
     box-shadow: var(--shadow-card-dark);
+}
+
+:root[data-theme="dark"] #editorial-music-container .card-custom {
+    color: var(--color-text-light);
+}
+
+:root[data-theme="dark"] #editorial-music-container .card-custom .card-title,
+:root[data-theme="dark"] #editorial-music-container .card-custom .card-text,
+:root[data-theme="dark"] #editorial-music-container .card-custom .text-body,
+:root[data-theme="dark"] #editorial-music-container .card-custom .text-muted {
+    color: var(--color-text-light) !important;
+}
+
+#editorial-music-container .card-title {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+:root[data-theme="dark"] #editorial-music-container .card-title {
+    border-bottom-color: var(--color-text-dark);
 }
 
 :root[data-theme="dark"] #public-playlists-dashboard .dashboard-card {
