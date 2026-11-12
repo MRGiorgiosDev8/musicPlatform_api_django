@@ -34,6 +34,7 @@ import '../animation/profile_stagger_animation.ts';
 import '../animation/playlist_stagger_animation.ts';
 import '../animation/public_profile_stagger_animation.ts';
 import '../animation/artist_bio_modal_close_animation.ts';
+import '../animation/editorial_article_modal_animation.ts';
 import '../animation/public_comments_animation.ts';
 import '../animation/wavesurfer_morph_button.ts';
 

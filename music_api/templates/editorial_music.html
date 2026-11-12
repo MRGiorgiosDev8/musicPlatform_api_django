@@ -17,18 +17,24 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body" id="editorialArticleModalBody">
-        <div id="editorialArticleLoading" class="text-center py-4" hidden>
-          <div class="spinner-border text-danger" role="status" aria-label="Загрузка"></div>
-        </div>
         <div id="editorialArticleError" class="alert alert-danger" hidden></div>
-        <div id="editorialArticleContent">
-          <p class="text-muted mb-3" id="editorialArticleMeta"></p>
-          <p id="editorialArticleSummary" class="text-body mb-4"></p>
-          <div id="editorialArticleHtml" class="text-body"></div>
-          <p class="text-muted mt-4 mb-2">Источник: Pitchfork</p>
-          <a id="editorialArticleOriginal" class="btn btn-danger rounded-2" target="_blank" rel="noopener noreferrer">
-            Открыть рецензию на Pitchfork
-          </a>
+        <div id="editorialArticleContent" class="editorial-article">
+          <div class="editorial-article__content">
+            <div id="editorialArticleArtist" class="editorial-article__artist" hidden></div>
+            <h3 id="editorialArticleTitle" class="editorial-article__title"></h3>
+            <p class="editorial-article__meta text-muted" id="editorialArticleMeta"></p>
+            <p id="editorialArticleSummary" class="editorial-article__summary text-body"></p>
+            <div class="editorial-article__media">
+              <img id="editorialArticleCover" class="editorial-article__cover" alt="" loading="lazy" hidden>
+            </div>
+            <div id="editorialArticleRating" class="editorial-article__rating" hidden></div>
+            <div id="editorialArticleHtml" class="editorial-article__body text-body"></div>
+            <div class="editorial-article__actions">
+              <a id="editorialArticleOriginal" class="btn btn-danger rounded-2" target="_blank" rel="noopener noreferrer">
+                Открыть рецензию на Pitchfork
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

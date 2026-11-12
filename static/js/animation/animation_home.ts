@@ -43,6 +43,9 @@ document.addEventListener('trending:rendered', () => {
 document.addEventListener('year2025:rendered', () => {
   runFadeIfInViewport('#year2025-container', '#year2025-container .card-year');
 });
+document.addEventListener('editorial:rendered', () => {
+  runFadeIfInViewport('#editorial-music-container', '#editorial-music-container .card-custom');
+});
 document.addEventListener('publicPlaylists:rendered', () => {
   runFadeIfInViewport('#public-playlists-dashboard', '#public-playlists-dashboard .dashboard-card');
 });
@@ -54,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       Animations.fadeUp('#trending-container .card-custom');
       Animations.fadeUp('#year2025-container .card-year');
+      Animations.fadeUp('#editorial-music-container .card-custom');
       Animations.fadeUp('#public-playlists-dashboard .dashboard-card');
     }, 200);
     return;
@@ -72,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
           Animations.fadeUp('#trending-container .card-custom');
         } else if (id === 'year2025-container') {
           Animations.fadeUp('#year2025-container .card-year');
+        } else if (id === 'editorial-music-container') {
+          Animations.fadeUp('#editorial-music-container .card-custom');
         } else if (id === 'public-playlists-dashboard') {
           Animations.fadeUp('#public-playlists-dashboard .dashboard-card');
         }
@@ -81,7 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
     { root: null, rootMargin: '120px 0px', threshold: 0.05 }
   );
 
-  ['trending-container', 'year2025-container', 'public-playlists-dashboard'].forEach((id) => {
+  [
+    'trending-container',
+    'year2025-container',
+    'editorial-music-container',
+    'public-playlists-dashboard',
+  ].forEach((id) => {
     const node = document.getElementById(id);
     if (node) observer.observe(node);
   });

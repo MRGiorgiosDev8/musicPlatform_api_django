@@ -15,7 +15,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-
 logger = logging.getLogger(__name__)
 
 PITCHFORK_RSS_URL = "https://pitchfork.com/feed/feed-album-reviews/rss"
@@ -25,23 +24,52 @@ PITCHFORK_CACHE_TIMEOUT = 10 * 60
 PITCHFORK_LIMIT = 21
 PITCHFORK_HTTP_TIMEOUT = 5
 PITCHFORK_USER_AGENT = (
-    "RubySound.fm/1.0 "
-    "(musicPlatform_api_django; contact: admin@rubysound.fm)"
+    "RubySound.fm/1.0 " "(musicPlatform_api_django; contact: admin@rubysound.fm)"
 )
 SUMMARY_MAX_LENGTH = 320
 MEDIA_NAMESPACE = "http://search.yahoo.com/mrss/"
 ARTICLE_ALLOWED_TAGS = {
-    "a", "blockquote", "br", "code", "div", "em", "figcaption", "figure",
-    "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p",
-    "pre", "span", "strong", "table", "tbody", "td", "tfoot", "th",
-    "thead", "tr", "ul",
+    "a",
+    "blockquote",
+    "br",
+    "code",
+    "div",
+    "em",
+    "figcaption",
+    "figure",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "img",
+    "li",
+    "ol",
+    "p",
+    "pre",
+    "span",
+    "strong",
+    "table",
+    "tbody",
+    "td",
+    "tfoot",
+    "th",
+    "thead",
+    "tr",
+    "ul",
 }
 
 
 def _published_at(entry):
     parsed = entry.get("published_parsed") or entry.get("updated_parsed")
     if isinstance(parsed, struct_time):
-        return datetime(*parsed[:6], tzinfo=timezone.utc).isoformat().replace("+00:00", "Z")
+        return (
+            datetime(*parsed[:6], tzinfo=timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
 
     value = entry.get("published") or entry.get("pubDate") or entry.get("pubdate")
     if not value:
@@ -80,7 +108,11 @@ def _summary_from_entry(entry):
 
 def _is_pitchfork_url(url):
     parsed = urlparse(str(url or "").strip())
-    return parsed.scheme == "https" and parsed.hostname in PITCHFORK_HOSTS and bool(parsed.path)
+    return (
+        parsed.scheme == "https"
+        and parsed.hostname in PITCHFORK_HOSTS
+        and bool(parsed.path)
+    )
 
 
 def _extract_media_thumbnails(xml_content):
@@ -151,13 +183,18 @@ def _entry_to_result(entry, cover_url=None):
 def _load_pitchfork_reviews():
     response = requests.get(
         PITCHFORK_RSS_URL,
-        headers={"User-Agent": PITCHFORK_USER_AGENT, "Accept": "application/rss+xml, application/xml"},
+        headers={
+            "User-Agent": PITCHFORK_USER_AGENT,
+            "Accept": "application/rss+xml, application/xml",
+        },
         timeout=PITCHFORK_HTTP_TIMEOUT,
     )
     response.raise_for_status()
     parsed_feed = feedparser.parse(response.content)
     if getattr(parsed_feed, "bozo", False):
-        logger.warning("Pitchfork RSS was not valid XML: %s", parsed_feed.bozo_exception)
+        logger.warning(
+            "Pitchfork RSS was not valid XML: %s", parsed_feed.bozo_exception
+        )
         return []
 
     thumbnails = _extract_media_thumbnails(response.content)
@@ -167,7 +204,9 @@ def _load_pitchfork_reviews():
         if not entry.get("title") or not _is_pitchfork_url(source_url):
             continue
         guid = str(entry.get("id") or entry.get("guid") or "").strip()
-        results.append(_entry_to_result(entry, thumbnails.get(guid) or thumbnails.get(source_url)))
+        results.append(
+            _entry_to_result(entry, thumbnails.get(guid) or thumbnails.get(source_url))
+        )
         if len(results) == PITCHFORK_LIMIT:
             break
     return results
@@ -186,7 +225,23 @@ def _safe_article_asset(raw_url, source_url):
 def _sanitize_pitchfork_html(raw_html, source_url):
     soup = BeautifulSoup(raw_html or "", "html.parser")
     for element in soup.find_all(
-        ["base", "button", "embed", "form", "input", "link", "meta", "noscript", "object", "script", "select", "style", "textarea", "template", "iframe"]
+        [
+            "base",
+            "button",
+            "embed",
+            "form",
+            "input",
+            "link",
+            "meta",
+            "noscript",
+            "object",
+            "script",
+            "select",
+            "style",
+            "textarea",
+            "template",
+            "iframe",
+        ]
     ):
         element.decompose()
 
@@ -211,7 +266,8 @@ def _sanitize_pitchfork_html(raw_html, source_url):
             element.attrs = {
                 key: value
                 for key, value in element.attrs.items()
-                if key in {"alt", "colspan", "height", "rowspan", "scope", "title", "width"}
+                if key
+                in {"alt", "colspan", "height", "rowspan", "scope", "title", "width"}
             }
     return "".join(str(child) for child in soup.contents)
 
@@ -248,7 +304,9 @@ def _extract_pitchfork_article(raw_html, source_url):
     )
     images = [
         image["src"]
-        for image in BeautifulSoup(sanitized_html, "html.parser").find_all("img", src=True)
+        for image in BeautifulSoup(sanitized_html, "html.parser").find_all(
+            "img", src=True
+        )
     ]
     return {
         "title": title,
@@ -313,7 +371,9 @@ def editorial_music_article(request):
         response["Cache-Control"] = "no-store"
         return response
     except Exception:
-        logger.warning("Unable to load Pitchfork article: %s", source_url, exc_info=True)
+        logger.warning(
+            "Unable to load Pitchfork article: %s", source_url, exc_info=True
+        )
         return Response(
             {
                 "error": "Не удалось загрузить рецензию Pitchfork",

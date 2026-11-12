@@ -62,16 +62,82 @@ const setArticleCanonical = (sourceUrl: string): (() => void) => {
   };
 };
 
+const removePitchforkMetadata = (document: Document): void => {
+  const metadataPattern = /reader score|no score yet|genre\s*:|label\s*:|release date\s*:/i;
+  const readerScoreValuePattern =
+    /^(reader score|no score yet,?\s*be the first to add\.?|0(?:\.0+)?)$/i;
+
+  document.querySelectorAll('li').forEach((listItem) => {
+    if (metadataPattern.test(listItem.textContent || '')) {
+      listItem.remove();
+    }
+  });
+
+  document
+    .querySelectorAll('p, div, span, strong, em, h1, h2, h3, h4, h5, h6')
+    .forEach((element) => {
+      if (element.children.length > 0) return;
+      const text = element.textContent?.replace(/\s+/g, ' ').trim() || '';
+      if (readerScoreValuePattern.test(text)) element.remove();
+    });
+
+  document.querySelectorAll('ul, ol').forEach((list) => {
+    if (!list.textContent?.trim()) list.remove();
+  });
+};
+
 const renderArticleHtml = (container: HTMLElement, html: string): void => {
   const parsed = new DOMParser().parseFromString(html || '', 'text/html');
   parsed
     .querySelectorAll('script, style, object, embed, form, iframe')
     .forEach((node) => node.remove());
+  parsed.querySelectorAll('figure').forEach((figure) => {
+    if (figure.querySelector('img')) figure.remove();
+  });
+  parsed.querySelectorAll('img').forEach((image) => image.remove());
+  removePitchforkMetadata(parsed);
   const fragment = document.createDocumentFragment();
   Array.from(parsed.body.childNodes).forEach((node) => {
     fragment.appendChild(document.importNode(node, true));
   });
   container.replaceChildren(fragment);
+};
+
+const getEditorialModalVisibleLayers = (layers: Array<HTMLElement | null>): HTMLElement[] =>
+  layers.filter((layer): layer is HTMLElement => Boolean(layer && !layer.hidden));
+
+const setEditorialModalLayersInitialState = (layers: Array<HTMLElement | null>): void => {
+  if (typeof gsap === 'undefined') return;
+  const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  const visibleLayers = getEditorialModalVisibleLayers(layers);
+  if (!visibleLayers.length) return;
+
+  gsap.killTweensOf(visibleLayers);
+  gsap.set(visibleLayers, {
+    autoAlpha: 0,
+    y: isDarkTheme ? 14 : 10,
+    filter: isDarkTheme ? 'blur(8px)' : 'blur(4px)',
+  });
+};
+
+const animateEditorialModalLayersIn = (layers: Array<HTMLElement | null>): void => {
+  if (typeof gsap === 'undefined') return;
+  const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+  const visibleLayers = getEditorialModalVisibleLayers(layers);
+  if (!visibleLayers.length) return;
+
+  setEditorialModalLayersInitialState(visibleLayers);
+
+  gsap.to(visibleLayers, {
+    autoAlpha: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    duration: isDarkTheme ? 0.28 : 0.22,
+    ease: 'power2.out',
+    stagger: isDarkTheme ? 0.2 : 0.18,
+    overwrite: 'auto',
+    clearProps: 'filter',
+  });
 };
 
 const showArticleError = (sourceUrl: string): void => {
@@ -96,25 +162,71 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   if (!sourceUrl || !modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) return;
 
   const title = document.getElementById('editorialArticleModalTitle');
+  const cover = document.getElementById('editorialArticleCover') as HTMLImageElement | null;
+  const artist = document.getElementById('editorialArticleArtist');
+  const albumTitle = document.getElementById('editorialArticleTitle');
   const meta = document.getElementById('editorialArticleMeta');
   const summary = document.getElementById('editorialArticleSummary');
+  const rating = document.getElementById('editorialArticleRating');
   const articleHtml = document.getElementById('editorialArticleHtml');
-  const loading = document.getElementById('editorialArticleLoading');
+  const articleContent = document.getElementById('editorialArticleContent');
+  const articleActions = articleContent?.querySelector<HTMLElement>('.editorial-article__actions');
   const error = document.getElementById('editorialArticleError');
   const original = document.getElementById('editorialArticleOriginal') as HTMLAnchorElement | null;
-  if (!title || !meta || !summary || !articleHtml || !loading || !error || !original) return;
+  if (
+    !title ||
+    !cover ||
+    !artist ||
+    !albumTitle ||
+    !meta ||
+    !summary ||
+    !rating ||
+    !articleHtml ||
+    !error ||
+    !original
+  )
+    return;
 
   const restoreCanonical = setArticleCanonical(sourceUrl);
   modalElement.addEventListener('hidden.bs.modal', restoreCanonical, { once: true });
   title.textContent = item.title || 'Рецензия Pitchfork';
-  meta.textContent = [formatPublishedAt(item.published_at), item.source_name || 'Pitchfork']
-    .filter(Boolean)
-    .join(' · ');
+  albumTitle.textContent = item.release || item.title || 'Без названия';
+  artist.textContent = item.artist || '';
+  artist.toggleAttribute('hidden', !item.artist);
+  if (item.cover_url || item.image_url) {
+    cover.src = item.cover_url || item.image_url || '';
+    cover.alt = item.release || item.title || 'Обложка альбома';
+    cover.removeAttribute('hidden');
+  } else {
+    cover.removeAttribute('src');
+    cover.alt = '';
+    cover.setAttribute('hidden', '');
+  }
+  if (item.rating !== null && item.rating !== undefined && item.rating !== '') {
+    rating.textContent = `Оценка: ${item.rating}`;
+    rating.removeAttribute('hidden');
+  } else {
+    rating.textContent = '';
+    rating.setAttribute('hidden', '');
+  }
+  meta.textContent = formatPublishedAt(item.published_at);
   summary.textContent = item.summary || '';
   original.href = sourceUrl;
   articleHtml.replaceChildren();
   error.setAttribute('hidden', '');
-  loading.removeAttribute('hidden');
+
+  const animationLayers = [
+    title,
+    cover,
+    artist,
+    albumTitle,
+    meta,
+    summary,
+    rating,
+    articleHtml,
+    articleActions || null,
+  ];
+  setEditorialModalLayersInitialState(animationLayers);
 
   const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
   modal.show();
@@ -124,15 +236,13 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
       `${EDITORIAL_ARTICLE_URL}?url=${encodeURIComponent(sourceUrl)}`
     )) as EditorialArticleResponse;
     title.textContent = data.title || item.title || 'Рецензия Pitchfork';
-    meta.textContent = [formatPublishedAt(data.published_at), item.source_name || 'Pitchfork']
-      .filter(Boolean)
-      .join(' · ');
+    meta.textContent = formatPublishedAt(data.published_at);
     original.href = data.source_url || sourceUrl;
     renderArticleHtml(articleHtml, data.html || '');
   } catch {
     showArticleError(sourceUrl);
   } finally {
-    loading.setAttribute('hidden', '');
+    animateEditorialModalLayersIn(animationLayers);
   }
 };
 
@@ -191,17 +301,6 @@ const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
     )
   );
 
-  if (sourceUrl) {
-    const link = document.createElement('a');
-    link.className = 'btn btn-danger rounded-2 align-self-start';
-    link.href = sourceUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = 'Открыть рецензию на Pitchfork';
-    link.addEventListener('click', (event) => event.stopPropagation());
-    body.appendChild(link);
-  }
-
   card.appendChild(body);
   column.appendChild(card);
   return column;
@@ -220,6 +319,7 @@ const renderEditorialMusic = (items: EditorialMusicItem[]): void => {
   const fragment = document.createDocumentFragment();
   items.forEach((item) => fragment.appendChild(createEditorialCard(item)));
   container.appendChild(fragment);
+  document.dispatchEvent(new Event('editorial:rendered'));
 };
 
 const loadEditorialMusic = async (): Promise<void> => {
