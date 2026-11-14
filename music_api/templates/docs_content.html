@@ -1,0 +1,785 @@
+<p><img
+src="https://img.shields.io/github/last-commit/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f"
+alt="GitHub last commit" /> <img
+src="https://img.shields.io/github/repo-size/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f"
+alt="Repository size" /> <img
+src="https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-%23e0115f"
+alt="Platform" /> <img
+src="https://img.shields.io/github/license/MRGiorgiosDev8/musicPlatform_api_django?color=%23e0115f"
+alt="License" /> <img
+src="https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=tests&amp;logo=github&amp;color=%23e0115f"
+alt="Tests" /> <img
+src="https://img.shields.io/github/actions/workflow/status/MRGiorgiosDev8/musicPlatform_api_django/main.yml?label=deploy&amp;logo=github&amp;color=%23e0115f"
+alt="Deploy" /></p>
+<h1 id="musical_note-rubysoundfm">🎵 RubySound.fm</h1>
+<p><strong>RubySound.fm</strong> — полнофункциональный музыкальный
+агрегатор с асинхронной архитектурой на Django + DRF, объединяющий
+данные из Last.fm, TheAudioDB,Deezer и iTunes.</p>
+<p>Проект построен на <strong>ASGI-архитектуре</strong>, поддерживает
+высокую нагрузку за счет параллельных запросов и включает глубокую
+систему взаимодействия с пользователем.</p>
+<ul>
+<li>🔍 <strong>Умный асинхронный поиск</strong>: Мгновенный сбор данных
+из трех внешних источников одновременно (batch-запросы).</li>
+<li>📈 <strong>Интерактивные чарты</strong>: Динамические списки
+популярных артистов/трэков с фильтрацией по жанрам.</li>
+<li>🎧 <strong>Мультимедиа</strong>: Прослушивание превью треков и
+бесшовная подгрузка метаданных.</li>
+<li>🧠 <strong>Автокомплит поиска</strong>: Быстрые подсказки артистов в
+dropdown по мере ввода.</li>
+<li>❤️ <strong>Личная библиотека</strong>: Создание персональных
+плейлистов (Favorites), управление списком избранного и <strong>умная
+фильтрация</strong> (поиск по старым/новым релизам или конкретным
+артистам внутри ваших подборок).</li>
+<li>🌍 <strong>Публичные плейлисты</strong>: Страница пользователя с
+публичным плейлистом и мини-статистикой.</li>
+<li>👍 <strong>Социальные механики</strong>: Лайки публичных плейлистов,
+рейтинг на dashboard, комментарии к публичным плейлистам и уведомления о
+новых лайках.</li>
+<li>🟢 <strong>Presence (Online Status)</strong>: realtime-статус
+пользователя на публичной странице (онлайн/оффлайн) с live-обновлением
+через WebSocket.</li>
+<li>💬 <strong>Realtime комментарии</strong>: Форма комментариев,
+удаление по правам (автор/владелец) и live-синхронизация списка
+комментариев через WebSocket без перезагрузки.</li>
+<li>📚 <strong>Wikipedia API + Artist Bio Modal</strong>: При клике на
+имя артиста открывается модальное окно с биографией артиста (RU/EN
+fallback), фото из Wikipedia и анимациями на GSAP.</li>
+<li>📰 <strong>Рецензии</strong>: Обзоры из Pitchfork с обложками,
+адаптивным модальным окном и полным текстом рецензий.</li>
+<li>💾 <strong>Backup-центр в админке</strong>: <code>superuser</code>
+может создавать, скачивать, восстанавливать и удалять backup-файлы прямо
+из Django admin. Есть автоочистка старых архивов по лимиту
+хранения.</li>
+<li>📱 <strong>Mobile First</strong>: Интерфейс полностью адаптирован
+для использования на смартфонах.</li>
+<li>🌗 <strong>Переключение темы</strong>: Переключатель светлой/тёмной
+темы.</li>
+<li>🔐 <strong>Безопасность</strong>: Регистрация и аутентификация
+пользователей на базе JWT-токенов.</li>
+<li>🛠️ <strong>Django Admin</strong>: Административная панель для
+управления пользователями, плейлистами, комментариями и контентом
+проекта.</li>
+<li>⚡ <strong>Высокая производительность</strong>: Оптимизация запросов
+и кэширование данных через Redis.</li>
+<li>❤️‍🩹 <strong>Healthchecks (Liveness/Readiness)</strong>: Эндпоинты
+<code>/health/live</code> и <code>/health/ready</code> для проверки
+живости сервиса и готовности зависимостей (PostgreSQL, Redis, внешний
+API).</li>
+<li>📊 <strong>Метрики и локальный мониторинг</strong>:
+<code>django-prometheus</code> экспортирует метрики на
+<code>/metrics</code>, Prometheus собирает RPS/latency/5xx/DB-метрики,
+Grafana отображает их в дашборде.</li>
+<li>📈 <strong>Нагрузочное тестирование</strong>:
+<code>k6</code>-сценарий для проверки public endpoints, search, trending
+и auth-путей на локальном Docker Compose-стеке.</li>
+<li>📱 <strong>Progressive Web App (PWA)</strong>: Возможность установки
+сайта как приложения на любое устройство (режим
+<code>standalone</code>).</li>
+<li>🧪 <strong>Тестирование</strong>: Frontend — <strong>109
+passed</strong> (35 TypeScript-файлов, Vitest), Backend — <strong>93
+passed</strong>.</li>
+<li>🧩 <strong>TypeScript + Vite</strong>: Frontend-модули написаны на
+TypeScript, проверяются <code>tsc</code> и ESLint, а затем компилируются
+Vite в production JS-бандлы; Django и Vite watch-сборка запускаются
+одной командой <code>npm run start</code></li>
+<li>🔄 <strong>CI/CD</strong>: Автоматизированное тестирование и деплой
+через GitHub Actions, контейнеризация проекта с Docker</li>
+</ul>
+<hr />
+<ul>
+<li><strong>Live Demo:</strong> 🌍 <a
+href="https://georgios8-rubysoundfm.onrender.com">georgios8-rubysoundfm.onrender.com</a>
+(требуется VPN, так как Render заблокирован в РФ)</li>
+</ul>
+<hr />
+<h2 id="snake-стек-">🐍 Стек <a id="stack"></a></h2>
+<ul>
+<li><strong>Python 3.12</strong></li>
+<li><strong>TypeScript</strong> (основной язык frontend-модулей; типы
+проверяются через <code>tsc</code>)</li>
+<li><strong>Vite</strong> (компиляция TypeScript в JS-бандлы,
+production-сборка, watch-режим и обработка vendor-зависимостей)</li>
+<li><strong>Concurrently</strong> (запуск Django и Vite watch-сборки
+одной командой)</li>
+<li><strong>Django</strong></li>
+<li><strong>Django REST Framework</strong> + <strong>JWT</strong></li>
+<li><strong>Redis</strong> (Кэш и сессии)</li>
+<li><strong>PostgreSQL</strong> (Основная БД)</li>
+<li><strong>Pytest</strong> (Тесты)</li>
+<li><strong>Vitest</strong> (Unit-тесты фронтенда)</li>
+<li><strong>k6</strong> (нагрузочное тестирование)</li>
+<li><strong>WebSocket (Django Channels)</strong>
+(realtime-обновления)</li>
+<li><strong>Prometheus</strong> (сбор RPS, latency, 5xx и DB-метрик
+локально через Docker Compose)</li>
+<li><strong>Grafana</strong> (дашборд для визуализации метрик)</li>
+<li><strong>Docker &amp; Docker Compose</strong></li>
+<li><strong>GitHub Actions</strong> (настроенный CI/CD-пайплайн)</li>
+<li><strong>Uvicorn(ASGI)</strong></li>
+<li><strong>httpx (async)</strong></li>
+<li><strong>WhiteNoise</strong></li>
+<li><strong>Swagger UI (Автодокументация API)</strong></li>
+</ul>
+<hr />
+<h3 id="gear-backend-">⚙️ Backend <a id="backend"></a></h3>
+<p>Backend построен на <strong>Django 5</strong> и работает через
+<strong>ASGI</strong>. Он отвечает за API, серверный рендеринг страниц,
+пользователей, плейлисты, realtime-функции и интеграции с внешними
+музыкальными сервисами.</p>
+<h4 id="основные-компоненты">Основные компоненты</h4>
+<ul>
+<li><code>music_project/</code> — настройки окружения, маршрутизация
+Django/Channels и ASGI-приложение.</li>
+<li><code>music_api/</code> — музыкальный API, модели треков и
+плейлистов, async views, сервисы интеграций и Django Admin.</li>
+<li><code>users/</code> — пользователи, JWT-аутентификация, профили,
+избранное, presence и уведомления.</li>
+<li><strong>Django REST Framework</strong> + <strong>Simple JWT</strong>
+— REST API и авторизация.</li>
+<li><strong>PostgreSQL</strong> — основная база данных; миграции
+находятся в <code>music_api/migrations/</code> и
+<code>users/migrations/</code>.</li>
+<li><strong>Redis</strong> — кэширование и backend для Channels.</li>
+<li><strong>Django Channels + WebSocket</strong> — realtime presence,
+комментарии и уведомления.</li>
+<li><strong>httpx/aiohttp</strong> — асинхронные запросы к Last.fm,
+TheAudioDB, iTunes, Deezer и Wikipedia.</li>
+<li><strong>drf-spectacular</strong> — OpenAPI-документация, Swagger UI
+и ReDoc.</li>
+<li><strong>django-prometheus</strong> — endpoint <code>/metrics</code>
+для локального мониторинга.</li>
+</ul>
+<h4 id="healthchecks-и-служебные-endpoints">Healthchecks и служебные
+endpoints</h4>
+<ul>
+<li><code>GET /health/live</code> — проверка доступности
+приложения.</li>
+<li><code>GET /health/ready</code> — проверка готовности PostgreSQL,
+Redis и внешних зависимостей.</li>
+<li><code>GET /metrics</code> — метрики Django для Prometheus.</li>
+<li><code>/api/docs/</code> и <code>/api/redoc/</code> — интерактивная
+документация API.</li>
+</ul>
+<h4 id="тестирование-backend">Тестирование Backend</h4>
+<p>Backend-тесты находятся в <code>tests/</code> и запускаются через
+<strong>pytest</strong>, включая проверки API, моделей, безопасности,
+внешних интеграций и WebSocket-соединений:</p>
+<hr />
+<h3 id="art-фронтенд-">🎨 Фронтенд <a id="frontend"></a></h3>
+<p>Frontend написан на TypeScript и собирается Vite в обычные JS-бандлы.
+Django не исполняет TypeScript напрямую: в шаблонах подключаются уже
+собранные файлы из <code>static/js/entry/</code>. Перед сборкой код
+проверяется <code>tsc</code> и ESLint.</p>
+<h4 id="технологии">Технологии</h4>
+<ul>
+<li><strong>TypeScript</strong> — основной язык frontend-модулей.</li>
+<li><strong>Vite</strong> — сборка frontend-бандла, watch-режим и
+обработка vendor-зависимостей.</li>
+<li><strong>Bootstrap 5</strong> — сетка и адаптивные компоненты.</li>
+<li><strong>Bootstrap Icons</strong> — иконки.</li>
+<li><strong>GSAP</strong> — анимации и визуальные эффекты.</li>
+<li><strong>WaveSurfer.js</strong> — визуализация и управление
+аудиопревью.</li>
+<li><strong>WebSocket (Django Channels)</strong> — realtime-статус
+пользователей, комментарии и уведомления.</li>
+<li><strong>PWA</strong> — manifest и service worker для установки
+приложения на устройство.</li>
+</ul>
+<h4 id="структура-frontend-кода">Структура frontend-кода</h4>
+<ul>
+<li><code>music_api/templates/</code> — Django-шаблоны страниц и общая
+разметка.</li>
+<li><code>static/css/</code> — глобальные стили, компоненты,
+адаптивность и стили отдельных страниц.</li>
+<li><code>static/js/entry/bootstrap.ts</code> — Vite entry: управляет
+порядком импортов и глобальным контрактом.</li>
+<li><code>static/js/entry/vendor-globals.ts</code> — подключает vendor
+CSS и выставляет глобальные <code>window.gsap</code>,
+<code>window.bootstrap</code>, <code>window.WaveSurfer</code>.</li>
+<li><code>static/js/utils/utils.ts</code> — классический модуль с
+глобальным <code>Utils</code>.</li>
+<li><code>static/service-worker.js</code> — service worker для PWA.</li>
+</ul>
+<h4 id="запуск-frontend-в-разработке">Запуск frontend в разработке</h4>
+<p>Зависимости устанавливаются из <code>package-lock.json</code>:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> ci</span></code></pre></div>
+<p>Для отдельных операций:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build:frontend  <span class="co"># однократная Vite-сборка</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run dev:vite        <span class="co"># Vite dev-сервер</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run typecheck       <span class="co"># проверка типов TypeScript</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run lint:js         <span class="co"># ESLint для JS и TypeScript</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run format          <span class="co"># Prettier</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> vitest run          <span class="co"># Vitest</span></span></code></pre></div>
+<hr />
+<h3 id="closed_lock_with_key-аутентификация-и-безопасность-">🔐
+Аутентификация и безопасность <a id="security"></a></h3>
+<ul>
+<li><strong>JWT-аутентификация</strong> — access- и refresh-токены
+выдаются через <code>POST /api/auth/token/</code> и обновляются через
+<code>POST /api/auth/token/refresh/</code>.</li>
+<li><strong>Отзыв токенов</strong> — доступна blacklist-операция через
+<code>POST /api/auth/token/blacklist/</code>.</li>
+<li><strong>Защищённые API-методы</strong> — по умолчанию REST API
+требует <code>IsAuthenticated</code>; публичные endpoints явно
+используют <code>AllowAny</code>.</li>
+<li><strong>Асинхронная JWT-аутентификация</strong> —
+<code>AsyncJWTAuthentication</code> адаптирует проверку токена для ASGI
+и асинхронных views.</li>
+<li><strong>Разграничение доступа</strong> — операции с профилем,
+избранным и личными плейлистами доступны только владельцу; публичные
+плейлисты и комментарии разделяют публичные и авторизованные
+действия.</li>
+<li><strong>Django Admin</strong> — backup-операции доступны только
+пользователю с правами <code>superuser</code>.</li>
+<li><strong>CSRF-защита</strong> — включён
+<code>CsrfViewMiddleware</code>; production-настройки используют trusted
+origins и secure CSRF cookie.</li>
+<li><strong>Безопасные ошибки API</strong> — единый обработчик
+возвращает клиенту нормализованный формат ошибок и не раскрывает детали
+необработанных исключений.</li>
+</ul>
+<hr />
+<h3 id="whale-docker-">🐳 Docker <a id="docker"></a></h3>
+<ul>
+<li><strong>Контейнеризация проекта</strong> для удобной локальной
+разработки и деплоя</li>
+<li>Используется <strong>Docker Compose</strong> для сборки и запуска
+всех сервисов</li>
+<li>Позволяет избежать проблем с зависимостями и конфигурацией
+окружения</li>
+<li>Поддерживает асинхронную архитектуру проекта без изменений</li>
+<li>Локально через Docker Compose поднимается observability-контур:
+<ul>
+<li><code>Prometheus</code> — <a
+href="http://localhost:9090">http://localhost:9090</a></li>
+<li><code>Grafana</code> — <a
+href="http://localhost:3000">http://localhost:3000</a>, логин по
+умолчанию <code>admin/admin</code></li>
+<li>Django-метрики доступны на <code>/metrics</code> и собираются
+Prometheus с <code>web:8000/metrics</code></li>
+<li>Дашборд <code>RubySound Overview</code> показывает RPS, p95 latency,
+5xx error ratio и DB-метрики</li>
+<li>Важно: этот monitoring stack предназначен для локального Docker
+Compose-окружения; production-деплой на Render не поднимает
+Prometheus/Grafana автоматически</li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="floppy_disk-backup-и-restore-">💾 Backup и Restore
+<a id="backup-restore"></a></h3>
+<p>Для локальной PostgreSQL-базы добавлена простая стратегия резервного
+копирования и восстановления через Docker Compose.</p>
+<h4 id="что-делает-backup">Что делает backup</h4>
+<ul>
+<li>Создает <code>custom dump</code> базы <code>music_platform</code> из
+контейнера <code>postgres</code></li>
+<li>Сохраняет файл в <code>backups/</code> с timestamp в имени</li>
+<li>То же самое доступно из Django admin для <code>superuser</code>
+через backup-центр</li>
+<li>В админке можно посмотреть список backup-файлов, скачать любой
+архив, восстановить базу из выбранного файла и удалить старые
+архивы</li>
+<li>После создания нового backup автоматически применяется автоочистка
+по лимиту <code>BACKUP_KEEP_COUNT</code> (по умолчанию
+<code>10</code>)</li>
+<li>На странице <code>admin/login</code> есть кнопка перехода на главную
+сайта после восстановления базы</li>
+<li>Путь для сохранения можно переопределить через переменную окружения
+<code>BACKUP_DIR</code></li>
+</ul>
+<h4 id="настройки-backup">Настройки backup</h4>
+<ul>
+<li><code>BACKUP_DIR</code> - директория для хранения архивов</li>
+<li><code>BACKUP_KEEP_COUNT</code> - количество последних архивов,
+которые нужно оставлять</li>
+</ul>
+<h4 id="команды">Команды</h4>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> db-backup</span></code></pre></div>
+<p>Файл будет создан примерно в таком виде:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">backups/music_platform_20260528-143000.dump</span></span></code></pre></div>
+<p>Восстановление:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> db-restore FILE=backups/music_platform_20260528-143000.dump</span></code></pre></div>
+<h4 id="backup-из-админки">Backup из админки</h4>
+<ol type="1">
+<li>Откройте Django admin и войдите как <code>superuser</code>.</li>
+<li>Перейдите в backup-центр.</li>
+<li>Нажмите <code>Сделать backup</code>, чтобы создать новый архив.</li>
+<li>Используйте <code>Скачать</code>, <code>Восстановить</code> или
+<code>Удалить</code> для выбранного backup-файла.</li>
+<li>Кнопка <code>Очистить старые</code> удаляет все архивы сверх лимита
+<code>BACKUP_KEEP_COUNT</code>.</li>
+</ol>
+<hr />
+<h3 id="chart_with_upwards_trend-load-testing-k6-">📈 Load Testing (k6)
+<a id="load-testing"></a></h3>
+<p>Для локального нагрузочного тестирования добавлен
+<code>k6</code>-сценарий, который бьет по реальным публичным endpoints
+проекта:</p>
+<ul>
+<li><code>GET /health/live</code></li>
+<li><code>GET /music_api/trending/</code></li>
+<li><code>GET /music_api/search/</code></li>
+<li><code>GET /music_api/search/artists/</code></li>
+<li><code>GET /api/playlists/public/trending/</code></li>
+<li><code>GET /music_api/year-chart/</code></li>
+</ul>
+<p>Если указать <code>LOADTEST_USERNAME</code> и
+<code>LOADTEST_PASSWORD</code>, сценарий дополнительно проверит:</p>
+<ul>
+<li><code>GET /api/users/me/</code></li>
+<li><code>GET /api/playlists/me/</code></li>
+</ul>
+<h4 id="запуск">Запуск</h4>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> k6-load</span></code></pre></div>
+<h4 id="настройка">Настройка</h4>
+<p>Параметры можно менять в <code>docker-compose.k6.yml</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">K6_BASE_URL</span><span class="op">=</span>http://localhost:8000</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="va">PUBLIC_QUERY</span><span class="op">=</span>metallica</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="va">YEAR_GENRE</span><span class="op">=</span>rock</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">TRENDING_LIMIT</span><span class="op">=</span>10</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="va">SEARCH_LIMIT</span><span class="op">=</span>12</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="va">STEADY_SLEEP</span><span class="op">=</span>1</span></code></pre></div>
+<h4 id="результаты-базового-тестирования-производительности">Результаты
+базового тестирования производительности</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Метрика</th>
+<th style="text-align: left;">Значение</th>
+<th style="text-align: left;">Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Общее кол-во запросов
+(RPS)</strong></td>
+<td style="text-align: left;"><code>59.0 req/s</code> (Всего: 5937)</td>
+<td style="text-align: left;">Интенсивность потока запросов к API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Успешность запросов (Success
+Rate)</strong></td>
+<td style="text-align: left;"><code>100.00%</code> (Ошибок:
+<code>0.00%</code>)</td>
+<td style="text-align: left;">Стабильность бэкенда под нагрузкой</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Успешность чеков
+(Checks)</strong></td>
+<td style="text-align: left;"><code>100.00%</code> (5937 из 5937)</td>
+<td style="text-align: left;">Валидация корректности всех ответов (HTTP
+200/201)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Среднее время ответа
+(Avg)</strong></td>
+<td style="text-align: left;"><code>251.92 ms</code></td>
+<td style="text-align: left;">Средняя скорость обработки одного
+запроса</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Медианное время ответа
+(Med)</strong></td>
+<td style="text-align: left;"><code>211.33 ms</code></td>
+<td style="text-align: left;">Типичное время ожидания для большинства
+пользователей</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Пиковое время ответа
+(p95)</strong></td>
+<td style="text-align: left;"><code>544.90 ms</code></td>
+<td style="text-align: left;">Скорость ответа для 95% самых "тяжелых"
+запросов</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Сетевой трафик (Data
+Received)</strong></td>
+<td style="text-align: left;"><code>24 MB</code> (~234 kB/s)</td>
+<td style="text-align: left;">Объем переданных данных от API к
+клиенту</td>
+</tr>
+</tbody>
+</table>
+<h4 id="hammer_and_wrench-анализ-результатов-и-инфраструктура">🛠️ Анализ
+результатов и инфраструктура</h4>
+<ul>
+<li><strong>Надежность:</strong> Бэкенд на Django продемонстрировал 100%
+отказоустойчивость под нагрузкой в 25 VU — во время теста не
+зафиксировано ни одного сбоя
+(<code>http_req_failed = 0.00%</code>).</li>
+<li><strong>Безопасность и Авторизация:</strong> Интеграция
+JWT-авторизации успешно выдержала нагрузочный тест. Процесс генерации и
+верификации токенов для эндпоинтов <code>/api/users/me/</code> и
+<code>/api/playlists/me/</code> не создал критической нагрузки на
+процессор и базу данных PostgreSQL.</li>
+<li><strong>Эффективность кэширования:</strong> Все пороговые значения
+(<code>thresholds</code>) успешно пройдены. Пиковое время ответа для 95%
+запросов составило всего <code>p95 = 544.9 ms</code> (при лимите в
+<code>1500 ms</code>), что подтверждает эффективную работу кэширования
+тяжелых внешних интеграций (Last.fm, iTunes,Deezer) внутри
+<strong>Redis</strong>.</li>
+</ul>
+<hr />
+<h2 id="test_tube-тестирование-">🧪 Тестирование
+<a id="testing"></a></h2>
+<p>Проект использует два уровня тестирования:</p>
+<ul>
+<li><code>pytest</code> для API, моделей и backend-бизнес-логики.</li>
+<li><code>vitest</code> для unit-тестов frontend-модулей
+(<code>static/js</code>).</li>
+</ul>
+<h3 id="инструментарий">Инструментарий</h3>
+<ul>
+<li><strong>pytest-asyncio</strong> — поддержка асинхронных тестов.</li>
+<li><strong>respx</strong> — мокирование внешних API
+(iTunes/Last.fm).</li>
+<li><strong>pytest-cov</strong> — отчеты о покрытии кода.</li>
+<li><strong>Vitest + jsdom</strong> — unit-тесты frontend-логики и
+DOM-сценариев.</li>
+</ul>
+<h3 id="frontend-unit-tests-vitest--typescript">Frontend Unit Tests
+(Vitest + TypeScript)</h3>
+<ul>
+<li>Все unit-тесты фронтенда в <code>tests/js</code> написаны на
+TypeScript.</li>
+<li>Покрыты ключевые модули: <code>favorite-button</code>,
+<code>music_search</code>, <code>playlists</code>,
+<code>public-playlist</code>, <code>artist_wikipedia_modal</code>,
+<code>year2025</code>, <code>trending</code>.</li>
+<li>Проверяются: фильтрация/сортировка/пагинация, кэш/TTL,
+batch-запросы, обработка ошибок API, состояние UI-кнопок.</li>
+<li>Текущий статус: <strong>109 passed</strong> (35
+TypeScript-файлов).</li>
+</ul>
+<h3 id="backend-tests-pytest">Backend Tests (pytest)</h3>
+<ul>
+<li>Покрываются API, модели, авторизация и безопасность, внешние
+интеграции, плейлисты, backup-функциональность и
+WebSocket-сценарии.</li>
+<li>Текущий статус: <strong>93 passed</strong>.</li>
+</ul>
+<h3 id="команды-запуска">Команды запуска</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Окружение</th>
+<th style="text-align: left;">Команда</th>
+<th style="text-align: left;">Среднее время</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Backend в Docker</strong>
+(рекомендуется)</td>
+<td style="text-align: left;"><code>make test</code></td>
+<td style="text-align: left;">зависит от окружения ⚡️</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Backend локально</strong>
+(macOS)</td>
+<td style="text-align: left;"><code>make test-local</code></td>
+<td style="text-align: left;">13.59s</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Frontend Unit</strong></td>
+<td style="text-align: left;"><code>npx vitest run</code></td>
+<td style="text-align: left;">~1-2s ⚡️</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>При локальном запуске убедитесь, что Postgres и Redis запущены через
+<code>brew services</code>.</p>
+</blockquote>
+<hr />
+<h2 id="rocket-деплой-и-cicd-">🚀 Деплой и CI/CD
+<a id="deploy"></a></h2>
+<p>Проект использует современный стек для автоматизации разработки и
+развертывания.</p>
+<ul>
+<li><strong>Live Demo:</strong> <a
+href="https://georgios8-rubysoundfm.onrender.com">georgios8-rubysoundfm.onrender.com</a></li>
+</ul>
+<h3 id="архитектура-в-production"><strong>Архитектура в
+Production</strong></h3>
+<p>В связи с бесплатным тарифом <strong>Render</strong>, конфигурация
+окружения оптимизирована следующим образом:</p>
+<ul>
+<li><strong>База данных:</strong> Используется
+<strong>PostgreSQL</strong> для надежного хранения данных пользователей
+и плейлистов.</li>
+<li><strong>Кэширование:</strong> Используется <strong>Redis
+(Render)</strong> для кэша и Channels.</li>
+<li><strong>Локация:</strong> Сервер расположен во
+<strong>Франкфурте</strong>.</li>
+</ul>
+<blockquote>
+<p><strong>Важно (Render Storage):</strong> Для деплоя используется
+Render с эфемерной файловой системой (Ephemeral File System). При
+перезапуске контейнера или новом деплое локальное хранилище очищается,
+поэтому пользовательские медиа-файлы (например, аватарки) не сохраняются
+на диске сервера.</p>
+</blockquote>
+<hr />
+<h3 id="автоматизация-cicd"><strong>Автоматизация (CI/CD)</strong></h3>
+<p>Процесс обновления проекта полностью автономен:</p>
+<ol type="1">
+<li><strong>Тестирование:</strong> <code>main.yml</code> запускает jobs
+<code>lint</code>, <code>frontend-test</code> и
+<code>backend-test</code> при каждом <em>push</em> и
+<code>pull_request</code>.</li>
+<li><strong>Проверка перед сборкой:</strong> job
+<code>build_and_push</code> запускается только после успешного
+завершения всех трёх jobs тестирования.</li>
+<li><strong>Сборка:</strong> После успешного прохождения тестов job
+<code>build_and_push</code> собирает Docker-образ и отправляет его на
+Docker Hub.</li>
+<li><strong>Авто-деплой:</strong> Отдельный job <code>deploy</code>
+после успешной сборки вызывает Render Deploy Hook.</li>
+<li><strong>Linting</strong>: Контроль качества Python-кода с помощью
+<code>Black</code> и <code>Flake8</code>, а frontend-кода на JavaScript
+и TypeScript — с помощью ESLint и <code>typescript-eslint</code>
+(<code>npm run lint:js</code>). TypeScript-типы дополнительно
+проверяются командой <code>npm run typecheck</code>.</li>
+</ol>
+<hr />
+<h3 id="open_book-api-documentationswagger-ui-">📖 API
+Documentation(Swagger UI) <a id="api-docs"></a></h3>
+<p>Проект предоставляет интерактивную документацию в формате
+<strong>OpenAPI 3.0</strong>, доступную сразу после запуска контейнеров
+через Docker/Uvicorn:</p>
+<ul>
+<li><strong>Swagger UI</strong>: <a
+href="http://localhost:8000/api/docs/">http://localhost:8000/api/docs/</a>
+— для тестирования запросов в реальном времени.</li>
+<li><strong>Redoc</strong>: <a
+href="http://localhost:8000/api/redoc/">http://localhost:8000/api/redoc/</a>
+— для удобного чтения спецификации.</li>
+</ul>
+<h3 id="key-как-авторизоваться-в-swagger">🔑 Как авторизоваться в
+Swagger:</h3>
+<ol type="1">
+<li>Выполните запрос <code>POST /api/auth/token/</code>, передав свой
+<strong>username</strong> и <strong>password</strong>.</li>
+<li>Скопируйте значение <code>access</code> из тела ответа.</li>
+<li>Нажмите кнопку <strong>Authorize</strong> (иконка замка) в верхней
+части страницы Swagger.</li>
+<li>Вставьте токен в поле <strong>Value</strong> для
+<code>jwtAuth</code> и нажмите <strong>Authorize</strong>.</li>
+</ol>
+<hr />
+<h3 id="zap-быстрый-запуск-">⚡ Быстрый запуск
+<a id="quick-start"></a></h3>
+<blockquote>
+<p><strong>Требование:</strong> Для запуска проекта необходим
+установленный <strong>Docker</strong>.</p>
+</blockquote>
+<p><strong>Использование готового образа:</strong></p>
+<ul>
+<li>Вы можете запустить проект одной строкой. Команда скачает
+конфигурацию, поднимет контейнеры, применит миграции и откроет сайт</li>
+</ul>
+<p><strong>Для macOS/Linux (Terminal)</strong></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml <span class="op">&gt;</span> docker-compose.yml <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span> <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sleep</span> 5 <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec web python manage.py makemigrations music_api <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec web python manage.py migrate <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">open</span> http://localhost:8000 <span class="kw">&amp;&amp;</span> <span class="dt">\</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">open</span> http://localhost:3000</span></code></pre></div>
+<p>Для Windows (PowerShell)</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> https://raw.githubusercontent.com/MRGiorgiosDev8/musicPlatform_api_django/main/deploy.yml <span class="at">-o</span> docker-compose.yml ^</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="ex">docker</span> compose up <span class="at">-d</span> ^</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="fu">timeout</span> /t 5 ^</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="ex">docker</span> compose exec web python manage.py makemigrations music_api ^</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="ex">docker</span> compose exec web python manage.py migrate ^</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="ex">start</span> http://localhost:8000 ^</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">&amp;&amp;</span> <span class="ex">start</span> http://localhost:3000</span></code></pre></div>
+<ul>
+<li>Остальной запуск про локальный dev — для тех, кто хочет разбираться
+глубже.</li>
+</ul>
+<hr />
+<h2 id="rocket-запуск-проекта-">🚀 Запуск проекта <a id="run"></a></h2>
+<h3 id="small_blue_diamond-1-клонирование-репозитория">🔹 1.
+Клонирование репозитория</h3>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/MRGiorgiosDev8/musicPlatform_api_django.git</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> musicPlatform_api_django</span></code></pre></div>
+<h3 id="small_blue_diamond-2-создание-и-настройка-env">🔹 2. Создание и
+настройка .env</h3>
+<p>Создайте файл <code>.env</code> в корне проекта на основе
+шаблона:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> .env.example .env</span></code></pre></div>
+<p>Пример содержимого <code>.env.example</code>:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="va">DEBUG</span><span class="op">=</span>1</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Сгенерируйте новый ключ</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="va">SECRET_KEY</span><span class="op">=</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="va">ALLOWED_HOSTS</span><span class="op">=</span><span class="pp">*</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># API-ключ Last.fm</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="va">LASTFM_KEY</span><span class="op">=</span>your_lastfm_api_key_here</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Настройки Redis</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="va">REDIS_PORT</span><span class="op">=</span>6379</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="va">REDIS_DB</span><span class="op">=</span>0</span></code></pre></div>
+<p>Для генерации нового случайного значения SECRET_KEY выполните:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">&quot;from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())&quot;</span></span></code></pre></div>
+<h3 id="key-получение-api-ключей">🔑 Получение API ключей</h3>
+<ul>
+<li>Зарегистрируйтесь на <a
+href="https://www.last.fm/api/account/create">Last.fm API</a> и получите
+персональный API-ключ.</li>
+<li>Вставьте полученный ключ в переменную <code>LASTFM_KEY</code> в
+файле <code>.env</code>.</li>
+</ul>
+<hr />
+<h3 id="-предварительные-требования">🛠 Предварительные требования</h3>
+<p>Для корректной работы проекта в локальной среде (при запуске без
+Docker) должны быть установлены и запущены следующие сервисы:</p>
+<ul>
+<li><strong>PostgreSQL</strong> — основная база данных.</li>
+<li><strong>Redis</strong> — используется для кэширования и сессий.</li>
+<li><strong>Prometheus</strong> — система сбора метрик и
+мониторинга.</li>
+<li><strong>Grafana</strong> — визуализация метрик и аналитические
+дашборды.</li>
+</ul>
+<h4 id="быстрый-запуск-сервисов"><strong>Быстрый запуск
+сервисов:</strong></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">ОС</th>
+<th style="text-align: left;">Команда запуска (Redis + Postgres +
+Prometheus + Grafana)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>macOS</strong></td>
+<td
+style="text-align: left;"><code>brew services start redis &amp;&amp; brew services start postgresql &amp;&amp; brew services start prometheus &amp;&amp; brew services start grafana</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Linux</strong></td>
+<td
+style="text-align: left;"><code>sudo systemctl start redis-server postgresql prometheus grafana-server</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Windows</strong></td>
+<td style="text-align: left;">Запустите сервисы через
+<strong>WSL2</strong> или используйте <strong>Docker</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<ol type="1">
+<li><strong>Создание виртуального окружения:</strong></li>
+</ol>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv venv</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Linux / macOS</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> venv/bin/activate</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">venv\Scripts\activate</span></span></code></pre></div>
+<ol start="2" type="1">
+<li><strong>Установка зависимостей:</strong></li>
+</ol>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt</span></code></pre></div>
+<ol start="3" type="1">
+<li><strong>Сбор статических файлов</strong></li>
+</ol>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py collectstatic <span class="at">--noinput</span></span></code></pre></div>
+<ol start="4" type="1">
+<li><strong>Подготовка и применение миграций к PostgreSQL</strong></li>
+</ol>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py makemigrations</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> manage.py migrate</span></code></pre></div>
+<p>5 <strong>Запуск сервера разработки:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run start</span></code></pre></div>
+<p>⚠️ Проект использует полноценную асинхронную архитектуру (ASGI,
+httpx.AsyncClient, asyncio.gather). Поэтому <strong>не
+рекомендуется</strong> использовать
+<code>python manage.py runserver</code>, так как он работает в
+синхронном режиме и значительно снижает производительность.</p>
+<hr />
+<h3 id="small_blue_diamond-сборка-и-запуск-через-docker">🔹 Сборка и
+запуск через Docker</h3>
+<p><strong>Сборка и запуск контейнеров:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span> <span class="at">--build</span></span></code></pre></div>
+<p><strong>Настройка базы данных:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Применение миграций (создание таблиц в PostgreSQL)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec web python manage.py makemigrations music_api</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec web python manage.py migrate</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Создание администратора</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose exec web python manage.py createsuperuser</span></code></pre></div>
+<hr />
+<h4 id="globe_with_meridians-доступные-сервисы-после-запуска">🌐
+Доступные сервисы после запуска</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Сервис</th>
+<th style="text-align: left;">URL</th>
+<th style="text-align: left;">Доступ / Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Django Web App
+(ASGI)</strong></td>
+<td style="text-align: left;"><a
+href="http://localhost:8000">http://localhost:8000</a></td>
+<td style="text-align: left;">Основное веб-приложение и API</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grafana Dashboard</strong></td>
+<td style="text-align: left;"><a
+href="http://localhost:3000">http://localhost:3000</a></td>
+<td style="text-align: left;"><code>admin</code> / <code>admin</code>
+(Мониторинг)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Prometheus Metrics</strong></td>
+<td style="text-align: left;"><a
+href="http://localhost:9090">http://localhost:9090</a></td>
+<td style="text-align: left;">Сбор метрик приложения</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="link-публичный-доступ-к-проекту-через-туннель">🔗 Публичный
+доступ к проекту через туннель</h4>
+<p>При необходимости могу показать работающее приложение в сети,
+используя SSH-туннель. Запустив его, скину публичный URL, по которому
+можно открыть проект.</p>
+<hr />
+<blockquote>
+<p><strong>Примечание:</strong> Для лучшей работы приложения
+рекомендуется использовать VPN, так как некоторые музыкальные данные
+берутся из источников, заблокированных в РФ.</p>
+</blockquote>
+
