@@ -62,6 +62,7 @@
     <link rel="stylesheet" href="/static/css/pages/profile.css">
     <link rel="stylesheet" href="/static/css/pages/playlists.css">
     <link rel="stylesheet" href="/static/css/pages/editorial_music.css">
+    {% block extra_page_styles %}{% endblock %}
 
 
     <link rel="icon" type="image/x-icon" href="/static/images/musicico.ico">
@@ -86,6 +87,7 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100"
+    {% block body_attributes %}{% endblock %}
     data-is-search-page="{% if request.resolver_match and request.resolver_match.url_name == 'search_page' %}true{% else %}false{% endif %}"
     data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     <header>
@@ -112,11 +114,18 @@
                     {% url 'signup' as signup_url %}
                     {% url 'logout' as logout_url %}
                     {% url 'editorial_music' as editorial_music_url %}
-                    <ul class="navbar-nav gap-1 gap-md-3 premium-nav-shell d-flex w-100">
+                    {% url 'project-docs' as project_docs_url %}
+                    <ul class="navbar-nav gap-1 gap-md-2 premium-nav-shell d-flex w-100">
                         <li class="nav-item me-1">
                             <a class="nav-link premium-nav-link {% if request.path == editorial_music_url %}is-active{% endif %}"
                                 href="{% url 'editorial_music' %}">
                                 Рецензии
+                            </a>
+                        </li>
+                        <li class="nav-item me-1">
+                            <a class="nav-link premium-nav-link {% if request.path == project_docs_url %}is-active{% endif %}"
+                                href="{{ project_docs_url }}">
+                                Документация
                             </a>
                         </li>
                         {% if user.is_authenticated %}

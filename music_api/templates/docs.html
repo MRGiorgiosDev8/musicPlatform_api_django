@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Документация — RubySound.fm{% endblock %}
+
+{% block extra_page_styles %}<link rel="stylesheet" href="{% static 'css/pages/docs.css' %}">{% endblock %}
+
+{% block body_attributes %}data-bs-spy="scroll" data-bs-target="#docsNav" data-bs-offset="120" tabindex="0"{% endblock %}
+
+{% block content %}
+<div class="docs-shell">
+  <div class="container-fluid docs-container">
+    <div class="row g-0">
+      <aside class="docs-sidebar col-lg-3 col-xl-4 offcanvas-lg offcanvas-start" tabindex="-1" id="docsNav" aria-label="Навигация документации">
+        <div class="offcanvas-header d-lg-none"><strong>Разделы</strong><button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#docsNav" aria-label="Закрыть меню"></button></div>
+        <div class="offcanvas-body">
+          <nav class="nav flex-column docs-nav">
+            <a class="nav-link" href="#overview">Overview</a><a class="nav-link" href="#features">Features</a><a class="nav-link" href="#stack">Stack</a><a class="nav-link" href="#backend">Backend</a><a class="nav-link" href="#frontend">Frontend</a><a class="nav-link" href="#security">Security</a><a class="nav-link" href="#docker">Docker</a><a class="nav-link" href="#backup-restore">Backup &amp; Restore</a><a class="nav-link" href="#load-testing">Load Testing</a><a class="nav-link" href="#testing">Testing</a><a class="nav-link" href="#deploy-cicd">Deploy &amp; CI/CD</a><a class="nav-link" href="#api-documentation">API Documentation</a><a class="nav-link" href="#quick-start">Quick Start</a><a class="nav-link" href="#run-project">Run Project</a><a class="nav-link" href="#faq">FAQ</a>
+          </nav>
+        </div>
+      </aside>
+      <main class="docs-main col-lg-9 col-xl-8" id="docsContent">
+        <button class="btn docs-mobile-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#docsNav" aria-controls="docsNav"><i class="bi bi-list me-2"></i>Открыть разделы</button>
+        <header class="docs-hero" id="overview">
+          <span class="docs-kicker">Project handbook · v1</span><h1>RubySound.fm<br><span>built for the next track.</span></h1>
+          <p class="docs-lead">Музыкальная платформа на Django, которая собирает поиск, чарты, плейлисты и realtime-взаимодействия в одном ASGI-приложении.</p>
+          <div class="docs-hero-actions"><a class="btn btn-danger" href="https://georgios8-rubysoundfm.onrender.com" target="_blank" rel="noopener noreferrer"><i class="bi bi-play-circle me-2"></i>Live Demo</a><a class="btn btn-outline-secondary" href="https://github.com/MRGiorgiosDev8/musicPlatform_api_django" target="_blank" rel="noopener noreferrer"><i class="bi bi-github me-2"></i>GitHub</a></div>
+          <div class="docs-stat-row"><span><strong>ASGI</strong> async-first</span><span><strong>REST</strong> OpenAPI</span><span><strong>Realtime</strong> WebSocket</span></div>
+        </header>
+
+        <section class="docs-section" id="features"><span class="section-number">01</span><h2>Features</h2><p>RubySound объединяет быстрый поиск музыки с интерфейсом, который удобно исследовать и на десктопе, и на мобильном устройстве.</p><div class="docs-card-grid"><article><i class="bi bi-search"></i><h3>Smart search</h3><p>Параллельные запросы к Last.fm, TheAudioDB, Deezer и iTunes с автодополнением по артистам.</p></article><article><i class="bi bi-music-note-beamed"></i><h3>Personal library</h3><p>Плейлисты, избранные треки, публичные подборки и превью аудио через WaveSurfer.js.</p></article><article><i class="bi bi-broadcast-pin"></i><h3>Live presence</h3><p>Уведомления, комментарии и статус присутствия работают через Django Channels.</p></article></div></section>
+
+        <section class="docs-section" id="stack"><span class="section-number">02</span><h2>Stack</h2><p>Проект разделён на доменные приложения, shared-шаблоны и frontend-бандл. Инфраструктурные зависимости запускаются рядом с приложением.</p><div class="docs-table-wrap"><table class="table docs-table"><tbody><tr><th>Application</th><td>Django 5 · Django REST Framework · Channels</td></tr><tr><th>Data</th><td>PostgreSQL · Redis · async HTTP clients</td></tr><tr><th>Frontend</th><td>TypeScript · Vite · Bootstrap 5 · GSAP</td></tr><tr><th>Observability</th><td>django-prometheus · Prometheus · Grafana · k6</td></tr></tbody></table></div></section>
+
+        <section class="docs-section" id="backend"><span class="section-number">03</span><h2>Backend</h2><p>Точка входа — <code>music_project</code>: маршрутизация HTTP и WebSocket, настройки окружений и ASGI. Бизнес-логика находится в <code>music_api</code> и <code>users</code>.</p><div class="code-note"><code>music_project/asgi.py</code><span>HTTP + AuthMiddlewareStack + URLRouter</span></div><p>Асинхронные view отправляют независимые запросы провайдерам одновременно, а DRF-сериализаторы формируют стабильный контракт ответа.</p></section>
+
+        <section class="docs-section" id="frontend"><span class="section-number">04</span><h2>Frontend</h2><p>Шаблоны Django отвечают за структуру страниц, а Vite собирает vendor-зависимости и TypeScript в единый entry. Bootstrap задаёт сетку, GSAP — переходы, PWA-слой позволяет установить приложение.</p><div class="docs-pills"><span>TypeScript</span><span>Vite</span><span>Bootstrap 5</span><span>GSAP</span><span>WaveSurfer.js</span><span>PWA</span></div></section>
+
+        <section class="docs-section" id="security"><span class="section-number">05</span><h2>Security</h2><p>Защищённые endpoints используют JWT и права DRF; публичные методы объявлены явно. CSRF, secure-cookie настройки production и единый обработчик ошибок закрывают базовые веб-риски.</p><ul class="docs-checklist"><li>Access/refresh токены и blacklist для отзыва сессий.</li><li>Проверка владельца для профиля, избранного и личных плейлистов.</li><li>Backup-операции в Admin доступны только superuser.</li><li>Секреты и ключи провайдеров приходят из переменных окружения.</li></ul></section>
+
+        <section class="docs-section" id="docker"><span class="section-number">06</span><h2>Docker</h2><p>Compose поднимает web-приложение, PostgreSQL и Redis; отдельный профиль добавляет Prometheus и Grafana. Healthcheck использует <code>/health/live</code>.</p><div class="docs-callout"><i class="bi bi-box-seam"></i><div><strong>Локальный контур</strong><span>Grafana: <code>localhost:3000</code> · Prometheus: <code>localhost:9090</code></span></div></div></section>
+
+        <section class="docs-section" id="backup-restore"><span class="section-number">07</span><h2>Backup &amp; Restore</h2><p>PostgreSQL сохраняется в custom dump с timestamp. Архивами можно управлять через Makefile или backup-центр Django Admin; лимит хранения задаётся <code>BACKUP_KEEP_COUNT</code>.</p><pre><code>make db-backup
+make db-restore FILE=backups/music_platform_YYYYMMDD-HHMMSS.dump</code></pre></section>
+
+        <section class="docs-section" id="load-testing"><span class="section-number">08</span><h2>Load Testing</h2><p>Сценарий k6 проверяет health, поиск, чарты и публичные плейлисты. Для авторизованных сценариев передайте <code>LOADTEST_USERNAME</code> и <code>LOADTEST_PASSWORD</code>.</p><div class="code-note"><code>make k6-load</code><span>docker-compose.k6.yml · steady traffic profile</span></div></section>
+
+        <section class="docs-section" id="testing"><span class="section-number">09</span><h2>Testing</h2><p>Pytest покрывает API, модели, безопасность, интеграции и WebSocket. Frontend проверяется типизацией, ESLint и Vitest.</p><div class="docs-command-grid"><code>pytest</code><code>npm run typecheck</code><code>npm run lint:js</code><code>npm run test:js</code></div></section>
+
+        <section class="docs-section" id="deploy-cicd"><span class="section-number">10</span><h2>Deploy &amp; CI/CD</h2><p>Деплой описан декларативно в <code>deploy.yml</code>. Перед публикацией собираются frontend-ассеты, прогоняются тесты и проверяется health endpoint.</p><div class="docs-timeline"><span><b>01</b> install</span><span><b>02</b> check</span><span><b>03</b> build</span><span><b>04</b> release</span></div></section>
+
+        <section class="docs-section" id="api-documentation"><span class="section-number">11</span><h2>API Documentation</h2><p>Схема OpenAPI генерируется drf-spectacular и доступна в двух представлениях.</p><div class="docs-link-grid"><a href="{% url 'swagger-ui' %}"><i class="bi bi-braces"></i><span><strong>Swagger UI</strong><small>Интерактивный explorer API</small></span><i class="bi bi-arrow-up-right"></i></a><a href="{% url 'redoc' %}"><i class="bi bi-book"></i><span><strong>ReDoc</strong><small>Читаемая reference-документация</small></span><i class="bi bi-arrow-up-right"></i></a></div></section>
+
+        <section class="docs-section" id="quick-start"><span class="section-number">12</span><h2>Quick Start</h2><p>Минимальный путь от клонирования до работающего приложения:</p><ol class="docs-steps"><li><span>01</span><div><strong>Скопируйте окружение</strong><p>Создайте <code>.env</code> и добавьте ключи Last.fm, PostgreSQL и Redis.</p></div></li><li><span>02</span><div><strong>Установите зависимости</strong><p><code>pip install -r requirements.txt</code> и <code>npm ci</code>.</p></div></li><li><span>03</span><div><strong>Запустите сервисы</strong><p><code>docker compose up -d db redis</code>, затем выполните миграции.</p></div></li></ol></section>
+
+        <section class="docs-section" id="run-project"><span class="section-number">13</span><h2>Run Project</h2><p>Для разработки можно запускать Django и Vite параллельно одной командой:</p><pre><code>npm run start
+# app: http://localhost:8000
+# docs: http://localhost:8000/docs/</code></pre><p class="text-muted">Если нужен только backend, используйте <code>python manage.py runserver</code>.</p></section>
+
+        <section class="docs-section docs-faq" id="faq"><span class="section-number">14</span><h2>FAQ</h2><details><summary>Где находится интерактивная API-документация?</summary><p>Swagger UI и ReDoc доступны через ссылки выше, локально — <code>/api/docs/</code> и <code>/api/redoc/</code>.</p></details><details><summary>Почему не загружается поиск?</summary><p>Проверьте ключи музыкальных API, Redis и готовность PostgreSQL через <code>/health/ready</code>.</p></details><details><summary>Как включить тёмную тему?</summary><p>Используйте плавающую кнопку с иконкой луны/солнца в правом нижнем углу. Выбор сохраняется в браузере.</p></details></section>
+
+        <footer class="docs-endnote"><span>RubySound.fm</span><a href="#overview">Вернуться наверх <i class="bi bi-arrow-up"></i></a></footer>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -10,6 +10,30 @@
     margin-top: 11px;
 }
 
+@media (min-width: 992px) {
+    .premium-nav-shell {
+        width: auto !important;
+        flex: 0 1 auto;
+        flex-wrap: nowrap;
+    }
+
+    .premium-nav-shell .nav-item {
+        flex: 0 0 auto;
+    }
+
+    .form-search {
+        flex: 1 1 480px;
+        width: auto !important;
+        min-width: 360px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .form-search {
+        flex-basis: 560px;
+    }
+}
+
 .premium-nav-link::after {
     content: "";
     position: absolute;

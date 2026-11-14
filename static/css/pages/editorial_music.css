@@ -113,6 +113,11 @@
     margin: 0;
 }
 
+.editorial-source-name {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 @media (max-width: 767.98px) {
     .editorial-article__cover {
         width: 100%;

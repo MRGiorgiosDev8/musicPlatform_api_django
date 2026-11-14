@@ -18,9 +18,11 @@ interface EditorialMusicItem {
   category?: string;
 }
 
+
 interface EditorialMusicResponse {
   results?: EditorialMusicItem[];
 }
+
 
 interface EditorialArticleResponse {
   title?: string;
@@ -29,14 +31,17 @@ interface EditorialArticleResponse {
   html?: string;
 }
 
+
 const EDITORIAL_MUSIC_URL = '/music_api/editorial/music/';
 const EDITORIAL_ARTICLE_URL = '/music_api/editorial/article/';
+
 
 const formatPublishedAt = (value: string | undefined): string => {
   if (!value) return '';
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('ru-RU');
 };
+
 
 const createText = (tagName: string, className: string, value: string): HTMLElement => {
   const element = document.createElement(tagName);
@@ -45,6 +50,7 @@ const createText = (tagName: string, className: string, value: string): HTMLElem
   return element;
 };
 
+
 const setArticleCanonical = (sourceUrl: string): (() => void) => {
   const existing = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   const originalHref = existing?.href || null;
@@ -52,6 +58,7 @@ const setArticleCanonical = (sourceUrl: string): (() => void) => {
   canonical.rel = 'canonical';
   canonical.href = sourceUrl;
   if (!existing) document.head.appendChild(canonical);
+
 
   return () => {
     if (existing && originalHref) {
@@ -62,16 +69,19 @@ const setArticleCanonical = (sourceUrl: string): (() => void) => {
   };
 };
 
+
 const removePitchforkMetadata = (document: Document): void => {
   const metadataPattern = /reader score|no score yet|genre\s*:|label\s*:|release date\s*:/i;
   const readerScoreValuePattern =
     /^(reader score|no score yet,?\s*be the first to add\.?|0(?:\.0+)?)$/i;
+
 
   document.querySelectorAll('li').forEach((listItem) => {
     if (metadataPattern.test(listItem.textContent || '')) {
       listItem.remove();
     }
   });
+
 
   document
     .querySelectorAll('p, div, span, strong, em, h1, h2, h3, h4, h5, h6')
@@ -81,10 +91,12 @@ const removePitchforkMetadata = (document: Document): void => {
       if (readerScoreValuePattern.test(text)) element.remove();
     });
 
+
   document.querySelectorAll('ul, ol').forEach((list) => {
     if (!list.textContent?.trim()) list.remove();
   });
 };
+
 
 const renderArticleHtml = (container: HTMLElement, html: string): void => {
   const parsed = new DOMParser().parseFromString(html || '', 'text/html');
@@ -103,14 +115,17 @@ const renderArticleHtml = (container: HTMLElement, html: string): void => {
   container.replaceChildren(fragment);
 };
 
+
 const getEditorialModalVisibleLayers = (layers: Array<HTMLElement | null>): HTMLElement[] =>
   layers.filter((layer): layer is HTMLElement => Boolean(layer && !layer.hidden));
+
 
 const setEditorialModalLayersInitialState = (layers: Array<HTMLElement | null>): void => {
   if (typeof gsap === 'undefined') return;
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
   const visibleLayers = getEditorialModalVisibleLayers(layers);
   if (!visibleLayers.length) return;
+
 
   gsap.killTweensOf(visibleLayers);
   gsap.set(visibleLayers, {
@@ -120,13 +135,16 @@ const setEditorialModalLayersInitialState = (layers: Array<HTMLElement | null>):
   });
 };
 
+
 const animateEditorialModalLayersIn = (layers: Array<HTMLElement | null>): void => {
   if (typeof gsap === 'undefined') return;
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
   const visibleLayers = getEditorialModalVisibleLayers(layers);
   if (!visibleLayers.length) return;
 
+
   setEditorialModalLayersInitialState(visibleLayers);
+
 
   gsap.to(visibleLayers, {
     autoAlpha: 1,
@@ -140,6 +158,7 @@ const animateEditorialModalLayersIn = (layers: Array<HTMLElement | null>): void 
   });
 };
 
+
 const showArticleError = (sourceUrl: string): void => {
   const error = document.getElementById('editorialArticleError');
   if (!error) return;
@@ -147,7 +166,7 @@ const showArticleError = (sourceUrl: string): void => {
   link.href = sourceUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.className = 'alert-link d-block mt-2';
+  link.className = 'alert-link d-block text-center mt-2';
   link.textContent = 'Открыть рецензию на Pitchfork';
   error.replaceChildren(
     document.createTextNode('Не удалось загрузить полный текст рецензии.'),
@@ -156,10 +175,12 @@ const showArticleError = (sourceUrl: string): void => {
   error.removeAttribute('hidden');
 };
 
+
 const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   const sourceUrl = item.source_url || item.url || item.link;
   const modalElement = document.getElementById('editorialArticleModal');
   if (!sourceUrl || !modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) return;
+
 
   const title = document.getElementById('editorialArticleModalTitle');
   const cover = document.getElementById('editorialArticleCover') as HTMLImageElement | null;
@@ -186,6 +207,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
     !original
   )
     return;
+
 
   const restoreCanonical = setArticleCanonical(sourceUrl);
   modalElement.addEventListener('hidden.bs.modal', restoreCanonical, { once: true });
@@ -215,6 +237,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   articleHtml.replaceChildren();
   error.setAttribute('hidden', '');
 
+
   const animationLayers = [
     title,
     cover,
@@ -228,8 +251,10 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   ];
   setEditorialModalLayersInitialState(animationLayers);
 
+
   const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
   modal.show();
+
 
   try {
     const data = (await Utils.fetchData(
@@ -246,10 +271,12 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   }
 };
 
+
 const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
   const column = document.createElement('div');
   column.className = 'col';
   const sourceUrl = item.source_url || item.url || item.link;
+
 
   const card = document.createElement('article');
   card.className = 'card h-100 rounded-sm card-custom';
@@ -262,6 +289,7 @@ const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
       void openEditorialReview(item);
     }
   });
+
 
   const coverUrl = item.cover_url || item.image_url;
   if (coverUrl) {
@@ -282,33 +310,46 @@ const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
     );
   }
 
+
   const body = document.createElement('div');
   body.className = 'card-body d-flex flex-column';
   body.appendChild(createText('h2', 'card-title h5 text-body', item.title || 'Без названия'));
   body.appendChild(createText('p', 'card-text text-body', item.summary || ''));
 
+
   if (item.rating !== null && item.rating !== undefined && item.rating !== '') {
     body.appendChild(createText('small', 'text-muted mb-2', `Оценка: ${item.rating}`));
   }
 
-  body.appendChild(
-    createText(
-      'small',
-      'text-muted mt-auto mb-3',
-      [formatPublishedAt(item.published_at), item.source_name || 'Pitchfork']
-        .filter(Boolean)
-        .join(' · ')
-    )
-  );
+
+  const meta = document.createElement('small');
+  meta.className = 'text-muted mt-auto mb-3';
+
+  const publishedAt = formatPublishedAt(item.published_at);
+  const sourceName = item.source_name || 'Pitchfork';
+
+  if (publishedAt) {
+    meta.append(publishedAt, ' · ');
+  }
+
+  const source = document.createElement('span');
+  source.className = 'editorial-source-name';
+  source.textContent = sourceName;
+  meta.appendChild(source);
+
+  body.appendChild(meta);
+
 
   card.appendChild(body);
   column.appendChild(card);
   return column;
 };
 
+
 const renderEditorialMusic = (items: EditorialMusicItem[]): void => {
   const container = document.getElementById('editorial-music-container');
   if (!container) return;
+
 
   container.replaceChildren();
   if (!items.length) {
@@ -316,15 +357,18 @@ const renderEditorialMusic = (items: EditorialMusicItem[]): void => {
     return;
   }
 
+
   const fragment = document.createDocumentFragment();
   items.forEach((item) => fragment.appendChild(createEditorialCard(item)));
   container.appendChild(fragment);
   document.dispatchEvent(new Event('editorial:rendered'));
 };
 
+
 const loadEditorialMusic = async (): Promise<void> => {
   const spinner = document.getElementById('editorial-music-spinner');
   spinner?.removeAttribute('hidden');
+
 
   try {
     const data = (await Utils.fetchData(EDITORIAL_MUSIC_URL)) as EditorialMusicResponse;
@@ -335,6 +379,7 @@ const loadEditorialMusic = async (): Promise<void> => {
     spinner?.setAttribute('hidden', '');
   }
 };
+
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('editorial-music-container')) {

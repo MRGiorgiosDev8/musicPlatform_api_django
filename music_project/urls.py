@@ -27,6 +27,7 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("docs/", TemplateView.as_view(template_name="docs.html"), name="project-docs"),
     path("music_api/", include("music_api.urls")),
     path(
         "editorial/music/",
