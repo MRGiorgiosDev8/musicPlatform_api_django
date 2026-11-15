@@ -16,6 +16,7 @@
   const sidebar = document.querySelector<HTMLElement>('.docs-sidebar');
   const mobileToggle = document.querySelector<HTMLElement>('.docs-mobile-toggle');
   const floatingToggle = document.querySelector<HTMLElement>('#docsSidebarFloatingToggle');
+  const themeToggle = document.getElementById('themeToggle');
   let preservedScrollY = window.scrollY;
   let pendingScrollY: number | null = null;
 
@@ -30,6 +31,14 @@
   }
 
   if (sidebar) {
+    sidebar.addEventListener('show.bs.offcanvas', () => {
+      themeToggle?.classList.add('docs-theme-hidden');
+      floatingToggle?.classList.add('docs-sidebar-open');
+    });
+    sidebar.addEventListener('hidden.bs.offcanvas', () => {
+      themeToggle?.classList.remove('docs-theme-hidden');
+      floatingToggle?.classList.remove('docs-sidebar-open');
+    });
     sidebar.addEventListener('hide.bs.offcanvas', () => {
       preservedScrollY = pendingScrollY ?? window.scrollY;
     });

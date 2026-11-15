@@ -105,6 +105,9 @@ pre code { color: var(--docs-ink); }
   .docs-sidebar-floating-toggle i { font-size: 1.15rem; font-weight: 900; text-shadow: 0 0 0.5px currentColor; }
   .docs-sidebar-floating-toggle.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
   .docs-sidebar-floating-toggle:hover, .docs-sidebar-floating-toggle:focus-visible { color: var(--color-primary); transform: translateY(0) scale(1); }
+  .docs-sidebar-floating-toggle.docs-sidebar-open { background: #000; color: var(--color-primary); }
+  :root[data-theme="dark"] .docs-sidebar-floating-toggle.docs-sidebar-open { background: var(--docs-surface); color: var(--color-primary); }
+  .theme-toggle-btn.docs-theme-hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 }
 @media (max-width: 640px) {
   .docs-main { padding-left: 1rem !important; padding-right: 1rem !important; }
