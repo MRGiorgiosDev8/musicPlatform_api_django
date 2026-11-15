@@ -2,9 +2,30 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const readme = document.querySelector<HTMLElement>('.readme-content');
   if (!readme) return;
-  const sections = Array.from(readme.querySelectorAll<HTMLElement>('h1, h2, h3, h4'));
+  const resolveHeading = (hash: string): HTMLElement | null => {
+    const anchor = document.querySelector<HTMLElement>(hash);
+    if (!anchor) return null;
+    return anchor.matches('h1, h2, h3, h4')
+      ? anchor
+      : anchor.closest<HTMLElement>('h1, h2, h3, h4') || anchor;
+  };
 
   const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.docs-nav a[href^="#"]'));
+  const sidebar = document.querySelector<HTMLElement>('.docs-sidebar');
+  let preservedScrollY = window.scrollY;
+  let pendingScrollY: number | null = null;
+
+  if (sidebar) {
+    sidebar.addEventListener('hide.bs.offcanvas', () => {
+      preservedScrollY = pendingScrollY ?? window.scrollY;
+    });
+    sidebar.addEventListener('hidden.bs.offcanvas', () => {
+      const targetScrollY = pendingScrollY ?? preservedScrollY;
+      pendingScrollY = null;
+      window.scrollTo({ top: targetScrollY, behavior: 'auto' });
+      window.setTimeout(() => window.scrollTo({ top: targetScrollY, behavior: 'auto' }), 120);
+    });
+  }
 
   if (typeof window.bootstrap !== 'undefined' && window.bootstrap.ScrollSpy) {
     const currentScrollSpy = window.bootstrap.ScrollSpy.getInstance(document.body);
@@ -14,10 +35,22 @@
 
   document.querySelectorAll<HTMLAnchorElement>('.docs-nav a[href^="#"], .docs-endnote a[href^="#"]').forEach((link) => {
     link.addEventListener('click', (event) => {
-      const target = document.querySelector(link.hash);
+      const target = resolveHeading(link.hash);
       if (!target) return;
       event.preventDefault();
-      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 120);
+      const isMobile = window.matchMedia('(max-width: 991.98px)').matches;
+      if (isMobile) {
+        pendingScrollY = top;
+        preservedScrollY = top;
+        if (sidebar && typeof window.bootstrap !== 'undefined' && window.bootstrap.Offcanvas) {
+          window.bootstrap.Offcanvas.getOrCreateInstance(sidebar).hide();
+        } else {
+          window.scrollTo({ top, behavior: 'auto' });
+        }
+      } else {
+        window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
       history.replaceState(null, '', link.hash);
     });
   });
@@ -25,7 +58,7 @@
   // Keep the visual state reliable when anchors are nested inside README headings.
   const syncActiveLink = () => {
     const current = navLinks
-      .map((link) => ({ link, target: document.querySelector<HTMLElement>(link.hash) }))
+      .map((link) => ({ link, target: resolveHeading(link.hash) }))
       .filter((item): item is { link: HTMLAnchorElement; target: HTMLElement } => Boolean(item.target))
       .filter((item) => item.target.getBoundingClientRect().top <= 128)
       .at(-1);
@@ -39,15 +72,10 @@
   syncActiveLink();
   window.addEventListener('scroll', syncActiveLink, { passive: true });
 
-  if (reduceMotion || typeof window.gsap === 'undefined' || !sections.length) return;
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      window.gsap.fromTo(entry.target, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' });
-      observer.unobserve(entry.target);
-    });
-  }, { threshold: 0.12 });
-  sections.forEach((section) => observer.observe(section));
+  if (reduceMotion || typeof window.gsap === 'undefined') return;
+  if (sidebar && window.matchMedia('(min-width: 992px)').matches) {
+    window.gsap.fromTo(sidebar, { autoAlpha: 0, x: -12 }, { autoAlpha: 1, x: 0, duration: 0.55, ease: 'power2.out' });
+  }
 })();
 
 export {};

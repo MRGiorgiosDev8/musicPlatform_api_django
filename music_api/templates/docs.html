@@ -3,11 +3,18 @@
 
 {% block title %}Документация — RubySound.fm{% endblock %}
 {% block extra_page_styles %}<link rel="stylesheet" href="{% static 'css/pages/docs.css' %}">{% endblock %}
+{% block main_class %}docs-page-main{% endblock %}
 {% block body_attributes %}data-bs-spy="scroll" data-bs-target="#docsNav" data-bs-offset="120" tabindex="0"{% endblock %}
 
 {% block content %}
 <div class="docs-shell">
   <div class="container-fluid docs-container">
+    <nav aria-label="breadcrumb" class="docs-breadcrumb mb-4 mt-3 ruby-breadcrumb pre-animation">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Документация</li>
+      </ol>
+    </nav>
     <div class="row g-0">
       <aside class="docs-sidebar col-lg-3 col-xl-4 offcanvas-lg offcanvas-start" tabindex="-1" id="docsNav" aria-label="Навигация документации">
         <div class="offcanvas-header d-lg-none">
@@ -31,7 +38,7 @@
           </nav>
         </div>
       </aside>
-      <main class="docs-main col-lg-9 col-xl-8" id="docsContent">
+      <main class="docs-main col-lg-9 col-xl-8 text-body" id="docsContent">
         <button class="btn docs-mobile-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#docsNav" aria-controls="docsNav">
           <i class="bi bi-list me-2" aria-hidden="true"></i>Открыть разделы
         </button>

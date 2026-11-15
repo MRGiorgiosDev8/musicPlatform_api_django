@@ -4,6 +4,12 @@
 
 {% block content %}
 <section class="container container-wide my-5" aria-labelledby="editorial-music-title">
+  <nav aria-label="breadcrumb" class="mb-5 mt-3 ruby-breadcrumb pre-animation">
+    <ol class="breadcrumb mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Рецензии</li>
+    </ol>
+  </nav>
   <h1 id="editorial-music-title" class="mb-4 text-center popular-h2 pb-2 p-2 visually-hidden">Новости и обзоры</h1>
   <div id="editorial-music-spinner" class="search-loading" hidden></div>
   <div id="editorial-music-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>

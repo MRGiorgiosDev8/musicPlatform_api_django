@@ -14,7 +14,10 @@
 html { scroll-behavior: smooth; }
 body.docs-page { background-image: none; }
 .docs-shell { min-height: 100vh; background: radial-gradient(circle at 75% 4%, rgba(229, 47, 47, .13), transparent 32rem); }
+.docs-page-main { padding-top: 0 !important; }
+.docs-shell, .docs-page-main { overflow-x: hidden; }
 .docs-container { max-width: 1440px; margin: 0 auto; padding-top: 92px; }
+.docs-breadcrumb { margin-left: 4vw; }
 .docs-sidebar { position: sticky; top: 92px; height: calc(100vh - 116px); padding: 28px 20px 40px 4vw; z-index: 2; }
 .docs-sidebar .offcanvas-body { position: relative; display: flex; align-items: flex-start; }
 .docs-sidebar-title { font-size: 1.1rem; }
@@ -81,13 +84,18 @@ pre code { color: var(--docs-ink); }
 .docs-mobile-toggle { margin: 20px 0; border: 1px solid var(--docs-border); color: var(--docs-ink); background: var(--docs-surface); }
 @media (max-width: 991.98px) {
   .docs-container { padding-top: 70px; }
-  .docs-sidebar { width: min(86vw, 320px); background: var(--docs-surface); backdrop-filter: blur(18px); }
+  .docs-sidebar { position: fixed; top: 0; bottom: 0; width: min(86vw, 320px); height: 100vh; z-index: 1045; background: var(--docs-surface); backdrop-filter: blur(18px); }
+  .docs-breadcrumb { margin-top: 0 !important; margin-left: 1rem; padding-top: 28px; }
   .docs-sidebar .offcanvas-body { display: block; }
+  :root[data-theme="dark"] .docs-sidebar .offcanvas-header,
+  :root[data-theme="dark"] .docs-sidebar .offcanvas-header strong { color: #fff; }
+  :root[data-theme="dark"] .docs-sidebar .offcanvas-header .btn-close { filter: invert(1) grayscale(100%) brightness(220%); opacity: 1; }
   .docs-nav { width: auto; }
   .docs-main { margin-top: 0; padding: 0 7vw 80px; }
   .docs-hero { min-height: auto; padding-top: 40px; }
 }
 @media (max-width: 640px) {
+  .docs-main { padding-left: 1rem !important; padding-right: 1rem !important; }
   .docs-hero h1 { font-size: 3.3rem; }
   .docs-card-grid, .docs-link-grid { grid-template-columns: 1fr; }
   .code-note { display: grid; gap: 8px; }
@@ -101,13 +109,16 @@ pre code { color: var(--docs-ink); }
 }
 
 /* README rendered content */
-.readme-content { padding: 2px 0 96px; color: var(--docs-ink); line-height: 1.75; }
-.readme-content h1, .readme-content h2, .readme-content h3, .readme-content h4 { color: var(--docs-ink); scroll-margin-top: 120px; line-height: 1.2; }
+.readme-content { padding: 2px 0 96px; line-height: 1.75; }
+.docs-main.text-body { color: var(--bs-body-color); }
+:root[data-theme="dark"] .docs-main.text-body { color: whitesmoke !important; }
+.readme-content h1, .readme-content h2, .readme-content h3, .readme-content h4 { color: inherit; scroll-margin-top: 120px; line-height: 1.2; }
 .readme-content h1 { font-family: var(--font-heading); font-size: clamp(2.8rem, 6vw, 5.4rem); letter-spacing: -.05em; margin: 0 0 28px; }
+.readme-content h1#musical_note-rubysoundfm { color: var(--docs-accent); }
 .readme-content h2 { font-family: var(--font-heading); font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.04em; margin: 38px 0 14px; padding-top: 8px; }
 .readme-content h3 { font-size: clamp(1.5rem, 3vw, 2.2rem); margin: 28px 0 12px; }
 .readme-content h4 { font-size: 1.2rem; margin: 20px 0 8px; }
-.readme-content p, .readme-content li { color: var(--docs-muted); }
+.readme-content p, .readme-content li { color: inherit; }
 .readme-content ul, .readme-content ol { padding-left: 1.35rem; }
 .readme-content li { margin: 6px 0; }
 .readme-content a { color: var(--docs-accent); }
@@ -121,8 +132,9 @@ pre code { color: var(--docs-ink); }
 .readme-content pre { padding: 18px 20px; overflow-x: auto; margin: 18px 0 26px; }
 .readme-content pre code { color: var(--docs-ink); }
 .readme-content table { width: 100%; margin: 24px 0 32px; border-collapse: collapse; overflow: hidden; background: var(--docs-surface); border: 1px solid var(--docs-border); border-radius: 14px; }
-.readme-content th, .readme-content td { padding: 13px 15px; border: 1px solid var(--docs-border); color: var(--docs-muted); vertical-align: top; }
-.readme-content th { color: var(--docs-ink); font-weight: 700; }
+.readme-content table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+.readme-content th, .readme-content td { padding: 13px 15px; border: 1px solid var(--docs-border); color: inherit; vertical-align: top; }
+.readme-content th { color: inherit; font-weight: 700; }
 .readme-content .sourceCode pre { border: 0; margin: 0; }
 .readme-content > :first-child { margin-top: 0; }
 @media (max-width: 991.98px) {
