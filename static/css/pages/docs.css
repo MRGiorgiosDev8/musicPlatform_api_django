@@ -15,7 +15,6 @@ html { scroll-behavior: smooth; }
 body.docs-page { background-image: none; }
 .docs-shell { min-height: 100vh; background: radial-gradient(circle at 75% 4%, rgba(229, 47, 47, .13), transparent 32rem); }
 .docs-page-main { padding-top: 0 !important; }
-.docs-shell, .docs-page-main { overflow-x: hidden; }
 .docs-container { max-width: 1440px; margin: 0 auto; padding-top: 92px; }
 .docs-breadcrumb { margin-left: 4vw; }
 .docs-sidebar { position: sticky; top: 92px; height: calc(100vh - 116px); padding: 28px 20px 40px 4vw; z-index: 2; background: #000; }
@@ -84,6 +83,7 @@ pre code { color: var(--docs-ink); }
 .docs-endnote a { color: var(--docs-accent); text-decoration: none; }
 .docs-mobile-toggle { display: flex; align-items: center; justify-content: center; width: fit-content; margin: 20px auto; color: var(--color-primary) !important; }
 @media (max-width: 991.98px) {
+  .docs-shell, .docs-page-main { overflow-x: hidden; }
   .docs-container { padding-top: 70px; }
   .docs-sidebar { position: fixed; top: 0; bottom: 0; width: min(86vw, 320px); height: 100vh; z-index: 1045; background: #000; backdrop-filter: blur(18px); }
   :root[data-theme="dark"] .docs-sidebar { background: var(--docs-surface); }
@@ -112,7 +112,7 @@ pre code { color: var(--docs-ink); }
 }
 
 /* README rendered content */
-.readme-content { padding: 2px 0 96px; line-height: 1.75; }
+.readme-content { padding: 2px 0 96px; line-height: 1.75; overflow-x: auto; }
 .docs-main.text-body { color: var(--bs-body-color); }
 :root[data-theme="dark"] .docs-main.text-body { color: whitesmoke !important; }
 .readme-content h1, .readme-content h2, .readme-content h3, .readme-content h4 { color: inherit; scroll-margin-top: 120px; line-height: 1.2; }
@@ -131,12 +131,13 @@ pre code { color: var(--docs-ink); }
 .readme-content hr { display: none; }
 .readme-content blockquote { margin: 24px 0; padding: 14px 20px; border-left: 3px solid var(--docs-accent); background: var(--docs-surface); color: var(--docs-muted); }
 .readme-content code { color: var(--docs-accent); }
-.readme-content pre, .readme-content .sourceCode { background: var(--docs-surface); border: 1px solid var(--docs-border); border-radius: 14px; }
+.readme-content pre, .readme-content .sourceCode { background: var(--docs-surface); border: 0; border-radius: 0; }
 .readme-content pre { padding: 18px 20px; overflow-x: auto; margin: 18px 0 26px; }
 .readme-content pre code { color: var(--docs-ink); }
 .readme-content table { width: 100%; margin: 24px 0 32px; border-collapse: collapse; overflow: hidden; background: var(--docs-surface); border: 1px solid var(--docs-border); border-radius: 14px; }
-.readme-content table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+.readme-content table { display: table; max-width: 100%; overflow: visible; white-space: normal; }
 .readme-content th, .readme-content td { padding: 13px 15px; border: 1px solid var(--docs-border); color: inherit; vertical-align: top; }
+.readme-content th:empty, .readme-content td:empty { display: none; }
 .readme-content th { color: inherit; font-weight: 700; }
 .readme-content .sourceCode pre { border: 0; margin: 0; }
 .readme-content > :first-child { margin-top: 0; }
