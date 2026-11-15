@@ -2,6 +2,13 @@
     display: block;
 }
 
+#editorialArticleModal .modal-content,
+#editorialArticleModal .modal-header,
+#editorialArticleModal .modal-body,
+#editorialArticleModal .modal-footer {
+    border: 0;
+}
+
 #editorialArticleModal .modal-content {
     box-shadow: var(--shadow-ruby-glow);
 }

@@ -14,8 +14,17 @@
     document.querySelectorAll<HTMLAnchorElement>('.docs-nav a[href^="#"]')
   );
   const sidebar = document.querySelector<HTMLElement>('.docs-sidebar');
+  const mobileToggle = document.querySelector<HTMLElement>('.docs-mobile-toggle');
+  const floatingToggle = document.querySelector<HTMLElement>('#docsSidebarFloatingToggle');
   let preservedScrollY = window.scrollY;
   let pendingScrollY: number | null = null;
+
+  if (mobileToggle && floatingToggle && 'IntersectionObserver' in window) {
+    const toggleObserver = new IntersectionObserver(([entry]) => {
+      floatingToggle.classList.toggle('is-visible', !entry.isIntersecting);
+    }, { threshold: 0 });
+    toggleObserver.observe(mobileToggle);
+  }
 
   if (sidebar) {
     sidebar.addEventListener('hide.bs.offcanvas', () => {

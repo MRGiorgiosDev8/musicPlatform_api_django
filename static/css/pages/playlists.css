@@ -695,11 +695,16 @@
     }
 
     .playlist-filter-offcanvas .form-label {
-        color: #fff !important;
+        color: #697386 !important;
     }
 
     .public-filter-offcanvas .form-label {
-        color: #fff !important;
+        color: #697386 !important;
+    }
+
+    :root[data-theme="dark"] .playlist-filter-offcanvas .form-label,
+    :root[data-theme="dark"] .public-filter-offcanvas .form-label {
+        color: #a9b2c7 !important;
     }
 
     .playlist-filter-offcanvas {
