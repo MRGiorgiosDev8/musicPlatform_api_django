@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rubysound-static-v4';
+const CACHE_VERSION = 'rubysound-static-v5';
 const OFFLINE_URL = '/';
 
 // Vendor-ресурсы (bootstrap, gsap, bootstrap-icons) больше не precache-ятся:

@@ -20,9 +20,12 @@
   let pendingScrollY: number | null = null;
 
   if (mobileToggle && floatingToggle && 'IntersectionObserver' in window) {
-    const toggleObserver = new IntersectionObserver(([entry]) => {
-      floatingToggle.classList.toggle('is-visible', !entry.isIntersecting);
-    }, { threshold: 0 });
+    const toggleObserver = new IntersectionObserver(
+      ([entry]) => {
+        floatingToggle.classList.toggle('is-visible', !entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
     toggleObserver.observe(mobileToggle);
   }
 
