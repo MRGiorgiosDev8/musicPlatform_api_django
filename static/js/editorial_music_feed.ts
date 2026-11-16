@@ -1,3 +1,8 @@
+import {
+  getEditorialTranslationKey,
+  translateEditorialRoots,
+} from './features/editorial_translation.ts';
+
 interface EditorialMusicItem {
   id?: string;
   title?: string;
@@ -173,6 +178,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   const articleActions = articleContent?.querySelector<HTMLElement>('.editorial-article__actions');
   const error = document.getElementById('editorialArticleError');
   const original = document.getElementById('editorialArticleOriginal') as HTMLAnchorElement | null;
+  const translationNotice = document.getElementById('editorialArticleTranslationNotice');
   if (
     !title ||
     !cover ||
@@ -214,6 +220,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   original.href = sourceUrl;
   articleHtml.replaceChildren();
   error.setAttribute('hidden', '');
+  translationNotice?.setAttribute('hidden', '');
 
   const animationLayers = [
     title,
@@ -239,6 +246,13 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
     meta.textContent = formatPublishedAt(data.published_at);
     original.href = data.source_url || sourceUrl;
     renderArticleHtml(articleHtml, data.html || '');
+    void translateEditorialRoots(
+      [
+        { root: summary, cacheKey: getEditorialTranslationKey(item) },
+        { root: articleHtml, cacheKey: getEditorialTranslationKey(item) },
+      ],
+      document.getElementById('editorialArticleTranslationNotice')
+    );
   } catch {
     showArticleError(sourceUrl);
   } finally {
@@ -246,7 +260,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   }
 };
 
-const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
+const createEditorialCard = (item: EditorialMusicItem, index: number): HTMLElement => {
   const column = document.createElement('div');
   column.className = 'col';
   const sourceUrl = item.source_url || item.url || item.link;
@@ -284,6 +298,7 @@ const createEditorialCard = (item: EditorialMusicItem): HTMLElement => {
 
   const body = document.createElement('div');
   body.className = 'card-body d-flex flex-column';
+  body.dataset.editorialTranslationKey = getEditorialTranslationKey(item, `card-${index}`);
   body.appendChild(createText('h2', 'card-title h5 text-body', item.title || 'Без названия'));
   body.appendChild(createText('p', 'card-text text-body', item.summary || ''));
 
@@ -318,14 +333,24 @@ const renderEditorialMusic = (items: EditorialMusicItem[]): void => {
   if (!container) return;
 
   container.replaceChildren();
+  document.getElementById('editorialTranslationNotice')?.setAttribute('hidden', '');
   if (!items.length) {
     Utils.renderEmpty('editorial-music-container');
     return;
   }
 
   const fragment = document.createDocumentFragment();
-  items.forEach((item) => fragment.appendChild(createEditorialCard(item)));
+  items.forEach((item, index) => fragment.appendChild(createEditorialCard(item, index)));
   container.appendChild(fragment);
+  const translationNotice = document.getElementById('editorialTranslationNotice');
+  Array.from(container.querySelectorAll<HTMLElement>('[data-editorial-translation-key]')).forEach(
+    (root) => {
+      void translateEditorialRoots(
+        [{ root, cacheKey: root.dataset.editorialTranslationKey || 'unknown' }],
+        translationNotice
+      );
+    }
+  );
   document.dispatchEvent(new Event('editorial:rendered'));
 };
 
