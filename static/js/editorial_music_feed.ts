@@ -37,6 +37,38 @@ interface EditorialArticleResponse {
 const EDITORIAL_MUSIC_URL = '/music_api/editorial/music/';
 const EDITORIAL_ARTICLE_URL = '/music_api/editorial/article/';
 
+const syncEditorialModalTitleMarquee = (): void => {
+  const modalElement = document.getElementById('editorialArticleModal');
+  if (
+    !modalElement ||
+    typeof Utils === 'undefined' ||
+    typeof Utils.syncInfiniteMarquee !== 'function'
+  ) {
+    return;
+  }
+
+  Utils.syncInfiniteMarquee({
+    container: modalElement as unknown as Document,
+    targetSelector: '.editorial-modal-title',
+    trackSelector: '.editorial-modal-title-track',
+    textSelector: '.editorial-modal-title-text',
+    distanceVar: '--editorial-modal-title-marquee-distance',
+    durationVar: '--editorial-modal-title-marquee-duration',
+    gapVar: '--editorial-modal-title-marquee-gap',
+    gap: 18,
+    overflowThreshold: 8,
+    minDuration: 4,
+    maxDuration: 12,
+    speed: 40,
+  });
+};
+
+const setEditorialModalTitle = (titleElement: HTMLElement, value: string): void => {
+  titleElement.querySelector<HTMLElement>('.editorial-modal-title-text')!.textContent = value;
+  titleElement.querySelector<HTMLElement>('.editorial-modal-title-text-clone')!.textContent =
+    value;
+};
+
 const formatPublishedAt = (value: string | undefined): string => {
   if (!value) return '';
   const date = new Date(value);
@@ -195,7 +227,7 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
 
   const restoreCanonical = setArticleCanonical(sourceUrl);
   modalElement.addEventListener('hidden.bs.modal', restoreCanonical, { once: true });
-  title.textContent = item.title || 'Рецензия Pitchfork';
+  setEditorialModalTitle(title, item.title || 'Рецензия Pitchfork');
   albumTitle.textContent = item.release || item.title || 'Без названия';
   artist.textContent = item.artist || '';
   artist.toggleAttribute('hidden', !item.artist);
@@ -236,13 +268,14 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
   setEditorialModalLayersInitialState(animationLayers);
 
   const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+  modalElement.addEventListener('shown.bs.modal', syncEditorialModalTitleMarquee, { once: true });
   modal.show();
 
   try {
     const data = (await Utils.fetchData(
       `${EDITORIAL_ARTICLE_URL}?url=${encodeURIComponent(sourceUrl)}`
     )) as EditorialArticleResponse;
-    title.textContent = data.title || item.title || 'Рецензия Pitchfork';
+    setEditorialModalTitle(title, data.title || item.title || 'Рецензия Pitchfork');
     meta.textContent = formatPublishedAt(data.published_at);
     original.href = data.source_url || sourceUrl;
     renderArticleHtml(articleHtml, data.html || '');
@@ -257,6 +290,8 @@ const openEditorialReview = async (item: EditorialMusicItem): Promise<void> => {
     showArticleError(sourceUrl);
   } finally {
     animateEditorialModalLayersIn(animationLayers);
+    syncEditorialModalTitleMarquee();
+    window.setTimeout(syncEditorialModalTitleMarquee, 120);
   }
 };
 
