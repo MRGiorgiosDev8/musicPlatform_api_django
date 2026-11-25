@@ -81,7 +81,7 @@ pre code { color: var(--docs-ink); }
 .docs-faq details p { color: var(--docs-muted); line-height: 1.7; margin: 14px 0 0; }
 .docs-endnote { display: flex; justify-content: space-between; padding-top: 34px; color: var(--docs-muted); }
 .docs-endnote a { color: var(--docs-accent); text-decoration: none; }
-.docs-mobile-toggle { display: flex; align-items: center; justify-content: center; width: fit-content; margin: 20px auto; color: var(--color-primary) !important; }
+.docs-mobile-toggle { display: flex; align-items: center; justify-content: center; width: fit-content; margin: 20px auto; margin-top: -7px; color: var(--color-primary) !important; }
 .docs-sidebar-floating-toggle { display: none !important; }
 @media (max-width: 991.98px) {
   .docs-shell, .docs-page-main { overflow-x: hidden; }

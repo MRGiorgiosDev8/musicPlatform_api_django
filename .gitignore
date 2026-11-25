@@ -11,3 +11,4 @@ logs/
 backups/
 .continue/
 .junie/
+.idea/*
