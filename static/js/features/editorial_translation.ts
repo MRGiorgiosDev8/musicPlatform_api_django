@@ -82,9 +82,7 @@ const splitIntoBatches = (sources: string[]): string[][] => {
 
   sources.forEach((source) => {
     const sourceBytes = getUtf8ByteLength(source);
-    const nextBytes = current.length
-      ? currentBytes + separatorBytes + sourceBytes
-      : sourceBytes;
+    const nextBytes = current.length ? currentBytes + separatorBytes + sourceBytes : sourceBytes;
 
     if (current.length && nextBytes > MAX_QUERY_BYTES) {
       batches.push(current);
@@ -181,7 +179,14 @@ export const translateEditorialRoots = async (
 };
 
 export const getEditorialTranslationKey = (
-  item: { id?: string; guid?: string; source_url?: string; url?: string; link?: string; title?: string },
+  item: {
+    id?: string;
+    guid?: string;
+    source_url?: string;
+    url?: string;
+    link?: string;
+    title?: string;
+  },
   fallback = 'unknown'
 ): string =>
   item.id || item.guid || item.source_url || item.url || item.link || item.title || fallback;

@@ -65,8 +65,7 @@ const syncEditorialModalTitleMarquee = (): void => {
 
 const setEditorialModalTitle = (titleElement: HTMLElement, value: string): void => {
   titleElement.querySelector<HTMLElement>('.editorial-modal-title-text')!.textContent = value;
-  titleElement.querySelector<HTMLElement>('.editorial-modal-title-text-clone')!.textContent =
-    value;
+  titleElement.querySelector<HTMLElement>('.editorial-modal-title-text-clone')!.textContent = value;
 };
 
 const formatPublishedAt = (value: string | undefined): string => {
