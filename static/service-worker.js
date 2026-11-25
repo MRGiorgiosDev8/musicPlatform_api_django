@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'rubysound-static-v7';
+const CACHE_VERSION = 'rubysound-static-v8';
 const OFFLINE_URL = '/';
 
 // Vendor-ресурсы (bootstrap, gsap, bootstrap-icons) больше не precache-ятся:
@@ -95,15 +95,28 @@ function isCacheFirstCandidate(request) {
     return false;
   }
 
-  if (request.mode === 'navigate') {
-    return true;
-  }
-
   if (url.pathname.startsWith('/static/')) {
     return true;
   }
 
   return false;
+}
+
+async function networkFirstNavigation(request) {
+  try {
+    // HTML contains session-dependent auth state. Never serve a cached
+    // navigation response while online, otherwise a guest snapshot can hide
+    // an authenticated Django session.
+    return await fetch(new Request(request, { cache: 'no-store' }));
+  } catch (error) {
+    // The precached home page is only an offline fallback.
+    const cache = await caches.open(CACHE_VERSION);
+    const offlineFallback = await cache.match(OFFLINE_URL);
+    if (offlineFallback) {
+      return offlineFallback;
+    }
+    throw error;
+  }
 }
 
 async function cacheFirst(request) {
@@ -177,6 +190,11 @@ self.addEventListener('fetch', (event) => {
 
   if (isNetworkOnlyRequest(request)) {
     event.respondWith(fetch(request));
+    return;
+  }
+
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstNavigation(request));
     return;
   }
 
