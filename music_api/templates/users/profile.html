@@ -16,6 +16,13 @@
             <li class="breadcrumb-item active" aria-current="page">Профиль</li>
         </ol>
     </nav>
+    <div class="profile-desktop-heading d-none d-lg-flex align-items-end justify-content-around gap-4">
+        <div>
+            <span class="profile-desktop-kicker text-center">Личный кабинет</span>
+            <h1 class="profile-desktop-title text-center">{{ user.username }}</h1>
+            <p class="profile-desktop-subtitle mb-0">Настройте информацию о себе и параметры аккаунта.</p>
+        </div>
+    </div>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% if form.non_field_errors %}
@@ -243,7 +250,7 @@
                     </section>
 
                     <div class="text-center pt-3">
-                        <button type="submit" class="btn btn-sm fw-normal btn-ruby-profile text-dark">
+                        <button type="submit" class="btn btn-danger fw-normal text-white">
                             <i class="bi bi-check-lg me-1"></i>
                             Сохранить изменения
                         </button>
