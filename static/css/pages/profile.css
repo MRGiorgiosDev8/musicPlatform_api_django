@@ -1237,8 +1237,8 @@ body.public-comment-modal-open {
     }
 
     .public-like-wrap {
-        width: 100%;
-        justify-content: flex-end;
+        width: fit-content;
+        justify-content: flex-start;
     }
 
     #public-comments-root {

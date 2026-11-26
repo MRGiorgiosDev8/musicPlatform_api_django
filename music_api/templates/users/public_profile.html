@@ -35,22 +35,21 @@
                         aria-label="Открыть информацию о пользователе {{ profile_user.username }}">
                         <i class="bi bi-info-circle me-1"></i>Нажмите для подробной информации
                     </div>
-                </div>
-            </div>
 
-            {% if is_public_available %}
-            <div class="d-flex align-items-center gap-2 public-like-wrap" data-public-like-root
-                data-public-username="{{ profile_user.username }}"
-                data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
-                {% if user.is_authenticated and user.username != profile_user.username %}
-                <button type="button" class="btn btn-sm btn-danger mx-3" id="public-playlist-like-btn"
-                    aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
-                    <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
-                    <span class="ms-1">Лайк</span>
-                </button>
-                {% endif %}
-            </div>
-            {% endif %}
+                    {% if is_public_available %}
+                    <div class="d-flex align-items-center gap-2 mt-2 public-like-wrap" data-public-like-root
+                        data-public-username="{{ profile_user.username }}"
+                        data-liked-by-me="{% if liked_by_me %}true{% else %}false{% endif %}">
+                        {% if user.is_authenticated and user.username != profile_user.username %}
+                        <button type="button" class="btn btn-sm btn-danger" id="public-playlist-like-btn"
+                            aria-pressed="{% if liked_by_me %}true{% else %}false{% endif %}">
+                            <i class="bi bi-heart{% if liked_by_me %}-fill{% endif %}"></i>
+                            <span class="ms-1">Лайк</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
         </div>
         <div class="d-flex mt-3 mx-1 public-profile-stats-mobile">
             <span class="badge text-bg-light border d-inline-flex align-items-center gap-2" data-presence-badge
