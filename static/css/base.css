@@ -28,6 +28,25 @@
         0 10px 26px rgba(0, 0, 0, 0.18);
 }
 
+@media (max-width: 767.98px) {
+    /* Mobile browsers use overlay scrollbars, so keep them invisible without
+       disabling scrolling or reserving space beside the content. */
+    :root,
+    body,
+    * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    :root::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+}
+
 :root[data-theme="dark"] {
     color-scheme: dark;
     --color-bg: #151d2b;

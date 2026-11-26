@@ -2,6 +2,13 @@
     display: block;
 }
 
+#editorial-music-container > .alert.alert-danger.alert-log {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    text-align: center;
+}
+
 #editorialArticleModal .modal-content,
 #editorialArticleModal .modal-header,
 #editorialArticleModal .modal-body,
